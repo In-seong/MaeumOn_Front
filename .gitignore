@@ -1,0 +1,72 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage
+*.lcov
+
+# Build
+.turbo
+.nuxt
+.output
+
+# Cache
+.cache
+*.tsbuildinfo
+
+# OS
+Thumbs.db
+
+# Vite
+.vite/
+
+# ESLint/Prettier 캐시
+.eslintcache
+.stylelintcache
+
+# 추가 에디터
+.fleet
+.zed
+*.swp
+*.swo
+
+# 패키지 매니저
+.pnpm-store/
+.yarn/
+
+# E2E 테스트
+playwright-report/
+playwright/.cache/
+cypress/videos/
+cypress/screenshots/
+
+# 기타
+.history/
+*.bak
