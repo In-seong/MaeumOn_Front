@@ -14,7 +14,7 @@
       <select
         v-model="filters.status"
         class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        @change="fetchData"
+        @change="fetchData()"
       >
         <option value="">전체 상태</option>
         <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
@@ -25,14 +25,14 @@
         v-model="filters.date_from"
         type="date"
         class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        @change="fetchData"
+        @change="fetchData()"
       />
       <span class="self-center text-gray-500">~</span>
       <input
         v-model="filters.date_to"
         type="date"
         class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        @change="fetchData"
+        @change="fetchData()"
       />
     </div>
 

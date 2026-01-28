@@ -210,7 +210,10 @@ function handleImagesSelect(event: Event) {
 }
 
 function removeImage(index: number) {
-  URL.revokeObjectURL(imagePreviews.value[index].url)
+  const preview = imagePreviews.value[index]
+  if (preview) {
+    URL.revokeObjectURL(preview.url)
+  }
   imageFiles.value.splice(index, 1)
   imagePreviews.value.splice(index, 1)
 }

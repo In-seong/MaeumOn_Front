@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 
 const router = useRouter()
 const authStore = useAuthStore()
-
-const stats = ref({
-  companies: 0,
-  templates: 0,
-  claims: 0,
-})
 
 async function handleLogout() {
   await authStore.logout()

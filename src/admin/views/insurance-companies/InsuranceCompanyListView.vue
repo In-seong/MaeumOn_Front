@@ -22,7 +22,7 @@
       <select
         v-model="activeFilter"
         class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        @change="fetchData"
+        @change="fetchData()"
       >
         <option value="">전체</option>
         <option value="true">활성화</option>

@@ -20,6 +20,7 @@ export interface User {
   name: string
   email: string
   phone?: string
+  role?: 'admin' | 'user' | 'agent'
   created_at: string
   updated_at: string
 }

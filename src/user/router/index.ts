@@ -49,7 +49,7 @@ const router = createRouter({
 })
 
 // 인증 가드
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const isLoggedIn = localStorage.getItem('userIsLoggedIn') === 'true'
 
   if (to.meta.requiresAuth && !isLoggedIn) {

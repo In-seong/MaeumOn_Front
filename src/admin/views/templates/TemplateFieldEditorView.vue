@@ -428,7 +428,7 @@ const resizeStart = { width: 0, height: 0, x: 0, y: 0 }
 const newField = reactive({
   field_name: '',
   field_label: '',
-  field_type: 'text' as const,
+  field_type: 'text' as 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea',
   is_required: false,
 })
 
@@ -436,7 +436,7 @@ const newField = reactive({
 const editForm = reactive({
   field_name: '',
   field_label: '',
-  field_type: 'text' as const,
+  field_type: 'text' as 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea',
   x_position: 0,
   y_position: 0,
   width: 200,

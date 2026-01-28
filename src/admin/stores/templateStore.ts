@@ -264,7 +264,7 @@ export const useTemplateStore = defineStore('template', () => {
       pages.value = response.data.data
       // 첫 번째 페이지를 기본 선택
       if (pages.value.length > 0 && !currentPage.value) {
-        currentPage.value = pages.value[0]
+        currentPage.value = pages.value[0] ?? null
       }
       return pages.value
     } catch (e: any) {
@@ -319,16 +319,19 @@ export const useTemplateStore = defineStore('template', () => {
       const response = await templatePageApi.uploadImage(templateId, pageId, file)
       const pageIndex = pages.value.findIndex(p => p.id === pageId)
       if (pageIndex !== -1) {
-        pages.value[pageIndex] = {
-          ...pages.value[pageIndex],
-          page_image_path: response.data.data.page_image_path,
-          page_image_url: response.data.data.page_image_url,
-          image_width: response.data.data.image_width,
-          image_height: response.data.data.image_height,
+        const existingPage = pages.value[pageIndex]
+        if (existingPage) {
+          pages.value[pageIndex] = {
+            ...existingPage,
+            page_image_path: response.data.data.page_image_path,
+            page_image_url: response.data.data.page_image_url,
+            image_width: response.data.data.image_width,
+            image_height: response.data.data.image_height,
+          }
         }
       }
       if (currentPage.value?.id === pageId) {
-        currentPage.value = pages.value[pageIndex]
+        currentPage.value = pages.value[pageIndex] ?? null
       }
       return response.data.data
     } catch (e: any) {

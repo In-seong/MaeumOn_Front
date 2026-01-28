@@ -139,7 +139,7 @@ export const useClaimStore = defineStore('userClaim', () => {
   }
 
   // 내 청구 목록 조회
-  async function fetchMyClaims(params?: { status?: string; page?: number }): Promise<void> {
+  async function fetchMyClaims(params?: { status?: string; page?: number; per_page?: number }): Promise<void> {
     loadingClaims.value = true
     error.value = null
     try {

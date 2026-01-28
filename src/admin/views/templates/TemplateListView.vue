@@ -22,7 +22,7 @@
       <select
         v-model="companyFilter"
         class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        @change="fetchData"
+        @change="fetchData()"
       >
         <option value="">전체 보험사</option>
         <option v-for="company in insuranceStore.companies" :key="company.id" :value="company.id">
@@ -32,7 +32,7 @@
       <select
         v-model="activeFilter"
         class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        @change="fetchData"
+        @change="fetchData()"
       >
         <option value="">전체 상태</option>
         <option value="true">활성화</option>
