@@ -5,7 +5,7 @@ import { resolve } from 'path'
 export default mergeConfig(baseConfig, defineConfig({
   root: '.',
   build: {
-    outDir: 'dist/agent',
+    outDir: '../MaeumOn_Back/public/agent',
     emptyOutDir: true,
     rollupOptions: {
       input: resolve(__dirname, 'agent.html')

@@ -2,14 +2,13 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
-export default defineConfig({
-  plugins: [vue()],
-  resolve: {
-    alias: {
-      '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
-      '@user': fileURLToPath(new URL('./src/user', import.meta.url)),
-      '@admin': fileURLToPath(new URL('./src/admin', import.meta.url)),
-      '@agent': fileURLToPath(new URL('./src/agent', import.meta.url)),
+export default mergeConfig(baseConfig, defineConfig({
+  root: '.',
+  build: {
+    outDir: '../MaeumOn_Back/public/user',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: resolve(__dirname, 'user.html')
     }
   },
   server: {
