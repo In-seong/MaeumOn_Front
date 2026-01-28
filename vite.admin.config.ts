@@ -5,7 +5,7 @@ import { resolve } from 'path'
 export default mergeConfig(baseConfig, defineConfig({
   root: '.',
   build: {
-    outDir: 'dist/admin',
+    outDir: '../MaeumOn_Back/public/admin',
     emptyOutDir: true,
     rollupOptions: {
       input: resolve(__dirname, 'admin.html')
