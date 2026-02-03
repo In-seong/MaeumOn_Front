@@ -138,6 +138,64 @@ export interface ClaimFieldValue {
   updated_at: string
 }
 
+// 보험 계약 타입
+export interface InsurancePolicy {
+  id: number
+  company: string
+  name: string
+  premium: string
+  period: string
+  badge?: {
+    label: string
+    variant: string
+  } | null
+}
+
+// 병원 타입
+export interface Hospital {
+  id: number
+  name: string
+  departments: string
+  address: string
+  distance: string
+  status: string
+  statusVariant: string
+  tags: string[]
+}
+
+// 보장 항목 타입
+export interface CoverageItem {
+  name: string
+  status: string
+  variant: string
+  percent: number
+  detail: string
+}
+
+// 앱 알림 타입
+export interface AppNotification {
+  id: number
+  title: string
+  message: string
+  type: 'insurance' | 'health' | 'consultation' | 'marketing'
+  is_read: boolean
+  created_at: string
+}
+
+// 건강검진 타입
+export interface HealthCheckup {
+  id: number
+  date: string
+  provider: string
+  overall_result: string
+  items: {
+    name: string
+    detail: string
+    status: string
+    variant: string
+  }[]
+}
+
 // 필드 타입 옵션
 export const FIELD_TYPE_OPTIONS = [
   { value: 'text', label: '텍스트' },

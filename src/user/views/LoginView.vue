@@ -1,61 +1,36 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/authStore'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-const email = ref('')
-const password = ref('')
-const error = ref('')
-
-const handleLogin = async () => {
-  error.value = ''
-
-  const success = await authStore.login(email.value, password.value)
-
-  if (success) {
-    router.push('/')
-  } else {
-    error.value = authStore.error || '로그인에 실패했습니다.'
-  }
-}
-</script>
-
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-700">
-    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md mx-4">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-purple-600 mb-2">보험ON</h1>
-        <p class="text-gray-500 dark:text-gray-400">간편한 보험 청구 서비스</p>
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex flex-col">
+      <!-- Logo Section -->
+      <div class="flex-1 flex flex-col items-center justify-center pt-16 pb-8">
+        <div class="w-[72px] h-[72px] bg-[#FF7B22] rounded-[20px] flex items-center justify-center mb-5 shadow-[0_4px_16px_rgba(255,123,34,0.3)]">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="white"/>
+          </svg>
+        </div>
+        <h1 class="text-[28px] font-bold text-[#FF7B22] mb-1">마음ON</h1>
+        <p class="text-[14px] text-[#888]">내 보험을 한눈에</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            이메일
-          </label>
-          <input
-            v-model="email"
-            type="email"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="이메일을 입력하세요"
-          />
-        </div>
+      <!-- Form Section -->
+      <div class="px-6 pb-8 flex flex-col gap-3">
+        <FormInput
+          v-model="phone"
+          placeholder="휴대폰 번호 입력"
+          type="tel"
+        />
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            비밀번호
-          </label>
-          <input
-            v-model="password"
-            type="password"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="비밀번호를 입력하세요"
-          />
+        <div class="flex gap-2">
+          <div class="flex-1">
+            <input
+              v-model="authCode"
+              placeholder="인증번호 입력"
+              class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+            />
+          </div>
+          <button class="px-4 py-3.5 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] text-[13px] font-semibold whitespace-nowrap">
+            인증요청
+          </button>
         </div>
 
         <div v-if="error" class="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
@@ -63,28 +38,40 @@ const handleLogin = async () => {
         </div>
 
         <button
-          type="submit"
+          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold mt-2 active:scale-[0.98] transition-transform"
           :disabled="authStore.loading"
-          class="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+          @click="handleLogin"
         >
-          {{ authStore.loading ? '로그인 중...' : '로그인' }}
+          {{ authStore.loading ? '인증 중...' : '인증' }}
         </button>
-      </form>
-
-      <div class="mt-6 text-center">
-        <p class="text-gray-600 dark:text-gray-400">
-          계정이 없으신가요?
-          <router-link to="/register" class="text-purple-600 hover:text-purple-700 font-medium">
-            회원가입
-          </router-link>
-        </p>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <p class="text-center text-sm text-gray-500 dark:text-gray-400">
-          테스트 계정: user@mauemon.com / password
-        </p>
+      <!-- Footer Links -->
+      <div class="px-6 pb-10 flex items-center justify-center gap-4">
+        <button class="text-[12px] text-[#999]">이용약관</button>
+        <span class="text-[#D9D9D9]">|</span>
+        <button class="text-[12px] text-[#999]">개인정보처리방침</button>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
+import FormInput from '@user/components/form/FormInput.vue'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const phone = ref('')
+const authCode = ref('')
+const error = ref('')
+
+function handleLogin(): void {
+  // TODO: 전화번호 인증 API 연동
+  error.value = ''
+  router.push('/pin-login')
+}
+</script>

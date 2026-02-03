@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useClaimStore } from '../../stores/claimStore'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
+import BottomNav from '../../components/layout/BottomNav.vue'
 
 const router = useRouter()
 const claimStore = useClaimStore()
@@ -59,7 +60,7 @@ function createNewClaim() {
 
 <template>
   <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 pb-20">
       <!-- 헤더 -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -228,5 +229,6 @@ function createNewClaim() {
         </div>
       </div>
     </div>
+    <BottomNav />
   </div>
 </template>
