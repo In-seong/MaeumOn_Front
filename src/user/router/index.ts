@@ -16,9 +16,9 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
-      path: '/register',
-      name: 'register',
-      component: () => import('../views/RegisterView.vue'),
+      path: '/pin-login',
+      name: 'pin-login',
+      component: () => import('../views/account/PinLoginView.vue'),
     },
     // 청구서 관련 라우트
     {
@@ -45,6 +45,76 @@ const router = createRouter({
       component: () => import('../views/claims/ClaimDetailView.vue'),
       meta: { requiresAuth: true },
     },
+    // 보험 관련 라우트
+    {
+      path: '/insurance',
+      name: 'insurance-list',
+      component: () => import('../views/insurance/InsuranceListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/insurance/:id',
+      name: 'insurance-detail',
+      component: () => import('../views/insurance/InsuranceDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/coverage-analysis',
+      name: 'coverage-analysis',
+      component: () => import('../views/insurance/CoverageAnalysisView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/unclaimed',
+      name: 'unclaimed',
+      component: () => import('../views/insurance/UnclaimedView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 병원 관련 라우트
+    {
+      path: '/hospital',
+      name: 'hospital-list',
+      component: () => import('../views/hospital/HospitalListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/hospital/:id',
+      name: 'hospital-detail',
+      component: () => import('../views/hospital/HospitalDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/reservation',
+      name: 'reservation',
+      component: () => import('../views/hospital/ReservationView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 건강 관련 라우트
+    {
+      path: '/health-checkup',
+      name: 'health-checkup',
+      component: () => import('../views/health/HealthCheckupView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 마이페이지 관련 라우트
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: () => import('../views/account/MyPageView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('../views/account/NotificationsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/consultation',
+      name: 'consultation',
+      component: () => import('../views/account/ConsultationView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
@@ -54,7 +124,7 @@ router.beforeEach((to, _from, next) => {
 
   if (to.meta.requiresAuth && !isLoggedIn) {
     next({ name: 'login' })
-  } else if ((to.name === 'login' || to.name === 'register') && isLoggedIn) {
+  } else if (to.name === 'login' && isLoggedIn) {
     next({ name: 'home' })
   } else {
     next()
