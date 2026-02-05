@@ -1,8 +1,200 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+      <BackHeader title="청구 상세" />
+      <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
+        <!-- 로딩 -->
+        <div v-if="claimStore.loadingClaims" class="flex items-center justify-center py-20">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+        </div>
+
+        <!-- 청구 상세 -->
+        <div v-else-if="claimStore.currentClaim">
+          <!-- 기본 정보 -->
+          <CardSection class="mb-4">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <span class="text-[13px] text-[#888]">
+                  {{ claimStore.currentClaim.claim_form_template?.insurance_company?.name }}
+                </span>
+                <p class="text-[18px] font-bold text-[#222] mt-0.5">
+                  {{ claimStore.currentClaim.claim_form_template?.name }}
+                </p>
+              </div>
+              <StatusBadge
+                :label="getStatusLabel(claimStore.currentClaim.status)"
+                :variant="getStatusVariant(claimStore.currentClaim.status)"
+              />
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[13px] text-[#888]">청구번호</span>
+              <span class="text-[14px] font-bold text-[#FF7B22]">#{{ claimStore.currentClaim.id }}</span>
+            </div>
+          </CardSection>
+
+          <!-- 청구 정보 -->
+          <div class="mb-4">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">청구 정보</p>
+            <CardSection>
+              <InfoRow label="청구일" :value="formatDate(claimStore.currentClaim.created_at)" />
+              <InfoRow label="팩스 상태" :value="getFaxStatusLabel(claimStore.currentClaim.fax_status)" />
+              <InfoRow
+                v-if="claimStore.currentClaim.fax_sent_at"
+                label="팩스 발송일"
+                :value="formatDate(claimStore.currentClaim.fax_sent_at)"
+              />
+            </CardSection>
+          </div>
+
+          <!-- 입력 정보 -->
+          <div class="mb-4">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">입력 정보</p>
+            <CardSection>
+              <InfoRow
+                v-for="fieldValue in claimStore.currentClaim.field_values"
+                :key="fieldValue.id"
+                :label="fieldValue.template_field?.field_label || ''"
+                :value="fieldValue.field_value || '-'"
+              />
+            </CardSection>
+          </div>
+
+          <!-- 생성된 청구서 -->
+          <div class="mb-4">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">생성된 청구서</p>
+            <CardSection>
+              <!-- 이미지 미리보기 -->
+              <div v-if="claimStore.currentClaim.generated_image_url" class="mb-4">
+                <img
+                  :src="claimStore.currentClaim.generated_image_url"
+                  alt="청구서"
+                  class="w-full h-auto rounded-[8px] border border-[#E8E8E8]"
+                />
+              </div>
+              <p v-else class="text-[13px] text-[#999] text-center py-6">
+                생성된 청구서가 없습니다.
+              </p>
+            </CardSection>
+          </div>
+
+          <!-- 비고 -->
+          <CardSection v-if="claimStore.currentClaim.notes" class="mb-4 !bg-[#FFF9F0]">
+            <div class="flex items-start gap-2">
+              <svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#F3940E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <p class="text-[13px] font-semibold text-[#F3940E] mb-0.5">비고</p>
+                <p class="text-[12px] text-[#888] leading-relaxed">{{ claimStore.currentClaim.notes }}</p>
+              </div>
+            </div>
+          </CardSection>
+
+          <!-- 액션 버튼 -->
+          <div class="flex flex-col gap-3 mb-6">
+            <div class="flex gap-3">
+              <button
+                v-if="claimStore.currentClaim.generated_image_url"
+                @click="downloadImage"
+                class="flex-1 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                이미지
+              </button>
+              <button
+                v-if="claimStore.currentClaim.generated_pdf_url"
+                @click="downloadPdf"
+                class="flex-1 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                PDF
+              </button>
+            </div>
+            <button
+              v-if="claimStore.currentClaim.fax_status !== 'sent'"
+              @click="showFaxModal = true"
+              class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            >
+              팩스 발송
+            </button>
+          </div>
+        </div>
+
+        <!-- 청구 없음 -->
+        <div v-else class="text-center py-20">
+          <p class="text-[15px] text-[#888]">청구 정보를 찾을 수 없습니다.</p>
+          <button
+            @click="goBack"
+            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
+          >
+            목록으로 돌아가기
+          </button>
+        </div>
+      </main>
+      <BottomNav />
+    </div>
+
+    <!-- 팩스 발송 모달 -->
+    <div
+      v-if="showFaxModal"
+      class="fixed inset-0 bg-black/50 flex items-end justify-center z-50"
+      @click.self="showFaxModal = false"
+    >
+      <div class="w-full max-w-[402px] bg-white rounded-t-[20px] p-5 pb-8">
+        <div class="w-10 h-1 bg-[#E0E0E0] rounded-full mx-auto mb-5"></div>
+        <h3 class="text-[18px] font-bold text-[#222] mb-5">팩스 발송</h3>
+
+        <div class="mb-5">
+          <label class="block text-[13px] font-medium text-[#888] mb-2">팩스 번호</label>
+          <input
+            v-model="faxNumber"
+            type="tel"
+            placeholder="02-1234-5678"
+            class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+          />
+          <p class="mt-2 text-[11px] text-[#999]">
+            보험사 기본 팩스번호가 입력되어 있습니다. 변경 가능합니다.
+          </p>
+        </div>
+
+        <div v-if="claimStore.error" class="mb-4 p-3 bg-[#FFE5E5] rounded-[8px] text-[13px] text-[#FF0000]">
+          {{ claimStore.error }}
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            @click="showFaxModal = false"
+            class="flex-1 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+          >
+            취소
+          </button>
+          <button
+            @click="handleSendFax"
+            :disabled="sendingFax"
+            class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
+          >
+            {{ sendingFax ? '발송 중...' : '발송하기' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useClaimStore } from '../../stores/claimStore'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
+import BackHeader from '@user/components/layout/BackHeader.vue'
+import BottomNav from '../../components/layout/BottomNav.vue'
+import CardSection from '@user/components/ui/CardSection.vue'
+import InfoRow from '@user/components/ui/InfoRow.vue'
+import StatusBadge from '@user/components/ui/StatusBadge.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -16,19 +208,18 @@ const sendingFax = ref(false)
 onMounted(async () => {
   await claimStore.fetchClaimDetail(claimId.value)
 
-  // 보험사 기본 팩스번호 설정
   if (claimStore.currentClaim?.claim_form_template?.insurance_company?.fax_number) {
     faxNumber.value = claimStore.currentClaim.claim_form_template.insurance_company.fax_number
   }
 })
 
-function getStatusClass(status: string) {
+function getStatusVariant(status: string): 'success' | 'warning' | 'danger' | 'primary' | 'info' | 'default' {
   switch (status) {
-    case 'pending': return 'bg-yellow-100 text-yellow-800'
-    case 'processing': return 'bg-blue-100 text-blue-800'
-    case 'completed': return 'bg-green-100 text-green-800'
-    case 'rejected': return 'bg-red-100 text-red-800'
-    default: return 'bg-gray-100 text-gray-800'
+    case 'pending': return 'warning'
+    case 'processing': return 'info'
+    case 'completed': return 'success'
+    case 'rejected': return 'danger'
+    default: return 'default'
   }
 }
 
@@ -84,198 +275,3 @@ function goBack() {
   router.push('/claims')
 }
 </script>
-
-<template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-    <div class="container mx-auto px-4 py-8">
-      <!-- 헤더 -->
-      <div class="mb-6">
-        <button @click="goBack" class="text-purple-600 hover:text-purple-700 flex items-center">
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          목록으로
-        </button>
-      </div>
-
-      <!-- 로딩 -->
-      <div v-if="claimStore.loadingClaims" class="text-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-      </div>
-
-      <!-- 청구 상세 -->
-      <div v-else-if="claimStore.currentClaim" class="space-y-6">
-        <!-- 기본 정보 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-                {{ claimStore.currentClaim.claim_form_template?.insurance_company?.name }}
-              </h1>
-              <p class="text-gray-500 dark:text-gray-400">
-                {{ claimStore.currentClaim.claim_form_template?.name }}
-              </p>
-            </div>
-            <span :class="['px-3 py-1 text-sm font-medium rounded', getStatusClass(claimStore.currentClaim.status)]">
-              {{ getStatusLabel(claimStore.currentClaim.status) }}
-            </span>
-          </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <div class="text-gray-500 dark:text-gray-400">청구번호</div>
-              <div class="font-medium text-gray-900 dark:text-white">#{{ claimStore.currentClaim.id }}</div>
-            </div>
-            <div>
-              <div class="text-gray-500 dark:text-gray-400">청구일</div>
-              <div class="font-medium text-gray-900 dark:text-white">{{ formatDate(claimStore.currentClaim.created_at) }}</div>
-            </div>
-            <div>
-              <div class="text-gray-500 dark:text-gray-400">팩스 상태</div>
-              <div class="font-medium text-gray-900 dark:text-white">{{ getFaxStatusLabel(claimStore.currentClaim.fax_status) }}</div>
-            </div>
-            <div v-if="claimStore.currentClaim.fax_sent_at">
-              <div class="text-gray-500 dark:text-gray-400">팩스 발송일</div>
-              <div class="font-medium text-gray-900 dark:text-white">{{ formatDate(claimStore.currentClaim.fax_sent_at) }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 입력 정보 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">입력 정보</h2>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div
-              v-for="fieldValue in claimStore.currentClaim.field_values"
-              :key="fieldValue.id"
-              class="border-b border-gray-200 dark:border-gray-700 pb-3"
-            >
-              <div class="text-sm text-gray-500 dark:text-gray-400">
-                {{ fieldValue.template_field?.field_label }}
-              </div>
-              <div class="font-medium text-gray-900 dark:text-white">
-                {{ fieldValue.field_value || '-' }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 생성된 문서 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">생성된 청구서</h2>
-
-          <!-- 이미지 미리보기 -->
-          <div v-if="claimStore.currentClaim.generated_image_url" class="mb-4">
-            <img
-              :src="claimStore.currentClaim.generated_image_url"
-              alt="청구서"
-              class="max-w-full h-auto border rounded"
-            />
-          </div>
-
-          <!-- 다운로드/발송 버튼 -->
-          <div class="flex flex-wrap gap-3">
-            <button
-              v-if="claimStore.currentClaim.generated_image_url"
-              @click="downloadImage"
-              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center"
-            >
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              이미지 다운로드
-            </button>
-
-            <button
-              v-if="claimStore.currentClaim.generated_pdf_url"
-              @click="downloadPdf"
-              class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center"
-            >
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              PDF 다운로드
-            </button>
-
-            <button
-              v-if="claimStore.currentClaim.fax_status !== 'sent'"
-              @click="showFaxModal = true"
-              class="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors flex items-center"
-            >
-              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-              팩스 발송
-            </button>
-          </div>
-        </div>
-
-        <!-- 비고 -->
-        <div v-if="claimStore.currentClaim.notes" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">비고</h2>
-          <p class="text-gray-600 dark:text-gray-400">{{ claimStore.currentClaim.notes }}</p>
-        </div>
-      </div>
-
-      <!-- 청구 없음 -->
-      <div v-else class="text-center py-20">
-        <p class="text-gray-500">청구 정보를 찾을 수 없습니다.</p>
-        <button
-          @click="goBack"
-          class="mt-4 px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
-        >
-          목록으로 돌아가기
-        </button>
-      </div>
-    </div>
-
-    <!-- 팩스 발송 모달 -->
-    <div
-      v-if="showFaxModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click.self="showFaxModal = false"
-    >
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          팩스 발송
-        </h3>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            팩스 번호
-          </label>
-          <input
-            v-model="faxNumber"
-            type="tel"
-            placeholder="02-1234-5678"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <p class="mt-1 text-sm text-gray-500">
-            보험사 기본 팩스번호가 입력되어 있습니다. 변경 가능합니다.
-          </p>
-        </div>
-
-        <div v-if="claimStore.error" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-          {{ claimStore.error }}
-        </div>
-
-        <div class="flex gap-3">
-          <button
-            @click="showFaxModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            취소
-          </button>
-          <button
-            @click="handleSendFax"
-            :disabled="sendingFax"
-            class="flex-1 px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-gray-300"
-          >
-            {{ sendingFax ? '발송 중...' : '발송하기' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>

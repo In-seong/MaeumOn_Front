@@ -6,7 +6,9 @@
       class="flex-1 flex flex-col items-center justify-center gap-2"
       @click="item.to && router.push(item.to)"
     >
-      <component :is="item.icon" v-bind="item.props || {}" />
+      <div class="quick-menu-icon">
+        <component :is="item.icon" v-bind="item.props || {}" />
+      </div>
       <span class="text-[11px] font-normal text-black">{{ item.label }}</span>
     </button>
   </div>
@@ -36,3 +38,9 @@ const menuItems: MenuItem[] = [
   { icon: markRaw(PlusIcon), label: '부가서비스', to: '/insurance' }
 ]
 </script>
+
+<style scoped>
+.quick-menu-icon :deep(img) {
+  filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(1225%) hue-rotate(360deg) brightness(101%) contrast(101%);
+}
+</style>

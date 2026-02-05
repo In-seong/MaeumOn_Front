@@ -1,8 +1,10 @@
 <template>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M16.2632 8.5C16.0795 10.9783 14.2007 13 12.1382 13C10.0757 13 8.19369 10.9788 8.01322 8.5C7.82572 5.92188 9.65385 4 12.1382 4C14.6226 4 16.4507 5.96875 16.2632 8.5Z" :stroke="active ? '#FF7B22' : '#B0B0B0'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M11.9998 13C7.9218 13 3.7829 15.7 3.01699 20.7963C2.92465 21.4105 3.21432 22 3.75008 22H20.2494C20.7857 22 21.0754 21.4105 20.983 20.7963C20.2166 15.7 16.0777 13 11.9998 13Z" :stroke="active ? '#FF7B22' : '#B0B0B0'" stroke-width="2" stroke-miterlimit="10"/>
-  </svg>
+  <img
+    src="/icons/MyPageIcon.svg"
+    alt="마이"
+    class="w-[24px] h-[24px]"
+    :class="{ 'icon-active': active }"
+  />
 </template>
 
 <script setup lang="ts">
@@ -14,3 +16,9 @@ withDefaults(defineProps<Props>(), {
   active: false
 })
 </script>
+
+<style scoped>
+.icon-active {
+  filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(1225%) hue-rotate(360deg) brightness(101%) contrast(101%);
+}
+</style>

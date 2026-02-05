@@ -3,12 +3,8 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex flex-col">
       <!-- Logo Section -->
       <div class="flex-1 flex flex-col items-center justify-center pt-16 pb-8">
-        <div class="w-[72px] h-[72px] bg-[#FF7B22] rounded-[20px] flex items-center justify-center mb-5 shadow-[0_4px_16px_rgba(255,123,34,0.3)]">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="white"/>
-          </svg>
-        </div>
-        <h1 class="text-[28px] font-bold text-[#FF7B22] mb-1">마음ON</h1>
+        <img src="/icons/LogoIcon.svg" alt="보험청구ON" class="w-[72px] h-[72px] mb-5" />
+        <h1 class="text-[28px] font-bold text-[#FF7B22] mb-1">보험청구ON</h1>
         <p class="text-[14px] text-[#888]">내 보험을 한눈에</p>
       </div>
 
