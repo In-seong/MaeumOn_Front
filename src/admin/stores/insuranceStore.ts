@@ -66,11 +66,11 @@ export const useInsuranceStore = defineStore('insurance', () => {
 
     try {
       const response = await insuranceCompanyApi.update(id, data)
-      const index = companies.value.findIndex(c => c.id === id)
+      const index = companies.value.findIndex(c => c.company_id === id)
       if (index !== -1) {
         companies.value[index] = response.data.data
       }
-      if (currentCompany.value?.id === id) {
+      if (currentCompany.value?.company_id === id) {
         currentCompany.value = response.data.data
       }
       return response.data.data
@@ -88,8 +88,8 @@ export const useInsuranceStore = defineStore('insurance', () => {
 
     try {
       await insuranceCompanyApi.delete(id)
-      companies.value = companies.value.filter(c => c.id !== id)
-      if (currentCompany.value?.id === id) {
+      companies.value = companies.value.filter(c => c.company_id !== id)
+      if (currentCompany.value?.company_id === id) {
         currentCompany.value = null
       }
     } catch (e: any) {

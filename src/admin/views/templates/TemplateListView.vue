@@ -1,37 +1,37 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">양식 템플릿 관리</h1>
+      <h1 class="text-[22px] font-bold text-[#333]">양식 템플릿 관리</h1>
       <router-link
         to="/templates/create"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
       >
         양식 등록
       </router-link>
     </div>
 
     <!-- 검색 및 필터 -->
-    <div class="mb-4 flex gap-4">
+    <div class="mb-4 flex gap-3">
       <input
         v-model="searchQuery"
         type="text"
         placeholder="양식명으로 검색"
-        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="flex-1 px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
         @input="debouncedSearch"
       />
       <select
         v-model="companyFilter"
-        class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
       >
         <option value="">전체 보험사</option>
-        <option v-for="company in insuranceStore.companies" :key="company.id" :value="company.id">
-          {{ company.name }}
+        <option v-for="company in insuranceStore.companies" :key="company.company_id" :value="company.company_id">
+          {{ company.company_name }}
         </option>
       </select>
       <select
         v-model="activeFilter"
-        class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
       >
         <option value="">전체 상태</option>
@@ -42,12 +42,12 @@
 
     <!-- 로딩 상태 -->
     <div v-if="store.loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
-      <p class="mt-2 text-gray-600 dark:text-gray-400">로딩 중...</p>
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
+      <p class="mt-2 text-[14px] text-[#999]">로딩 중...</p>
     </div>
 
     <!-- 에러 상태 -->
-    <div v-else-if="store.error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    <div v-else-if="store.error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-[12px] text-[14px]">
       {{ store.error }}
     </div>
 
@@ -55,72 +55,72 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
         v-for="template in store.templates"
-        :key="template.id"
-        class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden"
+        :key="template.claim_form_id"
+        class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden"
       >
         <!-- 썸네일 -->
-        <div class="h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+        <div class="h-40 bg-[#FAFAFA] flex items-center justify-center overflow-hidden">
           <img
             v-if="template.template_image_url"
             :src="template.template_image_url"
-            :alt="template.name"
+            :alt="template.form_name"
             class="max-w-full max-h-full object-contain"
           />
-          <span v-else class="text-gray-400">이미지 없음</span>
+          <span v-else class="text-[#999] text-[14px]">이미지 없음</span>
         </div>
 
         <!-- 정보 -->
         <div class="p-4">
           <div class="flex justify-between items-start mb-2">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ template.name }}</h3>
+            <h3 class="text-[15px] font-semibold text-[#333]">{{ template.form_name }}</h3>
             <span
-              :class="template.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'"
-              class="px-2 py-1 text-xs font-medium rounded-full"
+              :class="template.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
+              class="px-2.5 py-1 text-[11px] font-medium rounded-full"
             >
               {{ template.is_active ? '활성화' : '비활성화' }}
             </span>
           </div>
 
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-            {{ template.insurance_company?.name || '-' }}
+          <p class="text-[13px] text-[#999] mb-2">
+            {{ template.insurance_company?.company_name || '-' }}
           </p>
 
-          <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
-            {{ template.description || '설명 없음' }}
+          <p class="text-[13px] text-[#555] line-clamp-2 mb-3">
+            {{ template.form_description || '설명 없음' }}
           </p>
 
-          <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-            <span>필드 {{ template.template_fields_count || 0 }}개</span>
-            <span>{{ formatDate(template.created_at) }}</span>
+          <div class="flex justify-between items-center text-[12px] text-[#999]">
+            <span>필드 {{ template.form_fields_count || 0 }}개</span>
+            <span>{{ formatDate(template.created_at ?? '') }}</span>
           </div>
         </div>
 
         <!-- 액션 -->
-        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-700 flex justify-end gap-2">
+        <div class="px-4 py-3 bg-[#FAFAFA] flex justify-end gap-2">
           <router-link
-            :to="`/templates/${template.id}/editor`"
-            class="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
+            :to="`/templates/${template.claim_form_id}/editor`"
+            class="px-3 py-1.5 text-[13px] bg-[#FF7B22] text-white rounded-[8px] hover:bg-[#E56D1E] transition-colors"
             title="이미지 및 필드 배치 관리"
           >
             에디터
           </router-link>
           <router-link
-            :to="`/templates/${template.id}/edit`"
-            class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            :to="`/templates/${template.claim_form_id}/edit`"
+            class="px-3 py-1.5 text-[13px] bg-white border border-[#E0E0E0] text-[#555] rounded-[8px] hover:bg-[#F8F8F8] transition-colors"
             title="보험사, 양식명, 설명 수정"
           >
             정보 수정
           </router-link>
           <button
             @click="handleDelete(template)"
-            class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+            class="px-3 py-1.5 text-[13px] bg-white border border-red-200 text-red-500 rounded-[8px] hover:bg-red-50 transition-colors"
           >
             삭제
           </button>
         </div>
       </div>
 
-      <div v-if="store.templates.length === 0" class="col-span-full text-center py-10 text-gray-500 dark:text-gray-400">
+      <div v-if="store.templates.length === 0" class="col-span-full text-center py-10 text-[#999]">
         등록된 양식 템플릿이 없습니다.
       </div>
     </div>
@@ -133,10 +133,10 @@
           :key="page"
           @click="goToPage(page)"
           :class="[
-            'px-3 py-1 rounded',
+            'px-3 py-1 rounded-[8px] text-[14px]',
             page === store.pagination.current_page
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              ? 'bg-[#FF7B22] text-white'
+              : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
           ]"
         >
           {{ page }}
@@ -150,7 +150,7 @@
 import { ref, onMounted } from 'vue'
 import { useTemplateStore } from '../../stores/templateStore'
 import { useInsuranceStore } from '../../stores/insuranceStore'
-import type { ClaimFormTemplate } from '@shared/types'
+import type { ClaimForm } from '@shared/types'
 
 const store = useTemplateStore()
 const insuranceStore = useInsuranceStore()
@@ -171,7 +171,7 @@ function debouncedSearch() {
 async function fetchData(page = 1) {
   await store.fetchTemplates({
     search: searchQuery.value || undefined,
-    insurance_company_id: companyFilter.value ? Number(companyFilter.value) : undefined,
+    company_id: companyFilter.value ? Number(companyFilter.value) : undefined,
     is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
     page,
   })
@@ -185,13 +185,13 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('ko-KR')
 }
 
-async function handleDelete(template: ClaimFormTemplate) {
-  if (!confirm(`"${template.name}" 양식을 삭제하시겠습니까?`)) {
+async function handleDelete(template: ClaimForm) {
+  if (!confirm(`"${template.form_name}" 양식을 삭제하시겠습니까?`)) {
     return
   }
 
   try {
-    await store.deleteTemplate(template.id)
+    await store.deleteTemplate(template.claim_form_id)
     alert('삭제되었습니다.')
   } catch (e: any) {
     alert(e.response?.data?.message || '삭제에 실패했습니다.')

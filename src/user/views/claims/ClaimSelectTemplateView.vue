@@ -14,19 +14,19 @@
           <div v-else class="grid grid-cols-2 gap-3">
             <button
               v-for="company in claimStore.insuranceCompanies"
-              :key="company.id"
-              @click="selectedCompanyId = company.id"
+              :key="company.company_id"
+              @click="selectedCompanyId = company.company_id"
               class="rounded-[12px] p-4 text-left transition-all active:scale-[0.98]"
               :class="
-                selectedCompanyId === company.id
+                selectedCompanyId === company.company_id
                   ? 'bg-[#FFF0E5] border-2 border-[#FF7B22]'
                   : 'bg-white border-2 border-[#E8E8E8]'
               "
             >
-              <p class="text-[14px] font-semibold text-[#222]">{{ company.name }}</p>
-              <p class="text-[12px] text-[#999] mt-0.5">{{ company.code }}</p>
-              <p v-if="company.claim_form_templates_count" class="text-[11px] text-[#FF7B22] mt-1">
-                양식 {{ company.claim_form_templates_count }}개
+              <p class="text-[14px] font-semibold text-[#222]">{{ company.company_name }}</p>
+              <p class="text-[12px] text-[#999] mt-0.5">{{ company.company_code }}</p>
+              <p v-if="company.claim_forms_count" class="text-[11px] text-[#FF7B22] mt-1">
+                양식 {{ company.claim_forms_count }}개
               </p>
             </button>
           </div>
@@ -40,37 +40,37 @@
         <div v-if="selectedCompanyId" class="mb-5">
           <p class="text-[15px] font-semibold text-[#222] mb-2">2. 청구서 양식 선택</p>
 
-          <div v-if="claimStore.loadingTemplates" class="flex items-center justify-center py-8">
+          <div v-if="claimStore.loadingClaimForms" class="flex items-center justify-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           </div>
 
           <div v-else class="flex flex-col gap-3">
             <button
-              v-for="template in claimStore.templates"
-              :key="template.id"
-              @click="selectTemplate(template.id)"
+              v-for="template in claimStore.claimForms"
+              :key="template.claim_form_id"
+              @click="selectTemplate(template.claim_form_id)"
               class="block w-full text-left active:scale-[0.98] transition-transform"
             >
               <CardSection>
                 <div v-if="template.template_image_url" class="mb-3 aspect-[4/3] bg-[#F8F8F8] rounded-[8px] overflow-hidden">
                   <img
                     :src="template.template_image_url"
-                    :alt="template.name"
+                    :alt="template.form_name"
                     class="w-full h-full object-cover"
                   />
                 </div>
-                <p class="text-[15px] font-semibold text-[#222]">{{ template.name }}</p>
-                <p v-if="template.description" class="text-[12px] text-[#999] mt-1">
-                  {{ template.description }}
+                <p class="text-[15px] font-semibold text-[#222]">{{ template.form_name }}</p>
+                <p v-if="template.form_description" class="text-[12px] text-[#999] mt-1">
+                  {{ template.form_description }}
                 </p>
-                <p v-if="template.template_fields_count" class="text-[11px] text-[#FF7B22] mt-2">
-                  입력 필드 {{ template.template_fields_count }}개
+                <p v-if="template.form_fields_count" class="text-[11px] text-[#FF7B22] mt-2">
+                  입력 필드 {{ template.form_fields_count }}개
                 </p>
               </CardSection>
             </button>
           </div>
 
-          <div v-if="claimStore.templates.length === 0 && !claimStore.loadingTemplates" class="text-center py-8">
+          <div v-if="claimStore.claimForms.length === 0 && !claimStore.loadingClaimForms" class="text-center py-8">
             <p class="text-[13px] text-[#999]">이 보험사에 등록된 양식이 없습니다.</p>
           </div>
         </div>
@@ -102,9 +102,9 @@ onMounted(async () => {
 
 watch(selectedCompanyId, async (newId) => {
   if (newId) {
-    await claimStore.fetchTemplates(newId)
+    await claimStore.fetchClaimForms(newId)
   } else {
-    claimStore.templates = []
+    claimStore.claimForms = []
   }
 })
 

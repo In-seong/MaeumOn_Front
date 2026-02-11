@@ -1,15 +1,15 @@
 <template>
-  <div class="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+  <div class="h-screen flex flex-col bg-[#F8F8F8]">
     <!-- 헤더 -->
-    <div class="bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center">
+    <div class="bg-white shadow-[0_0_10px_rgba(0,0,0,0.06)] px-4 py-3 flex justify-between items-center">
       <div class="flex items-center">
-        <router-link to="/templates" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 mr-4">
+        <router-link to="/templates" class="text-[#999] hover:text-[#FF7B22] mr-4 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </router-link>
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">
-          {{ store.currentTemplate?.name || '필드 편집기' }}
+        <h1 class="text-[18px] font-bold text-[#333]">
+          {{ store.currentTemplate?.form_name || '필드 편집기' }}
         </h1>
       </div>
 
@@ -17,14 +17,14 @@
         <button
           @click="handleAddField"
           :disabled="!store.currentPage"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] hover:bg-[#FAFAFA] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-[14px] font-medium"
         >
           필드 추가
         </button>
         <button
           @click="handleSave"
           :disabled="saving"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          class="px-4 py-2 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] disabled:opacity-50 transition-colors text-[14px] font-medium"
         >
           {{ saving ? '저장 중...' : '저장' }}
         </button>
@@ -32,26 +32,26 @@
     </div>
 
     <!-- 페이지 탭 바 -->
-    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+    <div class="bg-white border-b border-[#E8E8E8] px-4 py-2">
       <div class="flex items-center gap-2 overflow-x-auto">
-        <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">페이지:</span>
+        <span class="text-[13px] text-[#999] mr-2">페이지:</span>
 
         <!-- 페이지 탭들 -->
         <button
           v-for="page in store.sortedPages"
-          :key="page.id"
+          :key="page.form_page_id"
           @click="selectPage(page)"
-          class="px-4 py-2 text-sm rounded-lg transition-colors whitespace-nowrap flex items-center gap-2"
-          :class="store.currentPage?.id === page.id
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
+          class="px-4 py-2 text-[13px] rounded-[8px] transition-colors whitespace-nowrap flex items-center gap-2"
+          :class="store.currentPage?.form_page_id === page.form_page_id
+            ? 'bg-[#FF7B22] text-white'
+            : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'"
         >
           <span>{{ page.page_number }}페이지</span>
           <span v-if="!page.page_image_url" class="text-xs opacity-70">(이미지 없음)</span>
           <!-- 페이지 삭제 버튼 -->
           <button
             v-if="store.sortedPages.length > 1"
-            @click.stop="handleDeletePage(page.id)"
+            @click.stop="handleDeletePage(page.form_page_id)"
             class="ml-1 w-4 h-4 rounded-full hover:bg-red-500 hover:text-white text-xs flex items-center justify-center"
           >
             ×
@@ -61,7 +61,7 @@
         <!-- 페이지 추가 버튼 -->
         <button
           @click="handleAddPage"
-          class="px-3 py-2 text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 flex items-center gap-1"
+          class="px-3 py-2 text-[13px] bg-[#FFF3ED] text-[#FF7B22] rounded-[8px] hover:bg-[#FFE8D6] flex items-center gap-1 transition-colors"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -72,16 +72,16 @@
     </div>
 
     <div v-if="store.loading" class="flex-1 flex items-center justify-center">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22]"></div>
     </div>
 
     <!-- 페이지가 없는 경우 -->
     <div v-else-if="store.sortedPages.length === 0" class="flex-1 flex items-center justify-center">
       <div class="text-center">
-        <p class="text-gray-500 dark:text-gray-400 mb-4">페이지가 없습니다.</p>
+        <p class="text-[#999] text-[14px] mb-4">페이지가 없습니다.</p>
         <button
           @click="handleAddPage"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
         >
           첫 페이지 추가하기
         </button>
@@ -91,8 +91,8 @@
     <!-- 현재 페이지에 이미지가 없는 경우 -->
     <div v-else-if="store.currentPage && !store.currentPage.page_image_url" class="flex-1 flex items-center justify-center">
       <div class="text-center">
-        <p class="text-gray-500 dark:text-gray-400 mb-4">{{ store.currentPage.page_number }}페이지에 이미지가 없습니다.</p>
-        <label class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer inline-block">
+        <p class="text-[#999] text-[14px] mb-4">{{ store.currentPage.page_number }}페이지에 이미지가 없습니다.</p>
+        <label class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] cursor-pointer inline-block transition-colors text-[14px] font-medium">
           이미지 업로드
           <input
             type="file"
@@ -109,7 +109,7 @@
       <div class="flex-1 overflow-auto p-4">
         <div
           ref="canvasRef"
-          class="relative bg-white shadow-lg mx-auto"
+          class="relative bg-white shadow-[0_0_10px_rgba(0,0,0,0.06)] mx-auto"
           :style="{
             width: (store.currentPage.image_width || 800) + 'px',
             height: (store.currentPage.image_height || 1000) + 'px',
@@ -119,19 +119,19 @@
           <!-- 배경 이미지 -->
           <img
             :src="store.currentPage.page_image_url"
-            :alt="`${store.currentTemplate?.name} - ${store.currentPage.page_number}페이지`"
+            :alt="`${store.currentTemplate?.form_name} - ${store.currentPage.page_number}페이지`"
             class="absolute inset-0 w-full h-full object-contain pointer-events-none"
           />
 
           <!-- 드래그 가능한 필드들 (현재 페이지 필드만 표시) -->
           <div
             v-for="field in store.currentPageFields"
-            :key="field.id"
+            :key="field.form_field_id"
             class="absolute cursor-move border-2 rounded transition-colors"
             :class="[
-              store.selectedField?.id === field.id
-                ? 'border-blue-500 bg-blue-100/50'
-                : 'border-purple-400 bg-purple-100/30 hover:border-purple-500'
+              store.selectedField?.form_field_id === field.form_field_id
+                ? 'border-[#FF7B22] bg-[#FF7B22]/20'
+                : 'border-[#FFB88C] bg-[#FF7B22]/10 hover:border-[#FF7B22]'
             ]"
             :style="{
               left: field.x_position + 'px',
@@ -148,16 +148,16 @@
 
             <!-- 리사이즈 핸들 -->
             <div
-              v-if="store.selectedField?.id === field.id"
-              class="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 cursor-se-resize"
+              v-if="store.selectedField?.form_field_id === field.form_field_id"
+              class="absolute bottom-0 right-0 w-3 h-3 bg-[#FF7B22] cursor-se-resize"
               @mousedown.stop="startResize($event, field)"
             ></div>
 
             <!-- 삭제 버튼 -->
             <button
-              v-if="store.selectedField?.id === field.id"
+              v-if="store.selectedField?.form_field_id === field.form_field_id"
               class="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600"
-              @click.stop="handleDeleteField(field.id)"
+              @click.stop="handleDeleteField(field.form_field_id)"
             >
               ✕
             </button>
@@ -166,52 +166,52 @@
       </div>
 
       <!-- 속성 패널 -->
-      <div class="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
+      <div class="w-80 bg-white border-l border-[#E8E8E8] overflow-y-auto">
         <div class="p-4">
           <!-- 페이지 정보 -->
-          <div class="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div class="mb-4 pb-4 border-b border-[#F0F0F0]">
+            <h3 class="text-[13px] font-medium text-[#555] mb-2">
               현재 페이지: {{ store.currentPage.page_number }} / {{ store.sortedPages.length }}
             </h3>
             <label class="block">
-              <span class="text-xs text-gray-500 dark:text-gray-400">페이지 이미지 변경</span>
+              <span class="text-[12px] text-[#999]">페이지 이미지 변경</span>
               <input
                 type="file"
                 accept="image/*"
-                class="mt-1 block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                class="mt-1 block w-full text-[12px] text-[#999] file:mr-2 file:py-1 file:px-2 file:rounded-[6px] file:border-0 file:text-[12px] file:bg-[#FFF3ED] file:text-[#FF7B22] hover:file:bg-[#FFE8D6]"
                 @change="handlePageImageUpload"
               />
             </label>
           </div>
 
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <h2 class="text-[16px] font-semibold text-[#333] mb-4">
             {{ store.selectedField ? '필드 속성' : '필드를 선택하세요' }}
           </h2>
 
           <div v-if="store.selectedField" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">필드명</label>
+              <label class="block text-[13px] font-medium text-[#555] mb-1">필드명</label>
               <input
                 v-model="editForm.field_name"
                 type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
               />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">라벨</label>
+              <label class="block text-[13px] font-medium text-[#555] mb-1">라벨</label>
               <input
                 v-model="editForm.field_label"
                 type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
               />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">타입</label>
+              <label class="block text-[13px] font-medium text-[#555] mb-1">타입</label>
               <select
                 v-model="editForm.field_type"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
               >
                 <option v-for="opt in fieldTypeOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
@@ -221,69 +221,69 @@
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">X</label>
+                <label class="block text-[13px] font-medium text-[#555] mb-1">X</label>
                 <input
                   v-model.number="editForm.x_position"
                   type="number"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Y</label>
+                <label class="block text-[13px] font-medium text-[#555] mb-1">Y</label>
                 <input
                   v-model.number="editForm.y_position"
                   type="number"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
                 />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">너비</label>
+                <label class="block text-[13px] font-medium text-[#555] mb-1">너비</label>
                 <input
                   v-model.number="editForm.width"
                   type="number"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">높이</label>
+                <label class="block text-[13px] font-medium text-[#555] mb-1">높이</label>
                 <input
                   v-model.number="editForm.height"
                   type="number"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
                 />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">글꼴 크기</label>
+                <label class="block text-[13px] font-medium text-[#555] mb-1">글꼴 크기</label>
                 <input
                   v-model.number="editForm.font_size"
                   type="number"
                   min="8"
                   max="72"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">색상</label>
+                <label class="block text-[13px] font-medium text-[#555] mb-1">색상</label>
                 <input
                   v-model="editForm.font_color"
                   type="color"
-                  class="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                  class="w-full h-10 border border-[#E8E8E8] rounded-[8px] cursor-pointer"
                 />
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">플레이스홀더</label>
+              <label class="block text-[13px] font-medium text-[#555] mb-1">플레이스홀더</label>
               <input
                 v-model="editForm.placeholder"
                 type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
               />
             </div>
 
@@ -292,38 +292,38 @@
                 <input
                   v-model="editForm.is_required"
                   type="checkbox"
-                  class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
                 />
-                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">필수 입력</span>
+                <span class="ml-2 text-[13px] text-[#555]">필수 입력</span>
               </label>
             </div>
 
             <button
               @click="applyFieldChanges"
-              class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="w-full px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
             >
               속성 적용
             </button>
           </div>
 
           <!-- 필드 목록 -->
-          <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div class="mt-6 pt-6 border-t border-[#F0F0F0]">
+            <h3 class="text-[13px] font-medium text-[#555] mb-2">
               현재 페이지 필드 ({{ store.currentPageFields.length }}개)
             </h3>
             <ul class="space-y-1">
               <li
                 v-for="field in store.currentPageFields"
-                :key="field.id"
-                class="px-2 py-1 text-sm rounded cursor-pointer"
-                :class="store.selectedField?.id === field.id ? 'bg-blue-100 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'"
+                :key="field.form_field_id"
+                class="px-2 py-1 text-[13px] rounded-[6px] cursor-pointer transition-colors"
+                :class="store.selectedField?.form_field_id === field.form_field_id ? 'bg-[#FFF3ED] text-[#FF7B22]' : 'hover:bg-[#FAFAFA] text-[#333]'"
                 @click="selectField(field)"
               >
                 <span class="font-medium">{{ field.field_label }}</span>
-                <span class="text-gray-500 text-xs ml-2">({{ field.field_name }})</span>
-                <span v-if="field.is_required" class="text-red-500 text-xs ml-1">*</span>
+                <span class="text-[#999] text-[11px] ml-2">({{ field.field_name }})</span>
+                <span v-if="field.is_required" class="text-red-500 text-[11px] ml-1">*</span>
               </li>
-              <li v-if="store.currentPageFields.length === 0" class="text-gray-500 text-sm">
+              <li v-if="store.currentPageFields.length === 0" class="text-[#999] text-[13px]">
                 이 페이지에 필드가 없습니다.
               </li>
             </ul>
@@ -334,35 +334,35 @@
 
     <!-- 필드 추가 모달 -->
     <div v-if="showAddModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-96 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">새 필드 추가</h3>
+      <div class="bg-white rounded-[16px] shadow-[0_0_20px_rgba(0,0,0,0.1)] w-96 p-6">
+        <h3 class="text-[16px] font-semibold text-[#333] mb-4">새 필드 추가</h3>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">필드명 *</label>
+            <label class="block text-[13px] font-medium text-[#555] mb-1">필드명 *</label>
             <input
               v-model="newField.field_name"
               type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
               placeholder="예: patient_name"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">라벨 *</label>
+            <label class="block text-[13px] font-medium text-[#555] mb-1">라벨 *</label>
             <input
               v-model="newField.field_label"
               type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
               placeholder="예: 환자명"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">타입</label>
+            <label class="block text-[13px] font-medium text-[#555] mb-1">타입</label>
             <select
               v-model="newField.field_type"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
             >
               <option v-for="opt in fieldTypeOptions" :key="opt.value" :value="opt.value">
                 {{ opt.label }}
@@ -375,9 +375,9 @@
               <input
                 v-model="newField.is_required"
                 type="checkbox"
-                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
               />
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">필수 입력</span>
+              <span class="ml-2 text-[14px] text-[#555]">필수 입력</span>
             </label>
           </div>
         </div>
@@ -385,13 +385,13 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             @click="showAddModal = false"
-            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300"
+            class="px-4 py-2.5 border border-[#E0E0E0] text-[#555] rounded-[12px] hover:bg-[#FAFAFA] transition-colors text-[14px]"
           >
             취소
           </button>
           <button
             @click="submitNewField"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
           >
             추가
           </button>
@@ -406,7 +406,7 @@ import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
 import { FIELD_TYPE_OPTIONS } from '@shared/types'
-import type { TemplateField, TemplatePage } from '@shared/types'
+import type { FormField, FormPage } from '@shared/types'
 
 const route = useRoute()
 const store = useTemplateStore()
@@ -420,7 +420,7 @@ const fieldTypeOptions = FIELD_TYPE_OPTIONS
 // 드래그 상태
 const isDragging = ref(false)
 const isResizing = ref(false)
-const dragTarget = ref<TemplateField | null>(null)
+const dragTarget = ref<FormField | null>(null)
 const dragOffset = { x: 0, y: 0 }
 const resizeStart = { width: 0, height: 0, x: 0, y: 0 }
 
@@ -464,11 +464,11 @@ watch(() => store.selectedField, (field) => {
   }
 }, { immediate: true })
 
-function selectField(field: TemplateField) {
+function selectField(field: FormField) {
   store.selectField(field)
 }
 
-function selectPage(page: TemplatePage) {
+function selectPage(page: FormPage) {
   store.selectPage(page)
 }
 
@@ -498,7 +498,7 @@ async function submitNewField() {
   try {
     await store.createField(Number(route.params.id), {
       ...newField,
-      template_page_id: store.currentPage.id,
+      form_page_id: store.currentPage.form_page_id,
       x_position: 50,
       y_position: 50,
       width: 200,
@@ -526,7 +526,7 @@ async function applyFieldChanges() {
   if (!store.selectedField) return
 
   try {
-    await store.updateField(store.selectedField.id, editForm)
+    await store.updateField(store.selectedField.form_field_id, editForm)
   } catch (e: any) {
     alert(e.response?.data?.message || '속성 적용에 실패했습니다.')
   }
@@ -570,7 +570,7 @@ async function handlePageImageUpload(event: Event) {
   if (!file || !store.currentPage) return
 
   try {
-    await store.uploadPageImage(Number(route.params.id), store.currentPage.id, file)
+    await store.uploadPageImage(Number(route.params.id), store.currentPage.form_page_id, file)
   } catch (e: any) {
     alert(e.response?.data?.message || '이미지 업로드에 실패했습니다.')
   }
@@ -580,7 +580,7 @@ async function handlePageImageUpload(event: Event) {
 }
 
 // 드래그 시작
-function startDrag(event: MouseEvent, field: TemplateField) {
+function startDrag(event: MouseEvent, field: FormField) {
   if (!canvasRef.value) return
 
   isDragging.value = true
@@ -595,7 +595,7 @@ function startDrag(event: MouseEvent, field: TemplateField) {
 }
 
 // 리사이즈 시작
-function startResize(event: MouseEvent, field: TemplateField) {
+function startResize(event: MouseEvent, field: FormField) {
   isResizing.value = true
   dragTarget.value = field
   resizeStart.width = field.width
@@ -620,10 +620,10 @@ function handleMouseMove(event: MouseEvent) {
     const newX = Math.max(0, Math.min(maxX, x))
     const newY = Math.max(0, Math.min(maxY, y))
 
-    store.updateFieldPosition(dragTarget.value.id, newX, newY)
+    store.updateFieldPosition(dragTarget.value.form_field_id, newX, newY)
 
     // 편집 폼도 업데이트
-    if (store.selectedField?.id === dragTarget.value.id) {
+    if (store.selectedField?.form_field_id === dragTarget.value.form_field_id) {
       editForm.x_position = Math.round(newX)
       editForm.y_position = Math.round(newY)
     }
@@ -634,13 +634,13 @@ function handleMouseMove(event: MouseEvent) {
     const deltaY = event.clientY - resizeStart.y
 
     store.updateFieldSize(
-      dragTarget.value.id,
+      dragTarget.value.form_field_id,
       resizeStart.width + deltaX,
       resizeStart.height + deltaY
     )
 
     // 편집 폼도 업데이트
-    if (store.selectedField?.id === dragTarget.value.id) {
+    if (store.selectedField?.form_field_id === dragTarget.value.form_field_id) {
       editForm.width = dragTarget.value.width
       editForm.height = dragTarget.value.height
     }

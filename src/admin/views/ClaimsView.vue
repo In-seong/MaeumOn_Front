@@ -1,19 +1,19 @@
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">청구 관리</h1>
+    <h1 class="text-[22px] font-bold text-[#333] mb-6">청구 관리</h1>
 
     <!-- 필터 -->
-    <div class="mb-4 flex flex-wrap gap-4">
+    <div class="mb-4 flex flex-wrap gap-3">
       <input
         v-model="filters.search"
         type="text"
-        placeholder="고객명 또는 이메일로 검색"
-        class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        placeholder="고객명 또는 사용자명으로 검색"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
         @input="debouncedSearch"
       />
       <select
         v-model="filters.status"
-        class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
       >
         <option value="">전체 상태</option>
@@ -24,74 +24,74 @@
       <input
         v-model="filters.date_from"
         type="date"
-        class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
       />
-      <span class="self-center text-gray-500">~</span>
+      <span class="self-center text-[#999]">~</span>
       <input
         v-model="filters.date_to"
         type="date"
-        class="px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
       />
     </div>
 
     <!-- 로딩 -->
     <div v-if="loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
     </div>
 
     <!-- 테이블 -->
-    <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+      <table class="min-w-full divide-y divide-[#E8E8E8]">
+        <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">고객</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">보험사 / 양식</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">상태</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">팩스</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">생성일</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">관리</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사 / 양식</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">팩스</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">생성일</th>
+            <th class="px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="claim in claims" :key="claim.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ claim.id }}</td>
+        <tbody class="divide-y divide-[#F0F0F0]">
+          <tr v-for="claim in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#333]">{{ claim.claim_id }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900 dark:text-white">{{ claim.user?.name }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ claim.user?.email }}</div>
+              <div class="text-[14px] font-medium text-[#333]">{{ claim.customer?.name }}</div>
+              <div class="text-[12px] text-[#999]">{{ claim.customer?.email }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900 dark:text-white">{{ claim.claim_form_template?.insurance_company?.name }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ claim.claim_form_template?.name }}</div>
+              <div class="text-[14px] text-[#333]">{{ claim.claim_form?.insurance_company?.company_name }}</div>
+              <div class="text-[12px] text-[#999]">{{ claim.claim_form?.form_name }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <select
-                :value="claim.status"
-                @change="handleStatusChange(claim.id, ($event.target as HTMLSelectElement).value)"
-                :class="getStatusClass(claim.status)"
-                class="px-2 py-1 text-xs font-medium rounded border-0"
+                :value="claim.claim_status"
+                @change="handleStatusChange(claim.claim_id, ($event.target as HTMLSelectElement).value)"
+                :class="getStatusClass(claim.claim_status)"
+                class="px-2 py-1 text-[12px] font-medium rounded-full border-0 cursor-pointer"
               >
                 <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
               <span v-if="claim.fax_status === 'sent'" class="text-green-600">발송완료</span>
-              <span v-else-if="claim.fax_status === 'failed'" class="text-red-600">발송실패</span>
+              <span v-else-if="claim.fax_status === 'failed'" class="text-red-500">발송실패</span>
               <span v-else>-</span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {{ formatDate(claim.created_at) }}
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
+              {{ formatDate(claim.created_at ?? '') }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+            <td class="px-6 py-4 whitespace-nowrap text-right text-[14px]">
               <a
-                v-if="claim.generated_image_url"
-                :href="claim.generated_image_url"
+                v-if="claim.generated_pdf_url"
+                :href="claim.generated_pdf_url"
                 target="_blank"
-                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 mr-3"
+                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
               >
                 이미지
               </a>
@@ -99,14 +99,14 @@
                 v-if="claim.generated_pdf_url"
                 :href="claim.generated_pdf_url"
                 target="_blank"
-                class="text-green-600 hover:text-green-900 dark:text-green-400"
+                class="text-green-600 hover:text-green-700"
               >
                 PDF
               </a>
             </td>
           </tr>
           <tr v-if="claims.length === 0">
-            <td colspan="7" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+            <td colspan="7" class="px-6 py-10 text-center text-[#999]">
               청구 내역이 없습니다.
             </td>
           </tr>
@@ -114,17 +114,17 @@
       </table>
 
       <!-- 페이지네이션 -->
-      <div v-if="pagination && pagination.last_page > 1" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+      <div v-if="pagination && pagination.last_page > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
         <div class="flex justify-center gap-2">
           <button
             v-for="page in pagination.last_page"
             :key="page"
             @click="goToPage(page)"
             :class="[
-              'px-3 py-1 rounded',
+              'px-3 py-1 rounded-[8px] text-[14px]',
               page === pagination.current_page
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                ? 'bg-[#FF7B22] text-white'
+                : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
             ]"
           >
             {{ page }}
@@ -166,7 +166,7 @@ async function fetchData(page = 1) {
   try {
     const response = await claimApi.getAdminList({
       search: filters.search || undefined,
-      status: filters.status || undefined,
+      claim_status: filters.status || undefined,
       date_from: filters.date_from || undefined,
       date_to: filters.date_to || undefined,
       page,
@@ -199,10 +199,10 @@ function getStatusClass(status: string) {
 
 async function handleStatusChange(claimId: number, newStatus: string) {
   try {
-    await claimApi.updateStatus(claimId, { status: newStatus })
-    const claim = claims.value.find(c => c.id === claimId)
+    await claimApi.updateStatus(claimId, { claim_status: newStatus })
+    const claim = claims.value.find(c => c.claim_id === claimId)
     if (claim) {
-      claim.status = newStatus as any
+      claim.claim_status = newStatus as any
     }
   } catch (e: any) {
     alert(e.response?.data?.message || '상태 변경에 실패했습니다.')

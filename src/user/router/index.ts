@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '../stores/authStore'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -19,6 +20,7 @@ const router = createRouter({
       path: '/pin-login',
       name: 'pin-login',
       component: () => import('../views/account/PinLoginView.vue'),
+      meta: { requiresOtpVerified: true },
     },
     // 청구서 관련 라우트
     {
@@ -36,6 +38,12 @@ const router = createRouter({
     {
       path: '/claims/new/:templateId',
       name: 'claim-form',
+      component: () => import('../views/claims/ClaimFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/claims/:claimId/edit',
+      name: 'claim-edit',
       component: () => import('../views/claims/ClaimFormView.vue'),
       meta: { requiresAuth: true },
     },
@@ -119,10 +127,20 @@ const router = createRouter({
 })
 
 // 인증 가드
-router.beforeEach((to, _from, next) => {
-  const isLoggedIn = localStorage.getItem('userIsLoggedIn') === 'true'
+router.beforeEach(async (to, _from, next) => {
+  const authStore = useAuthStore()
+  const isLoggedIn = authStore.isLoggedIn
 
   if (to.meta.requiresAuth && !isLoggedIn) {
+    // 인증 필요한 페이지 → 디바이스 체크 후 적절한 화면으로
+    const result = await authStore.checkDevice()
+    if (result.registered && result.hasPin) {
+      next({ name: 'pin-login' })
+    } else {
+      next({ name: 'login' })
+    }
+  } else if (to.meta.requiresOtpVerified && authStore.authStep !== 'otp_verified') {
+    // PIN 입력 페이지에 직접 접근 시도 → OTP 인증이 안 된 상태
     next({ name: 'login' })
   } else if (to.name === 'login' && isLoggedIn) {
     next({ name: 'home' })

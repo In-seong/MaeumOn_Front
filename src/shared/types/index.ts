@@ -14,128 +14,164 @@ export interface PaginatedResponse<T> {
   total: number
 }
 
-// 사용자 타입
-export interface User {
-  id: number
+// 계정 타입
+export interface Account {
+  account_id: number
+  username: string
+  role: 'CUSTOMER' | 'AGENT' | 'ADMIN'
+  is_active: boolean
+  last_login_at?: string
+  customer?: Customer
+}
+
+// 고객 타입
+export interface Customer {
+  customer_id: string  // char(8)
+  account_id: number
+  agent_id?: number
   name: string
-  email: string
+  resident_number?: string
+  gender?: string
+  birth_date?: string
   phone?: string
-  role?: 'admin' | 'user' | 'agent'
-  created_at: string
-  updated_at: string
+  email?: string
+  address?: string
+  detailed_address?: string
+  job?: string
+  is_active: boolean
 }
 
 // 인증 관련 타입
 export interface LoginRequest {
-  email: string
+  username: string
   password: string
 }
 
 export interface LoginResponse {
-  user: User
+  account: Account
   token: string
 }
 
 // 보험사 타입
 export interface InsuranceCompany {
-  id: number
-  name: string
-  code: string
+  company_id: number
+  company_name: string
+  company_code: string
+  business_number?: string
+  representative_name?: string
+  address?: string
+  contact_phone?: string
   fax_number?: string
   logo_path?: string
+  website_url?: string
   is_active: boolean
-  claim_form_templates_count?: number
-  created_at: string
-  updated_at: string
+  claim_forms_count?: number
+  claim_forms?: ClaimForm[]
+  created_at?: string
+  updated_at?: string
 }
 
-// 청구서 양식 템플릿 타입
-export interface ClaimFormTemplate {
-  id: number
-  insurance_company_id: number
-  name: string
-  description?: string
-  template_image_path?: string
+// 청구서 양식 타입
+export interface ClaimForm {
+  claim_form_id: number
+  company_id: number
+  form_name: string
+  form_description?: string
+  form_version?: string
+  is_active: boolean
   template_image_url?: string
+  total_pages?: number
   image_width?: number
   image_height?: number
-  is_active: boolean
-  total_pages?: number
   insurance_company?: InsuranceCompany
-  template_pages?: TemplatePage[]
-  template_fields?: TemplateField[]
-  template_fields_count?: number
-  created_at: string
-  updated_at: string
+  form_pages?: FormPage[]
+  form_fields?: FormField[]
+  form_fields_count?: number
+  created_at?: string
+  updated_at?: string
 }
 
-// 템플릿 페이지 타입
-export interface TemplatePage {
-  id: number
-  claim_form_template_id: number
+// 양식 페이지 타입
+export interface FormPage {
+  form_page_id: number
+  claim_form_id: number
   page_number: number
+  page_title?: string
+  page_description?: string
   page_image_path?: string
   page_image_url?: string
   image_width?: number
   image_height?: number
-  template_fields?: TemplateField[]
-  created_at: string
-  updated_at: string
+  form_fields?: FormField[]
+  created_at?: string
+  updated_at?: string
 }
 
-// 템플릿 필드 타입
-export interface TemplateField {
-  id: number
-  claim_form_template_id: number
-  template_page_id?: number
+// 양식 필드 타입
+export interface FormField {
+  form_field_id: number
+  claim_form_id: number
+  form_page_id?: number
   field_name: string
   field_label: string
   field_type: 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea'
+  field_order: number
+  is_required: boolean
+  field_options?: any
+  validation_rules?: any
   x_position: number
   y_position: number
   width: number
   height: number
   font_size: number
   font_color: string
-  is_required: boolean
-  sort_order: number
   placeholder?: string
   default_value?: string
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
 }
 
 // 보험 청구 타입
 export interface InsuranceClaim {
-  id: number
-  user_id: number
-  claim_form_template_id: number
-  status: 'pending' | 'processing' | 'completed' | 'rejected'
-  status_label?: string
-  generated_image_path?: string
-  generated_image_url?: string
+  claim_id: number
+  customer_id: string
+  insurance_id?: number
+  company_id?: number
+  agent_id?: number
+  claim_form_id?: number
+  claim_number?: string
+  claim_type?: string
+  accident_date?: string
+  claim_amount?: number
+  approved_amount?: number
+  claim_status: string
+  claim_date?: string
+  approval_date?: string
+  rejection_reason?: string
   generated_pdf_path?: string
   generated_pdf_url?: string
+  generated_image_url?: string
   fax_sent_at?: string
-  fax_status?: 'pending' | 'sent' | 'failed'
-  fax_status_label?: string
+  fax_status?: string
   notes?: string
-  user?: User
-  claim_form_template?: ClaimFormTemplate
+  status_label?: string
+  customer?: Customer
+  claim_form?: ClaimForm
+  insurance_company?: InsuranceCompany
   field_values?: ClaimFieldValue[]
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
 }
 
 // 청구 필드 값 타입
 export interface ClaimFieldValue {
-  id: number
-  insurance_claim_id: number
-  template_field_id: number
+  claim_field_value_id: number
+  claim_id: number
+  form_field_id: number
   field_value: string
-  template_field?: TemplateField
-  created_at: string
-  updated_at: string
+  form_field?: FormField
+  created_at?: string
+  updated_at?: string
 }
 
 // 보험 계약 타입
@@ -206,10 +242,11 @@ export const FIELD_TYPE_OPTIONS = [
   { value: 'textarea', label: '여러 줄 텍스트' },
 ] as const
 
-// 청구 상태 옵션
+// 청구 상태 옵션 (물리설계 기준)
 export const CLAIM_STATUS_OPTIONS = [
-  { value: 'pending', label: '대기중', color: 'yellow' },
+  { value: 'pending', label: '접수 대기', color: 'yellow' },
   { value: 'processing', label: '처리중', color: 'blue' },
-  { value: 'completed', label: '완료', color: 'green' },
+  { value: 'approved', label: '승인', color: 'green' },
   { value: 'rejected', label: '거절', color: 'red' },
+  { value: 'paid', label: '지급 완료', color: 'emerald' },
 ] as const

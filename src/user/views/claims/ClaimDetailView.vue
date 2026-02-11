@@ -15,20 +15,20 @@
             <div class="flex items-start justify-between mb-3">
               <div>
                 <span class="text-[13px] text-[#888]">
-                  {{ claimStore.currentClaim.claim_form_template?.insurance_company?.name }}
+                  {{ claimStore.currentClaim.claim_form?.insurance_company?.company_name }}
                 </span>
                 <p class="text-[18px] font-bold text-[#222] mt-0.5">
-                  {{ claimStore.currentClaim.claim_form_template?.name }}
+                  {{ claimStore.currentClaim.claim_form?.form_name }}
                 </p>
               </div>
               <StatusBadge
-                :label="getStatusLabel(claimStore.currentClaim.status)"
-                :variant="getStatusVariant(claimStore.currentClaim.status)"
+                :label="getStatusLabel(claimStore.currentClaim.claim_status)"
+                :variant="getStatusVariant(claimStore.currentClaim.claim_status)"
               />
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[13px] text-[#888]">청구번호</span>
-              <span class="text-[14px] font-bold text-[#FF7B22]">#{{ claimStore.currentClaim.id }}</span>
+              <span class="text-[14px] font-bold text-[#FF7B22]">#{{ claimStore.currentClaim.claim_id }}</span>
             </div>
           </CardSection>
 
@@ -36,7 +36,7 @@
           <div class="mb-4">
             <p class="text-[15px] font-semibold text-[#222] mb-2">청구 정보</p>
             <CardSection>
-              <InfoRow label="청구일" :value="formatDate(claimStore.currentClaim.created_at)" />
+              <InfoRow label="청구일" :value="formatDate(claimStore.currentClaim.created_at ?? '')" />
               <InfoRow label="팩스 상태" :value="getFaxStatusLabel(claimStore.currentClaim.fax_status)" />
               <InfoRow
                 v-if="claimStore.currentClaim.fax_sent_at"
@@ -52,24 +52,24 @@
             <CardSection>
               <InfoRow
                 v-for="fieldValue in claimStore.currentClaim.field_values"
-                :key="fieldValue.id"
-                :label="fieldValue.template_field?.field_label || ''"
+                :key="fieldValue.claim_field_value_id"
+                :label="fieldValue.form_field?.field_label || ''"
                 :value="fieldValue.field_value || '-'"
               />
             </CardSection>
           </div>
 
-          <!-- 생성된 청구서 -->
+          <!-- 생성된 청구서 (PDF 뷰어) -->
           <div class="mb-4">
             <p class="text-[15px] font-semibold text-[#222] mb-2">생성된 청구서</p>
             <CardSection>
-              <!-- 이미지 미리보기 -->
-              <div v-if="claimStore.currentClaim.generated_image_url" class="mb-4">
-                <img
-                  :src="claimStore.currentClaim.generated_image_url"
-                  alt="청구서"
-                  class="w-full h-auto rounded-[8px] border border-[#E8E8E8]"
-                />
+              <div v-if="claimStore.currentClaim.generated_pdf_url" class="mb-4">
+                <iframe
+                  :src="claimStore.currentClaim.generated_pdf_url"
+                  class="w-full rounded-[8px] border border-[#E8E8E8]"
+                  style="height: 500px;"
+                  title="청구서 PDF"
+                ></iframe>
               </div>
               <p v-else class="text-[13px] text-[#999] text-center py-6">
                 생성된 청구서가 없습니다.
@@ -92,17 +92,20 @@
 
           <!-- 액션 버튼 -->
           <div class="flex flex-col gap-3 mb-6">
+            <!-- 수정 버튼 (pending 상태에서만) -->
+            <button
+              v-if="claimStore.currentClaim.claim_status === 'pending'"
+              @click="goToEdit"
+              class="w-full bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              청구서 수정
+            </button>
+
             <div class="flex gap-3">
-              <button
-                v-if="claimStore.currentClaim.generated_image_url"
-                @click="downloadImage"
-                class="flex-1 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                이미지
-              </button>
               <button
                 v-if="claimStore.currentClaim.generated_pdf_url"
                 @click="downloadPdf"
@@ -111,7 +114,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                PDF
+                PDF 다운로드
               </button>
             </div>
             <button
@@ -208,8 +211,8 @@ const sendingFax = ref(false)
 onMounted(async () => {
   await claimStore.fetchClaimDetail(claimId.value)
 
-  if (claimStore.currentClaim?.claim_form_template?.insurance_company?.fax_number) {
-    faxNumber.value = claimStore.currentClaim.claim_form_template.insurance_company.fax_number
+  if (claimStore.currentClaim?.claim_form?.insurance_company?.fax_number) {
+    faxNumber.value = claimStore.currentClaim.claim_form.insurance_company.fax_number
   }
 })
 
@@ -241,15 +244,15 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('ko-KR')
 }
 
-function downloadImage() {
-  if (claimStore.currentClaim?.generated_image_url) {
-    window.open(claimStore.currentClaim.generated_image_url, '_blank')
-  }
-}
-
 function downloadPdf() {
   if (claimStore.currentClaim?.generated_pdf_url) {
     window.open(claimStore.currentClaim.generated_pdf_url, '_blank')
+  }
+}
+
+function goToEdit() {
+  if (claimStore.currentClaim) {
+    router.push(`/claims/${claimStore.currentClaim.claim_id}/edit`)
   }
 }
 

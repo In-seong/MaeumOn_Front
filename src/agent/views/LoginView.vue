@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const email = ref('')
+const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const error = ref('')
@@ -34,14 +34,14 @@ const handleLogin = async () => {
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            이메일
+            사용자명
           </label>
           <input
-            v-model="email"
-            type="email"
+            v-model="username"
+            type="text"
             required
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="이메일을 입력하세요"
+            placeholder="사용자명을 입력하세요"
           />
         </div>
 

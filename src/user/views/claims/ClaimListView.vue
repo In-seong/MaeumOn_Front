@@ -28,25 +28,25 @@
           <div class="flex flex-col gap-3 mb-5">
             <div
               v-for="claim in claimStore.myClaims"
-              :key="claim.id"
-              @click="viewDetail(claim.id)"
+              :key="claim.claim_id"
+              @click="viewDetail(claim.claim_id)"
               class="cursor-pointer"
             >
               <CardSection>
                 <div class="flex items-start justify-between mb-2">
                   <span class="text-[13px] font-medium text-[#888]">
-                    {{ claim.claim_form_template?.insurance_company?.name }}
+                    {{ claim.claim_form?.insurance_company?.company_name }}
                   </span>
                   <StatusBadge
-                    :label="getStatusLabel(claim.status)"
-                    :variant="getStatusVariant(claim.status)"
+                    :label="getStatusLabel(claim.claim_status)"
+                    :variant="getStatusVariant(claim.claim_status)"
                   />
                 </div>
                 <p class="text-[15px] font-semibold text-[#222] mb-1">
-                  {{ claim.claim_form_template?.name }}
+                  {{ claim.claim_form?.form_name }}
                 </p>
                 <div class="flex items-center gap-3 text-[12px] text-[#888]">
-                  <span>{{ formatDate(claim.created_at) }}</span>
+                  <span>{{ formatDate(claim.created_at ?? '') }}</span>
                   <span v-if="claim.fax_status === 'sent'" class="text-[#1FBD53]">팩스 발송완료</span>
                   <span v-else-if="claim.fax_status === 'failed'" class="text-[#FF0000]">팩스 발송실패</span>
                 </div>
@@ -117,12 +117,12 @@ onMounted(async () => {
 })
 
 async function handleFilterChange() {
-  await claimStore.fetchMyClaims({ status: statusFilter.value || undefined })
+  await claimStore.fetchMyClaims({ claim_status: statusFilter.value || undefined })
 }
 
 async function handlePageChange(page: number) {
   await claimStore.fetchMyClaims({
-    status: statusFilter.value || undefined,
+    claim_status: statusFilter.value || undefined,
     page
   })
 }

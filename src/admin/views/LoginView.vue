@@ -6,14 +6,14 @@ import { useAuthStore } from '../stores/authStore'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const email = ref('admin@mauemon.com')
+const username = ref('admin')
 const password = ref('password')
 const error = ref('')
 
 const handleLogin = async () => {
   error.value = ''
 
-  const success = await authStore.login(email.value, password.value)
+  const success = await authStore.login(username.value, password.value)
 
   if (success) {
     router.push('/')
@@ -24,35 +24,35 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-        보험ON 관리자
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+    <div class="bg-white p-8 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] w-full max-w-md">
+      <h1 class="text-2xl font-bold text-[#FF7B22] mb-6 text-center">
+        마음ON 관리자
       </h1>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            이메일
+          <label class="block text-[13px] font-medium text-[#555] mb-1">
+            사용자명
           </label>
           <input
-            v-model="email"
-            type="email"
+            v-model="username"
+            type="text"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="관리자 이메일"
+            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[15px] text-[#333] placeholder-[#999]"
+            placeholder="관리자 사용자명"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label class="block text-[13px] font-medium text-[#555] mb-1">
             비밀번호
           </label>
           <input
             v-model="password"
             type="password"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[15px] text-[#333] placeholder-[#999]"
             placeholder="비밀번호"
           />
         </div>
@@ -64,14 +64,14 @@ const handleLogin = async () => {
         <button
           type="submit"
           :disabled="authStore.loading"
-          class="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white py-2 px-4 rounded-md transition-colors"
+          class="w-full bg-[#FF7B22] hover:bg-[#E56D1E] disabled:opacity-50 text-white py-3.5 px-4 rounded-[12px] transition-colors font-medium text-[15px]"
         >
           {{ authStore.loading ? '로그인 중...' : '로그인' }}
         </button>
       </form>
 
-      <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-        테스트 계정: admin@mauemon.com / password
+      <p class="mt-4 text-center text-[12px] text-[#999]">
+        테스트 계정: admin / password
       </p>
     </div>
   </div>

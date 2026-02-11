@@ -1,24 +1,24 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@shared/services/insuranceApi'
-import type { User } from '@shared/types'
+import type { Account } from '@shared/types'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>(null)
+  const user = ref<Account | null>(null)
   const token = ref<string | null>(localStorage.getItem('adminToken'))
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.role === 'admin')
+  const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
-  async function login(email: string, password: string) {
+  async function login(username: string, password: string) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await authApi.login(email, password)
-      const { user: userData, token: authToken } = response.data.data
+      const response = await authApi.login(username, password)
+      const { account: userData, token: authToken } = response.data.data
 
       user.value = userData
       token.value = authToken

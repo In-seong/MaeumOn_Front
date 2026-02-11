@@ -60,8 +60,8 @@ import BottomNav from '../../components/layout/BottomNav.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const userName = computed(() => authStore.user?.name || '사용자')
-const userPhone = computed(() => authStore.user?.phone || '010-****-****')
+const userName = computed(() => authStore.user?.customer?.name || authStore.user?.username || '사용자')
+const userPhone = computed(() => authStore.user?.customer?.phone || '010-****-****')
 const userInitial = computed(() => userName.value.charAt(0))
 
 const menuItems = [
