@@ -39,6 +39,9 @@ export const customerAuthApi = {
   loginWithPin: (data: { phone: string; pin: string; device_uuid: string; device_token: string }) =>
     api.post<ApiResponse<{ account: Account; token: string }>>('/customer-auth/login-pin', data),
 
+  loginPinNewDevice: (data: { phone: string; pin: string; device_uuid: string; device_name?: string }) =>
+    api.post<ApiResponse<{ account: Account; token: string; device_token: string }>>('/customer-auth/login-pin-new-device', data),
+
   checkDevice: (data: { device_uuid: string; device_token: string }) =>
     api.post<ApiResponse<{ registered: boolean; has_pin?: boolean; phone?: string; customer_name?: string }>>('/customer-auth/check-device', data),
 }

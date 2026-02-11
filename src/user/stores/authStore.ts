@@ -196,10 +196,27 @@ export const useAuthStore = defineStore('userAuth', () => {
     loading.value = true
     error.value = null
 
+    // 디바이스 토큰이 없으면 새 기기 등록 + PIN 로그인 (OTP 인증 후)
     if (!deviceToken.value) {
-      error.value = '기기 인증 정보가 없습니다. 휴대폰 인증을 다시 진행해주세요.'
-      loading.value = false
-      return false
+      try {
+        const response = await customerAuthApi.loginPinNewDevice({
+          phone: phone.value,
+          pin,
+          device_uuid: deviceUuid,
+        })
+
+        if (response.data.success) {
+          setAuthData(response.data.data.account, response.data.data.token, response.data.data.device_token)
+          return true
+        }
+        error.value = response.data.message || 'PIN이 올바르지 않습니다.'
+        return false
+      } catch (e: any) {
+        error.value = e.response?.data?.message || 'PIN이 올바르지 않습니다.'
+        return false
+      } finally {
+        loading.value = false
+      }
     }
 
     try {
