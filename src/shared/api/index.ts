@@ -15,8 +15,8 @@ const api: AxiosInstance = axios.create({
 // Request Interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 토큰이 있으면 헤더에 추가 (admin 또는 user 토큰 확인)
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('userToken')
+    // 토큰이 있으면 헤더에 추가 (admin → agent → user 순서로 확인)
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('agentToken') || localStorage.getItem('userToken')
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -45,6 +45,8 @@ api.interceptors.response.use(
       if (window.location.pathname.includes('admin')) {
         localStorage.removeItem('adminToken')
         localStorage.removeItem('adminIsLoggedIn')
+      } else if (window.location.pathname.includes('agent')) {
+        localStorage.removeItem('agentToken')
       } else {
         localStorage.removeItem('userToken')
         localStorage.removeItem('userIsLoggedIn')

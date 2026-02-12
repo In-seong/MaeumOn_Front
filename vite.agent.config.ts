@@ -7,11 +7,18 @@ export default defineConfig({
   plugins: [
     vue(),
     {
-      name: 'html-transform',
+      name: 'agent-spa-fallback',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          // Redirect root to agent.html
-          if (req.url === '/' || req.url === '/index.html') {
+          const url = req.url ?? ''
+          // Serve agent.html for all non-asset, non-API requests (SPA fallback)
+          if (
+            !url.startsWith('/src/') &&
+            !url.startsWith('/node_modules/') &&
+            !url.startsWith('/@') &&
+            !url.startsWith('/api/') &&
+            !url.includes('.')
+          ) {
             req.url = '/agent.html'
           }
           next()
