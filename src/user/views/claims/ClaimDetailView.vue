@@ -117,12 +117,31 @@
                 PDF 다운로드
               </button>
             </div>
+            <!-- 발송대기/발송중 상태 표시 -->
+            <div
+              v-if="claimStore.currentClaim.fax_status === 'pending' || claimStore.currentClaim.fax_status === 'sending'"
+              class="w-full bg-[#FFF3ED] text-[#FF7B22] rounded-[12px] py-3.5 text-[15px] font-semibold text-center flex items-center justify-center gap-2"
+            >
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+              {{ claimStore.currentClaim.fax_status === 'pending' ? '발송 대기중...' : '팩스 발송중...' }}
+            </div>
+
+            <!-- 미발송 상태: 팩스 발송 버튼 -->
             <button
-              v-if="claimStore.currentClaim.fax_status !== 'sent'"
+              v-if="!claimStore.currentClaim.fax_status"
               @click="showFaxModal = true"
               class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
             >
               팩스 발송
+            </button>
+
+            <!-- 실패 상태: 재발송 버튼 -->
+            <button
+              v-if="claimStore.currentClaim.fax_status === 'failed'"
+              @click="showFaxModal = true"
+              class="w-full bg-[#FF4444] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            >
+              팩스 재발송
             </button>
           </div>
         </div>
@@ -189,7 +208,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useClaimStore } from '../../stores/claimStore'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
@@ -207,6 +226,7 @@ const claimId = computed(() => Number(route.params.id))
 const showFaxModal = ref(false)
 const faxNumber = ref('')
 const sendingFax = ref(false)
+let pollTimer: ReturnType<typeof setInterval> | null = null
 
 onMounted(async () => {
   await claimStore.fetchClaimDetail(claimId.value)
@@ -214,7 +234,42 @@ onMounted(async () => {
   if (claimStore.currentClaim?.claim_form?.insurance_company?.fax_number) {
     faxNumber.value = claimStore.currentClaim.claim_form.insurance_company.fax_number
   }
+
+  startPollingIfNeeded()
 })
+
+onUnmounted(() => {
+  stopPolling()
+})
+
+// pending/sending 상태 변화 감시
+watch(() => claimStore.currentClaim?.fax_status, (newStatus) => {
+  if (newStatus === 'pending' || newStatus === 'sending') {
+    startPollingIfNeeded()
+  } else {
+    stopPolling()
+  }
+})
+
+function startPollingIfNeeded() {
+  const status = claimStore.currentClaim?.fax_status
+  if ((status === 'pending' || status === 'sending') && !pollTimer) {
+    pollTimer = setInterval(async () => {
+      await claimStore.fetchClaimDetail(claimId.value)
+      const updatedStatus = claimStore.currentClaim?.fax_status
+      if (updatedStatus !== 'pending' && updatedStatus !== 'sending') {
+        stopPolling()
+      }
+    }, 10000) // 10초 간격
+  }
+}
+
+function stopPolling() {
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
+}
 
 function getStatusVariant(status: string): 'success' | 'warning' | 'danger' | 'primary' | 'info' | 'default' {
   switch (status) {
@@ -236,6 +291,7 @@ function getFaxStatusLabel(status?: string) {
     case 'sent': return '발송완료'
     case 'failed': return '발송실패'
     case 'pending': return '발송대기'
+    case 'sending': return '발송중'
     default: return '미발송'
   }
 }

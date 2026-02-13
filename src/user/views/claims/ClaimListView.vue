@@ -49,6 +49,8 @@
                   <span>{{ formatDate(claim.created_at ?? '') }}</span>
                   <span v-if="claim.fax_status === 'sent'" class="text-[#1FBD53]">팩스 발송완료</span>
                   <span v-else-if="claim.fax_status === 'failed'" class="text-[#FF0000]">팩스 발송실패</span>
+                  <span v-else-if="claim.fax_status === 'pending'" class="text-[#FF7B22]">팩스 발송대기</span>
+                  <span v-else-if="claim.fax_status === 'sending'" class="text-[#FF7B22]">팩스 발송중</span>
                 </div>
               </CardSection>
             </div>
