@@ -151,6 +151,9 @@ export interface InsuranceClaim {
   generated_pdf_path?: string
   generated_pdf_url?: string
   generated_image_url?: string
+  fax_batch_id?: string
+  fax_number_sent?: string
+  fax_result_code?: string
   fax_sent_at?: string
   fax_status?: string
   notes?: string

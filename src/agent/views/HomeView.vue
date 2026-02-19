@@ -12,14 +12,12 @@
         <!-- Alerts -->
         <section class="flex flex-col gap-2 mb-4">
           <AlertCard
-            icon="🔔"
             :title="`미처리 상담요청 ${pendingConsultations}건`"
             subtitle="빠른 응답이 필요합니다"
             variant="warning"
             @click="router.push('/consultations')"
           />
           <AlertCard
-            icon="⚠️"
             title="알릴의무 만기 임박 2건"
             subtitle="7일 이내 처리 필요"
             variant="danger"

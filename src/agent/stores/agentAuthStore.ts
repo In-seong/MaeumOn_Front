@@ -12,6 +12,22 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
   const agentName = computed(() => agent.value?.agent_name ?? '')
   const agencyName = computed(() => agent.value?.agency_name ?? '')
 
+  // Restore mock data on page refresh when token exists but agent data is lost
+  if (isLoggedIn.value && !agent.value) {
+    agent.value = {
+      agent_id: 'AGT00001',
+      account_id: 1,
+      agent_name: '김설계',
+      agent_phone: '010-1234-5678',
+      agent_email: 'agent@maeumOn.com',
+      agency_name: '마음온 보험대리점',
+      position: '팀장',
+      license_number: 'LA-2024-001',
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01',
+    }
+  }
+
   async function login(username: string, password: string) {
     loading.value = true
     error.value = null

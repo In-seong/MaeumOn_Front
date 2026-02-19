@@ -5,7 +5,7 @@
 
       <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
         <!-- Urgency Filter Tabs -->
-        <div class="flex gap-2 mb-5 overflow-x-auto scrollbar-hide">
+        <div class="flex gap-2 mb-5 overflow-x-auto scrollbar-hide -mx-6 px-6">
           <button
             v-for="tab in filterTabs"
             :key="tab.value"

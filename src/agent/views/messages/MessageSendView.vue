@@ -211,12 +211,12 @@ const mockCustomers = [
   { name: '정민호', id: 105 },
 ]
 
-const customerOptions = ['선택하세요', ...mockCustomers.map((c) => `${c.id}:${c.name}`)]
+const customerOptions = ['선택하세요', ...mockCustomers.map((c) => c.name)]
 
 function parseCustomerOption(option: string): { id: number | undefined; name: string } {
-  const sep = option.indexOf(':')
-  if (sep === -1) return { id: undefined, name: option }
-  return { id: Number(option.slice(0, sep)), name: option.slice(sep + 1) }
+  const customer = mockCustomers.find((c) => c.name === option)
+  if (customer) return { id: customer.id, name: customer.name }
+  return { id: undefined, name: option }
 }
 
 const templateOptions = computed(() => [

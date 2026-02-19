@@ -37,7 +37,7 @@
         </div>
 
         <!-- Status Filter Chips -->
-        <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide" role="tablist" aria-label="청구 상태 필터">
+        <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide -mx-5 px-5" role="tablist" aria-label="청구 상태 필터">
           <button
             v-for="chip in filterChips"
             :key="chip.value"
