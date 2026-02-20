@@ -252,18 +252,6 @@ const sortedPages = computed<FormPage[]>(() => {
   return [...claimStore.selectedClaimForm.form_pages].sort((a, b) => a.page_number - b.page_number)
 })
 
-const allFieldsGroupedByPage = computed(() => {
-  if (!sortedPages.value.length) {
-    const fields = claimStore.selectedClaimForm?.form_fields || []
-    return [{ page: null, fields: [...fields].sort((a, b) => a.field_order - b.field_order) }]
-  }
-
-  return sortedPages.value.map(page => ({
-    page,
-    fields: (page.form_fields || []).sort((a: FormField, b: FormField) => a.field_order - b.field_order)
-  }))
-})
-
 const allFields = computed<FormField[]>(() => {
   if (!sortedPages.value.length) {
     return claimStore.selectedClaimForm?.form_fields || []
