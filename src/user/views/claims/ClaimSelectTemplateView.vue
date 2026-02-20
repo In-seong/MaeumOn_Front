@@ -3,42 +3,37 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보험 청구서 작성" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
-        <!-- Step 1: 보험사 선택 -->
-        <div class="mb-5">
-          <p class="text-[15px] font-semibold text-[#222] mb-2">1. 보험사 선택</p>
+        <!-- 보험사 선택 -->
+        <CardSection class="mb-4">
+          <p class="text-[13px] font-medium text-[#888] mb-2">보험사</p>
 
           <div v-if="claimStore.loadingCompanies" class="flex items-center justify-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           </div>
 
-          <div v-else class="grid grid-cols-2 gap-3">
+          <div v-else class="grid grid-cols-2 gap-2">
             <button
               v-for="company in claimStore.insuranceCompanies"
               :key="company.company_id"
               @click="selectedCompanyId = company.company_id"
-              class="rounded-[12px] p-4 text-left transition-all active:scale-[0.98]"
+              class="rounded-[10px] px-3 py-2.5 text-left transition-all active:scale-[0.98]"
               :class="
                 selectedCompanyId === company.company_id
-                  ? 'bg-[#FFF0E5] border-2 border-[#FF7B22]'
-                  : 'bg-white border-2 border-[#E8E8E8]'
+                  ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
+                  : 'bg-[#F8F8F8] border-[1.5px] border-transparent'
               "
             >
-              <p class="text-[14px] font-semibold text-[#222]">{{ company.company_name }}</p>
-              <p class="text-[12px] text-[#999] mt-0.5">{{ company.company_code }}</p>
-              <p v-if="company.claim_forms_count" class="text-[11px] text-[#FF7B22] mt-1">
-                양식 {{ company.claim_forms_count }}개
-              </p>
+              <p class="text-[13px] font-semibold text-[#222]">{{ company.company_name }}</p>
             </button>
           </div>
 
-          <div v-if="claimStore.insuranceCompanies.length === 0 && !claimStore.loadingCompanies" class="text-center py-8">
+          <div v-if="claimStore.insuranceCompanies.length === 0 && !claimStore.loadingCompanies" class="text-center py-6">
             <p class="text-[13px] text-[#999]">등록된 보험사가 없습니다.</p>
           </div>
-        </div>
+        </CardSection>
 
-        <!-- Step 2: 양식 선택 -->
+        <!-- 양식 선택 -->
         <div v-if="selectedCompanyId" class="mb-5">
-          <p class="text-[15px] font-semibold text-[#222] mb-2">2. 청구서 양식 선택</p>
 
           <div v-if="claimStore.loadingClaimForms" class="flex items-center justify-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
