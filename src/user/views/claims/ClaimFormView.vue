@@ -18,8 +18,8 @@
               <p class="text-[18px] font-bold text-[#222] mt-0.5">
                 {{ claimStore.selectedClaimForm.form_name }}
               </p>
-              <p v-if="sortedPages.length > 1" class="text-[12px] text-[#FF7B22] mt-1">
-                {{ sortedPages.length }}페이지
+              <p v-if="allFields.length > 0" class="text-[12px] text-[#999] mt-1">
+                입력항목 {{ allFields.length }}개
               </p>
             </div>
           </CardSection>
@@ -101,91 +101,77 @@
 
           <!-- 입력 폼 -->
           <form @submit.prevent="handleSubmit">
-            <div
-              v-for="(group, groupIndex) in allFieldsGroupedByPage"
-              :key="groupIndex"
-              class="mb-4"
-            >
-              <p v-if="group.page && sortedPages.length > 1" class="text-[13px] font-semibold text-[#FF7B22] mb-2">
-                {{ group.page.page_number }}페이지
-              </p>
+            <CardSection class="mb-4">
+              <div class="flex flex-col gap-4">
+                <div v-for="field in allFieldsSorted" :key="field.form_field_id">
+                  <label class="block text-[13px] font-medium text-[#888] mb-1.5">
+                    {{ field.field_label }}
+                    <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                  </label>
 
-              <CardSection>
-                <div class="flex flex-col gap-4">
-                  <div v-for="field in group.fields" :key="field.form_field_id">
-                    <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                      {{ field.field_label }}
-                      <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                    </label>
+                  <input
+                    v-if="field.field_type === 'text'"
+                    type="text"
+                    :value="claimStore.fieldValues[field.form_field_id]"
+                    @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
+                    :placeholder="field.placeholder"
+                    :required="field.is_required"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+                  />
 
-                    <input
-                      v-if="field.field_type === 'text'"
-                      type="text"
-                      :value="claimStore.fieldValues[field.form_field_id]"
-                      @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
-                      :placeholder="field.placeholder"
-                      :required="field.is_required"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
-                    />
+                  <input
+                    v-else-if="field.field_type === 'date'"
+                    type="date"
+                    :value="claimStore.fieldValues[field.form_field_id]"
+                    @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
+                    :required="field.is_required"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                  />
 
-                    <input
-                      v-else-if="field.field_type === 'date'"
-                      type="date"
-                      :value="claimStore.fieldValues[field.form_field_id]"
-                      @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
-                      :required="field.is_required"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
-                    />
+                  <input
+                    v-else-if="field.field_type === 'number'"
+                    type="text"
+                    inputmode="numeric"
+                    :value="claimStore.fieldValues[field.form_field_id]"
+                    @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
+                    :placeholder="field.placeholder"
+                    :required="field.is_required"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+                  />
 
-                    <input
-                      v-else-if="field.field_type === 'number'"
-                      type="text"
-                      inputmode="numeric"
-                      :value="claimStore.fieldValues[field.form_field_id]"
-                      @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
-                      :placeholder="field.placeholder"
-                      :required="field.is_required"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
-                    />
+                  <input
+                    v-else-if="field.field_type === 'phone'"
+                    type="tel"
+                    :value="claimStore.fieldValues[field.form_field_id]"
+                    @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
+                    placeholder="010-1234-5678"
+                    :required="field.is_required"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+                  />
 
-                    <input
-                      v-else-if="field.field_type === 'phone'"
-                      type="tel"
-                      :value="claimStore.fieldValues[field.form_field_id]"
-                      @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
-                      placeholder="010-1234-5678"
-                      :required="field.is_required"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
-                    />
+                  <input
+                    v-else-if="field.field_type === 'resident_number'"
+                    type="text"
+                    :value="claimStore.fieldValues[field.form_field_id]"
+                    @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
+                    placeholder="123456-1234567"
+                    :required="field.is_required"
+                    maxlength="14"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+                  />
 
-                    <input
-                      v-else-if="field.field_type === 'resident_number'"
-                      type="text"
-                      :value="claimStore.fieldValues[field.form_field_id]"
-                      @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
-                      placeholder="123456-1234567"
-                      :required="field.is_required"
-                      maxlength="14"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
-                    />
-
-                    <textarea
-                      v-else-if="field.field_type === 'textarea'"
-                      :value="claimStore.fieldValues[field.form_field_id]"
-                      @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
-                      :placeholder="field.placeholder"
-                      :required="field.is_required"
-                      rows="3"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]"
-                    ></textarea>
-                  </div>
-
-                  <div v-if="group.fields.length === 0" class="text-[13px] text-[#999] py-2 text-center">
-                    이 페이지에는 입력 필드가 없습니다.
-                  </div>
+                  <textarea
+                    v-else-if="field.field_type === 'textarea'"
+                    :value="claimStore.fieldValues[field.form_field_id]"
+                    @input="formatFieldInput(field.form_field_id, field.field_type, $event)"
+                    :placeholder="field.placeholder"
+                    :required="field.is_required"
+                    rows="3"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]"
+                  ></textarea>
                 </div>
-              </CardSection>
-            </div>
+              </div>
+            </CardSection>
 
             <!-- 에러 메시지 -->
             <div v-if="claimStore.error" class="mb-4 p-3 bg-[#FFE5E5] rounded-[8px] text-[13px] text-[#FF0000]">
@@ -283,6 +269,16 @@ const allFields = computed<FormField[]>(() => {
     return claimStore.selectedClaimForm?.form_fields || []
   }
   return sortedPages.value.flatMap(page => page.form_fields || [])
+})
+
+// 페이지 순서 → 필드 순서로 정렬된 flat 배열 (입력 폼용)
+const allFieldsSorted = computed<FormField[]>(() => {
+  if (!sortedPages.value.length) {
+    return [...(claimStore.selectedClaimForm?.form_fields || [])].sort((a, b) => a.field_order - b.field_order)
+  }
+  return sortedPages.value.flatMap(page =>
+    [...(page.form_fields || [])].sort((a: FormField, b: FormField) => a.field_order - b.field_order)
+  )
 })
 
 const currentPageData = computed(() => {
