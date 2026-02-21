@@ -21,7 +21,7 @@
                 <span class="text-[17px] font-bold text-[#222]">{{ customer.name }}</span>
               </div>
               <p class="text-[14px] text-[#888]">{{ customer.phone }}</p>
-              <p class="text-[11px] text-[#AAAAAA] mt-0.5">등록일 {{ customer.created_at }}</p>
+              <p class="text-[11px] text-[#AAAAAA] mt-0.5">등록일 {{ formatDateTime(customer.created_at) }}</p>
             </div>
           </div>
         </CardSection>
@@ -56,7 +56,7 @@
             <InfoRow label="주민등록번호" :value="customer.resident_number ?? '-'" />
             <InfoRow label="주소" :value="customer.address ?? '-'" />
             <InfoRow label="직업" :value="customer.job ?? '-'" />
-            <InfoRow label="등록일" :value="customer.created_at" />
+            <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
           </CardSection>
         </div>
 
@@ -191,6 +191,18 @@ onMounted(async () => {
 })
 
 // ===== Helpers =====
+
+function formatDateTime(value?: string): string {
+  if (!value) return '-'
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return value
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mi = String(d.getMinutes()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}`
+}
 
 function formatCurrency(value: string): string {
   const num = Number(value)

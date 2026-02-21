@@ -30,19 +30,31 @@
                   <span class="text-[#FF7B22] text-[12px]">*</span>
                 </div>
                 <input
-                  v-model="form.phone"
+                  :value="form.phone"
                   type="tel"
+                  inputmode="numeric"
                   placeholder="010-0000-0000"
                   required
+                  maxlength="13"
                   class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  @input="handlePhoneInput"
                 />
               </div>
 
-              <FormInput
-                v-model="form.resident_number"
-                label="주민등록번호"
-                placeholder="000000-0000000"
-              />
+              <div>
+                <div class="flex items-center gap-1 mb-1.5">
+                  <label class="text-[13px] font-medium text-[#555]">주민등록번호</label>
+                </div>
+                <input
+                  :value="form.resident_number"
+                  type="tel"
+                  inputmode="numeric"
+                  placeholder="000000-0000000"
+                  maxlength="14"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  @input="handleResidentNumberInput"
+                />
+              </div>
             </div>
           </CardSection>
 
@@ -107,6 +119,35 @@ const form = reactive<CustomerForm>({
   address: '',
   job: '',
 })
+
+// 전화번호 자동 하이픈: 숫자만 입력 → 010-1234-5678 형태
+function formatPhone(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
+}
+
+function handlePhoneInput(e: Event): void {
+  const input = e.target as HTMLInputElement
+  const formatted = formatPhone(input.value)
+  form.phone = formatted
+  input.value = formatted
+}
+
+// 주민등록번호 자동 하이픈: 숫자만 입력 → 000000-0000000 형태
+function formatResidentNumber(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 13)
+  if (digits.length <= 6) return digits
+  return `${digits.slice(0, 6)}-${digits.slice(6)}`
+}
+
+function handleResidentNumberInput(e: Event): void {
+  const input = e.target as HTMLInputElement
+  const formatted = formatResidentNumber(input.value)
+  form.resident_number = formatted
+  input.value = formatted
+}
 
 async function handleSubmit(): Promise<void> {
   if (!form.name.trim() || !form.phone.trim()) {
