@@ -66,8 +66,7 @@ async function handleLogin() {
     return
   }
   try {
-    // Use mockLogin during development (no backend API yet)
-    agentAuthStore.mockLogin()
+    await agentAuthStore.login(username.value, password.value)
     router.push('/')
   } catch {
     // Error already set in store

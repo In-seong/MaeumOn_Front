@@ -13,22 +13,9 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
   const agentName = computed(() => agent.value?.name ?? '')
   const agencyName = computed(() => agent.value?.affiliation ?? '')
 
-  // Restore mock data on page refresh when token exists but agent data is lost
+  // Restore agent data on page refresh when token exists but agent data is lost
   if (isLoggedIn.value && !agent.value) {
-    agent.value = {
-      agent_id: 'AGT00001',
-      account_id: 1,
-      name: '김설계',
-      phone: '010-1234-5678',
-      email: 'agent@maeumOn.com',
-      affiliation: '마음온 보험대리점',
-      position: '팀장',
-      specialization: '',
-      license_number: 'LA-2024-001',
-      is_active: true,
-      created_at: '2024-01-01',
-      updated_at: '2024-01-01',
-    }
+    fetchProfile()
   }
 
   async function login(username: string, password: string) {
@@ -81,26 +68,6 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     agent.value = null
   }
 
-  // Mock login for development (no backend yet)
-  function mockLogin() {
-    localStorage.setItem('agentToken', 'mock-agent-token-dev')
-    isLoggedIn.value = true
-    agent.value = {
-      agent_id: 'AGT00001',
-      account_id: 1,
-      name: '김설계',
-      phone: '010-1234-5678',
-      email: 'agent@maeumOn.com',
-      affiliation: '마음온 보험대리점',
-      position: '팀장',
-      specialization: '',
-      license_number: 'LA-2024-001',
-      is_active: true,
-      created_at: '2024-01-01',
-      updated_at: '2024-01-01',
-    }
-  }
-
   return {
     agent,
     isLoggedIn,
@@ -112,6 +79,5 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     fetchProfile,
     updateProfile,
     logout,
-    mockLogin,
   }
 })
