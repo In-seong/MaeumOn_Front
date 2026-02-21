@@ -97,12 +97,27 @@
 
         <!-- 메모 Tab -->
         <div v-if="activeTab === 'memos'">
+          <!-- Sort Toggle -->
+          <div v-if="store.memos.length > 0" class="flex items-center justify-between mb-3">
+            <span class="text-[13px] text-[#888]">총 <span class="font-semibold text-[#FF7B22]">{{ store.memos.length }}</span>건</span>
+            <button
+              class="flex items-center gap-1 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-full px-3 py-1.5 active:bg-[#F5F5F5] transition-colors"
+              @click="toggleMemoSort"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path v-if="memoSortOrder === 'desc'" d="M12 5v14M19 12l-7 7-7-7" />
+                <path v-else d="M12 19V5M5 12l7-7 7 7" />
+              </svg>
+              {{ memoSortOrder === 'desc' ? '최신순' : '오래된순' }}
+            </button>
+          </div>
+
           <!-- Memo List -->
           <div class="flex flex-col gap-2.5 mb-4">
-            <CardSection v-for="memo in store.memos" :key="memo.memo_id">
+            <CardSection v-for="memo in sortedMemos" :key="memo.memo_id">
               <p v-if="memo.title" class="text-[14px] font-semibold text-[#333] mb-1">{{ memo.title }}</p>
               <p class="text-[13px] text-[#333] leading-[1.6]">{{ memo.content }}</p>
-              <p class="text-[11px] text-[#AAAAAA] mt-2">{{ memo.memo_date }}</p>
+              <p class="text-[11px] text-[#AAAAAA] mt-2">{{ formatDate(memo.memo_date) }}</p>
             </CardSection>
 
             <div
@@ -175,6 +190,7 @@ const store = useCustomerStore()
 const activeTab = ref<TabKey>('info')
 const newMemoContent = ref('')
 const newMemoDate = ref(new Date().toISOString().slice(0, 10))
+const memoSortOrder = ref<'desc' | 'asc'>('desc')
 
 const tabs: Tab[] = [
   { key: 'info', label: '기본정보' },
@@ -186,11 +202,37 @@ const customerId = computed(() => String(route.params.id))
 
 const customer = computed(() => store.selectedCustomer)
 
+const sortedMemos = computed(() => {
+  const list = [...store.memos]
+  list.sort((a, b) => {
+    const dateA = a.memo_date ?? a.created_at ?? ''
+    const dateB = b.memo_date ?? b.created_at ?? ''
+    return memoSortOrder.value === 'desc'
+      ? dateB.localeCompare(dateA)
+      : dateA.localeCompare(dateB)
+  })
+  return list
+})
+
+function toggleMemoSort(): void {
+  memoSortOrder.value = memoSortOrder.value === 'desc' ? 'asc' : 'desc'
+}
+
 onMounted(async () => {
   await store.loadCustomer(customerId.value)
 })
 
 // ===== Helpers =====
+
+function formatDate(value?: string): string {
+  if (!value) return '-'
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return value
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
 
 function formatDateTime(value?: string): string {
   if (!value) return '-'
