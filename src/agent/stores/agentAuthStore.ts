@@ -11,7 +11,7 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
   const error = ref<string | null>(null)
 
   const agentName = computed(() => agent.value?.name ?? '')
-  const agencyName = computed(() => agent.value?.affiliation ?? '')
+  const agencyName = computed(() => agent.value?.office_location ?? '')
 
   // Restore agent data on page refresh when token exists but agent data is lost
   if (isLoggedIn.value && !agent.value) {
@@ -47,7 +47,7 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     }
   }
 
-  async function updateProfile(data: Partial<Pick<Agent, 'phone' | 'email' | 'specialization' | 'profile_image_url'>>) {
+  async function updateProfile(data: Partial<Pick<Agent, 'phone' | 'email' | 'office_location'>>) {
     loading.value = true
     error.value = null
     try {

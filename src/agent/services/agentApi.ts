@@ -17,7 +17,7 @@ export const fetchDashboard = () =>
 export const fetchAgentProfile = () =>
   api.get<ApiResponse<Agent>>(`${BASE}/profile`)
 
-export const updateAgentProfile = (data: Partial<Pick<Agent, 'phone' | 'email' | 'specialization' | 'profile_image_url'>>) =>
+export const updateAgentProfile = (data: Partial<Pick<Agent, 'phone' | 'email' | 'office_location'>>) =>
   api.put<ApiResponse<Agent>>(`${BASE}/profile`, data)
 
 // ===== Customers =====

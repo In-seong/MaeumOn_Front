@@ -12,7 +12,6 @@
           <div>
             <p class="text-[17px] font-bold text-[#333]">{{ agentName }}</p>
             <p class="text-[13px] text-[#888] mt-0.5">{{ agencyName }}</p>
-            <p class="text-[12px] text-[#BBB] mt-0.5">{{ agentPosition }}</p>
           </div>
         </div>
 
@@ -22,7 +21,8 @@
             <h3 class="text-[15px] font-semibold text-[#333] mb-3">기본 정보</h3>
             <InfoRow label="연락처" :value="agentPhone" />
             <InfoRow label="이메일" :value="agentEmail" />
-            <InfoRow label="자격번호" :value="licenseNumber" />
+            <InfoRow label="사원번호" :value="agentEmployeeNo" />
+            <InfoRow label="입사일" :value="hireDate" />
             <InfoRow label="등록일" :value="registeredAt" />
           </CardSection>
         </div>
@@ -82,11 +82,11 @@ const router = useRouter()
 const authStore = useAgentAuthStore()
 
 const agentName = computed(() => authStore.agent?.name ?? '설계사')
-const agencyName = computed(() => authStore.agent?.affiliation ?? '소속 없음')
-const agentPosition = computed(() => authStore.agent?.position ?? '')
+const agencyName = computed(() => authStore.agent?.office_location ?? '소속 없음')
+const agentEmployeeNo = computed(() => authStore.agent?.employee_number ?? '-')
 const agentPhone = computed(() => authStore.agent?.phone ?? '-')
 const agentEmail = computed(() => authStore.agent?.email ?? '-')
-const licenseNumber = computed(() => authStore.agent?.license_number ?? '-')
+const hireDate = computed(() => authStore.agent?.hire_date ?? '-')
 const registeredAt = computed(() => authStore.agent?.created_at ?? '-')
 const agentInitial = computed(() => agentName.value.charAt(0))
 

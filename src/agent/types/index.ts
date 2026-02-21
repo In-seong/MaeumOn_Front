@@ -31,13 +31,12 @@ export interface Agent {
   agent_id: string           // CHAR(8)
   account_id: number
   name: string
+  employee_number?: string   // 사원번호
   phone: string
   email: string
-  affiliation: string        // 소속
-  position: string           // 직급
-  specialization?: string
-  license_number: string
-  profile_image_url?: string
+  office_location?: string   // 소속/근무지
+  hire_date?: string         // 입사일
+  resignation_date?: string  // 퇴사일
   is_active: boolean
   created_at: string
   updated_at: string
