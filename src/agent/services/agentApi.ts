@@ -100,17 +100,16 @@ export const fetchDbDistributions = (params?: Record<string, unknown>) =>
 export const fetchDbDistribution = (id: number) =>
   api.get<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}`)
 
-export const processDbDistribution = (id: number, data: { status: string; is_converted?: boolean; contract_date?: string; contract_amount?: number }) =>
+export const processDbDistribution = (id: number, data: { notes?: string }) =>
   api.put<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}/process`, data)
 
 // ===== Messages =====
 export const sendMessage = (data: {
   receiver_id: string
   message_type: string
-  title?: string
-  content: string
+  phone_number: string
+  message_content: string
   image_url?: string
-  send_method: 'SMS' | 'KAKAO' | 'PUSH'
   scheduled_at?: string
 }) =>
   api.post<ApiResponse<Message>>(`${BASE}/messages`, data)

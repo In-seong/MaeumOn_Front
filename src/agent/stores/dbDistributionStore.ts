@@ -1,25 +1,15 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { DbDistribution } from '../types'
 import { fetchDbDistributions, processDbDistribution } from '../services/agentApi'
 
 export const useDbDistributionStore = defineStore('dbDistribution', () => {
   const distributions = ref<DbDistribution[]>([])
-  const filterStatus = ref<DbDistribution['status'] | 'all'>('all')
   const loading = ref(false)
   const error = ref<string | null>(null)
   const currentPage = ref(1)
   const lastPage = ref(1)
   const total = ref(0)
-
-  const filteredDistributions = computed<DbDistribution[]>(() => distributions.value)
-
-  const countByStatus = computed<Record<string, number>>(() => ({
-    all: total.value,
-    pending: distributions.value.filter(d => d.status === 'pending').length,
-    processing: distributions.value.filter(d => d.status === 'processing').length,
-    completed: distributions.value.filter(d => d.status === 'completed').length,
-  }))
 
   async function loadDistributions(params?: Record<string, unknown>) {
     loading.value = true
@@ -28,9 +18,6 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
       const queryParams: Record<string, unknown> = {
         page: currentPage.value,
         ...params,
-      }
-      if (filterStatus.value !== 'all') {
-        queryParams.status = filterStatus.value
       }
       const res = await fetchDbDistributions(queryParams)
       const paginated = res.data.data
@@ -46,7 +33,7 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
     }
   }
 
-  async function process(id: number, data: { status: string; is_converted?: boolean; contract_date?: string; contract_amount?: number }) {
+  async function process(id: number, data: { notes?: string }) {
     loading.value = true
     error.value = null
     try {
@@ -66,24 +53,14 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
     }
   }
 
-  function setFilter(status: DbDistribution['status'] | 'all') {
-    filterStatus.value = status
-    currentPage.value = 1
-    loadDistributions()
-  }
-
   return {
     distributions,
-    filterStatus,
     loading,
     error,
     currentPage,
     lastPage,
     total,
-    filteredDistributions,
-    countByStatus,
     loadDistributions,
     process,
-    setFilter,
   }
 })

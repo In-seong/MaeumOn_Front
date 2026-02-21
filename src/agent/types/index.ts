@@ -56,7 +56,6 @@ export interface Customer {
   address?: string
   detailed_address?: string
   job?: string               // 직업
-  acquisition_channel?: string // 고객정보취득경로
   is_active: boolean
   created_at: string
   updated_at: string
@@ -94,16 +93,13 @@ export interface Consultation {
   assignee_id: string
   assignee_type: string
   consultation_type: string
-  title?: string
-  content: string
+  consultation_date?: string
+  consultation_content: string
+  consultation_status: 'pending' | 'in_progress' | 'completed'
   customer_name?: string
   customer_phone?: string
-  birth_date?: string
-  region?: string
-  status: 'pending' | 'in_progress' | 'completed'
-  answer?: string
-  answered_at?: string
-  satisfaction_rating?: number
+  created_by_id?: string
+  updated_by_id?: string
   created_at: string
   updated_at: string
   // Eager loaded
@@ -164,18 +160,18 @@ export interface Memo {
 export interface Message {
   message_id: number
   receiver_id: string
-  receiver_type: string
   sender_id: string
   sender_type: string
+  phone_number: string
   message_type: string
-  title?: string
-  content: string
+  message_content: string
   image_url?: string
-  send_method: 'SMS' | 'KAKAO' | 'PUSH'
   send_status: string
   scheduled_at?: string
   sent_at?: string
+  error_message?: string
   created_at?: string
+  updated_at?: string
 }
 
 // ===== Notification (알림) =====
@@ -196,14 +192,15 @@ export interface AgentNotification {
 
 // ===== DisclosureObligation (알릴의무) =====
 export interface DisclosureObligation {
-  obligation_id: number
+  disclosure_id: number
   customer_id: string
   medical_record_id?: number
-  obligation_start_date?: string
-  obligation_end_date?: string
-  obligation_status: string
-  is_notified: boolean
-  notification_date?: string
+  disease_name?: string
+  diagnosis_date?: string
+  tracking_start_date?: string
+  tracking_end_date?: string
+  is_disclosed: boolean
+  disclosure_date?: string
   notes?: string
   created_at: string
   updated_at: string
@@ -246,13 +243,10 @@ export interface DbDistribution {
   agent_id: string
   admin_id?: number
   assignment_type?: string
-  assignment_reason?: string
-  customer_info?: string
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  processed_at?: string
-  is_converted?: boolean
-  contract_date?: string
-  contract_amount?: string
+  assignment_date?: string
+  notes?: string
+  created_by_id?: string
+  updated_by_id?: string
   created_at: string
   updated_at: string
   // Eager loaded

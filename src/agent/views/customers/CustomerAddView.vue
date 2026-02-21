@@ -62,12 +62,6 @@
                 label="직업"
                 placeholder="직업을 입력하세요"
               />
-
-              <FormSelect
-                v-model="form.acquisition_channel"
-                label="고객정보 취득경로"
-                :options="acquisitionOptions"
-              />
             </div>
           </CardSection>
 
@@ -90,13 +84,12 @@ import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 import FormInput from '@user/components/form/FormInput.vue'
-import FormSelect from '@user/components/form/FormSelect.vue'
+
 import { useCustomerStore } from '../../stores/customerStore'
 
 const router = useRouter()
 const store = useCustomerStore()
 
-const acquisitionOptions = ['병원', '소개', '기타']
 const submitting = ref(false)
 
 interface CustomerForm {
@@ -105,7 +98,6 @@ interface CustomerForm {
   resident_number: string
   address: string
   job: string
-  acquisition_channel: string
 }
 
 const form = reactive<CustomerForm>({
@@ -114,7 +106,6 @@ const form = reactive<CustomerForm>({
   resident_number: '',
   address: '',
   job: '',
-  acquisition_channel: '병원',
 })
 
 async function handleSubmit(): Promise<void> {
@@ -130,7 +121,6 @@ async function handleSubmit(): Promise<void> {
       resident_number: form.resident_number || undefined,
       address: form.address || undefined,
       job: form.job || undefined,
-      acquisition_channel: form.acquisition_channel || undefined,
     })
 
     router.push({ name: 'customer-list' })

@@ -48,7 +48,7 @@
         <div v-else class="flex flex-col gap-3">
           <ObligationItem
             v-for="item in filteredObligations"
-            :key="item.obligation_id"
+            :key="item.disclosure_id"
             :obligation="item"
           />
         </div>
@@ -113,22 +113,22 @@ function getUrgency(endDate?: string): 'imminent' | 'upcoming' | 'normal' {
 }
 
 const countByUrgency = computed(() => {
-  const active = obligations.value.filter(o => o.obligation_status !== 'completed')
+  const active = obligations.value.filter(o => !o.is_disclosed)
   return {
     all: active.length,
-    imminent: active.filter(o => getUrgency(o.obligation_end_date) === 'imminent').length,
-    upcoming: active.filter(o => getUrgency(o.obligation_end_date) === 'upcoming').length,
-    normal: active.filter(o => getUrgency(o.obligation_end_date) === 'normal').length,
+    imminent: active.filter(o => getUrgency(o.tracking_end_date) === 'imminent').length,
+    upcoming: active.filter(o => getUrgency(o.tracking_end_date) === 'upcoming').length,
+    normal: active.filter(o => getUrgency(o.tracking_end_date) === 'normal').length,
   }
 })
 
 const filteredObligations = computed(() => {
-  let filtered = obligations.value.filter(o => o.obligation_status !== 'completed')
+  let filtered = obligations.value.filter(o => !o.is_disclosed)
   if (activeFilter.value !== 'all') {
-    filtered = filtered.filter(o => getUrgency(o.obligation_end_date) === activeFilter.value)
+    filtered = filtered.filter(o => getUrgency(o.tracking_end_date) === activeFilter.value)
   }
   return [...filtered].sort(
-    (a, b) => getDaysRemaining(a.obligation_end_date) - getDaysRemaining(b.obligation_end_date),
+    (a, b) => getDaysRemaining(a.tracking_end_date) - getDaysRemaining(b.tracking_end_date),
   )
 })
 </script>

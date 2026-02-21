@@ -8,7 +8,7 @@
         </p>
       </div>
       <StatusBadge
-        v-if="obligation.obligation_status === 'completed'"
+        v-if="obligation.is_disclosed"
         label="완료"
         variant="success"
       />
@@ -22,7 +22,7 @@
           <line x1="8" y1="2" x2="8" y2="6" />
           <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
-        <span>{{ obligation.obligation_end_date ?? '-' }}</span>
+        <span>{{ obligation.tracking_end_date ?? '-' }}</span>
       </div>
 
       <span
@@ -47,8 +47,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const daysRemaining = computed(() => {
-  if (!props.obligation.obligation_end_date) return 999
-  const end = new Date(props.obligation.obligation_end_date)
+  if (!props.obligation.tracking_end_date) return 999
+  const end = new Date(props.obligation.tracking_end_date)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   end.setHours(0, 0, 0, 0)

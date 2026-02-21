@@ -16,9 +16,9 @@ export const useConsultationStore = defineStore('agentConsultation', () => {
 
   const statusCounts = computed(() => ({
     all: total.value,
-    pending: consultations.value.filter((c) => c.status === 'pending').length,
-    in_progress: consultations.value.filter((c) => c.status === 'in_progress').length,
-    completed: consultations.value.filter((c) => c.status === 'completed').length,
+    pending: consultations.value.filter((c) => c.consultation_status === 'pending').length,
+    in_progress: consultations.value.filter((c) => c.consultation_status === 'in_progress').length,
+    completed: consultations.value.filter((c) => c.consultation_status === 'completed').length,
   }))
 
   async function loadConsultations(params?: Record<string, unknown>) {
@@ -30,7 +30,7 @@ export const useConsultationStore = defineStore('agentConsultation', () => {
         ...params,
       }
       if (filterStatus.value !== 'all') {
-        queryParams.status = filterStatus.value
+        queryParams.consultation_status = filterStatus.value
       }
       const res = await fetchConsultations(queryParams)
       const paginated = res.data.data

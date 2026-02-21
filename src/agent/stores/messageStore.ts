@@ -40,10 +40,9 @@ export const useMessageStore = defineStore('agentMessage', () => {
   async function send(data: {
     receiver_id: string
     message_type: string
-    title?: string
-    content: string
+    phone_number: string
+    message_content: string
     image_url?: string
-    send_method: 'SMS' | 'KAKAO' | 'PUSH'
     scheduled_at?: string
   }) {
     loading.value = true

@@ -25,7 +25,7 @@
 
       <!-- Content Preview -->
       <p class="text-[13px] text-[#666] line-clamp-2 mb-2 leading-[1.5]">
-        {{ consultation.content }}
+        {{ consultation.consultation_content }}
       </p>
 
       <!-- Date -->
@@ -53,35 +53,28 @@
       <!-- Full Content -->
       <div class="mb-4">
         <h4 class="text-[13px] font-semibold text-[#555] mb-1.5">상담 내용</h4>
-        <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-wrap">{{ consultation.content }}</p>
+        <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-wrap">{{ consultation.consultation_content }}</p>
       </div>
 
       <!-- Contact Info -->
       <div class="mb-4">
         <InfoRow label="연락처" :value="consultation.customer?.phone ?? consultation.customer_phone ?? '-'" />
         <InfoRow label="요청일시" :value="consultation.created_at" />
-        <InfoRow v-if="consultation.answered_at" label="응답일시" :value="consultation.answered_at" />
+
       </div>
 
       <!-- Existing Response -->
-      <div v-if="consultation.answer && consultation.status !== 'pending'" class="mb-4">
-        <h4 class="text-[13px] font-semibold text-[#555] mb-1.5">답변 내용</h4>
-        <div class="bg-[#F8F8F8] rounded-[12px] p-3">
-          <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-wrap">{{ consultation.answer }}</p>
-        </div>
-      </div>
-
       <!-- Response Form (for pending / in_progress) -->
-      <div v-if="consultation.status !== 'completed'">
+      <div v-if="consultation.consultation_status !== 'completed'">
         <FormTextarea
           v-model="responseText"
-          :label="consultation.status === 'pending' ? '답변 작성' : '추가 답변'"
+          :label="consultation.consultation_status === 'pending' ? '상태 변경' : '완료 처리'"
           placeholder="고객에게 전달할 답변을 작성해주세요"
           :rows="4"
         />
         <div class="mt-3">
           <ActionButton full large @click="submitResponse">
-            {{ consultation.status === 'pending' ? '답변 등록' : '답변 완료' }}
+            {{ consultation.consultation_status === 'pending' ? '상담 진행' : '상담 완료' }}
           </ActionButton>
         </div>
       </div>
@@ -108,24 +101,24 @@ const emit = defineEmits<{
 }>()
 
 const isExpanded = ref(false)
-const responseText = ref(props.consultation.answer ?? '')
+const responseText = ref('')
 
 const statusLabel = computed(() => {
-  const map: Record<Consultation['status'], string> = {
+  const map: Record<string, string> = {
     pending: '대기중',
     in_progress: '진행중',
     completed: '완료',
   }
-  return map[props.consultation.status]
+  return map[props.consultation.consultation_status] ?? props.consultation.consultation_status
 })
 
 const statusVariant = computed<'warning' | 'info' | 'success'>(() => {
-  const map: Record<Consultation['status'], 'warning' | 'info' | 'success'> = {
+  const map: Record<string, 'warning' | 'info' | 'success'> = {
     pending: 'warning',
     in_progress: 'info',
     completed: 'success',
   }
-  return map[props.consultation.status]
+  return map[props.consultation.consultation_status] ?? 'warning'
 })
 
 function toggleExpand(): void {

@@ -56,7 +56,6 @@
             <InfoRow label="주민등록번호" :value="customer.resident_number ?? '-'" />
             <InfoRow label="주소" :value="customer.address ?? '-'" />
             <InfoRow label="직업" :value="customer.job ?? '-'" />
-            <InfoRow label="취득경로" :value="customer.acquisition_channel ?? '-'" />
             <InfoRow label="등록일" :value="customer.created_at" />
           </CardSection>
         </div>

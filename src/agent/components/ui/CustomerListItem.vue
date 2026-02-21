@@ -20,9 +20,6 @@
         </div>
         <p class="text-[13px] text-[#888] mb-0.5">{{ customer.phone }}</p>
         <div class="flex items-center gap-3 text-[11px] text-[#AAAAAA]">
-          <span v-if="customer.acquisition_channel">
-            {{ customer.acquisition_channel }}
-          </span>
           <span v-if="customer.job" class="text-[#999]">
             {{ customer.job }}
           </span>

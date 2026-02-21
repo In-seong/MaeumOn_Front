@@ -166,12 +166,8 @@
                   :variant="statusVariant(msg.send_status)"
                 />
               </div>
-              <p class="text-[12px] text-[#666] line-clamp-2 mb-2">{{ msg.content }}</p>
-              <div class="flex items-center justify-between">
-                <StatusBadge
-                  :label="methodLabel(msg.send_method)"
-                  :variant="methodVariant(msg.send_method)"
-                />
+              <p class="text-[12px] text-[#666] line-clamp-2 mb-2">{{ msg.message_content }}</p>
+              <div class="flex items-center justify-end">
                 <span class="text-[11px] text-[#999]">{{ msg.sent_at ?? msg.created_at }}</span>
               </div>
             </div>
@@ -195,7 +191,6 @@ import FormInput from '@user/components/form/FormInput.vue'
 import FormSelect from '@user/components/form/FormSelect.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import { useMessageStore } from '../../stores/messageStore'
-import type { Message } from '../../types'
 
 const messageStore = useMessageStore()
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -268,8 +263,8 @@ async function handleSmsSend(): Promise<void> {
     await messageStore.send({
       receiver_id: smsForm.value.receiverId,
       message_type: 'general',
-      content: smsForm.value.content,
-      send_method: 'SMS',
+      phone_number: smsForm.value.receiverId,
+      message_content: smsForm.value.content,
     })
     smsForm.value.content = ''
     smsForm.value.receiverId = ''
@@ -290,8 +285,8 @@ async function handleKakaoSend(): Promise<void> {
     await messageStore.send({
       receiver_id: kakaoForm.value.receiverId,
       message_type: 'template',
-      content: template.content,
-      send_method: 'KAKAO',
+      phone_number: kakaoForm.value.receiverId,
+      message_content: template.content,
     })
     kakaoForm.value.receiverId = ''
     kakaoForm.value.templateId = '선택하세요'
@@ -309,9 +304,8 @@ async function handlePushSend(): Promise<void> {
     await messageStore.send({
       receiver_id: pushForm.value.receiverId,
       message_type: 'notification',
-      title: pushForm.value.title,
-      content: pushForm.value.content,
-      send_method: 'PUSH',
+      phone_number: pushForm.value.receiverId,
+      message_content: pushForm.value.content,
     })
     pushForm.value.title = ''
     pushForm.value.content = ''
@@ -341,21 +335,5 @@ function statusVariant(status: string): 'success' | 'danger' | 'warning' | 'defa
   return map[status] ?? 'default'
 }
 
-function methodLabel(method: Message['send_method']): string {
-  const map: Record<Message['send_method'], string> = {
-    SMS: 'SMS',
-    KAKAO: '카카오',
-    PUSH: 'PUSH',
-  }
-  return map[method]
-}
 
-function methodVariant(method: Message['send_method']): 'primary' | 'info' | 'default' {
-  const map: Record<Message['send_method'], 'primary' | 'info' | 'default'> = {
-    SMS: 'primary',
-    KAKAO: 'info',
-    PUSH: 'default',
-  }
-  return map[method]
-}
 </script>
