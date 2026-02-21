@@ -12,7 +12,7 @@
     >
       <!-- Top: Name + Status -->
       <div class="flex items-center justify-between mb-2">
-        <span class="text-[15px] font-semibold text-[#222]">{{ consultation.customer_name }}</span>
+        <span class="text-[15px] font-semibold text-[#222]">{{ consultation.customer?.name ?? consultation.customer_name ?? '-' }}</span>
         <StatusBadge :label="statusLabel" :variant="statusVariant" />
       </div>
 
@@ -30,7 +30,7 @@
 
       <!-- Date -->
       <div class="flex items-center justify-between">
-        <span class="text-[11px] text-[#AAA]">{{ consultation.requested_at }}</span>
+        <span class="text-[11px] text-[#AAA]">{{ consultation.created_at }}</span>
         <svg
           class="w-4 h-4 text-[#CCC] transition-transform duration-200"
           :class="{ 'rotate-180': isExpanded }"
@@ -58,16 +58,16 @@
 
       <!-- Contact Info -->
       <div class="mb-4">
-        <InfoRow label="연락처" :value="consultation.customer_phone" />
-        <InfoRow label="요청일시" :value="consultation.requested_at" />
-        <InfoRow v-if="consultation.responded_at" label="응답일시" :value="consultation.responded_at" />
+        <InfoRow label="연락처" :value="consultation.customer?.phone ?? consultation.customer_phone ?? '-'" />
+        <InfoRow label="요청일시" :value="consultation.created_at" />
+        <InfoRow v-if="consultation.answered_at" label="응답일시" :value="consultation.answered_at" />
       </div>
 
       <!-- Existing Response -->
-      <div v-if="consultation.response && consultation.status !== 'pending'" class="mb-4">
+      <div v-if="consultation.answer && consultation.status !== 'pending'" class="mb-4">
         <h4 class="text-[13px] font-semibold text-[#555] mb-1.5">답변 내용</h4>
         <div class="bg-[#F8F8F8] rounded-[12px] p-3">
-          <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-wrap">{{ consultation.response }}</p>
+          <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-wrap">{{ consultation.answer }}</p>
         </div>
       </div>
 
@@ -104,11 +104,11 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  respond: [id: number, response: string]
+  respond: [id: number, answer: string]
 }>()
 
 const isExpanded = ref(false)
-const responseText = ref(props.consultation.response ?? '')
+const responseText = ref(props.consultation.answer ?? '')
 
 const statusLabel = computed(() => {
   const map: Record<Consultation['status'], string> = {

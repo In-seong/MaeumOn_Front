@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@shared/api'
 import type { Agent } from '../types'
+import { updateAgentProfile } from '../services/agentApi'
 
 export const useAgentAuthStore = defineStore('agentAuth', () => {
   const agent = ref<Agent | null>(null)
@@ -9,20 +10,22 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const agentName = computed(() => agent.value?.agent_name ?? '')
-  const agencyName = computed(() => agent.value?.agency_name ?? '')
+  const agentName = computed(() => agent.value?.name ?? '')
+  const agencyName = computed(() => agent.value?.affiliation ?? '')
 
   // Restore mock data on page refresh when token exists but agent data is lost
   if (isLoggedIn.value && !agent.value) {
     agent.value = {
       agent_id: 'AGT00001',
       account_id: 1,
-      agent_name: '김설계',
-      agent_phone: '010-1234-5678',
-      agent_email: 'agent@maeumOn.com',
-      agency_name: '마음온 보험대리점',
+      name: '김설계',
+      phone: '010-1234-5678',
+      email: 'agent@maeumOn.com',
+      affiliation: '마음온 보험대리점',
       position: '팀장',
+      specialization: '',
       license_number: 'LA-2024-001',
+      is_active: true,
       created_at: '2024-01-01',
       updated_at: '2024-01-01',
     }
@@ -32,7 +35,7 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await api.post('/login', { username, password, role: 'AGENT' })
+      const res = await api.post('/auth/login', { username, password, role: 'AGENT' })
       const token = res.data.token || res.data.data?.token
       if (token) {
         localStorage.setItem('agentToken', token)
@@ -57,6 +60,21 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     }
   }
 
+  async function updateProfile(data: Partial<Pick<Agent, 'phone' | 'email' | 'specialization' | 'profile_image_url'>>) {
+    loading.value = true
+    error.value = null
+    try {
+      const res = await updateAgentProfile(data)
+      agent.value = res.data.data
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '프로필 수정에 실패했습니다.'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   function logout() {
     localStorage.removeItem('agentToken')
     isLoggedIn.value = false
@@ -70,12 +88,14 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     agent.value = {
       agent_id: 'AGT00001',
       account_id: 1,
-      agent_name: '김설계',
-      agent_phone: '010-1234-5678',
-      agent_email: 'agent@maeumOn.com',
-      agency_name: '마음온 보험대리점',
+      name: '김설계',
+      phone: '010-1234-5678',
+      email: 'agent@maeumOn.com',
+      affiliation: '마음온 보험대리점',
       position: '팀장',
+      specialization: '',
       license_number: 'LA-2024-001',
+      is_active: true,
       created_at: '2024-01-01',
       updated_at: '2024-01-01',
     }
@@ -90,6 +110,7 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     agencyName,
     login,
     fetchProfile,
+    updateProfile,
     logout,
     mockLogin,
   }

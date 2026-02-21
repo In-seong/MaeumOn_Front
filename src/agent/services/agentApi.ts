@@ -3,64 +3,74 @@ import type {
   Agent, Customer, Consultation, AgentClaim, Schedule,
   Performance, DbDistribution, DisclosureObligation, Message,
   SatisfactionSurvey, AgentNotification, DashboardSummary,
-  Memo, StatisticsTrend, MessageTemplate, PaginatedResponse
+  Memo, StatisticsTrend, MessageTemplate,
+  ApiResponse, LaravelPagination
 } from '../types'
 
 const BASE = '/agent'
 
 // ===== Dashboard =====
 export const fetchDashboard = () =>
-  api.get<{ data: DashboardSummary }>(`${BASE}/dashboard`)
+  api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`)
 
 // ===== Profile =====
 export const fetchAgentProfile = () =>
-  api.get<{ data: Agent }>(`${BASE}/profile`)
+  api.get<ApiResponse<Agent>>(`${BASE}/profile`)
+
+export const updateAgentProfile = (data: Partial<Pick<Agent, 'phone' | 'email' | 'specialization' | 'profile_image_url'>>) =>
+  api.put<ApiResponse<Agent>>(`${BASE}/profile`, data)
 
 // ===== Customers =====
 export const fetchCustomers = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<Customer>>(`${BASE}/customers`, { params })
+  api.get<ApiResponse<LaravelPagination<Customer>>>(`${BASE}/customers`, { params })
 
-export const fetchCustomer = (id: number) =>
-  api.get<{ data: Customer }>(`${BASE}/customers/${id}`)
+export const fetchCustomer = (id: string) =>
+  api.get<ApiResponse<Customer>>(`${BASE}/customers/${id}`)
 
 export const createCustomer = (data: Partial<Customer>) =>
-  api.post<{ data: Customer }>(`${BASE}/customers`, data)
+  api.post<ApiResponse<Customer>>(`${BASE}/customers`, data)
 
-export const updateCustomer = (id: number, data: Partial<Customer>) =>
-  api.put<{ data: Customer }>(`${BASE}/customers/${id}`, data)
+export const updateCustomer = (id: string, data: Partial<Customer>) =>
+  api.put<ApiResponse<Customer>>(`${BASE}/customers/${id}`, data)
 
-export const deleteCustomer = (id: number) =>
-  api.delete(`${BASE}/customers/${id}`)
-
-// ===== Customer Memos =====
-export const fetchMemos = (customerId: number) =>
-  api.get<{ data: Memo[] }>(`${BASE}/customers/${customerId}/memos`)
-
-export const createMemo = (customerId: number, data: { content: string; memo_date: string }) =>
-  api.post<{ data: Memo }>(`${BASE}/customers/${customerId}/memos`, data)
-
-export const deleteMemo = (customerId: number, memoId: number) =>
-  api.delete(`${BASE}/customers/${customerId}/memos/${memoId}`)
+export const deleteCustomer = (id: string) =>
+  api.delete<ApiResponse<Customer>>(`${BASE}/customers/${id}`)
 
 // ===== Customer Contracts =====
-export const fetchCustomerContracts = (customerId: number) =>
-  api.get<{ data: import('../types').Contract[] }>(`${BASE}/customers/${customerId}/contracts`)
+export const fetchCustomerContracts = (customerId: string) =>
+  api.get<ApiResponse<LaravelPagination<import('../types').Contract>>>(`${BASE}/customers/${customerId}/contracts`)
+
+// ===== Customer Memos =====
+export const fetchMemos = (customerId: string) =>
+  api.get<ApiResponse<LaravelPagination<Memo>>>(`${BASE}/customers/${customerId}/memos`)
+
+export const createMemo = (customerId: string, data: { title?: string; content: string; memo_date: string }) =>
+  api.post<ApiResponse<Memo>>(`${BASE}/customers/${customerId}/memos`, data)
+
+export const updateMemo = (memoId: number, data: { title?: string; content?: string; memo_date?: string }) =>
+  api.put<ApiResponse<Memo>>(`${BASE}/memos/${memoId}`, data)
+
+export const deleteMemo = (memoId: number) =>
+  api.delete(`${BASE}/memos/${memoId}`)
 
 // ===== Consultations =====
 export const fetchConsultations = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<Consultation>>(`${BASE}/consultations`, { params })
+  api.get<ApiResponse<LaravelPagination<Consultation>>>(`${BASE}/consultations`, { params })
 
-export const respondConsultation = (id: number, response: string) =>
-  api.put<{ data: Consultation }>(`${BASE}/consultations/${id}/respond`, { response })
+export const fetchConsultation = (id: number) =>
+  api.get<ApiResponse<Consultation>>(`${BASE}/consultations/${id}`)
+
+export const respondConsultation = (id: number, answer: string) =>
+  api.put<ApiResponse<Consultation>>(`${BASE}/consultations/${id}/answer`, { answer })
 
 // ===== Claims =====
 export const fetchClaims = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<AgentClaim>>(`${BASE}/claims`, { params })
+  api.get<ApiResponse<LaravelPagination<AgentClaim>>>(`${BASE}/claims`, { params })
 
 export const fetchClaim = (id: number) =>
-  api.get<{ data: AgentClaim }>(`${BASE}/claims/${id}`)
+  api.get<ApiResponse<AgentClaim>>(`${BASE}/claims/${id}`)
 
-// ===== Schedules =====
+// ===== Schedules (Backend 미구현 - Mock용) =====
 export const fetchSchedules = (params?: Record<string, unknown>) =>
   api.get<{ data: Schedule[] }>(`${BASE}/schedules`, { params })
 
@@ -76,44 +86,68 @@ export const updateSchedule = (id: number, data: Partial<Schedule>) =>
 export const deleteSchedule = (id: number) =>
   api.delete(`${BASE}/schedules/${id}`)
 
-// ===== Statistics =====
+// ===== Statistics (Backend 미구현 - Mock용) =====
 export const fetchCurrentStats = () =>
   api.get<{ data: Performance }>(`${BASE}/statistics/current`)
 
 export const fetchStatsTrend = (params?: Record<string, unknown>) =>
   api.get<{ data: StatisticsTrend[] }>(`${BASE}/statistics/trend`, { params })
 
-// ===== DB Distribution =====
+// ===== DB Distribution (Assignments) =====
 export const fetchDbDistributions = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<DbDistribution>>(`${BASE}/db-distributions`, { params })
+  api.get<ApiResponse<LaravelPagination<DbDistribution>>>(`${BASE}/assignments`, { params })
 
-export const processDbDistribution = (id: number, data: { status: string; memo?: string }) =>
-  api.put<{ data: DbDistribution }>(`${BASE}/db-distributions/${id}/process`, data)
+export const fetchDbDistribution = (id: number) =>
+  api.get<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}`)
+
+export const processDbDistribution = (id: number, data: { status: string; is_converted?: boolean; contract_date?: string; contract_amount?: number }) =>
+  api.put<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}/process`, data)
 
 // ===== Messages =====
-export const sendMessage = (data: Partial<Message>) =>
-  api.post<{ data: Message }>(`${BASE}/messages/send`, data)
+export const sendMessage = (data: {
+  receiver_id: string
+  message_type: string
+  title?: string
+  content: string
+  image_url?: string
+  send_method: 'SMS' | 'KAKAO' | 'PUSH'
+  scheduled_at?: string
+}) =>
+  api.post<ApiResponse<Message>>(`${BASE}/messages`, data)
 
 export const fetchMessageHistory = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<Message>>(`${BASE}/messages`, { params })
+  api.get<ApiResponse<LaravelPagination<Message>>>(`${BASE}/messages`, { params })
 
+export const fetchMessage = (id: number) =>
+  api.get<ApiResponse<Message>>(`${BASE}/messages/${id}`)
+
+// 카카오 템플릿은 백엔드 미구현 - 로컬 데이터 사용
 export const fetchMessageTemplates = () =>
   api.get<{ data: MessageTemplate[] }>(`${BASE}/messages/templates`)
 
 // ===== Notifications =====
 export const fetchNotifications = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<AgentNotification>>(`${BASE}/notifications`, { params })
+  api.get<ApiResponse<{ notifications: LaravelPagination<AgentNotification>; unread_count: number }>>(`${BASE}/notifications`, { params })
 
 export const markNotificationRead = (id: number) =>
-  api.put(`${BASE}/notifications/${id}/read`)
+  api.put<ApiResponse<AgentNotification>>(`${BASE}/notifications/${id}/read`)
+
+export const markAllNotificationsRead = () =>
+  api.put<ApiResponse<{ updated_count: number }>>(`${BASE}/notifications/read-all`)
 
 // ===== Satisfaction Surveys =====
 export const fetchSurveys = (params?: Record<string, unknown>) =>
-  api.get<PaginatedResponse<SatisfactionSurvey>>(`${BASE}/satisfaction-surveys`, { params })
+  api.get<ApiResponse<LaravelPagination<SatisfactionSurvey>>>(`${BASE}/satisfaction-surveys`, { params })
 
-export const createSurvey = (data: { customer_id: number }) =>
-  api.post<{ data: SatisfactionSurvey }>(`${BASE}/satisfaction-surveys`, data)
+export const fetchSurvey = (id: number) =>
+  api.get<ApiResponse<SatisfactionSurvey>>(`${BASE}/satisfaction-surveys/${id}`)
+
+export const createSurvey = (data: { customer_id: string; survey_title: string; survey_content: string }) =>
+  api.post<ApiResponse<SatisfactionSurvey>>(`${BASE}/satisfaction-surveys`, data)
 
 // ===== Disclosure Obligations =====
 export const fetchObligations = (params?: Record<string, unknown>) =>
-  api.get<{ data: DisclosureObligation[] }>(`${BASE}/disclosure-obligations`, { params })
+  api.get<ApiResponse<LaravelPagination<DisclosureObligation>>>(`${BASE}/obligations`, { params })
+
+export const fetchObligation = (id: number) =>
+  api.get<ApiResponse<DisclosureObligation>>(`${BASE}/obligations/${id}`)

@@ -43,8 +43,13 @@
           </button>
         </div>
 
+        <!-- Loading -->
+        <div v-if="loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
         <!-- Survey List -->
-        <div class="flex flex-col gap-3">
+        <div v-else class="flex flex-col gap-3">
           <SurveyListItem
             v-for="item in filteredSurveys"
             :key="item.survey_id"
@@ -52,7 +57,7 @@
           />
         </div>
 
-        <div v-if="filteredSurveys.length === 0" class="text-center py-12">
+        <div v-if="!loading && filteredSurveys.length === 0" class="text-center py-12">
           <p class="text-[14px] text-[#BBB]">해당 상태의 설문이 없습니다</p>
         </div>
 
@@ -68,15 +73,28 @@
               <h3 class="text-[16px] font-semibold text-[#333] mb-4">설문 발송</h3>
 
               <div class="flex flex-col gap-4">
-                <FormSelect
-                  v-model="sendForm.customerName"
-                  label="고객 선택"
-                  :options="customerOptions"
+                <FormInput
+                  v-model="sendForm.customerId"
+                  label="고객 ID"
+                  placeholder="고객 ID를 입력하세요"
+                />
+                <FormInput
+                  v-model="sendForm.surveyTitle"
+                  label="설문 제목"
+                  placeholder="설문 제목을 입력하세요"
+                />
+                <FormTextarea
+                  v-model="sendForm.surveyContent"
+                  label="설문 내용"
+                  placeholder="설문 내용을 입력하세요"
+                  :rows="4"
                 />
 
                 <div class="flex gap-3 mt-2">
                   <ActionButton variant="outline" full @click="showSendModal = false">취소</ActionButton>
-                  <ActionButton full @click="sendSurvey">발송하기</ActionButton>
+                  <ActionButton full :disabled="sending" @click="handleSendSurvey">
+                    {{ sending ? '발송 중...' : '발송하기' }}
+                  </ActionButton>
                 </div>
               </div>
             </div>
@@ -90,24 +108,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import SurveyListItem from '../../components/ui/SurveyListItem.vue'
-import FormSelect from '@user/components/form/FormSelect.vue'
+import FormInput from '@user/components/form/FormInput.vue'
+import FormTextarea from '@user/components/form/FormTextarea.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
+import { fetchSurveys, createSurvey } from '../../services/agentApi'
 import type { SatisfactionSurvey } from '../../types'
 
 type SurveyFilter = 'all' | 'sent' | 'responded'
 
 const activeFilter = ref<SurveyFilter>('all')
 const showSendModal = ref(false)
+const loading = ref(false)
+const sending = ref(false)
 
 const sendForm = reactive({
-  customerName: '강수현',
+  customerId: '',
+  surveyTitle: '',
+  surveyContent: '',
 })
-
-const customerOptions = ['강수현', '윤재호', '한지원', '오성민', '이정아']
 
 const filterTabs: { label: string; value: SurveyFilter }[] = [
   { label: '전체', value: 'all' },
@@ -115,71 +137,22 @@ const filterTabs: { label: string; value: SurveyFilter }[] = [
   { label: '응답완료', value: 'responded' },
 ]
 
-const surveys = ref<SatisfactionSurvey[]>([
-  {
-    survey_id: 1,
-    agent_id: 'AGT00001',
-    customer_id: 301,
-    customer_name: '김영수',
-    rating: 5,
-    answer: '상담이 매우 친절하고 꼼꼼하게 설명해주셔서 감사합니다. 보험 가입에 대한 이해가 확실히 높아졌습니다.',
-    status: 'responded',
-    sent_at: '2026-02-05',
-    responded_at: '2026-02-06',
-  },
-  {
-    survey_id: 2,
-    agent_id: 'AGT00001',
-    customer_id: 302,
-    customer_name: '박미정',
-    rating: 4,
-    answer: '전반적으로 만족합니다. 다만 연락이 조금 더 빨랐으면 좋겠습니다.',
-    status: 'responded',
-    sent_at: '2026-02-03',
-    responded_at: '2026-02-05',
-  },
-  {
-    survey_id: 3,
-    agent_id: 'AGT00001',
-    customer_id: 303,
-    customer_name: '이정훈',
-    rating: 5,
-    answer: '최고의 서비스입니다. 보장 분석이 정말 도움이 많이 되었어요.',
-    status: 'responded',
-    sent_at: '2026-02-01',
-    responded_at: '2026-02-02',
-  },
-  {
-    survey_id: 4,
-    agent_id: 'AGT00001',
-    customer_id: 304,
-    customer_name: '최서연',
-    status: 'sent',
-    sent_at: '2026-02-10',
-  },
-  {
-    survey_id: 5,
-    agent_id: 'AGT00001',
-    customer_id: 305,
-    customer_name: '정현우',
-    rating: 3,
-    answer: '보통입니다.',
-    status: 'responded',
-    sent_at: '2026-01-28',
-    responded_at: '2026-02-01',
-  },
-  {
-    survey_id: 6,
-    agent_id: 'AGT00001',
-    customer_id: 306,
-    customer_name: '한소영',
-    status: 'sent',
-    sent_at: '2026-02-11',
-  },
-])
+const surveys = ref<SatisfactionSurvey[]>([])
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const res = await fetchSurveys()
+    surveys.value = res.data?.data?.data ?? []
+  } catch {
+    // Error handled globally
+  } finally {
+    loading.value = false
+  }
+})
 
 const respondedSurveys = computed(() =>
-  surveys.value.filter(s => s.status === 'responded' && s.rating !== undefined)
+  surveys.value.filter(s => s.survey_status === 'responded' && s.rating !== undefined),
 )
 
 const respondedCount = computed(() => respondedSurveys.value.length)
@@ -192,26 +165,37 @@ const averageRating = computed(() => {
 
 const countByStatus = computed(() => ({
   all: surveys.value.length,
-  sent: surveys.value.filter(s => s.status === 'sent').length,
-  responded: surveys.value.filter(s => s.status === 'responded').length,
+  sent: surveys.value.filter(s => s.survey_status === 'sent').length,
+  responded: surveys.value.filter(s => s.survey_status === 'responded').length,
 }))
 
 const filteredSurveys = computed(() => {
   if (activeFilter.value === 'all') return surveys.value
-  return surveys.value.filter(s => s.status === activeFilter.value)
+  return surveys.value.filter(s => s.survey_status === activeFilter.value)
 })
 
-function sendSurvey(): void {
-  const newId = Math.max(...surveys.value.map(s => s.survey_id)) + 1
-  surveys.value.unshift({
-    survey_id: newId,
-    agent_id: 'AGT00001',
-    customer_id: 400 + newId,
-    customer_name: sendForm.customerName,
-    status: 'sent',
-    sent_at: new Date().toISOString().slice(0, 10),
-  })
-  showSendModal.value = false
+async function handleSendSurvey(): Promise<void> {
+  if (!sendForm.customerId || !sendForm.surveyTitle || !sendForm.surveyContent) return
+  sending.value = true
+  try {
+    const res = await createSurvey({
+      customer_id: sendForm.customerId,
+      survey_title: sendForm.surveyTitle,
+      survey_content: sendForm.surveyContent,
+    })
+    const newSurvey = res.data?.data
+    if (newSurvey) {
+      surveys.value.unshift(newSurvey)
+    }
+    sendForm.customerId = ''
+    sendForm.surveyTitle = ''
+    sendForm.surveyContent = ''
+    showSendModal.value = false
+  } catch {
+    // Error handled globally
+  } finally {
+    sending.value = false
+  }
 }
 </script>
 

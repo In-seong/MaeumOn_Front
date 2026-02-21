@@ -17,56 +17,39 @@
             type="text"
             placeholder="고객명 또는 연락처 검색"
             class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
+            @input="handleSearch"
           />
-        </div>
-
-        <!-- Filter Chips -->
-        <div class="flex gap-2 mb-3 overflow-x-auto scrollbar-hide">
-          <button
-            v-for="tag in filterTags"
-            :key="tag"
-            class="flex-shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-all"
-            :class="
-              store.filterTag === tag
-                ? 'bg-[#FF7B22] text-white shadow-[0_2px_8px_rgba(255,123,34,0.3)]'
-                : 'bg-white text-[#888] border border-[#E8E8E8]'
-            "
-            @click="store.filterTag = tag"
-          >
-            {{ tag }}
-          </button>
         </div>
 
         <!-- Sort + Count Row -->
         <div class="flex items-center justify-between mb-3">
           <span class="text-[13px] text-[#888]">
-            총 <span class="font-semibold text-[#FF7B22]">{{ store.filteredCustomers.length }}</span>명
+            총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>명
           </span>
           <select
             v-model="store.sortBy"
             class="text-[12px] text-[#888] bg-transparent border-none outline-none cursor-pointer appearance-none pr-4 bg-no-repeat bg-[right_0px_center] bg-[length:12px]"
             style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M6 9l6 6 6-6%22/></svg>')"
+            @change="handleSortChange"
           >
             <option value="name">이름순</option>
-            <option value="lastContact">최근연락순</option>
-            <option value="registered">등록일순</option>
+            <option value="created_at">등록일순</option>
           </select>
         </div>
 
         <!-- Customer List -->
         <div class="flex flex-col gap-2.5">
           <CustomerListItem
-            v-for="customer in store.filteredCustomers"
+            v-for="customer in store.customers"
             :key="customer.customer_id"
             :customer="customer"
-            :contract-count="store.getContractCount(customer.customer_id)"
             @click="goToDetail(customer.customer_id)"
           />
         </div>
 
         <!-- Empty State -->
         <div
-          v-if="store.filteredCustomers.length === 0"
+          v-if="store.customers.length === 0 && !store.loading"
           class="flex flex-col items-center justify-center py-16"
         >
           <div class="w-[56px] h-[56px] rounded-full bg-[#F5F5F5] flex items-center justify-center mb-3">
@@ -77,6 +60,11 @@
             </svg>
           </div>
           <p class="text-[14px] text-[#AAAAAA]">검색 결과가 없습니다</p>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="store.loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
         </div>
       </main>
 
@@ -107,13 +95,26 @@ import { useCustomerStore } from '../../stores/customerStore'
 const router = useRouter()
 const store = useCustomerStore()
 
-const filterTags = ['전체', 'VIP', '신규', '관심', '일반'] as const
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
-  store.fetchCustomers()
+  store.loadCustomers()
 })
 
-function goToDetail(customerId: number): void {
+function handleSearch(): void {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    store.currentPage = 1
+    store.loadCustomers()
+  }, 400)
+}
+
+function handleSortChange(): void {
+  store.currentPage = 1
+  store.loadCustomers()
+}
+
+function goToDetail(customerId: string): void {
   router.push({ name: 'customer-detail', params: { id: customerId } })
 }
 </script>

@@ -2,13 +2,13 @@
   <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4">
     <div class="flex items-start justify-between mb-2">
       <div class="flex-1">
-        <p class="text-[15px] font-semibold text-[#333]">{{ obligation.customer_name }}</p>
+        <p class="text-[15px] font-semibold text-[#333]">{{ obligation.customer?.name ?? '-' }}</p>
         <p class="text-[13px] text-[#888] mt-0.5">
-          {{ obligation.insurance_company }} &middot; {{ obligation.obligation_type }}
+          {{ obligation.medical_record?.diagnosis ?? '-' }}
         </p>
       </div>
       <StatusBadge
-        v-if="obligation.status === 'completed'"
+        v-if="obligation.obligation_status === 'completed'"
         label="완료"
         variant="success"
       />
@@ -22,7 +22,7 @@
           <line x1="8" y1="2" x2="8" y2="6" />
           <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
-        <span>{{ obligation.due_date }}</span>
+        <span>{{ obligation.obligation_end_date ?? '-' }}</span>
       </div>
 
       <span
@@ -46,20 +46,35 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const daysRemaining = computed(() => {
+  if (!props.obligation.obligation_end_date) return 999
+  const end = new Date(props.obligation.obligation_end_date)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
+  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+})
+
 const dDayLabel = computed(() => {
-  const days = props.obligation.days_remaining
+  const days = daysRemaining.value
   if (days === 0) return 'D-Day'
   if (days > 0) return `D-${days}`
   return `D+${Math.abs(days)}`
 })
 
+const urgency = computed<'imminent' | 'upcoming' | 'normal'>(() => {
+  const days = daysRemaining.value
+  if (days <= 0) return 'imminent'
+  if (days <= 7) return 'upcoming'
+  return 'normal'
+})
+
 const dDayClass = computed(() => {
-  const urgency = props.obligation.urgency
-  const map: Record<DisclosureObligation['urgency'], string> = {
+  const map: Record<string, string> = {
     imminent: 'bg-[#FFE5E5] text-[#FF0000]',
     upcoming: 'bg-[#FFF4E5] text-[#F3940E]',
     normal: 'bg-[#E8F0FE] text-[#4285F4]',
   }
-  return map[urgency]
+  return map[urgency.value]
 })
 </script>

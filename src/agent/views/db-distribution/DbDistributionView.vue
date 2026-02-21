@@ -13,7 +13,7 @@
             :class="store.filterStatus === tab.value
               ? 'bg-[#FF7B22] text-white'
               : 'bg-white text-[#888] border border-[#E0E0E0]'"
-            @click="store.filterStatus = tab.value"
+            @click="store.setFilter(tab.value)"
           >
             {{ tab.label }}
             <span
@@ -23,8 +23,13 @@
           </button>
         </div>
 
+        <!-- Loading -->
+        <div v-if="store.loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
         <!-- Distribution List -->
-        <div class="flex flex-col gap-3">
+        <div v-else class="flex flex-col gap-3">
           <DbDistributionItem
             v-for="item in store.filteredDistributions"
             :key="item.assignment_id"
@@ -33,7 +38,7 @@
           />
         </div>
 
-        <div v-if="store.filteredDistributions.length === 0" class="text-center py-12">
+        <div v-if="!store.loading && store.filteredDistributions.length === 0" class="text-center py-12">
           <p class="text-[14px] text-[#BBB]">해당 상태의 배분 내역이 없습니다</p>
         </div>
 
@@ -55,16 +60,11 @@
                   :options="['처리중', '완료']"
                 />
 
-                <FormTextarea
-                  v-model="processForm.memo"
-                  label="메모"
-                  placeholder="처리 내용을 입력해주세요"
-                  :rows="3"
-                />
-
                 <div class="flex gap-3 mt-2">
                   <ActionButton variant="outline" full @click="closeProcessForm">취소</ActionButton>
-                  <ActionButton full @click="confirmProcess">확인</ActionButton>
+                  <ActionButton full :disabled="processing" @click="confirmProcess">
+                    {{ processing ? '처리 중...' : '확인' }}
+                  </ActionButton>
                 </div>
               </div>
             </div>
@@ -78,42 +78,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useDbDistributionStore } from '../../stores/dbDistributionStore'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import DbDistributionItem from '../../components/ui/DbDistributionItem.vue'
 import FormSelect from '@user/components/form/FormSelect.vue'
-import FormTextarea from '@user/components/form/FormTextarea.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 import type { DbDistribution } from '../../types'
 
 const store = useDbDistributionStore()
 
-const filterTabs: { label: string; value: DbDistribution['status'] | 'all' }[] = [
+const filterTabs: { label: string; value: 'all' | 'pending' | 'processing' | 'completed' }[] = [
   { label: '전체', value: 'all' },
-  { label: '미처리', value: 'unprocessed' },
+  { label: '미처리', value: 'pending' },
   { label: '처리중', value: 'processing' },
   { label: '완료', value: 'completed' },
 ]
 
 const processingId = ref<number | null>(null)
+const processing = ref(false)
 const processForm = reactive({
   status: '처리중',
-  memo: '',
+})
+
+onMounted(() => {
+  store.loadDistributions()
 })
 
 function openProcessForm(id: number): void {
   processingId.value = id
   processForm.status = '처리중'
-  processForm.memo = ''
 }
 
 function closeProcessForm(): void {
   processingId.value = null
 }
 
-function confirmProcess(): void {
+async function confirmProcess(): Promise<void> {
   if (processingId.value === null) return
 
   const statusMap: Record<string, DbDistribution['status']> = {
@@ -122,8 +124,15 @@ function confirmProcess(): void {
   }
   const status = statusMap[processForm.status] ?? 'processing'
 
-  store.processDistribution(processingId.value, status, processForm.memo || undefined)
-  closeProcessForm()
+  processing.value = true
+  try {
+    await store.process(processingId.value, { status })
+    closeProcessForm()
+  } catch {
+    // Error handled in store
+  } finally {
+    processing.value = false
+  }
 }
 </script>
 

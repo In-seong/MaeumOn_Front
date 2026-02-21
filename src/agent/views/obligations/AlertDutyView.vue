@@ -39,8 +39,13 @@
           </div>
         </div>
 
+        <!-- Loading -->
+        <div v-if="loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
         <!-- Obligation List -->
-        <div class="flex flex-col gap-3">
+        <div v-else class="flex flex-col gap-3">
           <ObligationItem
             v-for="item in filteredObligations"
             :key="item.obligation_id"
@@ -48,7 +53,7 @@
           />
         </div>
 
-        <div v-if="filteredObligations.length === 0" class="text-center py-12">
+        <div v-if="!loading && filteredObligations.length === 0" class="text-center py-12">
           <p class="text-[14px] text-[#BBB]">해당 기간의 알릴의무 항목이 없습니다</p>
         </div>
       </main>
@@ -59,15 +64,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ObligationItem from '../../components/ui/ObligationItem.vue'
+import { fetchObligations } from '../../services/agentApi'
 import type { DisclosureObligation } from '../../types'
 
 type UrgencyFilter = 'all' | 'imminent' | 'upcoming' | 'normal'
 
 const activeFilter = ref<UrgencyFilter>('all')
+const obligations = ref<DisclosureObligation[]>([])
+const loading = ref(false)
 
 const filterTabs: { label: string; value: UrgencyFilter }[] = [
   { label: '전체', value: 'all' },
@@ -76,132 +84,51 @@ const filterTabs: { label: string; value: UrgencyFilter }[] = [
   { label: '30일 이내', value: 'normal' },
 ]
 
-const obligations = ref<DisclosureObligation[]>([
-  {
-    obligation_id: 1,
-    customer_id: 201,
-    customer_name: '김민수',
-    contract_id: 301,
-    insurance_company: '삼성생명',
-    obligation_type: '건강고지',
-    due_date: '2026-02-12',
-    days_remaining: 0,
-    urgency: 'imminent',
-    status: 'pending',
-  },
-  {
-    obligation_id: 2,
-    customer_id: 202,
-    customer_name: '이정아',
-    contract_id: 302,
-    insurance_company: '한화생명',
-    obligation_type: '직업변경고지',
-    due_date: '2026-02-12',
-    days_remaining: 0,
-    urgency: 'imminent',
-    status: 'pending',
-  },
-  {
-    obligation_id: 3,
-    customer_id: 203,
-    customer_name: '박서연',
-    contract_id: 303,
-    insurance_company: 'DB손보',
-    obligation_type: '건강고지',
-    due_date: '2026-02-15',
-    days_remaining: 3,
-    urgency: 'upcoming',
-    status: 'pending',
-  },
-  {
-    obligation_id: 4,
-    customer_id: 204,
-    customer_name: '최영호',
-    contract_id: 304,
-    insurance_company: '메리츠화재',
-    obligation_type: '위험변경고지',
-    due_date: '2026-02-17',
-    days_remaining: 5,
-    urgency: 'upcoming',
-    status: 'pending',
-  },
-  {
-    obligation_id: 5,
-    customer_id: 205,
-    customer_name: '정은지',
-    contract_id: 305,
-    insurance_company: '현대해상',
-    obligation_type: '건강고지',
-    due_date: '2026-02-19',
-    days_remaining: 7,
-    urgency: 'upcoming',
-    status: 'pending',
-  },
-  {
-    obligation_id: 6,
-    customer_id: 206,
-    customer_name: '한지원',
-    contract_id: 306,
-    insurance_company: '교보생명',
-    obligation_type: '직업변경고지',
-    due_date: '2026-02-28',
-    days_remaining: 16,
-    urgency: 'normal',
-    status: 'pending',
-  },
-  {
-    obligation_id: 7,
-    customer_id: 207,
-    customer_name: '오성민',
-    contract_id: 307,
-    insurance_company: 'KB손보',
-    obligation_type: '건강고지',
-    due_date: '2026-03-05',
-    days_remaining: 21,
-    urgency: 'normal',
-    status: 'pending',
-  },
-  {
-    obligation_id: 8,
-    customer_id: 208,
-    customer_name: '강수현',
-    contract_id: 308,
-    insurance_company: '삼성화재',
-    obligation_type: '위험변경고지',
-    due_date: '2026-03-10',
-    days_remaining: 26,
-    urgency: 'normal',
-    status: 'pending',
-  },
-  {
-    obligation_id: 9,
-    customer_id: 209,
-    customer_name: '윤재호',
-    contract_id: 309,
-    insurance_company: '한화손보',
-    obligation_type: '건강고지',
-    due_date: '2026-02-10',
-    days_remaining: -2,
-    urgency: 'imminent',
-    status: 'completed',
-  },
-])
+onMounted(async () => {
+  loading.value = true
+  try {
+    const res = await fetchObligations()
+    obligations.value = res.data?.data?.data ?? []
+  } catch {
+    // Error handled globally
+  } finally {
+    loading.value = false
+  }
+})
+
+function getDaysRemaining(endDate?: string): number {
+  if (!endDate) return 999
+  const end = new Date(endDate)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
+  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+function getUrgency(endDate?: string): 'imminent' | 'upcoming' | 'normal' {
+  const days = getDaysRemaining(endDate)
+  if (days <= 0) return 'imminent'
+  if (days <= 7) return 'upcoming'
+  return 'normal'
+}
 
 const countByUrgency = computed(() => {
-  const pending = obligations.value.filter(o => o.status === 'pending')
+  const active = obligations.value.filter(o => o.obligation_status !== 'completed')
   return {
-    all: pending.length,
-    imminent: pending.filter(o => o.urgency === 'imminent').length,
-    upcoming: pending.filter(o => o.urgency === 'upcoming').length,
-    normal: pending.filter(o => o.urgency === 'normal').length,
+    all: active.length,
+    imminent: active.filter(o => getUrgency(o.obligation_end_date) === 'imminent').length,
+    upcoming: active.filter(o => getUrgency(o.obligation_end_date) === 'upcoming').length,
+    normal: active.filter(o => getUrgency(o.obligation_end_date) === 'normal').length,
   }
 })
 
 const filteredObligations = computed(() => {
-  let filtered = obligations.value.filter(o => o.status !== 'completed')
+  let filtered = obligations.value.filter(o => o.obligation_status !== 'completed')
   if (activeFilter.value !== 'all') {
-    filtered = filtered.filter(o => o.urgency === activeFilter.value)
+    filtered = filtered.filter(o => getUrgency(o.obligation_end_date) === activeFilter.value)
   }
-  return [...filtered].sort((a, b) => a.days_remaining - b.days_remaining)
+  return [...filtered].sort(
+    (a, b) => getDaysRemaining(a.obligation_end_date) - getDaysRemaining(b.obligation_end_date),
+  )
 })
 </script>

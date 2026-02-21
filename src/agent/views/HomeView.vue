@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AgentAppHeader from '../components/layout/AgentAppHeader.vue'
 import AgentBottomNav from '../components/layout/AgentBottomNav.vue'
@@ -86,6 +86,10 @@ const pendingConsultations = computed(() => consultationStore.statusCounts.pendi
 const dbDistributed = computed(() => statisticsStore.currentPerformance.db_distributed)
 const contractsCount = computed(() => statisticsStore.currentPerformance.contracts_count)
 const conversionRate = computed(() => statisticsStore.currentPerformance.conversion_rate)
+
+onMounted(() => {
+  consultationStore.loadConsultations()
+})
 
 // Mock data
 const todoItems = ref([

@@ -4,21 +4,37 @@
       <BackHeader title="알림" />
 
       <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
+        <!-- Mark All Read -->
+        <div v-if="unreadCount > 0" class="flex justify-end mb-3">
+          <button
+            class="text-[13px] text-[#FF7B22] font-medium"
+            :disabled="markingAllRead"
+            @click="handleMarkAllRead"
+          >
+            {{ markingAllRead ? '처리 중...' : '전체 읽음 처리' }}
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
         <!-- Notification List -->
-        <div class="flex flex-col gap-3">
+        <div v-else class="flex flex-col gap-3">
           <div
             v-for="noti in notifications"
             :key="noti.notification_id"
             class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4 transition-colors"
             :class="noti.is_read ? 'opacity-60' : ''"
-            @click="markAsRead(noti.notification_id)"
+            @click="handleMarkRead(noti)"
           >
             <div class="flex items-start gap-3">
               <div
                 class="w-[36px] h-[36px] rounded-full flex items-center justify-center flex-shrink-0"
-                :class="iconBg(noti.type)"
+                :class="iconBg(noti.notification_type)"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" :stroke="iconColor(noti.type)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="iconSvg(noti.type)" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" :stroke="iconColor(noti.notification_type)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="iconSvg(noti.notification_type)" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between mb-1">
@@ -35,7 +51,7 @@
           </div>
         </div>
 
-        <div v-if="notifications.length === 0" class="text-center py-16">
+        <div v-if="!loading && notifications.length === 0" class="text-center py-16">
           <p class="text-[14px] text-[#BBB]">알림이 없습니다</p>
         </div>
       </main>
@@ -46,65 +62,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
+import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../services/agentApi'
 import type { AgentNotification } from '../../types'
 
-const notifications = ref<AgentNotification[]>([
-  {
-    notification_id: 1,
-    agent_id: 'AGT00001',
-    title: '새 상담요청',
-    content: '김영수 고객님이 보험상담을 요청하셨습니다.',
-    type: 'consultation',
-    is_read: false,
-    created_at: '2026-02-12 09:30',
-  },
-  {
-    notification_id: 2,
-    agent_id: 'AGT00001',
-    title: '알릴의무 만기 임박',
-    content: '이정아 고객 직업변경고지 D-Day입니다.',
-    type: 'obligation',
-    is_read: false,
-    created_at: '2026-02-12 08:00',
-  },
-  {
-    notification_id: 3,
-    agent_id: 'AGT00001',
-    title: 'DB 배분 알림',
-    content: '신규 DB 3건이 배분되었습니다.',
-    type: 'system',
-    is_read: false,
-    created_at: '2026-02-11 17:00',
-  },
-  {
-    notification_id: 4,
-    agent_id: 'AGT00001',
-    title: '만족도 조사 응답',
-    content: '김영수 고객님이 만족도 조사에 응답하셨습니다.',
-    type: 'claim',
-    is_read: true,
-    created_at: '2026-02-11 14:30',
-  },
-  {
-    notification_id: 5,
-    agent_id: 'AGT00001',
-    title: '일정 알림',
-    content: '내일 09:30 최수연 고객 신규 계약 상담이 예정되어 있습니다.',
-    type: 'schedule',
-    is_read: true,
-    created_at: '2026-02-11 09:00',
-  },
-])
+const notifications = ref<AgentNotification[]>([])
+const loading = ref(false)
+const markingAllRead = ref(false)
 
-function markAsRead(id: number): void {
-  const noti = notifications.value.find(n => n.notification_id === id)
-  if (noti) noti.is_read = true
+const unreadCount = computed(() =>
+  notifications.value.filter(n => !n.is_read).length,
+)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const res = await fetchNotifications()
+    const data = res.data?.data
+    notifications.value = data?.notifications?.data ?? []
+  } catch {
+    // Error handled globally
+  } finally {
+    loading.value = false
+  }
+})
+
+async function handleMarkRead(noti: AgentNotification): Promise<void> {
+  if (noti.is_read) return
+  try {
+    await markNotificationRead(noti.notification_id)
+    noti.is_read = true
+  } catch {
+    // Error handled globally
+  }
 }
 
-function iconBg(type: AgentNotification['type']): string {
+async function handleMarkAllRead(): Promise<void> {
+  markingAllRead.value = true
+  try {
+    await markAllNotificationsRead()
+    notifications.value.forEach(n => { n.is_read = true })
+  } catch {
+    // Error handled globally
+  } finally {
+    markingAllRead.value = false
+  }
+}
+
+function iconBg(type: string): string {
   const map: Record<string, string> = {
     consultation: 'bg-[#FFF0E5]',
     obligation: 'bg-[#FFE5E5]',
@@ -117,7 +124,7 @@ function iconBg(type: AgentNotification['type']): string {
   return map[type] ?? 'bg-[#F5F5F5]'
 }
 
-function iconColor(type: AgentNotification['type']): string {
+function iconColor(type: string): string {
   const map: Record<string, string> = {
     consultation: '#FF7B22',
     obligation: '#FF3B30',
@@ -130,7 +137,7 @@ function iconColor(type: AgentNotification['type']): string {
   return map[type] ?? '#888'
 }
 
-function iconSvg(type: AgentNotification['type']): string {
+function iconSvg(type: string): string {
   const map: Record<string, string> = {
     consultation: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
     obligation: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',

@@ -1,121 +1,89 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { DbDistribution } from '../types'
+import { fetchDbDistributions, processDbDistribution } from '../services/agentApi'
 
 export const useDbDistributionStore = defineStore('dbDistribution', () => {
-  const distributions = ref<DbDistribution[]>([
-    {
-      assignment_id: 1,
-      agent_id: 'AGT00001',
-      customer_id: 101,
-      customer_name: '이수진',
-      customer_phone: '010-9876-5432',
-      source: '병원 제휴',
-      assigned_at: '2026-02-10',
-      status: 'unprocessed',
-    },
-    {
-      assignment_id: 2,
-      agent_id: 'AGT00001',
-      customer_id: 102,
-      customer_name: '박진우',
-      customer_phone: '010-5555-1234',
-      source: '온라인 상담',
-      assigned_at: '2026-02-09',
-      status: 'unprocessed',
-    },
-    {
-      assignment_id: 3,
-      agent_id: 'AGT00001',
-      customer_id: 103,
-      customer_name: '최미영',
-      customer_phone: '010-3333-7890',
-      source: '지인 소개',
-      assigned_at: '2026-02-08',
-      status: 'processing',
-      memo: '초기 상담 진행중',
-    },
-    {
-      assignment_id: 4,
-      agent_id: 'AGT00001',
-      customer_id: 104,
-      customer_name: '김태호',
-      customer_phone: '010-2222-4567',
-      source: '병원 제휴',
-      assigned_at: '2026-02-07',
-      status: 'processing',
-      memo: '보장분석 요청',
-    },
-    {
-      assignment_id: 5,
-      agent_id: 'AGT00001',
-      customer_id: 105,
-      customer_name: '정유나',
-      customer_phone: '010-8888-3456',
-      source: '온라인 상담',
-      assigned_at: '2026-02-05',
-      status: 'completed',
-      processed_at: '2026-02-06',
-      memo: '계약 완료',
-    },
-    {
-      assignment_id: 6,
-      agent_id: 'AGT00001',
-      customer_id: 106,
-      customer_name: '한상민',
-      customer_phone: '010-7777-6543',
-      source: '텔레마케팅',
-      assigned_at: '2026-02-03',
-      status: 'completed',
-      processed_at: '2026-02-04',
-      memo: '가입 거절',
-    },
-    {
-      assignment_id: 7,
-      agent_id: 'AGT00001',
-      customer_id: 107,
-      customer_name: '오지현',
-      customer_phone: '010-1111-9876',
-      source: '병원 제휴',
-      assigned_at: '2026-02-11',
-      status: 'unprocessed',
-    },
-  ])
-
+  const distributions = ref<DbDistribution[]>([])
   const filterStatus = ref<DbDistribution['status'] | 'all'>('all')
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+  const currentPage = ref(1)
+  const lastPage = ref(1)
+  const total = ref(0)
 
-  const filteredDistributions = computed<DbDistribution[]>(() => {
-    if (filterStatus.value === 'all') {
-      return distributions.value
-    }
-    return distributions.value.filter(d => d.status === filterStatus.value)
-  })
+  const filteredDistributions = computed<DbDistribution[]>(() => distributions.value)
 
-  const countByStatus = computed(() => ({
-    all: distributions.value.length,
-    unprocessed: distributions.value.filter(d => d.status === 'unprocessed').length,
+  const countByStatus = computed<Record<string, number>>(() => ({
+    all: total.value,
+    pending: distributions.value.filter(d => d.status === 'pending').length,
     processing: distributions.value.filter(d => d.status === 'processing').length,
     completed: distributions.value.filter(d => d.status === 'completed').length,
   }))
 
-  function processDistribution(id: number, status: DbDistribution['status'], memo?: string): void {
-    const item = distributions.value.find(d => d.assignment_id === id)
-    if (!item) return
+  async function loadDistributions(params?: Record<string, unknown>) {
+    loading.value = true
+    error.value = null
+    try {
+      const queryParams: Record<string, unknown> = {
+        page: currentPage.value,
+        ...params,
+      }
+      if (filterStatus.value !== 'all') {
+        queryParams.status = filterStatus.value
+      }
+      const res = await fetchDbDistributions(queryParams)
+      const paginated = res.data.data
+      distributions.value = paginated.data
+      currentPage.value = paginated.current_page
+      lastPage.value = paginated.last_page
+      total.value = paginated.total
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || 'DB배분 목록을 불러오는데 실패했습니다.'
+    } finally {
+      loading.value = false
+    }
+  }
 
-    item.status = status
-    if (memo !== undefined) {
-      item.memo = memo
+  async function process(id: number, data: { status: string; is_converted?: boolean; contract_date?: string; contract_amount?: number }) {
+    loading.value = true
+    error.value = null
+    try {
+      const res = await processDbDistribution(id, data)
+      const updated = res.data.data
+      const index = distributions.value.findIndex(d => d.assignment_id === id)
+      if (index !== -1) {
+        distributions.value[index] = updated
+      }
+      return updated
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || 'DB배분 처리에 실패했습니다.'
+      throw e
+    } finally {
+      loading.value = false
     }
-    if (status === 'completed' || status === 'processing') {
-      item.processed_at = new Date().toISOString().slice(0, 10)
-    }
+  }
+
+  function setFilter(status: DbDistribution['status'] | 'all') {
+    filterStatus.value = status
+    currentPage.value = 1
+    loadDistributions()
   }
 
   return {
     distributions,
     filterStatus,
+    loading,
+    error,
+    currentPage,
+    lastPage,
+    total,
     filteredDistributions,
     countByStatus,
-    processDistribution,
+    loadDistributions,
+    process,
+    setFilter,
   }
 })

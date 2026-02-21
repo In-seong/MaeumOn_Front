@@ -16,7 +16,7 @@
                   <span class="text-[#FF7B22] text-[12px]">*</span>
                 </div>
                 <input
-                  v-model="form.customer_name"
+                  v-model="form.name"
                   type="text"
                   placeholder="고객 이름을 입력하세요"
                   required
@@ -30,19 +30,13 @@
                   <span class="text-[#FF7B22] text-[12px]">*</span>
                 </div>
                 <input
-                  v-model="form.customer_phone"
+                  v-model="form.phone"
                   type="tel"
                   placeholder="010-0000-0000"
                   required
                   class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
                 />
               </div>
-
-              <FormSelect
-                v-model="form.telecom"
-                label="통신사"
-                :options="telecomOptions"
-              />
 
               <FormInput
                 v-model="form.resident_number"
@@ -64,39 +58,23 @@
               />
 
               <FormInput
-                v-model="form.occupation"
+                v-model="form.job"
                 label="직업"
                 placeholder="직업을 입력하세요"
               />
 
               <FormSelect
-                v-model="form.acquisition_source"
+                v-model="form.acquisition_channel"
                 label="고객정보 취득경로"
                 :options="acquisitionOptions"
-              />
-
-              <FormSelect
-                v-model="form.customer_tag"
-                label="고객 태그"
-                :options="tagOptions"
               />
             </div>
           </CardSection>
 
-          <!-- Memo Section -->
-          <CardSection>
-            <FormTextarea
-              v-model="form.memo"
-              label="메모"
-              placeholder="고객에 대한 메모를 입력하세요"
-              :rows="3"
-            />
-          </CardSection>
-
           <!-- Submit Button -->
           <div class="mt-1 mb-6">
-            <ActionButton full large @click="handleSubmit">
-              고객 등록
+            <ActionButton full large :disabled="submitting" @click="handleSubmit">
+              {{ submitting ? '등록 중...' : '고객 등록' }}
             </ActionButton>
           </div>
         </form>
@@ -106,73 +84,60 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormSelect from '@user/components/form/FormSelect.vue'
-import FormTextarea from '@user/components/form/FormTextarea.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 
 const router = useRouter()
 const store = useCustomerStore()
 
-const telecomOptions = ['SKT', 'KT', 'LG U+', '알뜰폰']
 const acquisitionOptions = ['병원', '소개', '기타']
-const tagOptions = ['VIP', '신규', '관심', '일반']
+const submitting = ref(false)
 
 interface CustomerForm {
-  customer_name: string
-  customer_phone: string
-  telecom: string
+  name: string
+  phone: string
   resident_number: string
   address: string
-  occupation: string
-  acquisition_source: string
-  customer_tag: string
-  memo: string
+  job: string
+  acquisition_channel: string
 }
 
 const form = reactive<CustomerForm>({
-  customer_name: '',
-  customer_phone: '',
-  telecom: 'SKT',
+  name: '',
+  phone: '',
   resident_number: '',
   address: '',
-  occupation: '',
-  acquisition_source: '병원',
-  customer_tag: '신규',
-  memo: '',
+  job: '',
+  acquisition_channel: '병원',
 })
 
-function handleSubmit(): void {
-  if (!form.customer_name.trim() || !form.customer_phone.trim()) {
+async function handleSubmit(): Promise<void> {
+  if (!form.name.trim() || !form.phone.trim()) {
     return
   }
 
-  const now = new Date().toISOString().slice(0, 10)
+  submitting.value = true
+  try {
+    await store.addCustomer({
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      resident_number: form.resident_number || undefined,
+      address: form.address || undefined,
+      job: form.job || undefined,
+      acquisition_channel: form.acquisition_channel || undefined,
+    })
 
-  const newCustomer = store.addCustomer({
-    agent_id: 'AGT00001',
-    customer_name: form.customer_name.trim(),
-    customer_phone: form.customer_phone.trim(),
-    telecom: form.telecom,
-    resident_number: form.resident_number || undefined,
-    address: form.address || undefined,
-    occupation: form.occupation || undefined,
-    acquisition_source: form.acquisition_source || undefined,
-    customer_tag: form.customer_tag as 'VIP' | '신규' | '관심' | '일반',
-    last_contact_date: now,
-    registered_at: now,
-  })
-
-  // Add initial memo if provided
-  if (form.memo.trim()) {
-    store.addMemo(newCustomer.customer_id, form.memo.trim(), now)
+    router.push({ name: 'customer-list' })
+  } catch {
+    // Error is handled in store
+  } finally {
+    submitting.value = false
   }
-
-  router.push({ name: 'customer-list' })
 }
 </script>

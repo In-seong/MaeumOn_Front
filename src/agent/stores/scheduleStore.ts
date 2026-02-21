@@ -1,3 +1,4 @@
+// TODO: Backend 미구현 (Phase 6). 현재 Mock 데이터 사용. API 구현 후 실제 API 연동 필요.
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { Schedule } from '../types'

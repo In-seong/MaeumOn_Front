@@ -94,7 +94,7 @@
           <div class="flex flex-col gap-3 mb-6">
             <!-- 수정 버튼 (pending 상태에서만) -->
             <button
-              v-if="claimStore.currentClaim.claim_status === 'pending'"
+              v-if="claimStore.currentClaim.claim_status === 'pending' && !claimStore.currentClaim.fax_status"
               @click="goToEdit"
               class="w-full bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
             >

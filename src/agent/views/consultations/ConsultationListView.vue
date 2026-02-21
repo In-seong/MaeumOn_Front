@@ -31,8 +31,13 @@
           </button>
         </div>
 
+        <!-- Loading -->
+        <div v-if="store.loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
         <!-- Consultation List -->
-        <div v-if="store.filteredConsultations.length > 0" class="flex flex-col gap-3">
+        <div v-else-if="store.filteredConsultations.length > 0" class="flex flex-col gap-3">
           <ConsultationListItem
             v-for="consultation in store.filteredConsultations"
             :key="consultation.consultation_id"
@@ -59,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ConsultationListItem from '../../components/ui/ConsultationListItem.vue'
@@ -89,8 +94,12 @@ const emptyStateMessage = computed(() => {
   return map[store.filterStatus] ?? ''
 })
 
-function handleRespond(id: number, response: string): void {
-  store.respondToConsultation(id, response)
+onMounted(() => {
+  store.loadConsultations()
+})
+
+function handleRespond(id: number, answer: string): void {
+  store.answerConsultation(id, answer)
 }
 </script>
 

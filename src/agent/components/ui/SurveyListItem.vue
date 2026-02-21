@@ -1,12 +1,12 @@
 <template>
   <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4">
     <div class="flex items-start justify-between mb-2">
-      <p class="text-[15px] font-semibold text-[#333]">{{ survey.customer_name }}</p>
+      <p class="text-[15px] font-semibold text-[#333]">{{ survey.customer?.name ?? '-' }}</p>
       <StatusBadge :label="statusLabel" :variant="statusVariant" />
     </div>
 
     <!-- Star Rating -->
-    <div v-if="survey.status === 'responded' && survey.rating" class="flex items-center gap-1 mt-2">
+    <div v-if="survey.survey_status === 'responded' && survey.rating" class="flex items-center gap-1 mt-2">
       <svg
         v-for="star in 5"
         :key="star"
@@ -24,12 +24,12 @@
       <span class="text-[13px] font-semibold text-[#FF7B22] ml-1">{{ survey.rating }}.0</span>
     </div>
 
-    <!-- Answer Preview -->
+    <!-- Feedback Preview -->
     <p
-      v-if="survey.status === 'responded' && survey.answer"
+      v-if="survey.survey_status === 'responded' && survey.feedback"
       class="mt-2 text-[13px] text-[#666] bg-[#F8F8F8] rounded-[8px] px-3 py-2 line-clamp-2"
     >
-      {{ survey.answer }}
+      {{ survey.feedback }}
     </p>
 
     <!-- Sent Date -->
@@ -59,10 +59,10 @@ interface Props {
 const props = defineProps<Props>()
 
 const statusLabel = computed(() => {
-  return props.survey.status === 'responded' ? '응답완료' : '발송됨'
+  return props.survey.survey_status === 'responded' ? '응답완료' : '발송됨'
 })
 
 const statusVariant = computed<'success' | 'info'>(() => {
-  return props.survey.status === 'responded' ? 'success' : 'info'
+  return props.survey.survey_status === 'responded' ? 'success' : 'info'
 })
 </script>

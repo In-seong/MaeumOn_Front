@@ -63,8 +63,13 @@
           </button>
         </div>
 
+        <!-- Loading -->
+        <div v-if="store.loading" class="flex justify-center py-8">
+          <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
         <!-- Claim List -->
-        <div v-if="store.filteredClaims.length > 0" class="flex flex-col gap-3">
+        <div v-else-if="store.filteredClaims.length > 0" class="flex flex-col gap-3">
           <ClaimListItem
             v-for="claim in store.filteredClaims"
             :key="claim.claim_id"
@@ -94,7 +99,7 @@
               class="fixed inset-0 z-50 flex items-end justify-center px-3 pb-[68px]"
               role="dialog"
               aria-modal="true"
-              :aria-label="`${selectedClaim.customer_name} 청구 상세`"
+              :aria-label="`${selectedClaim.customer?.name ?? ''} 청구 상세`"
             >
               <!-- Backdrop -->
               <div
@@ -130,23 +135,23 @@
                 <div class="px-5 py-4">
                   <!-- Customer & Status -->
                   <div class="flex items-center justify-between mb-4">
-                    <span class="text-[18px] font-bold text-[#222]">{{ selectedClaim.customer_name }}</span>
-                    <StatusBadge :label="getStatusLabel(selectedClaim.status)" :variant="getStatusVariant(selectedClaim.status)" />
+                    <span class="text-[18px] font-bold text-[#222]">{{ selectedClaim.customer?.name ?? '-' }}</span>
+                    <StatusBadge :label="getStatusLabel(selectedClaim.claim_status)" :variant="getStatusVariant(selectedClaim.claim_status)" />
                   </div>
 
                   <!-- Info Rows -->
                   <div class="bg-[#F8F8F8] rounded-[12px] p-4 mb-4">
                     <InfoRow label="청구 유형" :value="selectedClaim.claim_type" />
-                    <InfoRow label="보험사" :value="selectedClaim.insurance_company" />
+                    <InfoRow label="보험사" :value="selectedClaim.claim_form?.insurance_company?.company_name ?? '-'" />
                     <InfoRow
                       label="청구 금액"
                       :value="selectedClaim.claim_amount ? formatAmount(selectedClaim.claim_amount) : '미정'"
                     />
-                    <InfoRow label="접수일" :value="selectedClaim.submitted_at" />
+                    <InfoRow label="접수일" :value="selectedClaim.created_at" />
                     <InfoRow
-                      v-if="selectedClaim.processed_at"
+                      v-if="selectedClaim.approval_date"
                       label="처리일"
-                      :value="selectedClaim.processed_at"
+                      :value="selectedClaim.approval_date"
                     />
                     <InfoRow label="청구번호" :value="`#${selectedClaim.claim_id}`" />
                   </div>
@@ -168,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
@@ -182,19 +187,23 @@ const store = useAgentClaimStore()
 
 interface FilterChip {
   label: string
-  value: 'all' | 'draft' | 'submitted' | 'processing' | 'approved' | 'rejected'
+  value: 'all' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid'
 }
 
 const filterChips: FilterChip[] = [
   { label: '전체', value: 'all' },
-  { label: '임시저장', value: 'draft' },
-  { label: '접수', value: 'submitted' },
+  { label: '접수대기', value: 'pending' },
   { label: '처리중', value: 'processing' },
   { label: '승인', value: 'approved' },
   { label: '거절', value: 'rejected' },
+  { label: '지급완료', value: 'paid' },
 ]
 
 const selectedClaim = ref<AgentClaim | null>(null)
+
+onMounted(() => {
+  store.loadClaims()
+})
 
 function openDetail(id: number): void {
   const claim = store.claims.find((c) => c.claim_id === id)
@@ -207,30 +216,32 @@ function closeDetail(): void {
   selectedClaim.value = null
 }
 
-function getStatusLabel(status: AgentClaim['status']): string {
-  const map: Record<AgentClaim['status'], string> = {
-    draft: '임시저장',
-    submitted: '접수',
+function getStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    pending: '접수대기',
     processing: '처리중',
     approved: '승인',
     rejected: '거절',
+    paid: '지급완료',
   }
-  return map[status]
+  return map[status] ?? status
 }
 
-function getStatusVariant(status: AgentClaim['status']): 'default' | 'info' | 'warning' | 'success' | 'danger' {
-  const map: Record<AgentClaim['status'], 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
-    draft: 'default',
-    submitted: 'info',
+function getStatusVariant(status: string): 'default' | 'info' | 'warning' | 'success' | 'danger' {
+  const map: Record<string, 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
+    pending: 'info',
     processing: 'warning',
     approved: 'success',
     rejected: 'danger',
+    paid: 'success',
   }
-  return map[status]
+  return map[status] ?? 'default'
 }
 
-function formatAmount(amount: number): string {
-  return amount.toLocaleString('ko-KR') + '원'
+function formatAmount(amount: string): string {
+  const num = Number(amount)
+  if (isNaN(num)) return amount + '원'
+  return num.toLocaleString('ko-KR') + '원'
 }
 </script>
 
