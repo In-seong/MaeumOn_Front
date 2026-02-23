@@ -350,10 +350,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useClaimStore } from '../../stores/claimStore'
-import type { FormPage, FormField, FieldChoice } from '@shared/types'
+import type { FormPage, FormField } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 
@@ -579,7 +579,9 @@ function initSignatureCanvas(fieldId: number) {
 function getSignaturePos(canvas: HTMLCanvasElement, e: MouseEvent | TouchEvent) {
   const rect = canvas.getBoundingClientRect()
   if ('touches' in e) {
-    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top }
+    const touch = e.touches[0]
+    if (!touch) return { x: 0, y: 0 }
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top }
   }
   return { x: e.clientX - rect.left, y: e.clientY - rect.top }
 }

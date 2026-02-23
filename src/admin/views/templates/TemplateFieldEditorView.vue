@@ -512,7 +512,7 @@ import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
 import { FIELD_TYPE_OPTIONS } from '@shared/types'
-import type { FormField, FormPage, FieldOptions, FieldChoice } from '@shared/types'
+import type { FormField, FormPage, FieldOptions } from '@shared/types'
 
 const route = useRoute()
 const store = useTemplateStore()
@@ -637,8 +637,11 @@ function handleCanvasClick(event: MouseEvent) {
     const rect = canvasRef.value.getBoundingClientRect()
     const x = Math.round(event.clientX - rect.left)
     const y = Math.round(event.clientY - rect.top)
-    editForm.field_options.choices[placingChoiceIndex.value].x = x
-    editForm.field_options.choices[placingChoiceIndex.value].y = y
+    const choice = editForm.field_options.choices[placingChoiceIndex.value]
+    if (choice) {
+      choice.x = x
+      choice.y = y
+    }
     placingChoiceIndex.value = null
     return
   }
@@ -778,6 +781,7 @@ function startChoiceDrag(event: MouseEvent, index: number) {
   dragChoiceIndex.value = index
   const rect = canvasRef.value.getBoundingClientRect()
   const choice = editForm.field_options.choices[index]
+  if (!choice) return
   dragChoiceOffset.x = event.clientX - rect.left - choice.x
   dragChoiceOffset.y = event.clientY - rect.top - choice.y
   event.preventDefault()
@@ -816,8 +820,11 @@ function handleMouseMove(event: MouseEvent) {
     const rect = canvasRef.value.getBoundingClientRect()
     const x = event.clientX - rect.left - dragChoiceOffset.x
     const y = event.clientY - rect.top - dragChoiceOffset.y
-    editForm.field_options.choices[dragChoiceIndex.value].x = Math.max(0, Math.round(x))
-    editForm.field_options.choices[dragChoiceIndex.value].y = Math.max(0, Math.round(y))
+    const dragChoice = editForm.field_options.choices[dragChoiceIndex.value]
+    if (dragChoice) {
+      dragChoice.x = Math.max(0, Math.round(x))
+      dragChoice.y = Math.max(0, Math.round(y))
+    }
     return
   }
 
