@@ -5,6 +5,7 @@ import type {
   InsuranceCompany,
   ClaimForm,
   InsuranceClaim,
+  ClaimDocument,
   PaginatedResponse,
   FormPage,
   FormField,
@@ -217,6 +218,51 @@ export const useClaimStore = defineStore('userClaim', () => {
     }
   }
 
+  // 첨부파일 업로드
+  const uploadingDocument = ref(false)
+
+  async function uploadDocument(claimId: number, file: File): Promise<ClaimDocument | null> {
+    uploadingDocument.value = true
+    try {
+      const response = await claimApi.uploadDocument(claimId, file)
+      if (response.data.success) {
+        const doc = response.data.data
+        if (currentClaim.value) {
+          if (!currentClaim.value.documents) {
+            currentClaim.value.documents = []
+          }
+          currentClaim.value.documents.push(doc)
+        }
+        return doc
+      }
+      return null
+    } catch (e: any) {
+      error.value = e.response?.data?.message || '파일 업로드에 실패했습니다.'
+      return null
+    } finally {
+      uploadingDocument.value = false
+    }
+  }
+
+  // 첨부파일 삭제
+  async function deleteDocument(claimId: number, docId: number): Promise<boolean> {
+    try {
+      const response = await claimApi.deleteDocument(claimId, docId)
+      if (response.data.success) {
+        if (currentClaim.value?.documents) {
+          currentClaim.value.documents = currentClaim.value.documents.filter(
+            d => d.claim_document_id !== docId
+          )
+        }
+        return true
+      }
+      return false
+    } catch (e: any) {
+      error.value = e.response?.data?.message || '파일 삭제에 실패했습니다.'
+      return false
+    }
+  }
+
   // 필드 값 설정
   function setFieldValue(fieldId: number, value: string): void {
     fieldValues.value[fieldId] = value
@@ -255,5 +301,8 @@ export const useClaimStore = defineStore('userClaim', () => {
     sendFax,
     setFieldValue,
     resetClaimForm,
+    uploadDocument,
+    deleteDocument,
+    uploadingDocument,
   }
 })

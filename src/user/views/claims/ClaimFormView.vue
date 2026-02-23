@@ -173,6 +173,50 @@
               </div>
             </CardSection>
 
+            <!-- 첨부파일 -->
+            <CardSection class="mb-4">
+              <p class="text-[15px] font-semibold text-[#222] mb-3">첨부파일</p>
+
+              <!-- 파일 목록 -->
+              <div
+                v-for="(file, i) in attachedFiles"
+                :key="i"
+                class="flex items-center gap-2 p-3 bg-[#F8F8F8] rounded-[8px] mb-2"
+              >
+                <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="text-[13px] text-[#555] flex-1 truncate">{{ file.name }}</span>
+                <span class="text-[12px] text-[#999] flex-shrink-0">{{ formatFileSize(file.size) }}</span>
+                <button
+                  type="button"
+                  @click="removeFile(i)"
+                  class="text-[#FF4444] text-[16px] font-bold flex-shrink-0 w-6 h-6 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+
+              <!-- 추가 버튼 -->
+              <button
+                type="button"
+                @click="fileInput?.click()"
+                class="w-full border-2 border-dashed border-[#DDD] rounded-[12px] py-4 text-[14px] text-[#999] active:bg-[#F8F8F8] transition-colors"
+              >
+                + 첨부파일 추가 (사진, 서류)
+              </button>
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*,.pdf"
+                multiple
+                @change="handleFileSelect"
+                class="hidden"
+              />
+              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 파일당 최대 10MB</p>
+            </CardSection>
+
             <!-- 에러 메시지 -->
             <div v-if="claimStore.error" class="mb-4 p-3 bg-[#FFE5E5] rounded-[8px] text-[13px] text-[#FF0000]">
               {{ claimStore.error }}
@@ -222,6 +266,8 @@ const templateId = computed(() => Number(route.params.templateId))
 const submitting = ref(false)
 const loading = ref(false)
 const showPreview = ref(false)
+const attachedFiles = ref<File[]>([])
+const fileInput = ref<HTMLInputElement | null>(null)
 const currentPreviewPage = ref(0)
 const previewContainerRef = ref<HTMLDivElement>()
 const previewContainerWidth = ref(0)
@@ -372,6 +418,31 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
   claimStore.setFieldValue(fieldId, value)
 }
 
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files) {
+    const files = Array.from(input.files)
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name}은(는) 10MB를 초과합니다.`)
+        continue
+      }
+      attachedFiles.value.push(file)
+    }
+    input.value = ''
+  }
+}
+
+function removeFile(index: number) {
+  attachedFiles.value.splice(index, 1)
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + 'B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
+}
+
 async function handleSubmit() {
   if (!isFormValid.value) return
 
@@ -384,6 +455,10 @@ async function handleSubmit() {
       claim = await claimStore.createClaim()
     }
     if (claim) {
+      // 첨부파일 업로드
+      for (const file of attachedFiles.value) {
+        await claimStore.uploadDocument(claim.claim_id, file)
+      }
       router.push(`/claims/${claim.claim_id}`)
     }
   } finally {

@@ -162,8 +162,21 @@ export interface InsuranceClaim {
   claim_form?: ClaimForm
   insurance_company?: InsuranceCompany
   field_values?: ClaimFieldValue[]
+  documents?: ClaimDocument[]
   created_at?: string
   updated_at?: string
+}
+
+// 청구 첨부파일 타입
+export interface ClaimDocument {
+  claim_document_id: number
+  claim_id: number
+  document_file_url: string
+  document_file_name: string
+  document_file_size?: number
+  document_url?: string
+  upload_status: string
+  created_at?: string
 }
 
 // 청구 필드 값 타입

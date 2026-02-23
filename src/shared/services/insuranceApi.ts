@@ -8,6 +8,7 @@ import type {
   FormPage,
   FormField,
   InsuranceClaim,
+  ClaimDocument,
 } from '@shared/types'
 
 // ============ 인증 API (설계사/관리자 - ID/PW) ============
@@ -208,6 +209,17 @@ export const claimApi = {
   // 고객: 팩스 발송
   sendFax: (id: number, faxNumber?: string) =>
     api.post<ApiResponse<{ message: string; reference_id?: string }>>(`/claims/${id}/send-fax`, { fax_number: faxNumber }),
+
+  // 고객: 첨부파일 업로드
+  uploadDocument: (claimId: number, file: File) => {
+    const formData = new FormData()
+    formData.append('document', file)
+    return api.post<ApiResponse<ClaimDocument>>(`/claims/${claimId}/documents`, formData)
+  },
+
+  // 고객: 첨부파일 삭제
+  deleteDocument: (claimId: number, docId: number) =>
+    api.delete<ApiResponse<null>>(`/claims/${claimId}/documents/${docId}`),
 
   // 관리자: 전체 청구 목록
   getAdminList: (params?: { search?: string; claim_status?: string; company_id?: number; date_from?: string; date_to?: string; per_page?: number; page?: number }) =>

@@ -77,6 +77,35 @@
             </CardSection>
           </div>
 
+          <!-- 첨부파일 -->
+          <div v-if="claimStore.currentClaim.documents && claimStore.currentClaim.documents.length > 0" class="mb-4">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">첨부파일</p>
+            <CardSection>
+              <div
+                v-for="doc in claimStore.currentClaim.documents"
+                :key="doc.claim_document_id"
+                class="flex items-center gap-3 py-2.5 border-b border-[#F0F0F0] last:border-0"
+              >
+                <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[13px] text-[#333] truncate">{{ doc.document_file_name }}</p>
+                  <p v-if="doc.document_file_size" class="text-[11px] text-[#999]">{{ formatFileSize(doc.document_file_size) }}</p>
+                </div>
+                <a
+                  v-if="doc.document_url"
+                  :href="doc.document_url"
+                  target="_blank"
+                  class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0"
+                >
+                  보기
+                </a>
+              </div>
+            </CardSection>
+          </div>
+
           <!-- 비고 -->
           <CardSection v-if="claimStore.currentClaim.notes" class="mb-4 !bg-[#FFF9F0]">
             <div class="flex items-start gap-2">
@@ -298,6 +327,12 @@ function getFaxStatusLabel(status?: string) {
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('ko-KR')
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + 'B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
 }
 
 function downloadPdf() {
