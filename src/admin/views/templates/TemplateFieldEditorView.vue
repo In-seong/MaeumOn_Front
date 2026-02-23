@@ -723,6 +723,15 @@ async function handleDeleteField(id: number) {
 async function applyFieldChanges() {
   if (!store.selectedField) return
 
+  // 선택지의 빈 value를 label에서 자동 생성
+  if (editForm.field_options?.choices) {
+    for (const choice of editForm.field_options.choices) {
+      if (!choice.value && choice.label) {
+        choice.value = choice.label
+      }
+    }
+  }
+
   try {
     await store.updateField(store.selectedField.form_field_id, {
       ...editForm,

@@ -188,13 +188,13 @@
                   <div v-else-if="field.field_type === 'checkbox' && field.field_options?.choices" class="flex flex-wrap gap-3">
                     <label
                       v-for="choice in field.field_options.choices"
-                      :key="choice.value"
+                      :key="choice.value || choice.label"
                       class="flex items-center gap-2 cursor-pointer"
                     >
                       <input
                         type="checkbox"
-                        :checked="isChoiceSelected(field.form_field_id, choice.value)"
-                        @change="toggleCheckboxChoice(field.form_field_id, choice.value)"
+                        :checked="isChoiceSelected(field.form_field_id, choice.value || choice.label)"
+                        @change="toggleCheckboxChoice(field.form_field_id, choice.value || choice.label)"
                         class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
                       />
                       <span class="text-[14px] text-[#333]">{{ choice.label }}</span>
@@ -205,15 +205,15 @@
                   <div v-else-if="field.field_type === 'radio' && field.field_options?.choices" class="flex flex-wrap gap-3">
                     <label
                       v-for="choice in field.field_options.choices"
-                      :key="choice.value"
+                      :key="choice.value || choice.label"
                       class="flex items-center gap-2 cursor-pointer"
                     >
                       <input
                         type="radio"
                         :name="'radio_' + field.form_field_id"
-                        :value="choice.value"
-                        :checked="claimStore.fieldValues[field.form_field_id] === choice.value"
-                        @change="claimStore.setFieldValue(field.form_field_id, choice.value)"
+                        :value="choice.value || choice.label"
+                        :checked="claimStore.fieldValues[field.form_field_id] === (choice.value || choice.label)"
+                        @change="claimStore.setFieldValue(field.form_field_id, choice.value || choice.label)"
                         class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] focus:ring-[#FF7B22]"
                       />
                       <span class="text-[14px] text-[#333]">{{ choice.label }}</span>
