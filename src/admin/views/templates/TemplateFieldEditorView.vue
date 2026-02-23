@@ -528,6 +528,7 @@ const placingChoiceIndex = ref<number | null>(null)
 const isDraggingChoice = ref(false)
 const dragChoiceIndex = ref<number | null>(null)
 const dragChoiceOffset = { x: 0, y: 0 }
+const justFinishedDrag = ref(false)
 
 // 드래그 상태
 const isDragging = ref(false)
@@ -633,6 +634,11 @@ function cancelPlacing() {
 }
 
 function handleCanvasClick(event: MouseEvent) {
+  // 드래그 직후 click 이벤트 무시 (드래그 후 필드 선택 해제 방지)
+  if (justFinishedDrag.value) {
+    justFinishedDrag.value = false
+    return
+  }
   if (placingChoiceIndex.value !== null && canvasRef.value && editForm.field_options?.choices) {
     const rect = canvasRef.value.getBoundingClientRect()
     const x = Math.round(event.clientX - rect.left)
@@ -874,7 +880,11 @@ function handleMouseUp() {
   if (isDraggingChoice.value) {
     isDraggingChoice.value = false
     dragChoiceIndex.value = null
+    justFinishedDrag.value = true
     return
+  }
+  if (isDragging.value || isResizing.value) {
+    justFinishedDrag.value = true
   }
   isDragging.value = false
   isResizing.value = false
