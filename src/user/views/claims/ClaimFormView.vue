@@ -102,6 +102,20 @@
           <!-- 입력 폼 -->
           <form @submit.prevent="handleSubmit">
             <CardSection class="mb-4">
+              <!-- 전체 동의 (동의서 필드가 2개 이상일 때) -->
+              <label
+                v-if="consentFields.length >= 2"
+                class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  :checked="allConsentsAgreed"
+                  @change="toggleAllConsents"
+                  class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
+                />
+                <span class="text-[15px] text-[#333] font-semibold">전체 동의</span>
+              </label>
+
               <div class="flex flex-col gap-4">
                 <div v-for="field in allFieldsSorted" :key="field.form_field_id">
                   <label class="block text-[13px] font-medium text-[#888] mb-1.5">
@@ -169,6 +183,93 @@
                     rows="3"
                     class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]"
                   ></textarea>
+
+                  <!-- 체크박스 (다중선택) -->
+                  <div v-else-if="field.field_type === 'checkbox' && field.field_options?.choices" class="flex flex-wrap gap-3">
+                    <label
+                      v-for="choice in field.field_options.choices"
+                      :key="choice.value"
+                      class="flex items-center gap-2 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="isChoiceSelected(field.form_field_id, choice.value)"
+                        @change="toggleCheckboxChoice(field.form_field_id, choice.value)"
+                        class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
+                      />
+                      <span class="text-[14px] text-[#333]">{{ choice.label }}</span>
+                    </label>
+                  </div>
+
+                  <!-- 라디오 (단일선택) -->
+                  <div v-else-if="field.field_type === 'radio' && field.field_options?.choices" class="flex flex-wrap gap-3">
+                    <label
+                      v-for="choice in field.field_options.choices"
+                      :key="choice.value"
+                      class="flex items-center gap-2 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        :name="'radio_' + field.form_field_id"
+                        :value="choice.value"
+                        :checked="claimStore.fieldValues[field.form_field_id] === choice.value"
+                        @change="claimStore.setFieldValue(field.form_field_id, choice.value)"
+                        class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] focus:ring-[#FF7B22]"
+                      />
+                      <span class="text-[14px] text-[#333]">{{ choice.label }}</span>
+                    </label>
+                  </div>
+
+                  <!-- 동의서 -->
+                  <div v-else-if="field.field_type === 'consent'" class="border border-[#E8E8E8] rounded-[12px] overflow-hidden">
+                    <div
+                      v-if="field.field_options?.consent_text"
+                      class="max-h-40 overflow-y-auto p-4 bg-[#FAFAFA] text-[12px] text-[#555] leading-relaxed whitespace-pre-wrap"
+                    >{{ field.field_options.consent_text }}</div>
+                    <label class="flex items-center gap-2 p-4 bg-white cursor-pointer border-t border-[#E8E8E8]">
+                      <input
+                        type="checkbox"
+                        :checked="claimStore.fieldValues[field.form_field_id] === 'agree'"
+                        @change="toggleConsent(field.form_field_id)"
+                        class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
+                      />
+                      <span class="text-[14px] text-[#333] font-medium">위 내용에 동의합니다</span>
+                    </label>
+                  </div>
+
+                  <!-- 서명 -->
+                  <div v-else-if="field.field_type === 'signature'">
+                    <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
+                      <canvas
+                        :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
+                        class="w-full h-32 border border-[#E8E8E8] rounded-[12px] bg-white touch-none"
+                        @mousedown="startSignatureDraw(field.form_field_id, $event)"
+                        @mousemove="drawSignature($event)"
+                        @mouseup="endSignatureDraw"
+                        @mouseleave="endSignatureDraw"
+                        @touchstart="startSignatureDraw(field.form_field_id, $event)"
+                        @touchmove="drawSignature($event)"
+                        @touchend="endSignatureDraw"
+                      ></canvas>
+                      <button
+                        type="button"
+                        @click="completeSignature(field.form_field_id)"
+                        class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform"
+                      >서명 완료</button>
+                    </div>
+                    <div v-else class="text-center">
+                      <img
+                        :src="claimStore.fieldValues[field.form_field_id]"
+                        alt="서명"
+                        class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white"
+                      />
+                      <button
+                        type="button"
+                        @click="resetSignature(field.form_field_id)"
+                        class="mt-2 text-[13px] text-[#FF7B22] underline"
+                      >다시 서명</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardSection>
@@ -249,10 +350,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useClaimStore } from '../../stores/claimStore'
-import type { FormPage, FormField } from '@shared/types'
+import type { FormPage, FormField, FieldChoice } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 
@@ -271,6 +372,11 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const currentPreviewPage = ref(0)
 const previewContainerRef = ref<HTMLDivElement>()
 const previewContainerWidth = ref(0)
+
+// 서명 캔버스 관련
+const signatureCanvasRefs = ref<Record<number, HTMLCanvasElement>>({})
+const isDrawing = ref(false)
+const activeSignatureFieldId = ref<number | null>(null)
 
 // 미리보기 스케일: 컨테이너 실제 너비 / 원본 이미지 너비
 const previewScale = computed(() => {
@@ -331,7 +437,21 @@ const isFormValid = computed(() => {
   const requiredFields = allFields.value.filter(f => f.is_required)
   return requiredFields.every(field => {
     const value = claimStore.fieldValues[field.form_field_id]
-    return value && value.trim().length > 0
+    switch (field.field_type) {
+      case 'checkbox': {
+        if (!value) return false
+        try {
+          const arr = JSON.parse(value)
+          return Array.isArray(arr) && arr.length > 0
+        } catch { return false }
+      }
+      case 'consent':
+        return value === 'agree'
+      case 'signature':
+        return !!value && value.startsWith('data:image/')
+      default:
+        return !!value && value.trim().length > 0
+    }
   })
 })
 
@@ -390,6 +510,125 @@ onMounted(async () => {
 onUnmounted(() => {
   resizeObserver?.disconnect()
 })
+
+// 체크박스 헬퍼
+function isChoiceSelected(fieldId: number, value: string): boolean {
+  const raw = claimStore.fieldValues[fieldId] || '[]'
+  try {
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) && arr.includes(value)
+  } catch { return false }
+}
+
+function toggleCheckboxChoice(fieldId: number, value: string) {
+  const raw = claimStore.fieldValues[fieldId] || '[]'
+  let arr: string[] = []
+  try { arr = JSON.parse(raw) } catch { arr = [] }
+  if (!Array.isArray(arr)) arr = []
+  const idx = arr.indexOf(value)
+  if (idx >= 0) {
+    arr.splice(idx, 1)
+  } else {
+    arr.push(value)
+  }
+  claimStore.setFieldValue(fieldId, JSON.stringify(arr))
+}
+
+// consent 헬퍼
+const consentFields = computed(() => allFieldsSorted.value.filter(f => f.field_type === 'consent'))
+const allConsentsAgreed = computed(() => {
+  return consentFields.value.length > 0 && consentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')
+})
+
+function toggleAllConsents() {
+  const newValue = allConsentsAgreed.value ? '' : 'agree'
+  consentFields.value.forEach(f => {
+    claimStore.setFieldValue(f.form_field_id, newValue)
+  })
+}
+
+function toggleConsent(fieldId: number) {
+  const current = claimStore.fieldValues[fieldId]
+  claimStore.setFieldValue(fieldId, current === 'agree' ? '' : 'agree')
+}
+
+// 서명 헬퍼
+function setSignatureCanvasRef(fieldId: number, el: any) {
+  if (el) {
+    signatureCanvasRefs.value[fieldId] = el as HTMLCanvasElement
+    initSignatureCanvas(fieldId)
+  }
+}
+
+function initSignatureCanvas(fieldId: number) {
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  const dpr = window.devicePixelRatio || 1
+  const rect = canvas.getBoundingClientRect()
+  canvas.width = rect.width * dpr
+  canvas.height = rect.height * dpr
+  const ctx = canvas.getContext('2d')
+  if (ctx) {
+    ctx.scale(dpr, dpr)
+    ctx.lineWidth = 2
+    ctx.lineCap = 'round'
+    ctx.strokeStyle = '#000000'
+  }
+}
+
+function getSignaturePos(canvas: HTMLCanvasElement, e: MouseEvent | TouchEvent) {
+  const rect = canvas.getBoundingClientRect()
+  if ('touches' in e) {
+    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top }
+  }
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+}
+
+function startSignatureDraw(fieldId: number, e: MouseEvent | TouchEvent) {
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  isDrawing.value = true
+  activeSignatureFieldId.value = fieldId
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const pos = getSignaturePos(canvas, e)
+  ctx.beginPath()
+  ctx.moveTo(pos.x, pos.y)
+  e.preventDefault()
+}
+
+function drawSignature(e: MouseEvent | TouchEvent) {
+  if (!isDrawing.value || activeSignatureFieldId.value === null) return
+  const canvas = signatureCanvasRefs.value[activeSignatureFieldId.value]
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const pos = getSignaturePos(canvas, e)
+  ctx.lineTo(pos.x, pos.y)
+  ctx.stroke()
+  e.preventDefault()
+}
+
+function endSignatureDraw() {
+  isDrawing.value = false
+  activeSignatureFieldId.value = null
+}
+
+function completeSignature(fieldId: number) {
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  const dataUrl = canvas.toDataURL('image/png')
+  claimStore.setFieldValue(fieldId, dataUrl)
+}
+
+function resetSignature(fieldId: number) {
+  claimStore.setFieldValue(fieldId, '')
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
 
 function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
   const target = event.target as HTMLInputElement

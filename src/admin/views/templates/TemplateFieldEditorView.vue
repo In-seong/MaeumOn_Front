@@ -110,11 +110,12 @@
         <div
           ref="canvasRef"
           class="relative bg-white shadow-[0_0_10px_rgba(0,0,0,0.06)] mx-auto"
+          :class="{ 'cursor-crosshair': placingChoiceIndex !== null }"
           :style="{
             width: (store.currentPage.image_width || 800) + 'px',
             height: (store.currentPage.image_height || 1000) + 'px',
           }"
-          @click.self="handleCanvasClick"
+          @click="handleCanvasClick"
         >
           <!-- 배경 이미지 -->
           <img
@@ -161,6 +162,32 @@
             >
               ✕
             </button>
+          </div>
+
+          <!-- 배치 모드 안내 -->
+          <div
+            v-if="placingChoiceIndex !== null"
+            class="absolute top-0 left-0 right-0 bg-green-500 text-white text-center py-2 text-[13px] z-20"
+          >
+            캔버스를 클릭하여 '{{ editForm.field_options?.choices?.[placingChoiceIndex]?.label || '선택지' }}' 위치를 지정하세요
+            <button @click="cancelPlacing" class="ml-3 underline">취소</button>
+          </div>
+
+          <!-- 선택지 위치 마커 -->
+          <div
+            v-if="store.selectedField && ['checkbox', 'radio', 'consent'].includes(editForm.field_type) && editForm.field_options?.choices"
+            v-for="(choice, idx) in editForm.field_options.choices"
+            :key="'choice-' + idx"
+            class="absolute z-10 cursor-move"
+            :style="{
+              left: choice.x + 'px',
+              top: choice.y + 'px',
+            }"
+            @mousedown.stop="startChoiceDrag($event, idx)"
+          >
+            <div class="border-2 border-dashed border-green-500 bg-green-500/20 px-2 py-0.5 rounded text-[11px] text-green-700 font-bold whitespace-nowrap select-none">
+              V {{ choice.label }}
+            </div>
           </div>
         </div>
       </div>
@@ -278,13 +305,92 @@
               </div>
             </div>
 
-            <div>
+            <div v-if="!['checkbox','radio','consent','signature'].includes(editForm.field_type)">
               <label class="block text-[13px] font-medium text-[#555] mb-1">플레이스홀더</label>
               <input
                 v-model="editForm.placeholder"
                 type="text"
                 class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
               />
+            </div>
+
+            <!-- 선택지 설정 (checkbox/radio/consent) -->
+            <div v-if="['checkbox', 'radio', 'consent'].includes(editForm.field_type) && editForm.field_options" class="space-y-3">
+              <div class="border-t border-[#F0F0F0] pt-3">
+                <h4 class="text-[12px] font-medium text-[#888] mb-2">선택지 설정</h4>
+
+                <div class="mb-2">
+                  <label class="block text-[12px] text-[#888] mb-1">체크 글꼴 크기</label>
+                  <input
+                    v-model.number="editForm.field_options.check_font_size"
+                    type="number"
+                    min="8"
+                    max="72"
+                    class="w-20 px-2 py-1 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[6px] text-[12px] text-[#333]"
+                  />
+                </div>
+
+                <div v-for="(choice, idx) in editForm.field_options.choices" :key="idx" class="p-2 bg-[#FAFAFA] rounded-[8px] mb-2">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] text-[#888]">선택지 {{ idx + 1 }}</span>
+                    <button
+                      v-if="editForm.field_type !== 'consent'"
+                      @click="removeChoice(idx)"
+                      class="text-red-400 hover:text-red-600 text-[11px]"
+                    >삭제</button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-1 mb-1">
+                    <input
+                      v-model="choice.label"
+                      type="text"
+                      placeholder="라벨"
+                      class="px-2 py-1 bg-white border border-[#E8E8E8] rounded-[6px] text-[12px]"
+                    />
+                    <input
+                      v-model="choice.value"
+                      type="text"
+                      placeholder="값"
+                      :disabled="editForm.field_type === 'consent'"
+                      class="px-2 py-1 bg-white border border-[#E8E8E8] rounded-[6px] text-[12px] disabled:bg-[#F0F0F0]"
+                    />
+                  </div>
+                  <div class="grid grid-cols-3 gap-1">
+                    <input
+                      v-model.number="choice.x"
+                      type="number"
+                      placeholder="X"
+                      class="px-2 py-1 bg-white border border-[#E8E8E8] rounded-[6px] text-[11px]"
+                    />
+                    <input
+                      v-model.number="choice.y"
+                      type="number"
+                      placeholder="Y"
+                      class="px-2 py-1 bg-white border border-[#E8E8E8] rounded-[6px] text-[11px]"
+                    />
+                    <button
+                      @click="startPlacingChoice(idx)"
+                      class="px-1 py-1 bg-green-50 text-green-600 border border-green-200 rounded-[6px] text-[11px] hover:bg-green-100"
+                    >위치 지정</button>
+                  </div>
+                </div>
+
+                <button
+                  v-if="editForm.field_type !== 'consent'"
+                  @click="addChoice"
+                  class="w-full py-1.5 border border-dashed border-[#DDD] rounded-[8px] text-[12px] text-[#999] hover:bg-[#FAFAFA]"
+                >+ 선택지 추가</button>
+              </div>
+
+              <!-- 동의 텍스트 (consent만) -->
+              <div v-if="editForm.field_type === 'consent'" class="border-t border-[#F0F0F0] pt-3">
+                <label class="block text-[12px] font-medium text-[#888] mb-1">동의 텍스트</label>
+                <textarea
+                  v-model="editForm.field_options.consent_text"
+                  rows="5"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] text-[12px] text-[#333] resize-none"
+                  placeholder="개인정보 수집 및 이용에 동의합니다..."
+                ></textarea>
+              </div>
             </div>
 
             <div>
@@ -406,7 +512,7 @@ import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
 import { FIELD_TYPE_OPTIONS } from '@shared/types'
-import type { FormField, FormPage } from '@shared/types'
+import type { FormField, FormPage, FieldOptions, FieldChoice } from '@shared/types'
 
 const route = useRoute()
 const store = useTemplateStore()
@@ -416,6 +522,12 @@ const saving = ref(false)
 const showAddModal = ref(false)
 
 const fieldTypeOptions = FIELD_TYPE_OPTIONS
+
+// 배치 모드 상태
+const placingChoiceIndex = ref<number | null>(null)
+const isDraggingChoice = ref(false)
+const dragChoiceIndex = ref<number | null>(null)
+const dragChoiceOffset = { x: 0, y: 0 }
 
 // 드래그 상태
 const isDragging = ref(false)
@@ -428,7 +540,7 @@ const resizeStart = { width: 0, height: 0, x: 0, y: 0 }
 const newField = reactive({
   field_name: '',
   field_label: '',
-  field_type: 'text' as 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea',
+  field_type: 'text' as FormField['field_type'],
   is_required: false,
 })
 
@@ -436,7 +548,7 @@ const newField = reactive({
 const editForm = reactive({
   field_name: '',
   field_label: '',
-  field_type: 'text' as 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea',
+  field_type: 'text' as FormField['field_type'],
   x_position: 0,
   y_position: 0,
   width: 200,
@@ -445,6 +557,7 @@ const editForm = reactive({
   font_color: '#000000',
   placeholder: '',
   is_required: false,
+  field_options: null as FieldOptions | null,
 })
 
 // 선택된 필드 변경 감지
@@ -461,8 +574,35 @@ watch(() => store.selectedField, (field) => {
     editForm.font_color = field.font_color
     editForm.placeholder = field.placeholder || ''
     editForm.is_required = field.is_required
+    editForm.field_options = field.field_options
+      ? JSON.parse(JSON.stringify(field.field_options))
+      : null
   }
 }, { immediate: true })
+
+// field_type 변경 시 field_options 자동 초기화
+watch(() => editForm.field_type, (newType) => {
+  switch (newType) {
+    case 'checkbox':
+    case 'radio':
+      editForm.field_options = { choices: [], check_font_size: 14 }
+      break
+    case 'consent':
+      editForm.field_options = {
+        choices: [
+          { label: '동의함', value: 'agree', x: 0, y: 0 },
+          { label: '동의안함', value: 'disagree', x: 0, y: 0 },
+        ],
+        consent_text: '',
+        check_font_size: 14,
+      }
+      break
+    case 'signature':
+    default:
+      editForm.field_options = null
+      break
+  }
+})
 
 function selectField(field: FormField) {
   store.selectField(field)
@@ -472,7 +612,36 @@ function selectPage(page: FormPage) {
   store.selectPage(page)
 }
 
-function handleCanvasClick() {
+// 선택지 관리 헬퍼 함수
+function addChoice() {
+  if (!editForm.field_options) return
+  if (!editForm.field_options.choices) editForm.field_options.choices = []
+  editForm.field_options.choices.push({ label: '', value: '', x: 0, y: 0 })
+}
+
+function removeChoice(index: number) {
+  if (!editForm.field_options?.choices) return
+  editForm.field_options.choices.splice(index, 1)
+}
+
+function startPlacingChoice(index: number) {
+  placingChoiceIndex.value = index
+}
+
+function cancelPlacing() {
+  placingChoiceIndex.value = null
+}
+
+function handleCanvasClick(event: MouseEvent) {
+  if (placingChoiceIndex.value !== null && canvasRef.value && editForm.field_options?.choices) {
+    const rect = canvasRef.value.getBoundingClientRect()
+    const x = Math.round(event.clientX - rect.left)
+    const y = Math.round(event.clientY - rect.top)
+    editForm.field_options.choices[placingChoiceIndex.value].x = x
+    editForm.field_options.choices[placingChoiceIndex.value].y = y
+    placingChoiceIndex.value = null
+    return
+  }
   store.selectField(null)
 }
 
@@ -495,6 +664,25 @@ async function submitNewField() {
     return
   }
 
+  // 타입별 기본 field_options 설정
+  let fieldOptions: FieldOptions | null = null
+  switch (newField.field_type) {
+    case 'checkbox':
+    case 'radio':
+      fieldOptions = { choices: [], check_font_size: 14 }
+      break
+    case 'consent':
+      fieldOptions = {
+        choices: [
+          { label: '동의함', value: 'agree', x: 0, y: 0 },
+          { label: '동의안함', value: 'disagree', x: 0, y: 0 },
+        ],
+        consent_text: '',
+        check_font_size: 14,
+      }
+      break
+  }
+
   try {
     await store.createField(Number(route.params.id), {
       ...newField,
@@ -505,6 +693,7 @@ async function submitNewField() {
       height: 30,
       font_size: 12,
       font_color: '#000000',
+      field_options: fieldOptions,
     })
     showAddModal.value = false
   } catch (e: any) {
@@ -526,7 +715,10 @@ async function applyFieldChanges() {
   if (!store.selectedField) return
 
   try {
-    await store.updateField(store.selectedField.form_field_id, editForm)
+    await store.updateField(store.selectedField.form_field_id, {
+      ...editForm,
+      field_options: editForm.field_options,
+    })
   } catch (e: any) {
     alert(e.response?.data?.message || '속성 적용에 실패했습니다.')
   }
@@ -579,6 +771,19 @@ async function handlePageImageUpload(event: Event) {
   input.value = ''
 }
 
+// choice 마커 드래그 시작
+function startChoiceDrag(event: MouseEvent, index: number) {
+  if (!canvasRef.value || !editForm.field_options?.choices) return
+  isDraggingChoice.value = true
+  dragChoiceIndex.value = index
+  const rect = canvasRef.value.getBoundingClientRect()
+  const choice = editForm.field_options.choices[index]
+  dragChoiceOffset.x = event.clientX - rect.left - choice.x
+  dragChoiceOffset.y = event.clientY - rect.top - choice.y
+  event.preventDefault()
+  event.stopPropagation()
+}
+
 // 드래그 시작
 function startDrag(event: MouseEvent, field: FormField) {
   if (!canvasRef.value) return
@@ -606,6 +811,16 @@ function startResize(event: MouseEvent, field: FormField) {
 
 // 마우스 이동
 function handleMouseMove(event: MouseEvent) {
+  // choice 드래그 우선 처리
+  if (isDraggingChoice.value && dragChoiceIndex.value !== null && canvasRef.value && editForm.field_options?.choices) {
+    const rect = canvasRef.value.getBoundingClientRect()
+    const x = event.clientX - rect.left - dragChoiceOffset.x
+    const y = event.clientY - rect.top - dragChoiceOffset.y
+    editForm.field_options.choices[dragChoiceIndex.value].x = Math.max(0, Math.round(x))
+    editForm.field_options.choices[dragChoiceIndex.value].y = Math.max(0, Math.round(y))
+    return
+  }
+
   if (!dragTarget.value) return
 
   if (isDragging.value && canvasRef.value) {
@@ -649,6 +864,11 @@ function handleMouseMove(event: MouseEvent) {
 
 // 마우스 릴리스
 function handleMouseUp() {
+  if (isDraggingChoice.value) {
+    isDraggingChoice.value = false
+    dragChoiceIndex.value = null
+    return
+  }
   isDragging.value = false
   isResizing.value = false
   dragTarget.value = null

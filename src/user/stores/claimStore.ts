@@ -87,7 +87,11 @@ export const useClaimStore = defineStore('userClaim', () => {
           selectedClaimForm.value.form_pages.forEach((page: FormPage) => {
             if (page.form_fields) {
               page.form_fields.forEach((field: FormField) => {
-                fieldValues.value[field.form_field_id] = field.default_value || ''
+                if (field.field_type === 'checkbox') {
+                  fieldValues.value[field.form_field_id] = field.default_value || '[]'
+                } else {
+                  fieldValues.value[field.form_field_id] = field.default_value || ''
+                }
               })
             }
           })
@@ -95,7 +99,11 @@ export const useClaimStore = defineStore('userClaim', () => {
         // 단일 페이지(레거시)인 경우 직접 필드에서 초기화
         else if (selectedClaimForm.value.form_fields) {
           selectedClaimForm.value.form_fields.forEach((field: FormField) => {
-            fieldValues.value[field.form_field_id] = field.default_value || ''
+            if (field.field_type === 'checkbox') {
+              fieldValues.value[field.form_field_id] = field.default_value || '[]'
+            } else {
+              fieldValues.value[field.form_field_id] = field.default_value || ''
+            }
           })
         }
       }

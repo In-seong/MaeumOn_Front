@@ -107,6 +107,21 @@ export interface FormPage {
   updated_at?: string
 }
 
+// 선택지 타입 (checkbox/radio/consent)
+export interface FieldChoice {
+  label: string
+  value: string
+  x: number
+  y: number
+}
+
+// 필드 옵션 타입
+export interface FieldOptions {
+  choices?: FieldChoice[]
+  check_font_size?: number
+  consent_text?: string
+}
+
 // 양식 필드 타입
 export interface FormField {
   form_field_id: number
@@ -114,10 +129,10 @@ export interface FormField {
   form_page_id?: number
   field_name: string
   field_label: string
-  field_type: 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea'
+  field_type: 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea' | 'checkbox' | 'radio' | 'consent' | 'signature'
   field_order: number
   is_required: boolean
-  field_options?: any
+  field_options?: FieldOptions | null
   validation_rules?: any
   x_position: number
   y_position: number
@@ -256,6 +271,10 @@ export const FIELD_TYPE_OPTIONS = [
   { value: 'resident_number', label: '주민등록번호' },
   { value: 'phone', label: '전화번호' },
   { value: 'textarea', label: '여러 줄 텍스트' },
+  { value: 'checkbox', label: '체크박스 (다중선택)' },
+  { value: 'radio', label: '라디오 (단일선택)' },
+  { value: 'consent', label: '동의서' },
+  { value: 'signature', label: '서명' },
 ] as const
 
 // 청구 상태 옵션 (물리설계 기준)
