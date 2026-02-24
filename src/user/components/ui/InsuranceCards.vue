@@ -1,6 +1,6 @@
 <template>
   <div class="flex gap-[14px] w-full" style="height: 192px;">
-    <div class="flex-1 flex flex-col justify-between bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 cursor-pointer" @click="router.push('/insurance')">
+    <div class="flex-1 flex flex-col justify-between bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 cursor-pointer">
       <div>
         <h3 class="text-[15px] font-medium text-[#FF7B22] mb-3">내 보험 현황</h3>
         <p class="text-[13px] font-semibold text-[#555555] mb-0.5">월 납입료</p>
@@ -38,7 +38,7 @@
           </button>
           <button
             class="w-full py-3.5 bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] text-[15px] font-semibold active:scale-[0.98] transition-transform"
-            @click="handleClaim('agent')"
+            
           >
             대리 청구 요청하기
           </button>

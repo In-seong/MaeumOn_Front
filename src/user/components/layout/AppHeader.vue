@@ -8,7 +8,7 @@
       <button class="p-1">
         <SearchIcon />
       </button>
-      <button class="p-1" @click="router.push('/notifications')">
+      <button class="p-1">
         <NoticeIcon />
       </button>
     </div>

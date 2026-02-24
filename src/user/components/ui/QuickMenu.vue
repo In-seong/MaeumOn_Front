@@ -32,10 +32,10 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { icon: markRaw(HospitalIcon), label: '병원찾기', props: { active: true }, to: '/hospital' },
+  { icon: markRaw(HospitalIcon), label: '병원찾기', props: { active: true }},
   { icon: markRaw(AccidentIcon), label: '사고접수' },
-  { icon: markRaw(ClipboardIcon), label: '민원접수', to: '/consultation' },
-  { icon: markRaw(PlusIcon), label: '부가서비스', to: '/insurance' }
+  { icon: markRaw(ClipboardIcon), label: '민원접수'},
+  { icon: markRaw(PlusIcon), label: '부가서비스' }
 ]
 </script>
 

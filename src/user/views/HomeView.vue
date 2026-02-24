@@ -15,7 +15,7 @@
 
         <!-- Section 2: Coverage Analysis -->
         <section class="flex flex-col gap-4 mb-6">
-          <SectionTitle title="보장 분석" actionText="자세히 보기" actionTo="/coverage-analysis">
+          <SectionTitle title="보장 분석" actionText="자세히 보기">
             <template #icon><CoverageIcon /></template>
           </SectionTitle>
           <CoverageCard />
