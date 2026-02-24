@@ -310,7 +310,7 @@
               <input
                 ref="fileInput"
                 type="file"
-                accept="image/*,.pdf"
+                accept="image/*,application/pdf"
                 multiple
                 @change="handleFileSelect"
                 class="hidden"
@@ -321,6 +321,14 @@
             <!-- 에러 메시지 -->
             <div v-if="claimStore.error" class="mb-4 p-3 bg-[#FFE5E5] rounded-[8px] text-[13px] text-[#FF0000]">
               {{ claimStore.error }}
+            </div>
+
+            <!-- [DEBUG] 미입력 필수 항목 표시 -->
+            <div v-if="invalidFields.length > 0" class="mb-3 p-3 bg-[#FFF8E1] rounded-[8px] text-[12px] text-[#333]">
+              <p class="font-bold mb-1">미입력 필수 항목 ({{ invalidFields.length }}개):</p>
+              <p v-for="f in invalidFields" :key="f.form_field_id">
+                {{ f.field_label }} (type: {{ f.field_type }}, id: {{ f.form_field_id }}, value: "{{ claimStore.fieldValues[f.form_field_id] || '' }}")
+              </p>
             </div>
 
             <!-- 제출 버튼 -->
@@ -433,27 +441,32 @@ const currentPageFields = computed<FormField[]>(() => {
   return (currentPageData.value.form_fields || []).sort((a: FormField, b: FormField) => a.field_order - b.field_order)
 })
 
-const isFormValid = computed(() => {
-  const requiredFields = allFields.value.filter(f => f.is_required)
-  return requiredFields.every(field => {
-    const value = claimStore.fieldValues[field.form_field_id]
-    switch (field.field_type) {
-      case 'checkbox': {
-        if (!value) return false
-        try {
-          const arr = JSON.parse(value)
-          return Array.isArray(arr) && arr.length > 0
-        } catch { return false }
-      }
-      case 'consent':
-        return value === 'agree'
-      case 'signature':
-        return !!value && value.startsWith('data:image/')
-      default:
-        return !!value && value.trim().length > 0
+function isFieldValid(field: FormField): boolean {
+  const value = claimStore.fieldValues[field.form_field_id]
+  switch (field.field_type) {
+    case 'checkbox': {
+      if (!value) return false
+      try {
+        const arr = JSON.parse(value)
+        return Array.isArray(arr) && arr.length > 0
+      } catch { return false }
     }
-  })
+    case 'consent':
+      return value === 'agree'
+    case 'signature':
+      return !!value && value.startsWith('data:image/')
+    default:
+      return !!value && value.trim().length > 0
+  }
+}
+
+const invalidFields = computed(() => {
+  return allFields.value
+    .filter(f => f.is_required)
+    .filter(f => !isFieldValid(f))
 })
+
+const isFormValid = computed(() => invalidFields.value.length === 0)
 
 const isSinglePageTemplate = computed(() => {
   return !sortedPages.value.length && claimStore.selectedClaimForm?.template_image_url
