@@ -15,6 +15,13 @@
 
       <div class="flex items-center gap-2">
         <button
+          @click="handleAddConsentMarker"
+          :disabled="!store.currentPage"
+          class="px-4 py-2 bg-white border border-green-300 text-green-600 rounded-[12px] hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-[14px] font-medium"
+        >
+          동의 체크 추가
+        </button>
+        <button
           @click="handleAddField"
           :disabled="!store.currentPage"
           class="px-4 py-2 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] hover:bg-[#FAFAFA] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-[14px] font-medium"
@@ -216,7 +223,13 @@
           </h2>
 
           <div v-if="store.selectedField" class="space-y-4">
-            <div>
+            <!-- consent 필드 안내 배지 -->
+            <div v-if="editForm.field_type === 'consent'" class="p-3 bg-green-50 border border-green-200 rounded-[8px]">
+              <p class="text-[12px] text-green-700 font-medium">동의 체크 표기 필드</p>
+              <p class="text-[11px] text-green-600 mt-0.5">앱에서 동의 시 아래 좌표에 V 체크가 렌더링됩니다.</p>
+            </div>
+
+            <div v-if="editForm.field_type !== 'consent'">
               <label class="block text-[13px] font-medium text-[#555] mb-1">필드명</label>
               <input
                 v-model="editForm.field_name"
@@ -225,7 +238,7 @@
               />
             </div>
 
-            <div>
+            <div v-if="editForm.field_type !== 'consent'">
               <label class="block text-[13px] font-medium text-[#555] mb-1">라벨</label>
               <input
                 v-model="editForm.field_label"
@@ -234,7 +247,7 @@
               />
             </div>
 
-            <div>
+            <div v-if="editForm.field_type !== 'consent'">
               <label class="block text-[13px] font-medium text-[#555] mb-1">타입</label>
               <select
                 v-model="editForm.field_type"
@@ -246,63 +259,80 @@
               </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-[13px] font-medium text-[#555] mb-1">X</label>
-                <input
-                  v-model.number="editForm.x_position"
-                  type="number"
-                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
-                />
+            <!-- consent 필드는 위치/크기/글꼴 숨김 (체크 좌표만 관리) -->
+            <template v-if="editForm.field_type !== 'consent'">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[13px] font-medium text-[#555] mb-1">X</label>
+                  <input
+                    v-model.number="editForm.x_position"
+                    type="number"
+                    class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[13px] font-medium text-[#555] mb-1">Y</label>
+                  <input
+                    v-model.number="editForm.y_position"
+                    type="number"
+                    class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+                  />
+                </div>
               </div>
-              <div>
-                <label class="block text-[13px] font-medium text-[#555] mb-1">Y</label>
-                <input
-                  v-model.number="editForm.y_position"
-                  type="number"
-                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
-                />
-              </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-[13px] font-medium text-[#555] mb-1">너비</label>
-                <input
-                  v-model.number="editForm.width"
-                  type="number"
-                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
-                />
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[13px] font-medium text-[#555] mb-1">너비</label>
+                  <input
+                    v-model.number="editForm.width"
+                    type="number"
+                    class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[13px] font-medium text-[#555] mb-1">높이</label>
+                  <input
+                    v-model.number="editForm.height"
+                    type="number"
+                    class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+                  />
+                </div>
               </div>
-              <div>
-                <label class="block text-[13px] font-medium text-[#555] mb-1">높이</label>
-                <input
-                  v-model.number="editForm.height"
-                  type="number"
-                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
-                />
-              </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-[13px] font-medium text-[#555] mb-1">글꼴 크기</label>
-                <input
-                  v-model.number="editForm.font_size"
-                  type="number"
-                  min="8"
-                  max="72"
-                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
-                />
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[13px] font-medium text-[#555] mb-1">글꼴 크기</label>
+                  <input
+                    v-model.number="editForm.font_size"
+                    type="number"
+                    min="8"
+                    max="72"
+                    class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[13px] font-medium text-[#555] mb-1">색상</label>
+                  <input
+                    v-model="editForm.font_color"
+                    type="color"
+                    class="w-full h-10 border border-[#E8E8E8] rounded-[8px] cursor-pointer"
+                  />
+                </div>
               </div>
-              <div>
-                <label class="block text-[13px] font-medium text-[#555] mb-1">색상</label>
-                <input
-                  v-model="editForm.font_color"
-                  type="color"
-                  class="w-full h-10 border border-[#E8E8E8] rounded-[8px] cursor-pointer"
-                />
-              </div>
+            </template>
+
+            <!-- 위저드 스텝 지정 (consent 제외) -->
+            <div v-if="editForm.field_type !== 'consent'">
+              <label class="block text-[13px] font-medium text-[#555] mb-1">위저드 스텝</label>
+              <select
+                v-model.number="editWizardStep"
+                class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+              >
+                <option v-for="opt in WIZARD_STEP_OPTIONS" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+              <p class="text-[11px] text-[#999] mt-1">앱에서 이 필드가 표시될 페이지를 선택합니다.</p>
             </div>
 
             <div v-if="!['checkbox','radio','consent','signature'].includes(editForm.field_type)">
@@ -311,6 +341,17 @@
                 v-model="editForm.placeholder"
                 type="text"
                 class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+              />
+            </div>
+
+            <!-- consent용 라벨 편집 (간소화) -->
+            <div v-if="editForm.field_type === 'consent'">
+              <label class="block text-[13px] font-medium text-[#555] mb-1">표시명</label>
+              <input
+                v-model="editForm.field_label"
+                type="text"
+                class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]"
+                placeholder="예: 개인정보 동의 체크"
               />
             </div>
 
@@ -381,19 +422,13 @@
                 >+ 선택지 추가</button>
               </div>
 
-              <!-- 동의 텍스트 (consent만) -->
+              <!-- 동의 텍스트 안내 (consent만) -->
               <div v-if="editForm.field_type === 'consent'" class="border-t border-[#F0F0F0] pt-3">
-                <label class="block text-[12px] font-medium text-[#888] mb-1">동의 텍스트</label>
-                <textarea
-                  v-model="editForm.field_options.consent_text"
-                  rows="5"
-                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] text-[12px] text-[#333] resize-none"
-                  placeholder="개인정보 수집 및 이용에 동의합니다..."
-                ></textarea>
+                <p class="text-[11px] text-[#999]">동의서 내용은 앱에서 자체 제공됩니다. 여기서는 동의/미동의 체크 표기 좌표만 지정하세요.</p>
               </div>
             </div>
 
-            <div>
+            <div v-if="editForm.field_type !== 'consent'">
               <label class="flex items-center">
                 <input
                   v-model="editForm.is_required"
@@ -425,9 +460,13 @@
                 :class="store.selectedField?.form_field_id === field.form_field_id ? 'bg-[#FFF3ED] text-[#FF7B22]' : 'hover:bg-[#FAFAFA] text-[#333]'"
                 @click="selectField(field)"
               >
+                <span v-if="field.field_type === 'consent' && field.field_name.startsWith('consent_privacy')" class="inline-block px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded mr-1">개인정보</span>
+                <span v-else-if="field.field_type === 'consent' && field.field_name.startsWith('consent_sensitive')" class="inline-block px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded mr-1">민감정보</span>
+                <span v-else-if="field.field_type === 'consent'" class="inline-block px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded mr-1">동의</span>
                 <span class="font-medium">{{ field.field_label }}</span>
-                <span class="text-[#999] text-[11px] ml-2">({{ field.field_name }})</span>
-                <span v-if="field.is_required" class="text-red-500 text-[11px] ml-1">*</span>
+                <span v-if="field.field_type !== 'consent'" class="text-[#999] text-[11px] ml-2">({{ field.field_name }})</span>
+                <span v-if="field.field_type !== 'consent' && field.field_options?.wizard_step" class="inline-block px-1 py-0.5 bg-orange-100 text-orange-600 text-[10px] rounded ml-1">S{{ field.field_options.wizard_step }}</span>
+                <span v-if="field.is_required && field.field_type !== 'consent'" class="text-red-500 text-[11px] ml-1">*</span>
               </li>
               <li v-if="store.currentPageFields.length === 0" class="text-[#999] text-[13px]">
                 이 페이지에 필드가 없습니다.
@@ -477,6 +516,19 @@
           </div>
 
           <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-1">위저드 스텝</label>
+            <select
+              v-model.number="newFieldWizardStep"
+              class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+            >
+              <option v-for="opt in WIZARD_STEP_OPTIONS" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <p class="text-[11px] text-[#999] mt-1">앱에서 이 필드가 표시될 페이지</p>
+          </div>
+
+          <div>
             <label class="flex items-center">
               <input
                 v-model="newField.is_required"
@@ -504,6 +556,33 @@
         </div>
       </div>
     </div>
+
+    <!-- 동의 체크 카테고리 선택 모달 -->
+    <div v-if="showConsentCategoryModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-[16px] shadow-[0_0_20px_rgba(0,0,0,0.1)] w-80 p-6">
+        <h3 class="text-[16px] font-semibold text-[#333] mb-2">동의 체크 추가</h3>
+        <p class="text-[13px] text-[#888] mb-4">체크 표기할 동의 카테고리를 선택하세요.</p>
+
+        <div class="space-y-2">
+          <button
+            v-for="cat in CONSENT_CATEGORIES"
+            :key="cat.key"
+            @click="createConsentMarker(cat.key)"
+            class="w-full text-left p-3 border border-green-200 rounded-[12px] hover:bg-green-50 transition-colors"
+          >
+            <span class="text-[14px] font-medium text-green-700">{{ cat.label }}</span>
+            <p class="text-[11px] text-[#999] mt-0.5">{{ cat.description }}</p>
+          </button>
+        </div>
+
+        <button
+          @click="showConsentCategoryModal = false"
+          class="w-full mt-4 py-2 border border-[#E0E0E0] text-[#555] rounded-[12px] hover:bg-[#FAFAFA] transition-colors text-[14px]"
+        >
+          취소
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -521,7 +600,14 @@ const canvasRef = ref<HTMLElement | null>(null)
 const saving = ref(false)
 const showAddModal = ref(false)
 
-const fieldTypeOptions = FIELD_TYPE_OPTIONS
+const fieldTypeOptions = FIELD_TYPE_OPTIONS.filter(o => o.value !== 'consent')
+
+const WIZARD_STEP_OPTIONS = [
+  { value: 2, label: 'Step 2 — 청구 내용' },
+  { value: 3, label: 'Step 3 — 계약자 정보' },
+  { value: 4, label: 'Step 4 — 피보험자/수익자' },
+  { value: 5, label: 'Step 5 — 계좌 정보' },
+]
 
 // 배치 모드 상태
 const placingChoiceIndex = ref<number | null>(null)
@@ -536,6 +622,10 @@ const isResizing = ref(false)
 const dragTarget = ref<FormField | null>(null)
 const dragOffset = { x: 0, y: 0 }
 const resizeStart = { width: 0, height: 0, x: 0, y: 0 }
+
+// 위저드 스텝 상태
+const editWizardStep = ref(2)
+const newFieldWizardStep = ref(2)
 
 // 새 필드 폼
 const newField = reactive({
@@ -578,6 +668,7 @@ watch(() => store.selectedField, (field) => {
     editForm.field_options = field.field_options
       ? JSON.parse(JSON.stringify(field.field_options))
       : null
+    editWizardStep.value = field.field_options?.wizard_step || 2
   }
 }, { immediate: true })
 
@@ -654,11 +745,68 @@ function handleCanvasClick(event: MouseEvent) {
   store.selectField(null)
 }
 
+// 동의 체크 카테고리 선택 모달
+const showConsentCategoryModal = ref(false)
+
+const CONSENT_CATEGORIES = [
+  { key: 'privacy', label: '개인정보 동의', description: '개인(신용)정보 처리 동의 체크 위치' },
+  { key: 'sensitive', label: '민감정보 동의', description: '민감정보 및 고유식별정보 처리 동의 체크 위치' },
+] as const
+
+function handleAddConsentMarker() {
+  if (!store.currentPage) {
+    alert('페이지를 먼저 선택해주세요.')
+    return
+  }
+  showConsentCategoryModal.value = true
+}
+
+async function createConsentMarker(category: 'privacy' | 'sensitive') {
+  if (!store.currentPage) return
+
+  // 전체 페이지에서 해당 카테고리 기존 개수로 번호 부여 (field_name 유니크 보장)
+  const prefix = `consent_${category}`
+  const allFields = store.sortedPages.flatMap(p => p.form_fields || [])
+  const existingCount = allFields.filter(
+    f => f.field_type === 'consent' && f.field_name.startsWith(prefix)
+  ).length
+
+  const num = existingCount + 1
+  const categoryLabel = category === 'privacy' ? '개인정보' : '민감정보'
+
+  try {
+    await store.createField(Number(route.params.id), {
+      field_name: `${prefix}_${num}`,
+      field_label: `${categoryLabel} 동의 체크 ${num}`,
+      field_type: 'consent',
+      is_required: true,
+      form_page_id: store.currentPage.form_page_id,
+      x_position: 50,
+      y_position: 50,
+      width: 100,
+      height: 30,
+      font_size: 14,
+      font_color: '#000000',
+      field_options: {
+        choices: [
+          { label: '동의함', value: 'agree', x: 0, y: 0 },
+          { label: '동의안함', value: 'disagree', x: 0, y: 0 },
+        ],
+        check_font_size: 14,
+      },
+    })
+    showConsentCategoryModal.value = false
+  } catch (e: any) {
+    alert(e.response?.data?.message || '동의 체크 추가에 실패했습니다.')
+  }
+}
+
 function handleAddField() {
   newField.field_name = ''
   newField.field_label = ''
   newField.field_type = 'text'
   newField.is_required = false
+  newFieldWizardStep.value = 2
   showAddModal.value = true
 }
 
@@ -678,7 +826,7 @@ async function submitNewField() {
   switch (newField.field_type) {
     case 'checkbox':
     case 'radio':
-      fieldOptions = { choices: [], check_font_size: 14 }
+      fieldOptions = { choices: [], check_font_size: 14, wizard_step: newFieldWizardStep.value }
       break
     case 'consent':
       fieldOptions = {
@@ -689,6 +837,9 @@ async function submitNewField() {
         consent_text: '',
         check_font_size: 14,
       }
+      break
+    default:
+      fieldOptions = { wizard_step: newFieldWizardStep.value }
       break
   }
 
@@ -732,10 +883,18 @@ async function applyFieldChanges() {
     }
   }
 
+  // wizard_step을 field_options에 병합
+  const mergedOptions: FieldOptions = {
+    ...(editForm.field_options || {}),
+  }
+  if (editForm.field_type !== 'consent') {
+    mergedOptions.wizard_step = editWizardStep.value
+  }
+
   try {
     await store.updateField(store.selectedField.form_field_id, {
       ...editForm,
-      field_options: editForm.field_options,
+      field_options: mergedOptions,
     })
   } catch (e: any) {
     alert(e.response?.data?.message || '속성 적용에 실패했습니다.')

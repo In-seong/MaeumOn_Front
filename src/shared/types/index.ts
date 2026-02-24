@@ -120,6 +120,7 @@ export interface FieldOptions {
   choices?: FieldChoice[]
   check_font_size?: number
   consent_text?: string
+  wizard_step?: number  // 1~5, 명시적 위저드 스텝 지정
 }
 
 // 양식 필드 타입
@@ -165,6 +166,7 @@ export interface InsuranceClaim {
   rejection_reason?: string
   generated_pdf_path?: string
   generated_pdf_url?: string
+  generated_image_urls?: Array<{ page_number: number; url: string }>
   generated_image_url?: string
   fax_batch_id?: string
   fax_number_sent?: string

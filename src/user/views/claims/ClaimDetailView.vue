@@ -59,17 +59,21 @@
             </CardSection>
           </div>
 
-          <!-- 생성된 청구서 (PDF 뷰어) -->
+          <!-- 생성된 청구서 (페이지 이미지) -->
           <div class="mb-4">
             <p class="text-[15px] font-semibold text-[#222] mb-2">생성된 청구서</p>
             <CardSection>
-              <div v-if="claimStore.currentClaim.generated_pdf_url" class="mb-4">
-                <iframe
-                  :src="claimStore.currentClaim.generated_pdf_url"
-                  class="w-full rounded-[8px] border border-[#E8E8E8]"
-                  style="height: 500px;"
-                  title="청구서 PDF"
-                ></iframe>
+              <div v-if="claimStore.currentClaim.generated_image_urls?.length" class="flex flex-col gap-3">
+                <div v-for="img in claimStore.currentClaim.generated_image_urls" :key="img.page_number">
+                  <p v-if="claimStore.currentClaim.generated_image_urls.length > 1" class="text-[12px] text-[#999] mb-1">
+                    {{ img.page_number }}페이지
+                  </p>
+                  <img
+                    :src="img.url"
+                    :alt="'청구서 ' + img.page_number + '페이지'"
+                    class="w-full rounded-[8px] border border-[#E8E8E8]"
+                  />
+                </div>
               </div>
               <p v-else class="text-[13px] text-[#999] text-center py-6">
                 생성된 청구서가 없습니다.
