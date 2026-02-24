@@ -4,8 +4,11 @@ import type {
   Performance, DbDistribution, DisclosureObligation, Message,
   SatisfactionSurvey, AgentNotification, DashboardSummary,
   Memo, StatisticsTrend, MessageTemplate,
-  ApiResponse, LaravelPagination
+  ApiResponse, LaravelPagination,
 } from '../types'
+import type {
+  InsuranceCompany, ClaimForm, InsuranceClaim, ClaimDocument,
+} from '@shared/types'
 
 const BASE = '/agent'
 
@@ -63,12 +66,57 @@ export const fetchConsultation = (id: number) =>
 export const respondConsultation = (id: number, answer: string) =>
   api.put<ApiResponse<Consultation>>(`${BASE}/consultations/${id}/answer`, { answer })
 
-// ===== Claims =====
+// ===== Claims (목록/상세 조회) =====
 export const fetchClaims = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AgentClaim>>>(`${BASE}/claims`, { params })
 
 export const fetchClaim = (id: number) =>
   api.get<ApiResponse<AgentClaim>>(`${BASE}/claims/${id}`)
+
+// ===== Claims (대리 청구 작성/발송) =====
+
+// 보험사 목록 (공개 API 재사용)
+export const fetchInsuranceCompanies = () =>
+  api.get<ApiResponse<InsuranceCompany[]>>('/insurance-companies')
+
+// 양식 목록 (공개 API 재사용)
+export const fetchClaimForms = (params?: { company_id?: number }) =>
+  api.get<ApiResponse<ClaimForm[]>>('/claim-forms', { params })
+
+// 양식 상세 (공개 API 재사용)
+export const fetchClaimFormDetail = (id: number) =>
+  api.get<ApiResponse<ClaimForm>>(`/claim-forms/${id}`)
+
+// 대리 청구 생성 (PDF 생성 포함으로 타임아웃 120초)
+export const createAgentClaim = (data: {
+  customer_id: string
+  claim_form_id: number
+  fields: Array<{ form_field_id: number; field_value: string }>
+}) =>
+  api.post<ApiResponse<InsuranceClaim>>(`${BASE}/claims`, data, { timeout: 120000 })
+
+// 대리 청구 수정 (PDF 재생성 포함으로 타임아웃 120초)
+export const updateAgentClaim = (id: number, data: {
+  fields: Array<{ form_field_id: number; field_value: string }>
+}) =>
+  api.put<ApiResponse<InsuranceClaim>>(`${BASE}/claims/${id}`, data, { timeout: 120000 })
+
+// 팩스 발송
+export const sendAgentClaimFax = (id: number, faxNumber?: string) =>
+  api.post<ApiResponse<{ message: string; reference_id?: string }>>(`${BASE}/claims/${id}/send-fax`, { fax_number: faxNumber })
+
+// 첨부파일 업로드 (파일 업로드이므로 타임아웃 60초)
+export const uploadAgentClaimDocument = (claimId: number, file: File) => {
+  const formData = new FormData()
+  formData.append('document', file)
+  return api.post<ApiResponse<ClaimDocument>>(`${BASE}/claims/${claimId}/documents`, formData, {
+    timeout: 60000,
+  })
+}
+
+// 첨부파일 삭제
+export const deleteAgentClaimDocument = (claimId: number, docId: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/claims/${claimId}/documents/${docId}`)
 
 // ===== Schedules (Backend 미구현 - Mock용) =====
 export const fetchSchedules = (params?: Record<string, unknown>) =>

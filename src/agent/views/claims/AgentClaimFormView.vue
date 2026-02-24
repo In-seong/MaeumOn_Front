@@ -1,12 +1,23 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <BackHeader :title="isEditMode ? '청구서 수정' : '청구서 작성'" />
+      <BackHeader :title="isEditMode ? '청구서 수정' : '대리 청구서 작성'" />
       <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           <p class="ml-3 text-[13px] text-[#999]">{{ isEditMode ? '청구 정보를 불러오는 중...' : '양식 정보를 불러오는 중...' }}</p>
+        </div>
+
+        <!-- 고객 미지정 오류 -->
+        <div v-else-if="!isEditMode && !customerId" class="text-center py-20">
+          <p class="text-[15px] text-[#888]">고객이 지정되지 않았습니다.</p>
+          <button
+            @click="goBack"
+            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
+          >
+            양식 선택으로 돌아가기
+          </button>
         </div>
 
         <!-- 위저드 폼 -->
@@ -17,6 +28,10 @@
               <span class="text-[13px] text-[#888]">{{ claimStore.selectedClaimForm.insurance_company?.company_name }}</span>
               <p class="text-[18px] font-bold text-[#222] mt-0.5">
                 {{ claimStore.selectedClaimForm.form_name }}
+              </p>
+              <!-- 대리 작성 고객 표시 -->
+              <p v-if="customerStore.selectedCustomer" class="text-[12px] text-[#FF7B22] mt-1">
+                고객: {{ customerStore.selectedCustomer.name }} 님 대리 작성
               </p>
             </div>
           </CardSection>
@@ -93,7 +108,33 @@
                     <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
                   </label>
                   <div class="flex flex-col gap-4">
-                    <ClaimFieldInput v-for="field in insuredStepFields" :key="field.form_field_id" :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    <template v-for="field in insuredStepFields" :key="field.form_field_id">
+                      <div v-if="field.field_type === 'signature'">
+                        <label class="block text-[13px] font-medium text-[#888] mb-1.5">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
+                          <canvas
+                            :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
+                            class="w-full h-32 border border-[#E8E8E8] rounded-[12px] bg-white touch-none"
+                            @mousedown="startSignatureDraw(field.form_field_id, $event)"
+                            @mousemove="drawSignature($event)"
+                            @mouseup="endSignatureDraw"
+                            @mouseleave="endSignatureDraw"
+                            @touchstart="startSignatureDraw(field.form_field_id, $event)"
+                            @touchmove="drawSignature($event)"
+                            @touchend="endSignatureDraw"
+                          ></canvas>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                        </div>
+                        <div v-else class="text-center">
+                          <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                        </div>
+                      </div>
+                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    </template>
                   </div>
                 </CardSection>
 
@@ -105,19 +146,71 @@
                     <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
                   </label>
                   <div class="flex flex-col gap-4">
-                    <ClaimFieldInput v-for="field in beneficiaryStepFields" :key="field.form_field_id" :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    <template v-for="field in beneficiaryStepFields" :key="field.form_field_id">
+                      <div v-if="field.field_type === 'signature'">
+                        <label class="block text-[13px] font-medium text-[#888] mb-1.5">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
+                          <canvas
+                            :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
+                            class="w-full h-32 border border-[#E8E8E8] rounded-[12px] bg-white touch-none"
+                            @mousedown="startSignatureDraw(field.form_field_id, $event)"
+                            @mousemove="drawSignature($event)"
+                            @mouseup="endSignatureDraw"
+                            @mouseleave="endSignatureDraw"
+                            @touchstart="startSignatureDraw(field.form_field_id, $event)"
+                            @touchmove="drawSignature($event)"
+                            @touchend="endSignatureDraw"
+                          ></canvas>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                        </div>
+                        <div v-else class="text-center">
+                          <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                        </div>
+                      </div>
+                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    </template>
                   </div>
                 </CardSection>
 
                 <!-- 기타 Step 4 필드 (접두어 없는 필드) -->
                 <CardSection v-if="otherStep4Fields.length > 0" class="mb-4">
                   <div class="flex flex-col gap-4">
-                    <ClaimFieldInput v-for="field in otherStep4Fields" :key="field.form_field_id" :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    <template v-for="field in otherStep4Fields" :key="field.form_field_id">
+                      <div v-if="field.field_type === 'signature'">
+                        <label class="block text-[13px] font-medium text-[#888] mb-1.5">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
+                          <canvas
+                            :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
+                            class="w-full h-32 border border-[#E8E8E8] rounded-[12px] bg-white touch-none"
+                            @mousedown="startSignatureDraw(field.form_field_id, $event)"
+                            @mousemove="drawSignature($event)"
+                            @mouseup="endSignatureDraw"
+                            @mouseleave="endSignatureDraw"
+                            @touchstart="startSignatureDraw(field.form_field_id, $event)"
+                            @touchmove="drawSignature($event)"
+                            @touchend="endSignatureDraw"
+                          ></canvas>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                        </div>
+                        <div v-else class="text-center">
+                          <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                        </div>
+                      </div>
+                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    </template>
                   </div>
                 </CardSection>
               </template>
 
-              <!-- 접두어 없이 wizard_step=4로만 지정된 경우 → 일반 렌더링 -->
+              <!-- 접두어 없이 wizard_step=4로만 지정된 경우 -->
               <CardSection v-else class="mb-4">
                 <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
                   <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillStep4" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
@@ -158,24 +251,24 @@
             <!-- ===== Step 2, 3, 5: 일반 필드 ===== -->
             <div v-else>
               <CardSection class="mb-4">
-                <!-- 자동채움: Step 3 "회원 정보와 동일" -->
+                <!-- 자동채움: Step 3 "고객 정보와 동일" -->
                 <label
                   v-if="currentStep === 3"
                   class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
                 >
                   <input
                     type="checkbox"
-                    v-model="autoFillFromUser"
-                    @change="handleAutoFillFromUser"
+                    v-model="autoFillFromCustomer"
+                    @change="handleAutoFillFromCustomer"
                     class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
                   />
-                  <span class="text-[14px] text-[#333] font-medium">회원 정보와 동일</span>
+                  <span class="text-[14px] text-[#333] font-medium">고객 정보와 동일</span>
                 </label>
 
                 <!-- 필드 렌더링 -->
                 <div class="flex flex-col gap-4">
                   <template v-for="field in currentStepFields" :key="field.form_field_id">
-                    <!-- 서명 필드: 인라인 렌더링 (캔버스 ref 필요) -->
+                    <!-- 서명 필드: 인라인 렌더링 -->
                     <div v-if="field.field_type === 'signature'">
                       <label class="block text-[13px] font-medium text-[#888] mb-1.5">
                         {{ field.field_label }}
@@ -330,8 +423,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useClaimStore } from '../../stores/claimStore'
-import { useAuthStore } from '../../stores/authStore'
+import { useAgentClaimStore } from '../../stores/agentClaimStore'
+import { useCustomerStore } from '../../stores/customerStore'
 import type { FormPage, FormField, Customer } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
@@ -341,12 +434,13 @@ import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 
 const router = useRouter()
 const route = useRoute()
-const claimStore = useClaimStore()
-const authStore = useAuthStore()
+const claimStore = useAgentClaimStore()
+const customerStore = useCustomerStore()
 
 const isEditMode = computed(() => !!route.params.claimId)
 const claimId = computed(() => Number(route.params.claimId))
 const templateId = computed(() => Number(route.params.templateId))
+const customerId = computed(() => (route.query.customerId as string) || '')
 const submitting = ref(false)
 const loading = ref(false)
 const attachedFiles = ref<File[]>([])
@@ -447,7 +541,7 @@ const consentAgreed = ref<Record<string, boolean>>({
 })
 
 // ===== 자동채움 상태 =====
-const autoFillFromUser = ref(false)
+const autoFillFromCustomer = ref(false)
 const autoFillInsuredFromContractor = ref(false)
 const autoFillBeneficiaryFromContractor = ref(false)
 
@@ -501,7 +595,7 @@ const wizardDisplayFields = computed(() =>
   allFieldsSorted.value.filter(f => f.field_type !== 'consent')
 )
 
-// ===== 필드 → 위저드 스텝 매핑 =====
+// ===== 필드 -> 위저드 스텝 매핑 =====
 function getFieldWizardStep(field: FormField): number {
   if (field.field_options?.wizard_step) return field.field_options.wizard_step
   const name = field.field_name.toLowerCase()
@@ -539,12 +633,12 @@ const otherStep4Fields = computed(() =>
   })
 )
 
-// ===== 동의 → 템플릿 consent 필드 값 동기화 =====
+// ===== 동의 -> 템플릿 consent 필드 값 동기화 =====
 const allConsentsAgreed = computed(() =>
   CONSENT_ITEMS.every(item => consentAgreed.value[item.id])
 )
 
-// 동의 상태 변경 시 → 카테고리별로 consent 필드 동기화
+// 동의 상태 변경 시 -> 카테고리별로 consent 필드 동기화
 watch(consentAgreed, (agreed) => {
   const privacyValue = agreed.privacy ? 'agree' : ''
   privacyConsentFields.value.forEach(f => {
@@ -674,8 +768,8 @@ function scrollToTop() {
   if (mainEl) mainEl.scrollTop = 0
 }
 
-// ===== 자동채움: Step 3 (회원 정보와 동일) =====
-// 자동채움 매핑 타입: 주민번호 앞/뒤 분리 대응
+// ===== 자동채움: Step 3 (고객 정보와 동일) =====
+// 자동채움 매핑 타입: customer 필드 키 + 분할 처리를 위한 특수 키
 type AutoFillKey = 'name' | 'phone' | 'email' | 'resident_front' | 'resident_back' | 'resident_full' | null
 
 function matchAutoFillKey(field: FormField): AutoFillKey {
@@ -683,13 +777,16 @@ function matchAutoFillKey(field: FormField): AutoFillKey {
   const label = (field.field_label || '').toLowerCase()
   const type = field.field_type
 
-  // 주민번호 뒷자리
+  // 주민번호 뒷자리: field_name에 jumin 포함 (생년월일이 아닌 것)
   if (name.includes('jumin') || (name.includes('resident') && !name.includes('birth'))) {
+    // label로 뒷자리 판별
     if (label.includes('뒷') || label.includes('후')) return 'resident_back'
+    // field_type이 resident_number면 전체 주민번호일 수 있음
     if (type === 'resident_number') return 'resident_full'
+    // 기본: 뒷자리로 간주 (birth 필드가 따로 있으므로)
     return 'resident_back'
   }
-  // 생년월일 (주민번호 앞 6자리)
+  // 생년월일 (주민번호 앞 6자리): birth 키워드
   if (name.includes('birth') || label.includes('생년') || label.includes('생일')) {
     return 'resident_front'
   }
@@ -710,13 +807,14 @@ function matchAutoFillKey(field: FormField): AutoFillKey {
 
 function getCustomerValueByKey(customer: Customer, key: AutoFillKey): string {
   if (!key) return ''
-  const residentRaw = customer.resident_number || ''
+  const residentRaw = customer.resident_number || '' // DB에 숫자만 13자리 저장
 
   switch (key) {
     case 'name':
       return customer.name || ''
     case 'phone': {
       const p = customer.phone || ''
+      // 숫자만 저장된 경우 하이픈 포맷팅
       if (/^\d{10,11}$/.test(p)) {
         return p.length === 11
           ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}`
@@ -727,21 +825,25 @@ function getCustomerValueByKey(customer: Customer, key: AutoFillKey): string {
     case 'email':
       return customer.email || ''
     case 'resident_front':
+      // 주민번호 앞 6자리 (생년월일)
       return residentRaw.replace(/\D/g, '').slice(0, 6)
     case 'resident_back':
+      // 주민번호 뒷 7자리
       return residentRaw.replace(/\D/g, '').slice(6, 13)
-    case 'resident_full': {
-      const digits = residentRaw.replace(/\D/g, '')
-      return digits.length === 13 ? `${digits.slice(0, 6)}-${digits.slice(6)}` : residentRaw
-    }
+    case 'resident_full':
+      // 전체 주민번호 (하이픈 포함)
+      {
+        const digits = residentRaw.replace(/\D/g, '')
+        return digits.length === 13 ? `${digits.slice(0, 6)}-${digits.slice(6)}` : residentRaw
+      }
     default:
       return ''
   }
 }
 
-function handleAutoFillFromUser() {
-  const customer = authStore.user?.customer
-  if (autoFillFromUser.value && customer) {
+function handleAutoFillFromCustomer() {
+  const customer = customerStore.selectedCustomer
+  if (autoFillFromCustomer.value && customer) {
     currentStepFields.value.forEach(field => {
       const key = matchAutoFillKey(field)
       if (key) {
@@ -759,6 +861,7 @@ function handleAutoFillFromUser() {
 }
 
 // ===== 자동채움: Step 4 (계약자와 동일) =====
+// Step 3 필드에서 같은 AutoFillKey 값을 찾아 복사
 function getStep3ValueByKey(key: AutoFillKey): string {
   if (!key) return ''
   const step3Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 3)
@@ -799,7 +902,7 @@ function handleAutoFillStep4() {
 }
 
 // ===== 서명 헬퍼 =====
-function setSignatureCanvasRef(fieldId: number, el: any) {
+function setSignatureCanvasRef(fieldId: number, el: unknown) {
   if (el) {
     signatureCanvasRefs.value[fieldId] = el as HTMLCanvasElement
     initSignatureCanvas(fieldId)
@@ -942,7 +1045,7 @@ async function handleSubmit() {
     if (isEditMode.value) {
       claim = await claimStore.updateClaim(claimId.value)
     } else {
-      claim = await claimStore.createClaim()
+      claim = await claimStore.createClaim(customerId.value)
     }
     if (claim) {
       // 첨부파일 업로드 (실패 시 사용자에게 알림)
@@ -972,18 +1075,31 @@ function goBack() {
 onMounted(async () => {
   loading.value = true
   try {
+    // 고객 정보 로드 (대리 작성 시 필요)
+    if (customerId.value) {
+      await customerStore.loadCustomer(customerId.value)
+    }
+
     if (isEditMode.value) {
-      await claimStore.fetchClaimDetail(claimId.value)
-      const claim = claimStore.currentClaim
+      // 수정 모드: 기존 청구 상세 불러오기
+      await claimStore.loadClaim(claimId.value)
+      const claim = claimStore.selectedClaim
       if (claim?.claim_form) {
         await claimStore.fetchClaimFormDetail(claim.claim_form.claim_form_id)
-        if (claim.field_values) {
-          claim.field_values.forEach((fv: any) => {
+        // 기존 필드 값 복원 - selectedClaim에서 field_values 가져오기
+        // agentClaimStore의 selectedClaim은 AgentClaim 타입 (field_values 없음)
+        // loadClaim으로 받아온 데이터에서 직접 복원 필요
+        // 수정 모드에서는 별도의 claim detail API가 필요할 수 있음
+        // 여기서는 claimStore.currentClaim이 있으면 거기서 복원
+        const currentClaim = claimStore.currentClaim
+        if (currentClaim?.field_values) {
+          currentClaim.field_values.forEach((fv) => {
             if (fv.form_field_id) {
               claimStore.setFieldValue(fv.form_field_id, fv.field_value || '')
             }
           })
         }
+
         // 수정 모드: 카테고리별 consent 필드 상태 복원
         if (privacyConsentFields.value.length > 0 &&
           privacyConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {

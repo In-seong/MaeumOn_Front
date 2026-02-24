@@ -210,11 +210,13 @@ export const claimApi = {
   sendFax: (id: number, faxNumber?: string) =>
     api.post<ApiResponse<{ message: string; reference_id?: string }>>(`/claims/${id}/send-fax`, { fax_number: faxNumber }),
 
-  // 고객: 첨부파일 업로드
+  // 고객: 첨부파일 업로드 (파일 업로드이므로 타임아웃 60초)
   uploadDocument: (claimId: number, file: File) => {
     const formData = new FormData()
     formData.append('document', file)
-    return api.post<ApiResponse<ClaimDocument>>(`/claims/${claimId}/documents`, formData)
+    return api.post<ApiResponse<ClaimDocument>>(`/claims/${claimId}/documents`, formData, {
+      timeout: 60000,
+    })
   },
 
   // 고객: 첨부파일 삭제

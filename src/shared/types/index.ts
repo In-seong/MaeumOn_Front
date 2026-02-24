@@ -153,7 +153,7 @@ export interface InsuranceClaim {
   customer_id: string
   insurance_id?: number
   company_id?: number
-  agent_id?: number
+  agent_id?: string
   claim_form_id?: number
   claim_number?: string
   claim_type?: string

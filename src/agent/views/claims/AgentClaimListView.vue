@@ -4,35 +4,44 @@
       <BackHeader title="청구 관리" />
 
       <main class="px-5 py-3 pb-20 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
-        <!-- Search Input -->
-        <div class="relative mb-4">
-          <svg
-            class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#BBB]"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            :value="store.searchQuery"
-            placeholder="고객명, 보험사, 청구유형 검색"
-            class="w-full pl-10 pr-4 py-3 bg-white rounded-[12px] border border-[#E8E8E8] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22] transition-colors"
-            aria-label="청구 검색"
-            @input="store.setSearchQuery(($event.target as HTMLInputElement).value)"
-          />
-          <button
-            v-if="store.searchQuery"
-            type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-[#BBB] hover:text-[#888]"
-            aria-label="검색어 지우기"
-            @click="store.setSearchQuery('')"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <!-- Search + New Claim Button Row -->
+        <div class="flex items-center gap-2 mb-4">
+          <div class="relative flex-1">
+            <svg
+              class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#BBB]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
+            <input
+              type="text"
+              :value="store.searchQuery"
+              placeholder="고객명, 보험사, 청구유형 검색"
+              class="w-full pl-10 pr-4 py-3 bg-white rounded-[12px] border border-[#E8E8E8] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22] transition-colors"
+              aria-label="청구 검색"
+              @input="store.setSearchQuery(($event.target as HTMLInputElement).value)"
+            />
+            <button
+              v-if="store.searchQuery"
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-[#BBB] hover:text-[#888]"
+              aria-label="검색어 지우기"
+              @click="store.setSearchQuery('')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <button
+            type="button"
+            class="flex-shrink-0 px-3 py-3 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.97] transition-all"
+            @click="router.push('/claims/new')"
+          >
+            + 새 청구
           </button>
         </div>
 
@@ -74,7 +83,7 @@
             v-for="claim in store.filteredClaims"
             :key="claim.claim_id"
             :claim="claim"
-            @select="openDetail"
+            @select="goToDetail"
           />
         </div>
 
@@ -90,81 +99,6 @@
             "{{ store.searchQuery }}" 검색 결과가 없습니다
           </p>
         </div>
-
-        <!-- Detail Modal -->
-        <Teleport to="body">
-          <Transition name="slide-up">
-            <div
-              v-if="selectedClaim"
-              class="fixed inset-0 z-50 flex items-end justify-center px-3 pb-[68px]"
-              role="dialog"
-              aria-modal="true"
-              :aria-label="`${selectedClaim.customer?.name ?? ''} 청구 상세`"
-            >
-              <!-- Backdrop -->
-              <div
-                class="absolute inset-0 bg-black/40"
-                @click="closeDetail"
-              />
-
-              <!-- Modal Content -->
-              <div class="relative w-full max-w-[354px] bg-white rounded-[20px] shadow-2xl max-h-[80vh] overflow-y-auto z-10">
-                <!-- Handle Bar -->
-                <div class="flex justify-center pt-3 pb-2">
-                  <div class="w-10 h-1 bg-[#DDD] rounded-full" />
-                </div>
-
-                <!-- Header -->
-                <div class="px-5 pb-3 border-b border-[#F0F0F0]">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-[17px] font-bold text-[#222]">청구 상세</h3>
-                    <button
-                      type="button"
-                      class="w-8 h-8 flex items-center justify-center text-[#AAA] hover:text-[#555]"
-                      aria-label="닫기"
-                      @click="closeDetail"
-                    >
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Detail Content -->
-                <div class="px-5 py-4">
-                  <!-- Customer & Status -->
-                  <div class="flex items-center justify-between mb-4">
-                    <span class="text-[18px] font-bold text-[#222]">{{ selectedClaim.customer?.name ?? '-' }}</span>
-                    <StatusBadge :label="getStatusLabel(selectedClaim.claim_status)" :variant="getStatusVariant(selectedClaim.claim_status)" />
-                  </div>
-
-                  <!-- Info Rows -->
-                  <div class="bg-[#F8F8F8] rounded-[12px] p-4 mb-4">
-                    <InfoRow label="청구 유형" :value="selectedClaim.claim_type" />
-                    <InfoRow label="보험사" :value="selectedClaim.claim_form?.insurance_company?.company_name ?? '-'" />
-                    <InfoRow
-                      label="청구 금액"
-                      :value="selectedClaim.claim_amount ? formatAmount(selectedClaim.claim_amount) : '미정'"
-                    />
-                    <InfoRow label="접수일" :value="selectedClaim.created_at" />
-                    <InfoRow
-                      v-if="selectedClaim.approval_date"
-                      label="처리일"
-                      :value="selectedClaim.approval_date"
-                    />
-                    <InfoRow label="청구번호" :value="`#${selectedClaim.claim_id}`" />
-                  </div>
-
-                  <!-- Action (placeholder for future) -->
-                  <ActionButton full large variant="outline" @click="closeDetail">
-                    닫기
-                  </ActionButton>
-                </div>
-              </div>
-            </div>
-          </Transition>
-        </Teleport>
       </main>
 
       <AgentBottomNav />
@@ -173,16 +107,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
-import StatusBadge from '@user/components/ui/StatusBadge.vue'
-import InfoRow from '@user/components/ui/InfoRow.vue'
-import ActionButton from '@user/components/ui/ActionButton.vue'
 import ClaimListItem from '../../components/ui/ClaimListItem.vue'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
-import type { AgentClaim } from '../../types'
 
+const router = useRouter()
 const store = useAgentClaimStore()
 
 interface FilterChip {
@@ -199,60 +131,16 @@ const filterChips: FilterChip[] = [
   { label: '지급완료', value: 'paid' },
 ]
 
-const selectedClaim = ref<AgentClaim | null>(null)
-
 onMounted(() => {
   store.loadClaims()
 })
 
-function openDetail(id: number): void {
-  const claim = store.claims.find((c) => c.claim_id === id)
-  if (claim) {
-    selectedClaim.value = claim
-  }
-}
-
-function closeDetail(): void {
-  selectedClaim.value = null
-}
-
-function getStatusLabel(status: string): string {
-  const map: Record<string, string> = {
-    pending: '접수대기',
-    processing: '처리중',
-    approved: '승인',
-    rejected: '거절',
-    paid: '지급완료',
-  }
-  return map[status] ?? status
-}
-
-function getStatusVariant(status: string): 'default' | 'info' | 'warning' | 'success' | 'danger' {
-  const map: Record<string, 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
-    pending: 'info',
-    processing: 'warning',
-    approved: 'success',
-    rejected: 'danger',
-    paid: 'success',
-  }
-  return map[status] ?? 'default'
-}
-
-function formatAmount(amount: string): string {
-  const num = Number(amount)
-  if (isNaN(num)) return amount + '원'
-  return num.toLocaleString('ko-KR') + '원'
+function goToDetail(id: number): void {
+  router.push(`/claims/${id}`)
 }
 </script>
 
 <style scoped>
-.slide-up-enter-active { transition: opacity 0.3s ease; }
-.slide-up-leave-active { transition: opacity 0.2s ease; }
-.slide-up-enter-active > div:last-child { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-.slide-up-leave-active > div:last-child { transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1); }
-.slide-up-enter-from, .slide-up-leave-to { opacity: 0; }
-.slide-up-enter-from > div:last-child, .slide-up-leave-to > div:last-child { transform: translateY(100%); }
-
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

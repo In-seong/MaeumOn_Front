@@ -40,6 +40,30 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/claims/new',
+      name: 'agent-claim-select',
+      component: () => import('../views/claims/AgentClaimSelectView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/claims/new/:templateId',
+      name: 'agent-claim-form',
+      component: () => import('../views/claims/AgentClaimFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/claims/:claimId/edit',
+      name: 'agent-claim-edit',
+      component: () => import('../views/claims/AgentClaimFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/claims/:id',
+      name: 'agent-claim-detail',
+      component: () => import('../views/claims/AgentClaimDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/claims',
       name: 'agent-claim-list',
       component: () => import('../views/claims/AgentClaimListView.vue'),
