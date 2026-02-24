@@ -180,7 +180,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
   }
 
   // ===== 대리 청구 작성/수정 액션 =====
-  async function createClaim(customerId: string): Promise<InsuranceClaim | null> {
+  async function createClaim(customerId?: string): Promise<InsuranceClaim | null> {
     if (!selectedClaimForm.value) {
       error.value = '양식이 선택되지 않았습니다.'
       return null
@@ -195,7 +195,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
       }))
 
       const response = await createAgentClaim({
-        customer_id: customerId,
+        ...(customerId ? { customer_id: customerId } : {}),
         claim_form_id: selectedClaimForm.value.claim_form_id,
         fields,
       })

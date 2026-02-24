@@ -89,7 +89,7 @@ export const fetchClaimFormDetail = (id: number) =>
 
 // 대리 청구 생성 (PDF 생성 포함으로 타임아웃 120초)
 export const createAgentClaim = (data: {
-  customer_id: string
+  customer_id?: string
   claim_form_id: number
   fields: Array<{ form_field_id: number; field_value: string }>
 }) =>

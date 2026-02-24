@@ -15,13 +15,18 @@ import BackArrowIcon from '@user/components/icons/BackArrowIcon.vue'
 
 interface Props {
   title: string
+  customBack?: boolean
 }
 
-defineProps<Props>()
-
+const props = defineProps<Props>()
+const emit = defineEmits<{ back: [] }>()
 const router = useRouter()
 
 function goBack(): void {
-  router.back()
+  if (props.customBack) {
+    emit('back')
+  } else {
+    router.back()
+  }
 }
 </script>

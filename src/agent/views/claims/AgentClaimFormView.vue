@@ -1,23 +1,12 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <BackHeader :title="isEditMode ? '청구서 수정' : '대리 청구서 작성'" />
+      <BackHeader :title="isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성')" :custom-back="true" @back="handleHeaderBack" />
       <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           <p class="ml-3 text-[13px] text-[#999]">{{ isEditMode ? '청구 정보를 불러오는 중...' : '양식 정보를 불러오는 중...' }}</p>
-        </div>
-
-        <!-- 고객 미지정 오류 -->
-        <div v-else-if="!isEditMode && !customerId" class="text-center py-20">
-          <p class="text-[15px] text-[#888]">고객이 지정되지 않았습니다.</p>
-          <button
-            @click="goBack"
-            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
-          >
-            양식 선택으로 돌아가기
-          </button>
         </div>
 
         <!-- 위저드 폼 -->
@@ -251,9 +240,9 @@
             <!-- ===== Step 2, 3, 5: 일반 필드 ===== -->
             <div v-else>
               <CardSection class="mb-4">
-                <!-- 자동채움: Step 3 "고객 정보와 동일" -->
+                <!-- 자동채움: Step 3 "고객 정보와 동일" (고객 선택 청구 시만 표시) -->
                 <label
-                  v-if="currentStep === 3"
+                  v-if="currentStep === 3 && customerId"
                   class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
                 >
                   <input
@@ -1045,7 +1034,7 @@ async function handleSubmit() {
     if (isEditMode.value) {
       claim = await claimStore.updateClaim(claimId.value)
     } else {
-      claim = await claimStore.createClaim(customerId.value)
+      claim = await claimStore.createClaim(customerId.value || undefined)
     }
     if (claim) {
       // 첨부파일 업로드 (실패 시 사용자에게 알림)
@@ -1069,6 +1058,14 @@ async function handleSubmit() {
 function goBack() {
   claimStore.resetClaimForm()
   router.push('/claims/new')
+}
+
+function handleHeaderBack() {
+  if (!isFirstStep.value) {
+    goPrevStep()
+  } else {
+    router.back()
+  }
 }
 
 // ===== 초기화 =====

@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <BackHeader :title="isEditMode ? '청구서 수정' : '청구서 작성'" />
+      <BackHeader :title="isEditMode ? '청구서 수정' : '청구서 작성'" :custom-back="true" @back="handleHeaderBack" />
       <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
@@ -966,6 +966,14 @@ async function handleSubmit() {
 function goBack() {
   claimStore.resetClaimForm()
   router.push('/claims/new')
+}
+
+function handleHeaderBack() {
+  if (!isFirstStep.value) {
+    goPrevStep()
+  } else {
+    router.back()
+  }
 }
 
 // ===== 초기화 =====
