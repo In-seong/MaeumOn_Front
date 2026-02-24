@@ -16,9 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import SearchIcon from '@user/components/icons/SearchIcon.vue'
 import NoticeIcon from '@user/components/icons/NoticeIcon.vue'
 
-const router = useRouter()
 </script>
