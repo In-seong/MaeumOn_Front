@@ -805,7 +805,7 @@ function matchAutoFillKey(field: FormField): AutoFillKey {
   return null
 }
 
-function getCustomerValueByKey(customer: Customer, key: AutoFillKey): string {
+function getCustomerValueByKey(customer: Pick<Customer, 'name' | 'phone' | 'email' | 'resident_number'>, key: AutoFillKey): string {
   if (!key) return ''
   const residentRaw = customer.resident_number || '' // DB에 숫자만 13자리 저장
 
