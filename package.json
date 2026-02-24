@@ -8,6 +8,7 @@
     "dev:agent": "vite --config vite.agent.config.ts",
     "dev:admin": "vite --config vite.admin.config.ts",
     "build:user": "vue-tsc -b && vite build --config vite.user.config.ts",
+    "build:staginguser": "vue-tsc -b && vite build --config vite.staginguser.config.ts",
     "build:agent": "vue-tsc -b && vite build --config vite.agent.config.ts",
     "build:admin": "vue-tsc -b && vite build --config vite.admin.config.ts",
     "build:all": "vue-tsc -b && vite build --config vite.user.config.ts && vite build --config vite.agent.config.ts && vite build --config vite.admin.config.ts",
