@@ -1,90 +1,125 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/authStore'
+import { fetchDashboardSummary } from '../services/adminApi'
+import type { DashboardSummary } from '../types'
 
-const router = useRouter()
 const authStore = useAuthStore()
+const summary = ref<DashboardSummary | null>(null)
+const loading = ref(false)
 
-async function handleLogout() {
-  await authStore.logout()
-  router.push('/login')
+const statCards = [
+  { key: 'total_customers', label: '전체 고객', icon: 'people', color: 'bg-blue-50 text-blue-600', to: '/customers' },
+  { key: 'total_agents', label: '전체 설계사', icon: 'badge', color: 'bg-green-50 text-green-600', to: '/agents' },
+  { key: 'total_claims', label: '전체 청구', icon: 'receipt_long', color: 'bg-orange-50 text-[#FF7B22]', to: '/claims' },
+  { key: 'pending_claims', label: '대기중 청구', icon: 'pending_actions', color: 'bg-yellow-50 text-yellow-600', to: '/claims' },
+  { key: 'total_assignments', label: 'DB 배분', icon: 'swap_horiz', color: 'bg-purple-50 text-purple-600', to: '/assignments' },
+]
+
+async function loadDashboard() {
+  loading.value = true
+  try {
+    const res = await fetchDashboardSummary()
+    summary.value = res.data.data
+  } catch {
+    // Dashboard summary is optional - show zeros if fails
+    summary.value = {
+      total_customers: 0,
+      total_agents: 0,
+      total_claims: 0,
+      pending_claims: 0,
+      total_assignments: 0,
+      recent_notices: [],
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+function getStatValue(key: string): number {
+  if (!summary.value) return 0
+  return (summary.value as any)[key] ?? 0
 }
 
 onMounted(async () => {
   await authStore.fetchUser()
+  await loadDashboard()
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8F8F8]">
-    <!-- 네비게이션 -->
-    <nav class="bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-      <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center space-x-8">
-            <h1 class="text-xl font-bold text-[#FF7B22]">마음ON 관리자</h1>
-            <div class="flex space-x-1">
-              <router-link
-                to="/"
-                class="text-[#555] hover:text-[#FF7B22] hover:bg-[#FFF3ED] px-3 py-2 rounded-[8px] transition-colors text-[14px]"
-              >
-                대시보드
-              </router-link>
-              <router-link
-                to="/insurance-companies"
-                class="text-[#555] hover:text-[#FF7B22] hover:bg-[#FFF3ED] px-3 py-2 rounded-[8px] transition-colors text-[14px]"
-              >
-                보험사 관리
-              </router-link>
-              <router-link
-                to="/templates"
-                class="text-[#555] hover:text-[#FF7B22] hover:bg-[#FFF3ED] px-3 py-2 rounded-[8px] transition-colors text-[14px]"
-              >
-                양식 관리
-              </router-link>
-              <router-link
-                to="/claims"
-                class="text-[#555] hover:text-[#FF7B22] hover:bg-[#FFF3ED] px-3 py-2 rounded-[8px] transition-colors text-[14px]"
-              >
-                청구 관리
-              </router-link>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <span class="text-[13px] text-[#999]">
-              {{ authStore.user?.customer?.name || authStore.user?.username || '관리자' }}
-            </span>
-            <button
-              @click="handleLogout"
-              class="text-[13px] text-[#999] hover:text-red-500 transition-colors"
-            >
-              로그아웃
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+  <div class="p-6">
+    <h2 class="text-[22px] font-bold text-[#333] mb-6">대시보드</h2>
 
-    <!-- 메인 콘텐츠 -->
-    <div class="container mx-auto px-4 py-8">
-      <h2 class="text-[22px] font-bold text-[#333] mb-6">
-        대시보드
-      </h2>
+    <!-- 로딩 -->
+    <div v-if="loading" class="text-center py-10">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
+      <p class="mt-2 text-[14px] text-[#999]">로딩 중...</p>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <template v-else>
+      <!-- 요약 통계 카드 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         <router-link
-          to="/insurance-companies"
-          class="bg-white p-6 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
+          v-for="card in statCards"
+          :key="card.key"
+          :to="card.to"
+          class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
         >
-          <div class="flex items-center">
-            <div class="p-3 bg-[#FFF3ED] rounded-full mr-4">
-              <svg class="w-8 h-8 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
+          <div class="flex items-center gap-3">
+            <div :class="['p-2.5 rounded-full', card.color]">
+              <span class="material-symbols-outlined text-[22px]">{{ card.icon }}</span>
             </div>
             <div>
-              <h3 class="text-[16px] font-semibold text-[#333]">보험사 관리</h3>
+              <p class="text-[24px] font-bold text-[#333]">{{ getStatValue(card.key).toLocaleString() }}</p>
+              <p class="text-[13px] text-[#999]">{{ card.label }}</p>
+            </div>
+          </div>
+        </router-link>
+      </div>
+
+      <!-- 퀵 메뉴 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <router-link
+          to="/customers"
+          class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-3 bg-[#FFF3ED] rounded-full">
+              <span class="material-symbols-outlined text-[24px] text-[#FF7B22]">people</span>
+            </div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-[#333]">고객 관리</h3>
+              <p class="text-[13px] text-[#999]">고객 등록 및 조회</p>
+            </div>
+          </div>
+        </router-link>
+
+        <router-link
+          to="/agents"
+          class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-3 bg-[#FFF3ED] rounded-full">
+              <span class="material-symbols-outlined text-[24px] text-[#FF7B22]">badge</span>
+            </div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-[#333]">설계사 관리</h3>
+              <p class="text-[13px] text-[#999]">설계사 등록 및 관리</p>
+            </div>
+          </div>
+        </router-link>
+
+        <router-link
+          to="/insurance-companies"
+          class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-3 bg-[#FFF3ED] rounded-full">
+              <span class="material-symbols-outlined text-[24px] text-[#FF7B22]">business</span>
+            </div>
+            <div>
+              <h3 class="text-[15px] font-semibold text-[#333]">보험사 관리</h3>
               <p class="text-[13px] text-[#999]">보험사 등록 및 관리</p>
             </div>
           </div>
@@ -92,49 +127,43 @@ onMounted(async () => {
 
         <router-link
           to="/templates"
-          class="bg-white p-6 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
+          class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
         >
-          <div class="flex items-center">
-            <div class="p-3 bg-[#FFF3ED] rounded-full mr-4">
-              <svg class="w-8 h-8 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          <div class="flex items-center gap-3">
+            <div class="p-3 bg-[#FFF3ED] rounded-full">
+              <span class="material-symbols-outlined text-[24px] text-[#FF7B22]">description</span>
             </div>
             <div>
-              <h3 class="text-[16px] font-semibold text-[#333]">양식 관리</h3>
+              <h3 class="text-[15px] font-semibold text-[#333]">양식 관리</h3>
               <p class="text-[13px] text-[#999]">청구서 양식 템플릿</p>
             </div>
           </div>
         </router-link>
-
-        <router-link
-          to="/claims"
-          class="bg-white p-6 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition"
-        >
-          <div class="flex items-center">
-            <div class="p-3 bg-[#FFF3ED] rounded-full mr-4">
-              <svg class="w-8 h-8 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-[16px] font-semibold text-[#333]">청구 관리</h3>
-              <p class="text-[13px] text-[#999]">청구 내역 확인</p>
-            </div>
-          </div>
-        </router-link>
       </div>
 
-      <!-- 사용 가이드 -->
+      <!-- 최근 공지사항 -->
       <div class="bg-white p-6 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
-        <h3 class="text-[16px] font-semibold text-[#333] mb-4">사용 가이드</h3>
-        <ol class="list-decimal list-inside space-y-2 text-[14px] text-[#555]">
-          <li><strong class="text-[#333]">보험사 등록</strong>: 보험사 정보와 기본 팩스번호를 등록합니다.</li>
-          <li><strong class="text-[#333]">양식 등록</strong>: 보험사별 청구서 양식 이미지를 업로드합니다.</li>
-          <li><strong class="text-[#333]">필드 배치</strong>: 드래그앤드롭으로 입력 필드 위치를 설정합니다.</li>
-          <li><strong class="text-[#333]">청구 관리</strong>: 고객이 작성한 청구서를 확인하고 상태를 관리합니다.</li>
-        </ol>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-[16px] font-semibold text-[#333]">최근 공지사항</h3>
+          <router-link to="/notices" class="text-[13px] text-[#FF7B22] hover:underline">전체보기</router-link>
+        </div>
+        <div v-if="summary?.recent_notices && summary.recent_notices.length > 0">
+          <ul class="space-y-2">
+            <li
+              v-for="notice in summary.recent_notices"
+              :key="notice.notice_id"
+              class="flex items-center justify-between py-2 border-b border-[#F0F0F0] last:border-0"
+            >
+              <router-link :to="`/notices/${notice.notice_id}`" class="text-[14px] text-[#333] hover:text-[#FF7B22]">
+                <span v-if="notice.is_pinned" class="text-[#FF7B22] mr-1">[고정]</span>
+                {{ notice.title }}
+              </router-link>
+              <span class="text-[12px] text-[#999]">{{ notice.created_at?.slice(0, 10) }}</span>
+            </li>
+          </ul>
+        </div>
+        <p v-else class="text-[14px] text-[#999]">등록된 공지사항이 없습니다.</p>
       </div>
-    </div>
+    </template>
   </div>
 </template>

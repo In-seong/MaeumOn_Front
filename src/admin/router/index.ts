@@ -15,7 +15,109 @@ const router = createRouter({
       name: 'login',
       component: () => import('../views/LoginView.vue'),
     },
-    // 보험사 관리
+    // 고객 관리 (SFR-032~038)
+    {
+      path: '/customers',
+      name: 'customers',
+      component: () => import('../views/customers/CustomerListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/customers/create',
+      name: 'customer-create',
+      component: () => import('../views/customers/CustomerFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/customers/:id',
+      name: 'customer-detail',
+      component: () => import('../views/customers/CustomerDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/customers/:id/edit',
+      name: 'customer-edit',
+      component: () => import('../views/customers/CustomerFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 설계사 관리 (SFR-042)
+    {
+      path: '/agents',
+      name: 'agents',
+      component: () => import('../views/agents/AgentListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/agents/create',
+      name: 'agent-create',
+      component: () => import('../views/agents/AgentFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/agents/:id',
+      name: 'agent-detail',
+      component: () => import('../views/agents/AgentDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/agents/:id/edit',
+      name: 'agent-edit',
+      component: () => import('../views/agents/AgentFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // DB 배분 (SFR-039)
+    {
+      path: '/assignments',
+      name: 'assignments',
+      component: () => import('../views/assignments/AssignmentListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/assignments/create',
+      name: 'assignment-create',
+      component: () => import('../views/assignments/AssignmentCreateView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 추가계약 발굴 (SFR-040, 041)
+    {
+      path: '/additional-contracts',
+      name: 'additional-contracts',
+      component: () => import('../views/additional-contracts/AdditionalContractListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 실적 현황 (SFR-043)
+    {
+      path: '/performance',
+      name: 'performance',
+      component: () => import('../views/performance/PerformanceDashboardView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 공지사항 (SFR-044)
+    {
+      path: '/notices',
+      name: 'notices',
+      component: () => import('../views/notices/NoticeListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notices/create',
+      name: 'notice-create',
+      component: () => import('../views/notices/NoticeFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notices/:id',
+      name: 'notice-detail',
+      component: () => import('../views/notices/NoticeDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notices/:id/edit',
+      name: 'notice-edit',
+      component: () => import('../views/notices/NoticeFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 보험사 관리 (기존)
     {
       path: '/insurance-companies',
       name: 'insurance-companies',
@@ -34,7 +136,7 @@ const router = createRouter({
       component: () => import('../views/insurance-companies/InsuranceCompanyFormView.vue'),
       meta: { requiresAuth: true },
     },
-    // 양식 템플릿 관리
+    // 양식 템플릿 관리 (기존)
     {
       path: '/templates',
       name: 'templates',
@@ -59,7 +161,7 @@ const router = createRouter({
       component: () => import('../views/templates/TemplateFieldEditorView.vue'),
       meta: { requiresAuth: true },
     },
-    // 청구 관리
+    // 청구 관리 (기존)
     {
       path: '/claims',
       name: 'claims',
