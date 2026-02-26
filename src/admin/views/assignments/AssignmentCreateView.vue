@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="flex items-center gap-3 mb-6">
       <button
         @click="router.push('/assignments')"
@@ -18,8 +18,8 @@
     <!-- 2-Panel Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Left Panel: 미배정 고객 -->
-      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
-        <div class="px-6 py-4 border-b border-[#E8E8E8]">
+      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="px-4 lg:px-6 py-4 border-b border-[#E8E8E8]">
           <h2 class="text-[16px] font-bold text-[#333] mb-3">미배정 고객</h2>
           <input
             v-model="customerSearch"
@@ -31,7 +31,7 @@
         </div>
 
         <!-- 전체 선택 -->
-        <div v-if="filteredCustomers.length > 0" class="px-6 py-2 border-b border-[#F0F0F0] flex items-center gap-2">
+        <div v-if="filteredCustomers.length > 0" class="px-4 lg:px-6 py-2 border-b border-[#F0F0F0] flex items-center gap-2">
           <input
             type="checkbox"
             :checked="isAllSelected"
@@ -55,7 +55,7 @@
           <div
             v-for="customer in filteredCustomers"
             :key="customer.customer_id"
-            class="flex items-center gap-3 px-6 py-3 hover:bg-[#FAFAFA] transition-colors cursor-pointer border-b border-[#F5F5F5] last:border-b-0"
+            class="flex items-center gap-3 px-4 lg:px-6 py-3 hover:bg-[#FAFAFA] transition-colors cursor-pointer border-b border-[#F5F5F5] last:border-b-0"
             @click="toggleCustomer(customer.customer_id)"
           >
             <input
@@ -68,15 +68,15 @@
               <p class="text-[12px] text-[#999]">{{ formatPhone(customer.phone) }}</p>
             </div>
           </div>
-          <div v-if="filteredCustomers.length === 0" class="px-6 py-10 text-center text-[#999] text-[14px]">
+          <div v-if="filteredCustomers.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
             미배정 고객이 없습니다.
           </div>
         </div>
       </div>
 
       <!-- Right Panel: 배분 대상 설계사 -->
-      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
-        <div class="px-6 py-4 border-b border-[#E8E8E8]">
+      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="px-4 lg:px-6 py-4 border-b border-[#E8E8E8]">
           <h2 class="text-[16px] font-bold text-[#333] mb-3">배분 대상 설계사</h2>
           <select
             v-model="selectedAgentId"
@@ -94,7 +94,7 @@
         </div>
 
         <!-- 선택된 설계사 정보 -->
-        <div v-if="selectedAgent" class="px-6 py-5">
+        <div v-if="selectedAgent" class="px-4 lg:px-6 py-5">
           <div class="bg-[#FFF8F3] rounded-[12px] p-4 border border-[#FFE4D0]">
             <div class="flex items-center gap-3 mb-3">
               <div class="w-10 h-10 rounded-full bg-[#FF7B22] flex items-center justify-center">
@@ -125,12 +125,12 @@
             </div>
           </div>
         </div>
-        <div v-else class="px-6 py-10 text-center text-[#999] text-[14px]">
+        <div v-else class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
           설계사를 선택하면 정보가 표시됩니다.
         </div>
 
         <!-- 배분 요약 -->
-        <div v-if="selectedCustomerIds.size > 0 && selectedAgentId" class="px-6 py-4 border-t border-[#E8E8E8]">
+        <div v-if="selectedCustomerIds.size > 0 && selectedAgentId" class="px-4 lg:px-6 py-4 border-t border-[#E8E8E8]">
           <div class="bg-[#F0F7FF] rounded-[12px] p-3 text-[13px] text-[#336]">
             <span class="font-medium">{{ selectedCustomerIds.size }}명</span>의 고객을
             <span class="font-medium">{{ selectedAgent?.name }}</span> 설계사에게 배분합니다.

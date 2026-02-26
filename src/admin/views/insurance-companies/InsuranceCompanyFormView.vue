@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="max-w-2xl mx-auto">
       <div class="flex items-center mb-6">
         <router-link to="/insurance-companies" class="text-[#999] hover:text-[#FF7B22] mr-4 transition-colors">

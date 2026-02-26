@@ -1,12 +1,12 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="mb-6">
-      <h1 class="text-[22px] font-bold text-[#333]">추가계약 발굴</h1>
+      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">추가계약 발굴</h1>
       <p class="text-[13px] text-[#999] mt-1">계약 가능성이 높은 고객을 유형별로 조회합니다.</p>
     </div>
 
     <!-- 탭 필터 -->
-    <div class="flex border-b border-[#E8E8E8] mb-4">
+    <div class="flex border-b border-[#E8E8E8] mb-4 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
       <button
         v-for="tab in tabs"
         :key="tab.value"
@@ -34,7 +34,7 @@
     </div>
 
     <!-- 테이블 -->
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>

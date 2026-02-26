@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-[22px] font-bold text-[#333]">실적 현황</h1>
+  <div class="p-4 lg:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">실적 현황</h1>
 
       <!-- 기간 토글 -->
-      <div class="flex bg-[#F8F8F8] rounded-[12px] p-1">
+      <div class="flex bg-[#F8F8F8] rounded-[12px] p-1 shrink-0">
         <button
           v-for="option in periodOptions"
           :key="option.value"
@@ -29,7 +29,7 @@
 
     <template v-else>
       <!-- 요약 카드 -->
-      <div class="grid grid-cols-5 gap-4 mb-6">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 mb-6">
         <div
           v-for="card in summaryCards"
           :key="card.label"
@@ -47,8 +47,8 @@
       </div>
 
       <!-- 설계사 실적 테이블 -->
-      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
-        <div class="px-6 py-4 border-b border-[#F0F0F0]">
+      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+        <div class="px-4 lg:px-6 py-4 border-b border-[#F0F0F0]">
           <h2 class="text-[16px] font-bold text-[#333]">설계사별 실적</h2>
         </div>
 

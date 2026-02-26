@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <h1 class="text-[22px] font-bold text-[#333] mb-6">청구 관리</h1>
 
     <!-- 필터 -->
@@ -42,31 +42,31 @@
     </div>
 
     <!-- 테이블 -->
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">ID</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사 / 양식</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">팩스</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">생성일</th>
-            <th class="px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">ID</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사 / 양식</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">팩스</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">생성일</th>
+            <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
           <tr v-for="claim in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#333]">{{ claim.claim_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#333]">{{ claim.claim_id }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <div class="text-[14px] font-medium text-[#333]">{{ claim.customer?.name }}</div>
               <div class="text-[12px] text-[#999]">{{ claim.customer?.email }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <div class="text-[14px] text-[#333]">{{ claim.claim_form?.insurance_company?.company_name }}</div>
               <div class="text-[12px] text-[#999]">{{ claim.claim_form?.form_name }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <select
                 :value="claim.claim_status"
                 @change="handleStatusChange(claim.claim_id, ($event.target as HTMLSelectElement).value)"
@@ -78,15 +78,15 @@
                 </option>
               </select>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">
               <span v-if="claim.fax_status === 'sent'" class="text-green-600">발송완료</span>
               <span v-else-if="claim.fax_status === 'failed'" class="text-red-500">발송실패</span>
               <span v-else>-</span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
               {{ formatDate(claim.created_at ?? '') }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-[14px]">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px]">
               <a
                 v-if="claim.generated_pdf_url"
                 :href="claim.generated_pdf_url"
@@ -106,7 +106,7 @@
             </td>
           </tr>
           <tr v-if="claims.length === 0">
-            <td colspan="7" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="7" class="px-4 lg:px-6 py-10 text-center text-[#999]">
               청구 내역이 없습니다.
             </td>
           </tr>

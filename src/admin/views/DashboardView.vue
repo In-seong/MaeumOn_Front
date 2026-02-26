@@ -48,8 +48,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <h2 class="text-[22px] font-bold text-[#333] mb-6">대시보드</h2>
+  <div class="p-4 lg:p-6">
+    <h2 class="text-[20px] lg:text-[22px] font-bold text-[#333] mb-6">대시보드</h2>
 
     <!-- 로딩 -->
     <div v-if="loading" class="text-center py-10">

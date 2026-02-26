@@ -1,8 +1,8 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <!-- 헤더 -->
     <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center">
+      <div class="flex items-center min-w-0">
         <router-link to="/notices" class="text-[#999] hover:text-[#FF7B22] mr-4 transition-colors">
           <span class="material-symbols-outlined text-[24px]">arrow_back</span>
         </router-link>

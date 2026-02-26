@@ -1,8 +1,8 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="max-w-2xl mx-auto">
       <div class="flex items-center mb-6">
-        <router-link to="/customers" class="text-[#999] hover:text-[#FF7B22] mr-4 transition-colors">
+        <router-link to="/customers" class="text-[#999] hover:text-[#FF7B22] mr-3 lg:mr-4 transition-colors">
           <span class="material-symbols-outlined text-[24px]">arrow_back</span>
         </router-link>
         <h1 class="text-[22px] font-bold text-[#333]">

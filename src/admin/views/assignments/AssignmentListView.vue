@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-[22px] font-bold text-[#333]">DB 배분 관리</h1>
+      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">DB 배분 관리</h1>
       <router-link
         to="/assignments/create"
-        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
+        class="px-3 lg:px-4 py-2 lg:py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[13px] lg:text-[14px] font-medium"
       >
         배분 등록
       </router-link>
@@ -16,7 +16,7 @@
         v-model="searchQuery"
         type="text"
         placeholder="고객 이름으로 검색"
-        class="w-full max-w-[400px] px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+        class="w-full sm:max-w-[400px] px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
         @input="debouncedSearch"
       />
     </div>
@@ -33,7 +33,7 @@
     </div>
 
     <!-- 테이블 -->
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>

@@ -1,17 +1,17 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-[22px] font-bold text-[#333]">설계사 관리</h1>
+      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">설계사 관리</h1>
       <router-link
         to="/agents/create"
-        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
+        class="px-3 lg:px-4 py-2 lg:py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[13px] lg:text-[14px] font-medium"
       >
         설계사 등록
       </router-link>
     </div>
 
     <!-- 검색 및 필터 -->
-    <div class="mb-4 flex gap-3">
+    <div class="mb-4 flex flex-col sm:flex-row gap-3">
       <input
         v-model="searchQuery"
         type="text"
@@ -42,17 +42,17 @@
     </div>
 
     <!-- 테이블 -->
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">사번</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이메일</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">담당고객수</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
-            <th class="px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">사번</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">이메일</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">담당고객수</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
+            <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
@@ -62,11 +62,11 @@
             class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
             @click="goToDetail(agent.agent_id)"
           >
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#333]">{{ agent.employee_number || '-' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(agent.phone) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ agent.email || '-' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ agent.customers_count ?? 0 }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#333] hidden md:table-cell">{{ agent.employee_number || '-' }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.name }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(agent.phone) }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">{{ agent.email || '-' }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ agent.customers_count ?? 0 }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span
                 :class="agent.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"

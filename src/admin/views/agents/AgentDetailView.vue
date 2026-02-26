@@ -1,12 +1,12 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <!-- 헤더 -->
     <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center">
-        <router-link to="/agents" class="text-[#999] hover:text-[#FF7B22] mr-4 transition-colors">
+      <div class="flex items-center min-w-0">
+        <router-link to="/agents" class="text-[#999] hover:text-[#FF7B22] mr-3 lg:mr-4 transition-colors shrink-0">
           <span class="material-symbols-outlined text-[24px]">arrow_back</span>
         </router-link>
-        <h1 class="text-[22px] font-bold text-[#333]">
+        <h1 class="text-[18px] lg:text-[22px] font-bold text-[#333] truncate">
           {{ agent?.name || '설계사 상세' }}
         </h1>
         <span
@@ -115,7 +115,7 @@
       <!-- 최근 실적 -->
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6">
         <h2 class="text-[15px] font-medium text-[#333] mb-4">최근 실적 현황</h2>
-        <div v-if="performances.length > 0" class="overflow-hidden">
+        <div v-if="performances.length > 0" class="overflow-x-auto">
           <table class="min-w-full divide-y divide-[#E8E8E8]">
             <thead class="bg-[#FAFAFA]">
               <tr>

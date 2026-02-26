@@ -1,12 +1,12 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <!-- 헤더 -->
     <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center">
-        <router-link to="/customers" class="text-[#999] hover:text-[#FF7B22] mr-4 transition-colors">
+      <div class="flex items-center min-w-0">
+        <router-link to="/customers" class="text-[#999] hover:text-[#FF7B22] mr-3 lg:mr-4 transition-colors shrink-0">
           <span class="material-symbols-outlined text-[24px]">arrow_back</span>
         </router-link>
-        <h1 class="text-[22px] font-bold text-[#333]">
+        <h1 class="text-[18px] lg:text-[22px] font-bold text-[#333] truncate">
           {{ customer?.name || '고객 상세' }}
         </h1>
         <span
@@ -40,7 +40,7 @@
     <!-- 콘텐츠 -->
     <div v-else-if="customer">
       <!-- 탭 네비게이션 -->
-      <div class="flex border-b border-[#E8E8E8] mb-6">
+      <div class="flex border-b border-[#E8E8E8] mb-6 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
         <button
           v-for="tab in tabs"
           :key="tab.key"
@@ -117,7 +117,7 @@
       </div>
 
       <!-- 가입보험 탭 (SFR-036) -->
-      <div v-else-if="activeTab === 'contracts'" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div v-else-if="activeTab === 'contracts'" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
         <table v-if="contracts.length > 0" class="min-w-full divide-y divide-[#E8E8E8]">
           <thead class="bg-[#FAFAFA]">
             <tr>
@@ -163,7 +163,7 @@
       </div>
 
       <!-- 병력/치료 탭 (SFR-037) -->
-      <div v-else-if="activeTab === 'medical'" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div v-else-if="activeTab === 'medical'" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
         <table v-if="medicalRecords.length > 0" class="min-w-full divide-y divide-[#E8E8E8]">
           <thead class="bg-[#FAFAFA]">
             <tr>
