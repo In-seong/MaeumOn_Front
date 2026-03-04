@@ -39,6 +39,8 @@ export interface Customer {
   detailed_address?: string
   job?: string
   is_active: boolean
+  created_at?: string
+  updated_at?: string
 }
 
 // 인증 관련 타입

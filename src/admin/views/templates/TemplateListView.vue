@@ -1,17 +1,17 @@
 <template>
-  <div class="p-6">
+  <div class="p-4 lg:p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-[22px] font-bold text-[#333]">양식 템플릿 관리</h1>
       <router-link
         to="/templates/create"
-        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
+        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium whitespace-nowrap"
       >
         양식 등록
       </router-link>
     </div>
 
     <!-- 검색 및 필터 -->
-    <div class="mb-4 flex gap-3">
+    <div class="mb-4 flex flex-col sm:flex-row flex-wrap gap-3">
       <input
         v-model="searchQuery"
         type="text"
