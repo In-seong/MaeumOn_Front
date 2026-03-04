@@ -4,6 +4,7 @@ import type {
   Performance, DbDistribution, DisclosureObligation, Message,
   SatisfactionSurvey, AgentNotification, DashboardSummary,
   Memo, StatisticsTrend, MessageTemplate,
+  BatchClaim,
   ApiResponse, LaravelPagination,
 } from '../types'
 import type {
@@ -100,6 +101,27 @@ export const updateAgentClaim = (id: number, data: {
   fields: Array<{ form_field_id: number; field_value: string }>
 }) =>
   api.put<ApiResponse<InsuranceClaim>>(`${BASE}/claims/${id}`, data, { timeout: 120000 })
+
+// ===== Draft (임시저장) =====
+export const saveDraft = (data: {
+  customer_id?: string
+  claim_form_id: number
+  fields: Array<{ form_field_id: number; field_value: string }>
+}) =>
+  api.post<ApiResponse<InsuranceClaim>>(`${BASE}/claims/draft`, data)
+
+export const updateDraft = (id: number, data: {
+  fields: Array<{ form_field_id: number; field_value: string }>
+}) =>
+  api.put<ApiResponse<InsuranceClaim>>(`${BASE}/claims/${id}/draft`, data)
+
+export const submitDraft = (id: number, data?: {
+  customer_id?: string
+}) =>
+  api.post<ApiResponse<InsuranceClaim>>(`${BASE}/claims/${id}/submit`, data ?? {}, { timeout: 120000 })
+
+export const deleteDraft = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/claims/${id}/draft`)
 
 // 팩스 발송
 export const sendAgentClaimFax = (id: number, faxNumber?: string) =>
@@ -198,3 +220,57 @@ export const fetchObligations = (params?: Record<string, unknown>) =>
 
 export const fetchObligation = (id: number) =>
   api.get<ApiResponse<DisclosureObligation>>(`${BASE}/obligations/${id}`)
+
+// ===== Batch Claims (다중 보험 청구) =====
+export const fetchBatchClaims = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<BatchClaim>>>(`${BASE}/batch-claims`, { params })
+
+export const fetchBatchClaim = (id: number) =>
+  api.get<ApiResponse<BatchClaim>>(`${BASE}/batch-claims/${id}`)
+
+export const createBatchClaim = (data: {
+  customer_id: string
+  claims: Array<{
+    claim_form_id: number
+    fields: Array<{ form_field_id: number; field_value: string }>
+    document_ids?: number[]
+  }>
+  common_documents?: number[]
+  notes?: string
+}) =>
+  api.post<ApiResponse<BatchClaim>>(`${BASE}/batch-claims`, data, { timeout: 180000 })
+
+export const saveBatchDraft = (data: {
+  customer_id?: string
+  claims: Array<{
+    claim_form_id: number
+    fields: Array<{ form_field_id: number; field_value: string }>
+  }>
+  notes?: string
+}) =>
+  api.post<ApiResponse<BatchClaim>>(`${BASE}/batch-claims/draft`, data)
+
+export const updateBatchDraft = (id: number, data: {
+  customer_id?: string
+  claims: Array<{
+    claim_form_id: number
+    fields: Array<{ form_field_id: number; field_value: string }>
+  }>
+  notes?: string
+}) =>
+  api.put<ApiResponse<BatchClaim>>(`${BASE}/batch-claims/${id}/draft`, data)
+
+export const submitBatchDraft = (id: number, data?: {
+  customer_id?: string
+}) =>
+  api.post<ApiResponse<BatchClaim>>(`${BASE}/batch-claims/${id}/submit`, data ?? {}, { timeout: 180000 })
+
+export const deleteBatchDraft = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/batch-claims/${id}/draft`)
+
+export const sendBatchFax = (id: number, claimIds?: number[]) =>
+  api.post<ApiResponse<{ sent_count: number; results: Array<{ claim_id: number; fax_status: string; fax_number: string }> }>>(
+    `${BASE}/batch-claims/${id}/send-fax`,
+    claimIds ? { claim_ids: claimIds } : {},
+    { timeout: 120000 },
+  )

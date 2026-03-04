@@ -5,6 +5,93 @@
 
       <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100vh - 56px);">
 
+        <!-- 배치 임시저장 목록 -->
+        <section v-if="!claimMode && batchClaimStore.batchDrafts.length > 0" class="mt-2 mb-5">
+          <p class="text-[16px] font-bold text-[#222] mb-3">임시저장된 다중 청구</p>
+          <div class="flex flex-col gap-2">
+            <div
+              v-for="draft in batchClaimStore.batchDrafts"
+              :key="draft.batch_claim_id"
+              class="rounded-[16px] bg-white border-[1.5px] border-[#E8E8E8] shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-4"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-[#F0FFF0] flex items-center justify-center shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="3" width="8" height="11" rx="1" stroke="#3DAA5C" stroke-width="2"/>
+                    <rect x="14" y="3" width="8" height="11" rx="1" stroke="#3DAA5C" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[14px] font-semibold text-[#222] truncate">
+                    {{ getBatchDraftLabel(draft) }}
+                  </p>
+                  <p class="text-[12px] text-[#999] mt-0.5">
+                    {{ draft.customer?.name || '고객 미지정' }}
+                    · {{ draft.created_at ? new Date(draft.created_at).toLocaleDateString('ko-KR') : '' }} 저장
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button
+                  type="button"
+                  class="flex-1 py-2 rounded-[8px] bg-[#FF7B22] text-white text-[13px] font-semibold active:scale-[0.98] transition-transform"
+                  @click="resumeBatchDraft(draft.batch_claim_id)"
+                >이어쓰기</button>
+                <button
+                  type="button"
+                  class="py-2 px-4 rounded-[8px] border border-[#E0E0E0] text-[#999] text-[13px] font-semibold active:scale-[0.98] transition-transform"
+                  @click="handleDeleteBatchDraft(draft.batch_claim_id)"
+                >삭제</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 임시저장 목록 -->
+        <section v-if="!claimMode && claimStore.drafts.length > 0" class="mt-2 mb-5">
+          <p class="text-[16px] font-bold text-[#222] mb-3">임시저장된 청구서</p>
+          <div class="flex flex-col gap-2">
+            <div
+              v-for="draft in claimStore.drafts"
+              :key="draft.claim_id"
+              class="rounded-[16px] bg-white border-[1.5px] border-[#E8E8E8] shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-4"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 2v6h6" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[14px] font-semibold text-[#222] truncate">
+                    {{ draft.claim_form?.form_name || '청구서' }}
+                  </p>
+                  <p class="text-[12px] text-[#999] mt-0.5">
+                    {{ draft.created_at ? new Date(draft.created_at).toLocaleDateString('ko-KR') : '' }} 저장
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button
+                  type="button"
+                  class="flex-1 py-2 rounded-[8px] bg-[#FF7B22] text-white text-[13px] font-semibold active:scale-[0.98] transition-transform"
+                  @click="resumeDraft(draft)"
+                >이어쓰기</button>
+                <button
+                  type="button"
+                  class="py-2 px-4 rounded-[8px] border border-[#E0E0E0] text-[#999] text-[13px] font-semibold active:scale-[0.98] transition-transform"
+                  @click="handleDeleteDraft(draft.claim_id)"
+                >삭제</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-[#E8E8E8] mt-5 pt-4">
+            <p class="text-[13px] text-[#999] text-center mb-3">새 청구서 작성</p>
+          </div>
+        </section>
+
         <!-- 청구 유형 선택 (첫 화면) -->
         <section v-if="!claimMode" class="mt-2">
           <p class="text-[16px] font-bold text-[#222] mb-4">청구 방식을 선택하세요</p>
@@ -49,6 +136,30 @@
                 <div class="flex-1">
                   <p class="text-[15px] font-semibold text-[#222]">바로 청구</p>
                   <p class="text-[12px] text-[#999] mt-0.5">고객 정보를 직접 입력하여 청구합니다</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0">
+                  <path d="M9 5l7 7-7 7" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 다중 청구 버튼 -->
+            <button
+              type="button"
+              class="w-full text-left rounded-[16px] bg-white border-[1.5px] border-transparent shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-5 active:scale-[0.98] transition-all"
+              @click="goToBatchClaim"
+            >
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-full bg-[#F0FFF0] flex items-center justify-center shrink-0">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="3" width="8" height="11" rx="1" stroke="#3DAA5C" stroke-width="2"/>
+                    <rect x="14" y="3" width="8" height="11" rx="1" stroke="#3DAA5C" stroke-width="2"/>
+                    <path d="M6 18v2M18 18v2M6 20h12" stroke="#3DAA5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[15px] font-semibold text-[#222]">다중 청구 (여러 보험사)</p>
+                  <p class="text-[12px] text-[#999] mt-0.5">한 고객의 여러 보험사에 동시 청구합니다</p>
                 </div>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0">
                   <path d="M9 5l7 7-7 7" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -267,14 +378,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import type { AgentClaim, BatchClaim } from '../../types'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
+import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 
 const router = useRouter()
 const customerStore = useCustomerStore()
 const claimStore = useAgentClaimStore()
+const batchClaimStore = useAgentBatchClaimStore()
 
 // ===== 상태 =====
 const claimMode = ref<'customer' | 'direct' | null>(null)
@@ -322,6 +436,8 @@ onMounted(async () => {
   await Promise.all([
     customerStore.loadCustomers(),
     claimStore.fetchInsuranceCompanies(),
+    claimStore.loadDrafts(),
+    batchClaimStore.loadBatchDrafts(),
   ])
 })
 
@@ -370,6 +486,28 @@ function selectCompany(companyId: number): void {
   }
 }
 
+function getBatchDraftLabel(draft: BatchClaim): string {
+  if (draft.claims && draft.claims.length > 0) {
+    const first = draft.claims[0]
+    const companyName = first?.claim_form?.insurance_company?.company_name
+    if (companyName) {
+      if (draft.claims.length > 1) return `${companyName} 외 ${draft.claims.length - 1}건`
+      return companyName
+    }
+  }
+  return `다중 청구 ${draft.total_count}건`
+}
+
+function resumeDraft(draft: AgentClaim): void {
+  const formId = draft.claim_form?.claim_form_id || draft.claim_form_id
+  router.push(`/claims/${draft.claim_id}/edit?templateId=${formId}`)
+}
+
+async function handleDeleteDraft(claimId: number): Promise<void> {
+  if (!confirm('임시저장된 청구서를 삭제하시겠습니까?')) return
+  await claimStore.deleteDraftClaim(claimId)
+}
+
 function goNext(): void {
   if (!canProceed.value) return
 
@@ -379,5 +517,18 @@ function goNext(): void {
     // 바로 청구: customerId 없이 이동
     router.push(`/claims/new/${selectedFormId.value}`)
   }
+}
+
+function goToBatchClaim(): void {
+  router.push({ name: 'agent-batch-claim-new' })
+}
+
+function resumeBatchDraft(batchId: number): void {
+  router.push({ name: 'agent-batch-claim-edit', params: { batchId } })
+}
+
+async function handleDeleteBatchDraft(batchId: number): Promise<void> {
+  if (!confirm('임시저장된 다중 청구를 삭제하시겠습니까?')) return
+  await batchClaimStore.deleteDraft(batchId)
 }
 </script>

@@ -7,6 +7,7 @@ import type {
   ClaimForm,
   FormPage,
   FormField,
+  StandardField,
   InsuranceClaim,
   ClaimDocument,
 } from '@shared/types'
@@ -45,6 +46,13 @@ export const customerAuthApi = {
 
   checkDevice: (data: { device_uuid: string; device_token: string }) =>
     api.post<ApiResponse<{ registered: boolean; has_pin?: boolean; phone?: string; customer_name?: string }>>('/customer-auth/check-device', data),
+}
+
+// ============ 표준 필드 API ============
+export const standardFieldApi = {
+  // 표준 필드 목록 (카테고리별 그룹핑 포함)
+  getList: () =>
+    api.get<ApiResponse<{ fields: StandardField[]; grouped: Record<string, StandardField[]> }>>('/standard-fields'),
 }
 
 // ============ 보험사 API ============

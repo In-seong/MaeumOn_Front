@@ -223,13 +223,19 @@
           </h2>
 
           <div v-if="store.selectedField" class="space-y-4">
+            <!-- 표준 필드 안내 배지 -->
+            <div v-if="store.selectedField.standard_field_code" class="p-3 bg-purple-50 border border-purple-200 rounded-[8px]">
+              <p class="text-[12px] text-purple-700 font-medium">표준 필드 ({{ store.selectedField.standard_field_code }})</p>
+              <p class="text-[11px] text-purple-600 mt-0.5">이름, 라벨, 타입은 시스템에서 고정됩니다. 위치만 조정하세요.</p>
+            </div>
+
             <!-- consent 필드 안내 배지 -->
             <div v-if="editForm.field_type === 'consent'" class="p-3 bg-green-50 border border-green-200 rounded-[8px]">
               <p class="text-[12px] text-green-700 font-medium">동의 체크 표기 필드</p>
               <p class="text-[11px] text-green-600 mt-0.5">앱에서 동의 시 아래 좌표에 V 체크가 렌더링됩니다.</p>
             </div>
 
-            <div v-if="editForm.field_type !== 'consent'">
+            <div v-if="editForm.field_type !== 'consent' && !store.selectedField.standard_field_code">
               <label class="block text-[13px] font-medium text-[#555] mb-1">필드명</label>
               <input
                 v-model="editForm.field_name"
@@ -238,7 +244,7 @@
               />
             </div>
 
-            <div v-if="editForm.field_type !== 'consent'">
+            <div v-if="editForm.field_type !== 'consent' && !store.selectedField.standard_field_code">
               <label class="block text-[13px] font-medium text-[#555] mb-1">라벨</label>
               <input
                 v-model="editForm.field_label"
@@ -247,7 +253,7 @@
               />
             </div>
 
-            <div v-if="editForm.field_type !== 'consent'">
+            <div v-if="editForm.field_type !== 'consent' && !store.selectedField.standard_field_code">
               <label class="block text-[13px] font-medium text-[#555] mb-1">타입</label>
               <select
                 v-model="editForm.field_type"
@@ -447,6 +453,39 @@
             </button>
           </div>
 
+          <!-- 표준 필드 체크리스트 -->
+          <div class="mt-6 pt-6 border-t border-[#F0F0F0]">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-[13px] font-medium text-[#555]">표준 필드</h3>
+              <span class="text-[11px] text-[#999]">
+                {{ placedStandardFieldCodes.size }}/{{ standardFields.length }}
+              </span>
+            </div>
+
+            <div v-if="loadingStandardFields" class="text-center py-2">
+              <span class="text-[12px] text-[#999]">로딩 중...</span>
+            </div>
+            <div v-else class="space-y-2 max-h-[280px] overflow-y-auto">
+              <div v-for="(fields, category) in groupedStandardFields" :key="category">
+                <p class="text-[11px] font-medium text-[#888] mt-2 mb-1">{{ category }}</p>
+                <div
+                  v-for="sf in fields"
+                  :key="sf.code"
+                  class="flex items-center gap-2 px-2 py-1.5 rounded-[6px] cursor-pointer transition-colors text-[12px]"
+                  :class="placedStandardFieldCodes.has(sf.code)
+                    ? 'bg-green-50 text-green-700'
+                    : 'hover:bg-[#FFF3ED] text-[#555]'"
+                  @click="handleStandardFieldClick(sf)"
+                >
+                  <span v-if="placedStandardFieldCodes.has(sf.code)" class="text-green-500 text-[14px]">&#10003;</span>
+                  <span v-else class="w-[14px] h-[14px] border border-[#CCC] rounded-sm inline-block flex-shrink-0"></span>
+                  <span class="flex-1 truncate">{{ sf.label }}</span>
+                  <span class="text-[10px] text-[#BBB]">{{ sf.type }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 필드 목록 -->
           <div class="mt-6 pt-6 border-t border-[#F0F0F0]">
             <h3 class="text-[13px] font-medium text-[#555] mb-2">
@@ -460,7 +499,8 @@
                 :class="store.selectedField?.form_field_id === field.form_field_id ? 'bg-[#FFF3ED] text-[#FF7B22]' : 'hover:bg-[#FAFAFA] text-[#333]'"
                 @click="selectField(field)"
               >
-                <span v-if="field.field_type === 'consent' && field.field_name.startsWith('consent_privacy')" class="inline-block px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded mr-1">개인정보</span>
+                <span v-if="field.standard_field_code" class="inline-block px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] rounded mr-1">표준</span>
+                <span v-else-if="field.field_type === 'consent' && field.field_name.startsWith('consent_privacy')" class="inline-block px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded mr-1">개인정보</span>
                 <span v-else-if="field.field_type === 'consent' && field.field_name.startsWith('consent_sensitive')" class="inline-block px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded mr-1">민감정보</span>
                 <span v-else-if="field.field_type === 'consent'" class="inline-block px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded mr-1">동의</span>
                 <span class="font-medium">{{ field.field_label }}</span>
@@ -587,11 +627,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
+import { standardFieldApi } from '@shared/services/insuranceApi'
 import { FIELD_TYPE_OPTIONS } from '@shared/types'
-import type { FormField, FormPage, FieldOptions } from '@shared/types'
+import type { FormField, FormPage, FieldOptions, StandardField } from '@shared/types'
 
 const route = useRoute()
 const store = useTemplateStore()
@@ -601,6 +642,92 @@ const saving = ref(false)
 const showAddModal = ref(false)
 
 const fieldTypeOptions = FIELD_TYPE_OPTIONS.filter(o => o.value !== 'consent')
+
+// ===== 표준 필드 =====
+const standardFields = ref<StandardField[]>([])
+const groupedStandardFields = ref<Record<string, StandardField[]>>({})
+const loadingStandardFields = ref(false)
+
+// 전체 페이지에서 이미 배치된 표준 필드 코드 집합
+const placedStandardFieldCodes = computed(() => {
+  const codes = new Set<string>()
+  for (const page of store.sortedPages) {
+    const fields = page.form_fields || []
+    for (const f of fields) {
+      if (f.standard_field_code) {
+        codes.add(f.standard_field_code)
+      }
+    }
+  }
+  return codes
+})
+
+async function fetchStandardFields() {
+  loadingStandardFields.value = true
+  try {
+    const res = await standardFieldApi.getList()
+    standardFields.value = res.data.data.fields
+    groupedStandardFields.value = res.data.data.grouped
+  } catch {
+    standardFields.value = []
+    groupedStandardFields.value = {}
+  } finally {
+    loadingStandardFields.value = false
+  }
+}
+
+async function handleStandardFieldClick(sf: StandardField) {
+  // 이미 배치된 경우 → 해당 필드 하이라이트
+  if (placedStandardFieldCodes.value.has(sf.code)) {
+    const target = store.sortedPages
+      .flatMap(p => p.form_fields || [])
+      .find(f => f.standard_field_code === sf.code)
+    if (target) {
+      // 해당 페이지로 전환 후 필드 선택
+      const targetPage = store.sortedPages.find(p =>
+        (p.form_fields || []).some(f => f.form_field_id === target.form_field_id)
+      )
+      if (targetPage && targetPage.form_page_id !== store.currentPage?.form_page_id) {
+        store.selectPage(targetPage)
+      }
+      store.selectField(target)
+    }
+    return
+  }
+
+  // 배치 안 됨 → 현재 페이지에 표준 필드 생성
+  if (!store.currentPage) {
+    alert('페이지를 먼저 선택해주세요.')
+    return
+  }
+
+  // 위저드 스텝 자동 결정 (카테고리 기반)
+  let wizardStep = 3
+  if (sf.category === '사고/청구 정보') wizardStep = 2
+  else if (sf.category === '계약자 정보') wizardStep = 3
+  else if (sf.category === '피보험자 정보' || sf.category === '수익자 정보') wizardStep = 4
+  else if (sf.category === '계좌 정보') wizardStep = 5
+
+  try {
+    await store.createField(Number(route.params.id), {
+      field_name: sf.code.toLowerCase(),
+      standard_field_code: sf.code,
+      field_label: sf.label,
+      field_type: sf.type as FormField['field_type'],
+      is_required: true,
+      form_page_id: store.currentPage.form_page_id,
+      x_position: 50,
+      y_position: 50,
+      width: 200,
+      height: 30,
+      font_size: 12,
+      font_color: '#000000',
+      field_options: { wizard_step: wizardStep },
+    })
+  } catch (e: any) {
+    alert(e.response?.data?.message || '표준 필드 추가에 실패했습니다.')
+  }
+}
 
 const WIZARD_STEP_OPTIONS = [
   { value: 2, label: 'Step 2 — 청구 내용' },
@@ -1061,8 +1188,11 @@ function handleMouseUp() {
 
 onMounted(async () => {
   const templateId = Number(route.params.id)
-  await store.fetchTemplate(templateId)
-  await store.fetchPages(templateId)
+  await Promise.all([
+    store.fetchTemplate(templateId),
+    store.fetchPages(templateId),
+    fetchStandardFields(),
+  ])
 
   // 전역 마우스 이벤트 리스너
   document.addEventListener('mousemove', handleMouseMove)

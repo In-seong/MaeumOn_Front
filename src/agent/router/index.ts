@@ -69,6 +69,25 @@ const router = createRouter({
       component: () => import('../views/claims/AgentClaimListView.vue'),
       meta: { requiresAuth: true },
     },
+    // 다중 청구 (배치)
+    {
+      path: '/batch-claims/new',
+      name: 'agent-batch-claim-new',
+      component: () => import('../views/claims/AgentBatchClaimView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/batch-claims/:batchId/edit',
+      name: 'agent-batch-claim-edit',
+      component: () => import('../views/claims/AgentBatchClaimView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/batch-claims/:id',
+      name: 'agent-batch-claim-detail',
+      component: () => import('../views/claims/AgentBatchClaimDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
     {
       path: '/messages/send',
       name: 'message-send',

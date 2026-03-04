@@ -12,11 +12,13 @@ import {
   fetchClaimFormDetail as apiFetchClaimFormDetail,
   createAgentClaim, updateAgentClaim,
   sendAgentClaimFax, uploadAgentClaimDocument, deleteAgentClaimDocument,
+  saveDraft as apiSaveDraft, updateDraft as apiUpdateDraft,
+  submitDraft as apiSubmitDraft, deleteDraft as apiDeleteDraft,
 } from '../services/agentApi'
 
 export const useAgentClaimStore = defineStore('agentClaim', () => {
   // ===== 목록 조회 상태 =====
-  const filterStatus = ref<'all' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid'>('all')
+  const filterStatus = ref<'all' | 'draft' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid'>('all')
   const searchQuery = ref('')
   const claims = ref<AgentClaim[]>([])
   const selectedClaim = ref<AgentClaim | null>(null)
@@ -25,6 +27,10 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
   const currentPage = ref(1)
   const lastPage = ref(1)
   const total = ref(0)
+
+  // ===== 임시저장 (Draft) 상태 =====
+  const drafts = ref<AgentClaim[]>([])
+  const loadingDrafts = ref(false)
 
   // ===== 청구 작성 상태 =====
   const insuranceCompanies = ref<InsuranceCompany[]>([])
@@ -41,6 +47,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
 
   const statusCounts = computed(() => ({
     all: total.value,
+    draft: claims.value.filter((c) => c.claim_status === 'draft').length,
     pending: claims.value.filter((c) => c.claim_status === 'pending').length,
     processing: claims.value.filter((c) => c.claim_status === 'processing').length,
     approved: claims.value.filter((c) => c.claim_status === 'approved').length,
@@ -90,7 +97,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
     }
   }
 
-  function setFilter(status: 'all' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid') {
+  function setFilter(status: 'all' | 'draft' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid') {
     filterStatus.value = status
     currentPage.value = 1
     loadClaims()
@@ -308,6 +315,115 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
     }
   }
 
+  // ===== 임시저장 (Draft) 액션 =====
+  async function loadDrafts(): Promise<void> {
+    loadingDrafts.value = true
+    try {
+      const res = await fetchClaims({ claim_status: 'draft', per_page: 50 })
+      const paginated = res.data.data
+      drafts.value = paginated.data
+    } catch {
+      drafts.value = []
+    } finally {
+      loadingDrafts.value = false
+    }
+  }
+
+  async function saveDraftClaim(customerId?: string): Promise<InsuranceClaim | null> {
+    if (!selectedClaimForm.value) {
+      error.value = '양식이 선택되지 않았습니다.'
+      return null
+    }
+
+    loading.value = true
+    error.value = null
+    try {
+      const fields = Object.entries(fieldValues.value).map(([formFieldId, value]) => ({
+        form_field_id: parseInt(formFieldId),
+        field_value: value,
+      }))
+
+      const response = await apiSaveDraft({
+        ...(customerId ? { customer_id: customerId } : {}),
+        claim_form_id: selectedClaimForm.value.claim_form_id,
+        fields,
+      })
+
+      if (response.data.success) {
+        currentClaim.value = response.data.data
+        return response.data.data
+      }
+      return null
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '임시저장에 실패했습니다.'
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function updateDraftClaim(claimId: number): Promise<InsuranceClaim | null> {
+    loading.value = true
+    error.value = null
+    try {
+      const fields = Object.entries(fieldValues.value).map(([formFieldId, value]) => ({
+        form_field_id: parseInt(formFieldId),
+        field_value: value,
+      }))
+
+      const response = await apiUpdateDraft(claimId, { fields })
+
+      if (response.data.success) {
+        currentClaim.value = response.data.data
+        return response.data.data
+      }
+      return null
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '임시저장 갱신에 실패했습니다.'
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function submitDraftClaim(claimId: number, customerId?: string): Promise<InsuranceClaim | null> {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await apiSubmitDraft(claimId, customerId ? { customer_id: customerId } : undefined)
+
+      if (response.data.success) {
+        currentClaim.value = response.data.data
+        return response.data.data
+      }
+      return null
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '청구서 제출에 실패했습니다.'
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteDraftClaim(claimId: number): Promise<boolean> {
+    error.value = null
+    try {
+      const response = await apiDeleteDraft(claimId)
+      if (response.data.success) {
+        drafts.value = drafts.value.filter((d) => d.claim_id !== claimId)
+        return true
+      }
+      return false
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '임시저장 삭제에 실패했습니다.'
+      return false
+    }
+  }
+
   // ===== 유틸 함수 =====
   function setFieldValue(fieldId: number, value: string): void {
     fieldValues.value[fieldId] = value
@@ -334,6 +450,10 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
     filteredClaims,
     statusCounts,
 
+    // 임시저장 상태
+    drafts,
+    loadingDrafts,
+
     // 청구 작성 상태
     insuranceCompanies,
     loadingCompanies,
@@ -359,6 +479,13 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
     createClaim,
     updateClaim,
     sendFax,
+
+    // 임시저장 액션
+    loadDrafts,
+    saveDraftClaim,
+    updateDraftClaim,
+    submitDraftClaim,
+    deleteDraftClaim,
 
     // 첨부파일 액션
     uploadDocument,

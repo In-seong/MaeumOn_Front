@@ -123,12 +123,22 @@ export interface FieldOptions {
   wizard_step?: number  // 1~5, 명시적 위저드 스텝 지정
 }
 
+// 표준 필드 타입 (백엔드 상수 정의)
+export interface StandardField {
+  code: string
+  label: string
+  type: FormField['field_type']
+  category: string
+  customer_field: string | null
+}
+
 // 양식 필드 타입
 export interface FormField {
   form_field_id: number
   claim_form_id: number
   form_page_id?: number
   field_name: string
+  standard_field_code?: string | null
   field_label: string
   field_type: 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea' | 'checkbox' | 'radio' | 'consent' | 'signature'
   field_order: number
@@ -147,10 +157,36 @@ export interface FormField {
   updated_at?: string
 }
 
+// 배치 청구 타입 (다중 보험 청구 묶음)
+export interface BatchClaim {
+  batch_claim_id: number
+  customer_id: string | null
+  agent_id?: string
+  batch_status: 'draft' | 'pending' | 'processing' | 'completed' | 'partial_failed'
+  total_count: number
+  completed_count: number
+  notes?: string
+  created_at?: string
+  updated_at?: string
+  // Eager loaded
+  customer?: Customer
+  claims?: InsuranceClaim[]
+}
+
+// 배치 상태 옵션
+export const BATCH_STATUS_OPTIONS = [
+  { value: 'draft', label: '임시저장', color: 'gray' },
+  { value: 'pending', label: '접수 대기', color: 'yellow' },
+  { value: 'processing', label: '처리중', color: 'blue' },
+  { value: 'completed', label: '완료', color: 'green' },
+  { value: 'partial_failed', label: '일부 실패', color: 'red' },
+] as const
+
 // 보험 청구 타입
 export interface InsuranceClaim {
   claim_id: number
-  customer_id: string
+  customer_id: string | null
+  batch_claim_id?: number | null
   insurance_id?: number
   company_id?: number
   agent_id?: string
@@ -281,6 +317,7 @@ export const FIELD_TYPE_OPTIONS = [
 
 // 청구 상태 옵션 (물리설계 기준)
 export const CLAIM_STATUS_OPTIONS = [
+  { value: 'draft', label: '임시저장', color: 'gray' },
   { value: 'pending', label: '접수 대기', color: 'yellow' },
   { value: 'processing', label: '처리중', color: 'blue' },
   { value: 'approved', label: '승인', color: 'green' },

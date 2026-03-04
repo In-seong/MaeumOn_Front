@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <BackHeader :title="isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성')" :custom-back="true" @back="handleHeaderBack" />
+      <BackHeader :title="isDraftMode ? '청구서 이어쓰기' : (isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성'))" :custom-back="true" @back="handleHeaderBack" />
       <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
@@ -347,7 +347,7 @@
                 @change="handleFileSelect"
                 class="hidden"
               />
-              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 파일당 최대 10MB</p>
+              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 이미지 자동 압축</p>
             </CardSection>
 
             <!-- 에러 메시지 -->
@@ -361,8 +361,17 @@
                 v-if="!isFirstStep"
                 type="button"
                 @click="goPrevStep"
-                class="flex-1 border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+                class="border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 px-4 text-[15px] font-semibold active:scale-[0.98] transition-transform"
               >이전</button>
+
+              <!-- 임시저장 버튼: 신규 작성 또는 draft 모드에서만 표시 (pending 수정 모드에서는 숨김) -->
+              <button
+                v-if="showDraftButton"
+                type="button"
+                :disabled="savingDraft"
+                @click="handleSaveDraft"
+                class="border-[1.5px] border-[#FF7B22] text-[#FF7B22] bg-white rounded-[12px] py-3.5 px-4 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+              >{{ savingDraft ? '저장 중...' : '임시저장' }}</button>
 
               <button
                 v-if="!isLastStep"
@@ -372,8 +381,18 @@
                 class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
               >{{ nextButtonText }}</button>
 
+              <!-- 마지막 스텝: draft 모드 → "제출하기", 일반 → "청구서 생성/수정" -->
               <button
-                v-if="isLastStep"
+                v-if="isLastStep && isDraftMode"
+                type="button"
+                :disabled="!isFormValid || submitting"
+                @click="handleSubmitDraft"
+                class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
+              >
+                {{ submitting ? '처리 중...' : '제출하기' }}
+              </button>
+              <button
+                v-if="isLastStep && !isDraftMode"
                 type="submit"
                 :disabled="!isFormValid || submitting"
                 class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
@@ -414,12 +433,13 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { useCustomerStore } from '../../stores/customerStore'
-import type { FormPage, FormField, Customer } from '@shared/types'
+import type { FormPage, FormField, Customer, InsuranceClaim } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import WizardStepBar from '@shared/components/claim/WizardStepBar.vue'
 import ConsentOverlay from '@shared/components/claim/ConsentOverlay.vue'
 import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
+import { compressImages } from '@shared/utils/compressImage'
 
 const router = useRouter()
 const route = useRoute()
@@ -427,10 +447,17 @@ const claimStore = useAgentClaimStore()
 const customerStore = useCustomerStore()
 
 const isEditMode = computed(() => !!route.params.claimId)
+const isDraftMode = computed(() => claimStore.currentClaim?.claim_status === 'draft')
 const claimId = computed(() => Number(route.params.claimId))
-const templateId = computed(() => Number(route.params.templateId))
+const templateId = computed(() => Number(route.params.templateId || route.query.templateId))
 const customerId = computed(() => (route.query.customerId as string) || '')
 const submitting = ref(false)
+const savingDraft = ref(false)
+// 임시저장 버튼 표시 조건: 신규 작성 또는 draft 모드 (pending 수정 모드에서는 숨김)
+const showDraftButton = computed(() => {
+  if (isEditMode.value && !isDraftMode.value) return false
+  return true
+})
 const loading = ref(false)
 const attachedFiles = ref<File[]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -999,13 +1026,14 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
 }
 
 // ===== 파일 관리 =====
-function handleFileSelect(event: Event) {
+async function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files) {
     const files = Array.from(input.files)
-    for (const file of files) {
+    const compressed = await compressImages(files)
+    for (const file of compressed) {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name}은(는) 10MB를 초과합니다.`)
+        alert(`${file.name}은(는) 압축 후에도 10MB를 초과합니다.`)
         continue
       }
       attachedFiles.value.push(file)
@@ -1022,6 +1050,56 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + 'B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB'
   return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
+}
+
+// ===== 임시저장 =====
+async function handleSaveDraft() {
+  savingDraft.value = true
+  try {
+    if (isDraftMode.value && claimStore.currentClaim) {
+      // 기존 draft 갱신
+      const result = await claimStore.updateDraftClaim(claimStore.currentClaim.claim_id)
+      if (result) {
+        alert('임시저장되었습니다.')
+      }
+    } else {
+      // 새 draft 생성
+      const draft = await claimStore.saveDraftClaim(customerId.value || undefined)
+      if (draft) {
+        alert('임시저장되었습니다.')
+        router.replace(`/claims/${draft.claim_id}/edit?templateId=${draft.claim_form_id}`)
+      }
+    }
+  } finally {
+    savingDraft.value = false
+  }
+}
+
+// ===== Draft 제출 (draft → pending) =====
+async function handleSubmitDraft() {
+  if (!isFormValid.value || !claimStore.currentClaim) return
+
+  submitting.value = true
+  try {
+    const result = await claimStore.submitDraftClaim(
+      claimStore.currentClaim.claim_id,
+      customerId.value || undefined,
+    )
+    if (result) {
+      // 첨부파일 업로드
+      const failedFiles: string[] = []
+      for (const file of attachedFiles.value) {
+        const doc = await claimStore.uploadDocument(result.claim_id, file)
+        if (!doc) failedFiles.push(file.name)
+      }
+      if (failedFiles.length > 0) {
+        alert(`다음 파일 업로드에 실패했습니다:\n${failedFiles.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
+      }
+      router.push(`/claims/${result.claim_id}`)
+    }
+  } finally {
+    submitting.value = false
+  }
 }
 
 // ===== 제출 =====
@@ -1078,26 +1156,29 @@ onMounted(async () => {
     }
 
     if (isEditMode.value) {
-      // 수정 모드: 기존 청구 상세 불러오기
+      // 수정/draft 모드: 기존 청구 상세 불러오기
       await claimStore.loadClaim(claimId.value)
       const claim = claimStore.selectedClaim
-      if (claim?.claim_form) {
-        await claimStore.fetchClaimFormDetail(claim.claim_form.claim_form_id)
-        // 기존 필드 값 복원 - selectedClaim에서 field_values 가져오기
-        // agentClaimStore의 selectedClaim은 AgentClaim 타입 (field_values 없음)
-        // loadClaim으로 받아온 데이터에서 직접 복원 필요
-        // 수정 모드에서는 별도의 claim detail API가 필요할 수 있음
-        // 여기서는 claimStore.currentClaim이 있으면 거기서 복원
-        const currentClaim = claimStore.currentClaim
-        if (currentClaim?.field_values) {
-          currentClaim.field_values.forEach((fv) => {
+      if (claim) {
+        // draft 모드에서 currentClaim 설정 (isDraftMode computed 활성화)
+        claimStore.currentClaim = claim as unknown as InsuranceClaim
+
+        const formId = claim.claim_form?.claim_form_id || templateId.value
+        if (formId) {
+          await claimStore.fetchClaimFormDetail(formId)
+        }
+
+        // 필드 값 복원 (selectedClaim.field_values 또는 currentClaim.field_values)
+        const fieldVals = (claim as unknown as { field_values?: Array<{ form_field_id: number; field_value: string }> }).field_values
+        if (fieldVals) {
+          fieldVals.forEach((fv) => {
             if (fv.form_field_id) {
               claimStore.setFieldValue(fv.form_field_id, fv.field_value || '')
             }
           })
         }
 
-        // 수정 모드: 카테고리별 consent 필드 상태 복원
+        // 카테고리별 consent 필드 상태 복원
         if (privacyConsentFields.value.length > 0 &&
           privacyConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {
           consentAgreed.value.privacy = true

@@ -110,6 +110,7 @@ export interface Consultation {
 export interface InsuranceClaim {
   claim_id: number
   customer_id: string
+  batch_claim_id?: number | null
   insurance_id?: number
   company_id?: number
   agent_id?: string
@@ -142,6 +143,22 @@ export interface InsuranceClaim {
 
 // Agent view alias
 export type AgentClaim = InsuranceClaim
+
+// ===== BatchClaim (다중 보험 청구 묶음) =====
+export interface BatchClaim {
+  batch_claim_id: number
+  customer_id: string | null
+  agent_id?: string
+  batch_status: 'draft' | 'pending' | 'processing' | 'completed' | 'partial_failed'
+  total_count: number
+  completed_count: number
+  notes?: string
+  created_at: string
+  updated_at: string
+  // Eager loaded
+  customer?: { customer_id: string; name: string; phone: string }
+  claims?: InsuranceClaim[]
+}
 
 // ===== Memo (고객 메모) =====
 export interface Memo {

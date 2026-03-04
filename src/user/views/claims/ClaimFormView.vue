@@ -265,7 +265,7 @@
                 @change="handleFileSelect"
                 class="hidden"
               />
-              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 파일당 최대 10MB</p>
+              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 이미지 자동 압축</p>
             </CardSection>
 
             <!-- 에러 메시지 -->
@@ -338,6 +338,7 @@ import CardSection from '@user/components/ui/CardSection.vue'
 import WizardStepBar from '@shared/components/claim/WizardStepBar.vue'
 import ConsentOverlay from '@shared/components/claim/ConsentOverlay.vue'
 import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
+import { compressImages } from '@shared/utils/compressImage'
 
 const router = useRouter()
 const route = useRoute()
@@ -907,13 +908,14 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
 }
 
 // ===== 파일 관리 =====
-function handleFileSelect(event: Event) {
+async function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files) {
     const files = Array.from(input.files)
-    for (const file of files) {
+    const compressed = await compressImages(files)
+    for (const file of compressed) {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name}은(는) 10MB를 초과합니다.`)
+        alert(`${file.name}은(는) 압축 후에도 10MB를 초과합니다.`)
         continue
       }
       attachedFiles.value.push(file)
