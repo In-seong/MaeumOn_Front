@@ -261,7 +261,7 @@ async function handleSubmit(): Promise<void> {
       name: form.name.trim(),
       phone: form.phone.trim(),
       resident_number: form.resident_number || undefined,
-      gender: form.gender || undefined,
+      gender: (form.gender || undefined) as 'M' | 'F' | 'OTHER' | undefined,
       birth_date: form.birth_date || undefined,
       email: form.email || undefined,
       address: form.address || undefined,

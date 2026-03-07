@@ -369,7 +369,7 @@ const appVersion = computed(() => nativeAppVersion.value || 'v1.0.0')
 
 onMounted(() => {
   // 네이티브 앱에서 전달하는 디바이스 정보 수신 핸들러
-  (window as Record<string, unknown>).__handleType__ = (data: { app_version?: string; device?: number }) => {
+  (window as unknown as Record<string, unknown>).__handleType__ = (data: { app_version?: string; device?: number }) => {
     if (data.app_version) nativeAppVersion.value = data.app_version
     if (data.device !== undefined) nativeDevice.value = data.device
   }

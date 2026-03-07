@@ -164,7 +164,7 @@ function daysUntilVariant(dateStr: string): string {
 
 // FCM 토큰 수신 핸들러 (네이티브 앱에서 호출)
 function setupFcmTokenHandler() {
-  const win = window as Record<string, unknown>
+  const win = window as unknown as Record<string, unknown>
   win.__handleFCMToken__ = async (token: string) => {
     if (!token) return
     try {
@@ -175,7 +175,7 @@ function setupFcmTokenHandler() {
   }
 
   // 네이티브 앱에 토큰 요청
-  const android = (window as Record<string, { sendFCMToken?: () => void }>).Android
+  const android = (window as unknown as Record<string, { sendFCMToken?: () => void }>).Android
   if (android?.sendFCMToken) {
     android.sendFCMToken()
   }

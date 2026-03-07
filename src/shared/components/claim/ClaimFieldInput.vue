@@ -167,6 +167,7 @@ function emitInput(event: Event) {
 }
 
 // ===== 주민번호 분리 입력 =====
+// @ts-ignore template ref used in template
 const residentFrontRef = ref<HTMLInputElement | null>(null)
 const residentBackRef = ref<HTMLInputElement | null>(null)
 
