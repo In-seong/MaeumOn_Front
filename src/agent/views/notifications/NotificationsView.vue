@@ -45,7 +45,7 @@
                   />
                 </div>
                 <p class="text-[13px] text-[#666] leading-relaxed">{{ noti.content }}</p>
-                <p class="text-[11px] text-[#BBB] mt-1.5">{{ formatDate(noti.created_at) }}</p>
+                <p class="text-[11px] text-[#BBB] mt-1.5">{{ formatDate(noti.created_at ?? '') }}</p>
               </div>
             </div>
           </div>

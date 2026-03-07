@@ -241,7 +241,6 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { useToast } from '../../composables/useToast'
 import { changePassword as apiChangePassword } from '../../services/agentApi'
@@ -251,7 +250,6 @@ import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 
-const router = useRouter()
 const authStore = useAgentAuthStore()
 const toast = useToast()
 
