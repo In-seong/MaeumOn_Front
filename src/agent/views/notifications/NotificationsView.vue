@@ -45,7 +45,7 @@
                   />
                 </div>
                 <p class="text-[13px] text-[#666] leading-relaxed">{{ noti.content }}</p>
-                <p class="text-[11px] text-[#BBB] mt-1.5">{{ noti.created_at }}</p>
+                <p class="text-[11px] text-[#BBB] mt-1.5">{{ formatDate(noti.created_at) }}</p>
               </div>
             </div>
           </div>
@@ -141,6 +141,21 @@ function iconColor(type: string): string {
     system: '#888',
   }
   return map[type] ?? '#888'
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  const now = new Date()
+  const diff = now.getTime() - d.getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return '방금 전'
+  if (mins < 60) return `${mins}분 전`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}시간 전`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}일 전`
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
 }
 
 function iconSvg(type: string): string {

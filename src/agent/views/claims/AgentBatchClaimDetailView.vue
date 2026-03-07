@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[430px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="다중 청구 상세" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
@@ -184,6 +184,17 @@
         </div>
       </main>
       <AgentBottomNav />
+
+      <!-- Toast -->
+      <Transition name="fade">
+        <div
+          v-if="toast.visible.value"
+          class="fixed bottom-24 left-1/2 -translate-x-1/2 text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap"
+          :class="toast.variant.value === 'error' ? 'bg-[#FF4444]' : 'bg-[#333]'"
+        >
+          {{ toast.message.value }}
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -199,6 +210,9 @@ import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
+import { useToast } from '../../composables/useToast'
+
+const toast = useToast()
 
 const router = useRouter()
 const route = useRoute()
@@ -309,7 +323,7 @@ async function handleSendClaimFax(claimId: number): Promise<void> {
   try {
     const success = await batchStore.sendFax(batchId.value, [claimId])
     if (success) {
-      alert('팩스 발송이 요청되었습니다.')
+      toast.showToast('팩스 발송이 요청되었습니다.')
     }
   } finally {
     sendingClaimFaxId.value = null
@@ -327,7 +341,7 @@ async function handleSendBatchFax(): Promise<void> {
   try {
     const success = await batchStore.sendFax(batchId.value)
     if (success) {
-      alert('일괄 팩스 발송이 요청되었습니다.')
+      toast.showToast('일괄 팩스 발송이 요청되었습니다.')
     }
   } finally {
     sendingBatchFax.value = false

@@ -22,6 +22,16 @@
           placeholder="비밀번호를 입력하세요"
         />
 
+        <!-- 아이디 저장 -->
+        <label class="flex items-center gap-2 cursor-pointer -mt-1">
+          <input
+            v-model="saveId"
+            type="checkbox"
+            class="w-4 h-4 rounded border-[#E8E8E8] text-[#FF7B22] focus:ring-[#FF7B22]"
+          />
+          <span class="text-[13px] text-[#888]">아이디 저장</span>
+        </label>
+
         <!-- Error Message -->
         <p v-if="agentAuthStore.error" class="text-[13px] text-[#FF3B30] text-center">
           {{ agentAuthStore.error }}
@@ -57,14 +67,24 @@ import ActionButton from '@user/components/ui/ActionButton.vue'
 const router = useRouter()
 const agentAuthStore = useAgentAuthStore()
 
-const username = ref('')
+const savedId = localStorage.getItem('agent_saved_id')
+const username = ref(savedId ?? '')
 const password = ref('')
+const saveId = ref(!!savedId)
 
 async function handleLogin() {
   if (!username.value || !password.value) {
     agentAuthStore.error = '아이디와 비밀번호를 입력하세요'
     return
   }
+
+  // 아이디 저장 처리
+  if (saveId.value) {
+    localStorage.setItem('agent_saved_id', username.value)
+  } else {
+    localStorage.removeItem('agent_saved_id')
+  }
+
   try {
     await agentAuthStore.login(username.value, password.value)
     router.push('/')

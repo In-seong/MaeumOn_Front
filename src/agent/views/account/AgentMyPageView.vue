@@ -384,7 +384,7 @@ const menuItems = [
 // ===== 로그아웃 =====
 async function handleLogout(): Promise<void> {
   await authStore.logout()
-  router.push('/login')
+  window.location.href = '/login'
 }
 </script>
 

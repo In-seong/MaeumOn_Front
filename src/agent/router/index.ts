@@ -136,6 +136,10 @@ const router = createRouter({
       component: () => import('../views/account/AgentMyPageView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    },
   ],
 })
 

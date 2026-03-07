@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[430px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '다중 청구 이어쓰기' : '다중 보험 청구'" :custom-back="true" @back="handleHeaderBack" />
 
       <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100vh - 56px);">
@@ -497,6 +497,16 @@
           </button>
         </div>
       </div>
+      <!-- Toast -->
+      <Transition name="fade">
+        <div
+          v-if="toast.visible.value"
+          class="fixed bottom-24 left-1/2 -translate-x-1/2 text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap"
+          :class="toast.variant.value === 'error' ? 'bg-[#FF4444]' : 'bg-[#333]'"
+        >
+          {{ toast.message.value }}
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -511,6 +521,9 @@ import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 import type { Customer } from '../../types'
 import type { FormField, FormPage } from '@shared/types'
+import { useToast } from '../../composables/useToast'
+
+const toast = useToast()
 
 const router = useRouter()
 const route = useRoute()
@@ -691,14 +704,14 @@ async function handleSaveDraft(): Promise<void> {
   if (isDraftMode.value && batchStore.currentBatch) {
     const result = await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
     if (result) {
-      alert('임시저장이 갱신되었습니다.')
+      toast.showToast('임시저장이 갱신되었습니다.')
     }
   } else {
     const result = await batchStore.saveDraft()
     if (result) {
       isDraftMode.value = true
       batchStore.currentBatch = result
-      alert('임시저장되었습니다.')
+      toast.showToast('임시저장되었습니다.')
       // URL 갱신 (새 draft → 편집 모드)
       router.replace({ name: 'agent-batch-claim-edit', params: { batchId: result.batch_claim_id } })
     }
@@ -718,7 +731,7 @@ async function handleSubmitBatch(): Promise<void> {
   }
 
   if (result) {
-    alert('일괄 제출이 완료되었습니다.')
+    toast.showToast('일괄 제출이 완료되었습니다.')
     router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
   }
 }
