@@ -145,12 +145,28 @@
               <!-- 발송대기/발송중 상태 -->
               <div
                 v-else-if="claim.fax_status === 'pending' || claim.fax_status === 'sending'"
-                class="flex items-center gap-2 py-2"
+                class="py-2"
               >
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
-                <span class="text-[14px] font-medium text-[#FF7B22]">
-                  {{ claim.fax_status === 'pending' ? '발송 대기중...' : '팩스 발송중...' }}
-                </span>
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+                  <span class="text-[14px] font-medium text-[#FF7B22]">
+                    {{ claim.fax_status === 'pending' ? '발송 대기중...' : '팩스 발송중...' }}
+                  </span>
+                </div>
+                <button
+                  :disabled="refreshingFax"
+                  class="w-full border border-[#E0E0E0] text-[#555] rounded-[10px] py-2.5 text-[13px] font-medium active:bg-[#F5F5F5] transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  @click="handleRefreshFaxStatus"
+                >
+                  <svg
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    :class="{ 'animate-spin': refreshingFax }"
+                  >
+                    <path d="M23 4v6h-6M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                  </svg>
+                  {{ refreshingFax ? '확인 중...' : '상태 새로고침' }}
+                </button>
               </div>
 
               <!-- 실패 상태 -->
@@ -273,6 +289,7 @@ const store = useAgentClaimStore()
 const claimId = computed(() => Number(route.params.id))
 const faxNumber = ref('')
 const sendingFax = ref(false)
+const refreshingFax = ref(false)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 // Agent 타입에는 generated_image_urls, field_values, documents가 없으므로
@@ -405,6 +422,25 @@ async function handleSendFax(): Promise<void> {
     }
   } finally {
     sendingFax.value = false
+  }
+}
+
+async function handleRefreshFaxStatus(): Promise<void> {
+  refreshingFax.value = true
+  try {
+    const { refreshFaxStatus } = await import('../../services/agentApi')
+    const res = await refreshFaxStatus(claimId.value)
+    const data = res.data.data
+    if (data.updated) {
+      await store.loadClaim(claimId.value)
+      alert(data.result_message)
+    } else {
+      alert(data.result_message)
+    }
+  } catch {
+    alert('상태 확인에 실패했습니다.')
+  } finally {
+    refreshingFax.value = false
   }
 }
 

@@ -343,13 +343,18 @@
                 </div>
               </div>
 
-              <label class="flex items-center justify-center gap-2 py-3 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                공통 서류 추가
-                <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="handleCommonFileSelect" />
-              </label>
+              <div class="flex gap-2">
+                <label class="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  서류 선택
+                  <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="handleCommonFileSelect" />
+                </label>
+                <label class="flex items-center justify-center gap-1.5 py-3 px-4 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+                  촬영
+                  <input type="file" class="hidden" accept="image/*" capture="environment" @change="handleCommonFileSelect" />
+                </label>
+              </div>
             </div>
 
             <!-- 개별 서류 -->
@@ -373,13 +378,18 @@
                     </div>
                   </div>
 
-                  <label class="flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    추가
-                    <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="(e) => handlePerClaimFileSelect(e, idx)" />
-                  </label>
+                  <div class="flex gap-1.5">
+                    <label class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                      선택
+                      <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="(e) => handlePerClaimFileSelect(e, idx)" />
+                    </label>
+                    <label class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+                      촬영
+                      <input type="file" class="hidden" accept="image/*" capture="environment" @change="(e) => handlePerClaimFileSelect(e, idx)" />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -492,7 +502,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
@@ -592,8 +602,11 @@ const mainButtonLabel = computed(() => {
 onMounted(async () => {
   batchStore.resetBatchForm()
 
-  // 보험사 목록 로드
-  await batchStore.loadInsuranceCompanies()
+  // 보험사 목록 + 초기 고객 목록 로드
+  await Promise.all([
+    batchStore.loadInsuranceCompanies(),
+    batchStore.searchCustomers(''),
+  ])
 
   // draft 편집 모드
   if (batchId.value) {
@@ -606,6 +619,10 @@ onMounted(async () => {
   }
 
   initialLoaded.value = true
+})
+
+onUnmounted(() => {
+  if (searchTimeout) clearTimeout(searchTimeout)
 })
 
 // 탭 전환 시 내부 스텝 초기화 + 2차 자동 복사
@@ -856,7 +873,41 @@ function getTotalFieldCount(entryIdx: number): number {
   return getAllFieldsForEntry(entry).length
 }
 
-function formatFieldInput(fieldId: number, value: string): void {
+function formatFieldInput(fieldId: number, fieldType: string, event: Event): void {
+  const target = event.target as HTMLInputElement
+  let value = target.value
+
+  switch (fieldType) {
+    case 'phone':
+      value = value.replace(/[^0-9]/g, '')
+      if (value.length > 3 && value.length <= 7) {
+        value = value.slice(0, 3) + '-' + value.slice(3)
+      } else if (value.length > 7) {
+        value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11)
+      }
+      target.value = value
+      break
+    case 'resident_number':
+      value = value.replace(/[^0-9]/g, '')
+      if (value.length > 6) {
+        value = value.slice(0, 6) + '-' + value.slice(6, 13)
+      }
+      target.value = value
+      break
+    case 'resident_number_front':
+      value = value.replace(/[^0-9]/g, '').slice(0, 6)
+      target.value = value
+      break
+    case 'resident_number_back':
+      value = value.replace(/[^0-9]/g, '').slice(0, 7)
+      target.value = value
+      break
+    case 'number':
+      value = value.replace(/[^0-9]/g, '')
+      target.value = value
+      break
+  }
+
   batchStore.setActiveFieldValue(fieldId, value)
 }
 </script>

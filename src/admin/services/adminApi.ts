@@ -4,7 +4,7 @@ import type {
   AdminCustomer, AdminAgent, AdminNotice, Memo,
   Assignment, AdditionalContractResult,
   PerformanceSummary, AgentPerformance, MonthlyPerformance,
-  DashboardSummary,
+  DashboardSummary, AdminSentNotification,
 } from '../types'
 
 const BASE = '/admin'
@@ -100,3 +100,15 @@ export const updateNotice = (id: number, data: Record<string, unknown>) =>
 
 export const deleteNotice = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/notices/${id}`)
+
+// ===== Notifications (관리자 → 설계사 알림 발송) =====
+export const sendNotification = (data: {
+  title: string
+  content: string
+  target: 'ALL' | 'SELECTED'
+  agent_ids?: string[]
+}) =>
+  api.post<ApiResponse<{ sent_count: number }>>(`${BASE}/notifications`, data)
+
+export const fetchSentNotifications = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminSentNotification>>>(`${BASE}/notifications`, { params })

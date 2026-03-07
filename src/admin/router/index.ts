@@ -117,6 +117,19 @@ const router = createRouter({
       component: () => import('../views/notices/NoticeFormView.vue'),
       meta: { requiresAuth: true },
     },
+    // 알림 발송 (관리자 → 설계사)
+    {
+      path: '/notifications',
+      name: 'notification-send',
+      component: () => import('../views/notifications/NotificationSendView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notifications/history',
+      name: 'notification-history',
+      component: () => import('../views/notifications/NotificationHistoryView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 보험사 관리 (기존)
     {
       path: '/insurance-companies',

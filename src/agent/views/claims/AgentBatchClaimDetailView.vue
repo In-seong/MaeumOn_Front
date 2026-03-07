@@ -4,7 +4,7 @@
       <BackHeader title="다중 청구 상세" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
-        <div v-if="batchStore.loading" class="flex items-center justify-center py-20">
+        <div v-if="initialLoading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
         </div>
 
@@ -209,6 +209,7 @@ const sendingBatchFax = ref(false)
 const sendingClaimFaxId = ref<number | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
+const initialLoading = ref(true)
 const batch = computed(() => batchStore.selectedBatch)
 const batchClaims = computed<InsuranceClaim[]>(() => batch.value?.claims ?? [])
 
@@ -229,6 +230,7 @@ const needsPolling = computed(() =>
 // ===== Lifecycle =====
 onMounted(async () => {
   await batchStore.loadBatchClaim(batchId.value)
+  initialLoading.value = false
   startPollingIfNeeded()
 })
 

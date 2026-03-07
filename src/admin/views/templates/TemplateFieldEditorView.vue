@@ -480,6 +480,7 @@
                   <span v-if="placedStandardFieldCodes.has(sf.code)" class="text-green-500 text-[14px]">&#10003;</span>
                   <span v-else class="w-[14px] h-[14px] border border-[#CCC] rounded-sm inline-block flex-shrink-0"></span>
                   <span class="flex-1 truncate">{{ sf.label }}</span>
+                  <span v-if="(standardFieldPlacedCount[sf.code] || 0) > 1" class="text-[10px] text-green-600 font-medium">×{{ standardFieldPlacedCount[sf.code] }}</span>
                   <span class="text-[10px] text-[#BBB]">{{ sf.type }}</span>
                 </div>
               </div>
@@ -676,26 +677,42 @@ async function fetchStandardFields() {
   }
 }
 
-async function handleStandardFieldClick(sf: StandardField) {
-  // 이미 배치된 경우 → 해당 필드 하이라이트
-  if (placedStandardFieldCodes.value.has(sf.code)) {
-    const target = store.sortedPages
-      .flatMap(p => p.form_fields || [])
-      .find(f => f.standard_field_code === sf.code)
-    if (target) {
-      // 해당 페이지로 전환 후 필드 선택
-      const targetPage = store.sortedPages.find(p =>
-        (p.form_fields || []).some(f => f.form_field_id === target.form_field_id)
-      )
-      if (targetPage && targetPage.form_page_id !== store.currentPage?.form_page_id) {
-        store.selectPage(targetPage)
+// 표준 필드 코드별 배치 횟수
+const standardFieldPlacedCount = computed(() => {
+  const counts: Record<string, number> = {}
+  for (const page of store.sortedPages) {
+    for (const f of (page.form_fields || [])) {
+      if (f.standard_field_code) {
+        counts[f.standard_field_code] = (counts[f.standard_field_code] || 0) + 1
       }
-      store.selectField(target)
     }
-    return
+  }
+  return counts
+})
+
+async function handleStandardFieldClick(sf: StandardField) {
+  // 이미 배치된 경우 → 추가 배치 여부 확인
+  if (placedStandardFieldCodes.value.has(sf.code)) {
+    const count = standardFieldPlacedCount.value[sf.code] || 0
+    if (!confirm(`"${sf.label}" 필드가 이미 ${count}개 배치되어 있습니다.\n현재 페이지에 추가로 배치하시겠습니까?`)) {
+      // 취소 시 기존 필드 하이라이트
+      const target = store.sortedPages
+        .flatMap(p => p.form_fields || [])
+        .find(f => f.standard_field_code === sf.code)
+      if (target) {
+        const targetPage = store.sortedPages.find(p =>
+          (p.form_fields || []).some(f => f.form_field_id === target.form_field_id)
+        )
+        if (targetPage && targetPage.form_page_id !== store.currentPage?.form_page_id) {
+          store.selectPage(targetPage)
+        }
+        store.selectField(target)
+      }
+      return
+    }
   }
 
-  // 배치 안 됨 → 현재 페이지에 표준 필드 생성
+  // 현재 페이지에 표준 필드 생성
   if (!store.currentPage) {
     alert('페이지를 먼저 선택해주세요.')
     return
@@ -708,9 +725,15 @@ async function handleStandardFieldClick(sf: StandardField) {
   else if (sf.category === '피보험자 정보' || sf.category === '수익자 정보') wizardStep = 4
   else if (sf.category === '계좌 정보') wizardStep = 5
 
+  // 중복 필드는 field_name에 suffix 추가 (unique 제약 대응)
+  const existingCount = standardFieldPlacedCount.value[sf.code] || 0
+  const fieldName = existingCount > 0
+    ? `${sf.code.toLowerCase()}_${existingCount + 1}`
+    : sf.code.toLowerCase()
+
   try {
     await store.createField(Number(route.params.id), {
-      field_name: sf.code.toLowerCase(),
+      field_name: fieldName,
       standard_field_code: sf.code,
       field_label: sf.label,
       field_type: sf.type as FormField['field_type'],

@@ -5,6 +5,9 @@
         <BackArrowIcon />
       </button>
       <h1 class="absolute inset-0 flex items-center justify-center text-[17px] font-semibold text-[#222] pointer-events-none">{{ title }}</h1>
+      <div class="relative z-10 ml-auto">
+        <slot name="right" />
+      </div>
     </div>
   </header>
 </template>

@@ -379,13 +379,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import type { AgentClaim, BatchClaim } from '../../types'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 
 const router = useRouter()
+const route = useRoute()
 const customerStore = useCustomerStore()
 const claimStore = useAgentClaimStore()
 const batchClaimStore = useAgentBatchClaimStore()
@@ -432,6 +433,8 @@ const canProceed = computed(() => {
 })
 
 // ===== 라이프사이클 =====
+const preselectedCustomerId = (route.query.customerId as string) || null
+
 onMounted(async () => {
   await Promise.all([
     customerStore.loadCustomers(),
@@ -439,6 +442,12 @@ onMounted(async () => {
     claimStore.loadDrafts(),
     batchClaimStore.loadBatchDrafts(),
   ])
+
+  // 고객 상세에서 넘어온 경우 자동 선택
+  if (preselectedCustomerId) {
+    claimMode.value = 'customer'
+    selectedCustomerId.value = preselectedCustomerId
+  }
 })
 
 // 보험사 선택 시 양식 로드
@@ -451,8 +460,9 @@ watch(selectedCompanyId, async (newId) => {
   }
 })
 
-// 모드 변경 시 선택 초기화
+// 모드 변경 시 선택 초기화 (query param으로 자동 선택된 경우 제외)
 watch(claimMode, () => {
+  if (preselectedCustomerId && selectedCustomerId.value === preselectedCustomerId) return
   selectedCustomerId.value = null
   selectedCompanyId.value = null
   selectedFormId.value = null

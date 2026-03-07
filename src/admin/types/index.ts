@@ -146,6 +146,21 @@ export interface MonthlyPerformance {
   consultation_count: number
 }
 
+// 관리자 알림 발송
+export interface AdminSentNotification {
+  notification_id: number
+  receiver_id: string
+  receiver_type: string
+  sender_id: string
+  sender_type: string
+  notification_type: string
+  title: string
+  content: string
+  is_read: boolean
+  sent_at?: string
+  created_at?: string
+}
+
 // 대시보드 요약
 export interface DashboardSummary {
   total_customers: number

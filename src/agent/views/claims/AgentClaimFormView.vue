@@ -332,18 +332,37 @@
                 </button>
               </div>
 
-              <button
-                type="button"
-                @click="fileInput?.click()"
-                class="w-full border-2 border-dashed border-[#DDD] rounded-[12px] py-4 text-[14px] text-[#999] active:bg-[#F8F8F8] transition-colors"
-              >
-                + 첨부파일 추가 (사진, 서류)
-              </button>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  @click="fileInput?.click()"
+                  class="flex-1 border-2 border-dashed border-[#DDD] rounded-[12px] py-4 text-[14px] text-[#999] active:bg-[#F8F8F8] transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  사진/서류 선택
+                </button>
+                <button
+                  type="button"
+                  @click="cameraInput?.click()"
+                  class="border-2 border-dashed border-[#DDD] rounded-[12px] py-4 px-5 text-[14px] text-[#999] active:bg-[#F8F8F8] transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+                  촬영
+                </button>
+              </div>
               <input
                 ref="fileInput"
                 type="file"
                 accept="image/*,application/pdf"
                 multiple
+                @change="handleFileSelect"
+                class="hidden"
+              />
+              <input
+                ref="cameraInput"
+                type="file"
+                accept="image/*"
+                capture="environment"
                 @change="handleFileSelect"
                 class="hidden"
               />
@@ -461,6 +480,7 @@ const showDraftButton = computed(() => {
 const loading = ref(false)
 const attachedFiles = ref<File[]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
+const cameraInput = ref<HTMLInputElement | null>(null)
 
 // ===== 위저드 상태 =====
 const currentStep = ref(1)
@@ -1016,6 +1036,12 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
       if (value.length > 6) {
         value = value.slice(0, 6) + '-' + value.slice(6, 13)
       }
+      break
+    case 'resident_number_front':
+      value = value.replace(/[^0-9]/g, '').slice(0, 6)
+      break
+    case 'resident_number_back':
+      value = value.replace(/[^0-9]/g, '').slice(0, 7)
       break
     case 'number':
       value = value.replace(/[^0-9]/g, '')

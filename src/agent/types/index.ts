@@ -56,6 +56,8 @@ export interface Customer {
   address?: string
   detailed_address?: string
   job?: string               // 직업
+  telecom?: string           // 통신사
+  acquisition_channel?: string // 가입경로
   is_active: boolean
   created_at: string
   updated_at: string
@@ -75,6 +77,7 @@ export interface Contract {
   insurance_product?: string // 보험상품명
   contract_amount?: string   // decimal
   contract_date?: string
+  expiration_date?: string
   contract_status?: string
   customer_name?: string
   customer_phone?: string
@@ -279,21 +282,44 @@ export interface DashboardSummary {
   upcoming_obligations: number
 }
 
-// ===== Schedule (일정) - Backend 미구현, Mock 유지 =====
-export interface Schedule {
-  schedule_id: number
+// ===== CalendarEvent (캘린더 일정) =====
+export type CalendarEventType = 'manual' | 'birthday' | 'contract_expiry' | 'insurance_expiry'
+export type CalendarSource = 'manual' | 'system'
+
+export interface CalendarEvent {
+  event_id: number
   agent_id: string
-  customer_id?: number
-  customer_name?: string
+  customer_id?: string | null
+  contract_id?: number | null
+  event_type: CalendarEventType
   title: string
-  schedule_date: string
-  start_time: string
-  end_time?: string
-  schedule_type: 'meeting' | 'call' | 'visit' | 'other'
-  memo?: string
+  memo?: string | null
+  event_date: string
+  start_time?: string | null
+  end_time?: string | null
+  is_all_day: boolean
+  is_recurring: boolean
   is_completed: boolean
+  source: CalendarSource
   created_at: string
+  updated_at: string
+  // Eager loaded
+  customer?: { customer_id: string; name: string; phone: string } | null
+  contract?: Contract | null
+  reminders?: CalendarReminder[]
 }
+
+export interface CalendarReminder {
+  reminder_id: number
+  event_id: number
+  agent_id: string
+  remind_before_days: number
+  is_sent: boolean
+  sent_at?: string | null
+}
+
+// 하위 호환용 alias (기존 ScheduleView 등에서 사용)
+export type Schedule = CalendarEvent
 
 // ===== Performance (월간 실적) - Backend 미구현, Mock 유지 =====
 export interface Performance {

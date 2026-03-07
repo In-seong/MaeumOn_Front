@@ -45,14 +45,53 @@
       class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
+    <div v-else-if="field.field_type === 'resident_number'" class="flex items-center gap-2">
+      <input
+        type="text"
+        inputmode="numeric"
+        :value="residentFront"
+        @input="handleResidentFront"
+        placeholder="생년월일"
+        :required="field.is_required"
+        maxlength="6"
+        ref="residentFrontRef"
+        class="flex-1 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      />
+      <span class="text-[18px] text-[#999] font-bold">-</span>
+      <input
+        type="password"
+        inputmode="numeric"
+        :value="residentBack"
+        @input="handleResidentBack"
+        placeholder="뒷자리"
+        :required="field.is_required"
+        maxlength="7"
+        ref="residentBackRef"
+        class="flex-1 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      />
+    </div>
+
     <input
-      v-else-if="field.field_type === 'resident_number'"
+      v-else-if="field.field_type === 'resident_number_front'"
       type="text"
+      inputmode="numeric"
       :value="modelValue"
       @input="emitInput"
-      placeholder="123456-1234567"
+      placeholder="생년월일 6자리"
       :required="field.is_required"
-      maxlength="14"
+      maxlength="6"
+      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+    />
+
+    <input
+      v-else-if="field.field_type === 'resident_number_back'"
+      type="password"
+      inputmode="numeric"
+      :value="modelValue"
+      @input="emitInput"
+      placeholder="뒷자리 7자리"
+      :required="field.is_required"
+      maxlength="7"
       class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
@@ -110,6 +149,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import type { FormField } from '@shared/types'
 
 const props = defineProps<{
@@ -124,6 +164,44 @@ const emit = defineEmits<{
 
 function emitInput(event: Event) {
   emit('format-input', props.field.form_field_id, props.field.field_type, event)
+}
+
+// ===== 주민번호 분리 입력 =====
+const residentFrontRef = ref<HTMLInputElement | null>(null)
+const residentBackRef = ref<HTMLInputElement | null>(null)
+
+const residentFront = computed(() => {
+  const raw = (props.modelValue || '').replace(/-/g, '')
+  return raw.slice(0, 6)
+})
+
+const residentBack = computed(() => {
+  const raw = (props.modelValue || '').replace(/-/g, '')
+  return raw.length > 6 ? raw.slice(6, 13) : ''
+})
+
+function emitResidentValue(front: string, back: string): void {
+  const f = front.replace(/[^0-9]/g, '').slice(0, 6)
+  const b = back.replace(/[^0-9]/g, '').slice(0, 7)
+  const combined = b ? `${f}-${b}` : f
+  emit('update:modelValue', combined)
+}
+
+function handleResidentFront(event: Event): void {
+  const target = event.target as HTMLInputElement
+  const value = target.value.replace(/[^0-9]/g, '').slice(0, 6)
+  target.value = value
+  emitResidentValue(value, residentBack.value)
+  if (value.length === 6) {
+    residentBackRef.value?.focus()
+  }
+}
+
+function handleResidentBack(event: Event): void {
+  const target = event.target as HTMLInputElement
+  const value = target.value.replace(/[^0-9]/g, '').slice(0, 7)
+  target.value = value
+  emitResidentValue(residentFront.value, value)
 }
 
 function isChoiceSelected(value: string): boolean {

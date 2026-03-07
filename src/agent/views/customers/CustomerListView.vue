@@ -3,7 +3,12 @@
     <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="고객 관리" />
 
-      <main class="px-5 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
+      <main
+        ref="scrollContainer"
+        class="px-5 overflow-y-auto pb-20"
+        style="height: calc(100vh - 56px - 60px);"
+        @scroll="handleScroll"
+      >
         <!-- Search -->
         <div class="relative mb-3 mt-2">
           <div class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -66,6 +71,11 @@
         <div v-if="store.loading" class="flex justify-center py-8">
           <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
         </div>
+
+        <!-- Load More Indicator -->
+        <div v-if="loadingMore" class="flex justify-center py-4">
+          <p class="text-[12px] text-[#BBB]">더 불러오는 중...</p>
+        </div>
       </main>
 
       <!-- Floating Add Button -->
@@ -85,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
@@ -95,10 +105,17 @@ import { useCustomerStore } from '../../stores/customerStore'
 const router = useRouter()
 const store = useCustomerStore()
 
+const scrollContainer = ref<HTMLElement | null>(null)
+const loadingMore = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
+  store.currentPage = 1
   store.loadCustomers()
+})
+
+onUnmounted(() => {
+  if (searchTimeout) clearTimeout(searchTimeout)
 })
 
 function handleSearch(): void {
@@ -116,5 +133,34 @@ function handleSortChange(): void {
 
 function goToDetail(customerId: string): void {
   router.push({ name: 'customer-detail', params: { id: customerId } })
+}
+
+async function handleScroll(): Promise<void> {
+  const el = scrollContainer.value
+  if (!el || loadingMore.value || store.loading) return
+  if (store.currentPage >= store.lastPage) return
+
+  const threshold = 100
+  const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+  if (distanceFromBottom < threshold) {
+    loadingMore.value = true
+    store.currentPage += 1
+    try {
+      const res = await import('../../services/agentApi').then(m => m.fetchCustomers({
+        page: store.currentPage,
+        sort_by: store.sortBy,
+        sort_direction: 'desc',
+        ...(store.searchQuery.trim() ? { search: store.searchQuery.trim() } : {}),
+      }))
+      const paginated = res.data.data
+      store.customers.push(...paginated.data)
+      store.lastPage = paginated.last_page
+      store.total = paginated.total
+    } catch {
+      store.currentPage -= 1
+    } finally {
+      loadingMore.value = false
+    }
+  }
 }
 </script>

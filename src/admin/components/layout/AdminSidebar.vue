@@ -49,6 +49,7 @@ const navGroups: NavGroup[] = [
     title: '운영',
     items: [
       { label: '공지사항', icon: 'campaign', to: '/notices', match: ['/notices'] },
+      { label: '알림 발송', icon: 'notifications_active', to: '/notifications', match: ['/notifications'] },
       { label: '보험사 관리', icon: 'business', to: '/insurance-companies', match: ['/insurance-companies'] },
       { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'] },
       { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims'] },

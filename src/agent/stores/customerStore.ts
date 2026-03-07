@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Customer, Contract, Memo } from '../types'
+import type { Customer, Contract, Memo, InsuranceClaim } from '../types'
 import {
   fetchCustomers as apiFetchCustomers,
   fetchCustomer as apiFetchCustomer,
@@ -8,6 +8,9 @@ import {
   updateCustomer as apiUpdateCustomer,
   deleteCustomer as apiDeleteCustomer,
   fetchCustomerContracts as apiFetchContracts,
+  createContract as apiCreateContract,
+  updateContract as apiUpdateContract,
+  deleteContract as apiDeleteContract,
   fetchMemos as apiFetchMemos,
   createMemo as apiCreateMemo,
   updateMemo as apiUpdateMemo,
@@ -19,6 +22,7 @@ export const useCustomerStore = defineStore('customer', () => {
   const customers = ref<Customer[]>([])
   const selectedCustomer = ref<Customer | null>(null)
   const contracts = ref<Contract[]>([])
+  const claims = ref<InsuranceClaim[]>([])
   const memos = ref<Memo[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -69,6 +73,9 @@ export const useCustomerStore = defineStore('customer', () => {
       // Populate relations from eager-loaded data
       if (selectedCustomer.value?.contracts) {
         contracts.value = selectedCustomer.value.contracts
+      }
+      if (selectedCustomer.value?.insurance_claims) {
+        claims.value = selectedCustomer.value.insurance_claims
       }
       if (selectedCustomer.value?.memos) {
         memos.value = selectedCustomer.value.memos
@@ -150,6 +157,44 @@ export const useCustomerStore = defineStore('customer', () => {
     }
   }
 
+  async function addContract(customerId: string, data: Partial<Contract>) {
+    try {
+      const res = await apiCreateContract(customerId, data)
+      contracts.value.unshift(res.data.data)
+      return res.data.data
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '계약 등록에 실패했습니다.'
+      throw e
+    }
+  }
+
+  async function editContract(customerId: string, contractId: number, data: Partial<Contract>) {
+    try {
+      const res = await apiUpdateContract(customerId, contractId, data)
+      const index = contracts.value.findIndex((c) => c.contract_id === contractId)
+      if (index !== -1) {
+        contracts.value[index] = res.data.data
+      }
+      return res.data.data
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '계약 수정에 실패했습니다.'
+      throw e
+    }
+  }
+
+  async function removeContract(customerId: string, contractId: number) {
+    try {
+      await apiDeleteContract(customerId, contractId)
+      contracts.value = contracts.value.filter((c) => c.contract_id !== contractId)
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '계약 삭제에 실패했습니다.'
+      throw e
+    }
+  }
+
   async function loadMemos(customerId: string) {
     try {
       const res = await apiFetchMemos(customerId)
@@ -202,6 +247,7 @@ export const useCustomerStore = defineStore('customer', () => {
     customers,
     selectedCustomer,
     contracts,
+    claims,
     memos,
     loading,
     error,
@@ -218,6 +264,9 @@ export const useCustomerStore = defineStore('customer', () => {
     editCustomer,
     removeCustomer,
     loadContracts,
+    addContract,
+    editContract,
+    removeContract,
     loadMemos,
     addMemo,
     editMemo,

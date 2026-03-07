@@ -20,6 +20,8 @@ import {
 const CUSTOMER_FIELD_MAP: Record<string, string> = {
   CONTRACTOR_NAME: 'name',
   CONTRACTOR_RRN: 'resident_number',
+  CONTRACTOR_RRN_FRONT: 'resident_number_front',
+  CONTRACTOR_RRN_BACK: 'resident_number_back',
   CONTRACTOR_PHONE: 'phone',
   CONTRACTOR_ADDRESS: 'address',
   CONTRACTOR_EMAIL: 'email',
@@ -154,13 +156,11 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
 
   // ===== 고객 검색 =====
   async function searchCustomers(query: string): Promise<void> {
-    if (!query.trim()) {
-      customerSearchResults.value = []
-      return
-    }
     loadingCustomers.value = true
     try {
-      const res = await apiFetchCustomers({ search: query, per_page: 20 })
+      const params: Record<string, unknown> = { per_page: 20 }
+      if (query.trim()) params.search = query
+      const res = await apiFetchCustomers(params)
       customerSearchResults.value = res.data.data.data
     } catch {
       customerSearchResults.value = []
@@ -204,8 +204,20 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
         if (!field.standard_field_code) continue
         const customerKey = CUSTOMER_FIELD_MAP[field.standard_field_code]
         if (!customerKey) continue
-        const val = (customer as Record<string, unknown>)[customerKey]
-        if (val && typeof val === 'string') {
+        let val: string | undefined
+        // 주민번호 앞/뒤 분리 가상 키 처리
+        if (customerKey === 'resident_number_front') {
+          const rrn = customer.resident_number || ''
+          val = rrn.replace(/-/g, '').slice(0, 6) || undefined
+        } else if (customerKey === 'resident_number_back') {
+          const rrn = customer.resident_number || ''
+          const raw = rrn.replace(/-/g, '')
+          val = raw.length > 6 ? raw.slice(6, 13) : undefined
+        } else {
+          const raw = (customer as Record<string, unknown>)[customerKey]
+          val = raw && typeof raw === 'string' ? raw : undefined
+        }
+        if (val) {
           entry.fieldValues[field.form_field_id] = val
           entry.autoFilledFieldIds[field.form_field_id] = true
         }

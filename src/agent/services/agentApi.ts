@@ -1,6 +1,6 @@
 import api from '@shared/api'
 import type {
-  Agent, Customer, Consultation, AgentClaim, Schedule,
+  Agent, Customer, Consultation, AgentClaim, CalendarEvent,
   Performance, DbDistribution, DisclosureObligation, Message,
   SatisfactionSurvey, AgentNotification, DashboardSummary,
   Memo, StatisticsTrend, MessageTemplate,
@@ -12,6 +12,10 @@ import type {
 } from '@shared/types'
 
 const BASE = '/agent'
+
+// ===== Auth =====
+export const changePassword = (data: { current_password: string; new_password: string; new_password_confirmation: string }) =>
+  api.put<ApiResponse<null>>('/auth/change-password', data)
 
 // ===== Dashboard =====
 export const fetchDashboard = () =>
@@ -43,6 +47,15 @@ export const deleteCustomer = (id: string) =>
 // ===== Customer Contracts =====
 export const fetchCustomerContracts = (customerId: string) =>
   api.get<ApiResponse<LaravelPagination<import('../types').Contract>>>(`${BASE}/customers/${customerId}/contracts`)
+
+export const createContract = (customerId: string, data: Partial<import('../types').Contract>) =>
+  api.post<ApiResponse<import('../types').Contract>>(`${BASE}/customers/${customerId}/contracts`, data)
+
+export const updateContract = (customerId: string, contractId: number, data: Partial<import('../types').Contract>) =>
+  api.put<ApiResponse<import('../types').Contract>>(`${BASE}/customers/${customerId}/contracts/${contractId}`, data)
+
+export const deleteContract = (customerId: string, contractId: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/customers/${customerId}/contracts/${contractId}`)
 
 // ===== Customer Memos =====
 export const fetchMemos = (customerId: string) =>
@@ -127,6 +140,10 @@ export const deleteDraft = (id: number) =>
 export const sendAgentClaimFax = (id: number, faxNumber?: string) =>
   api.post<ApiResponse<{ message: string; reference_id?: string }>>(`${BASE}/claims/${id}/send-fax`, { fax_number: faxNumber })
 
+// 팩스 상태 새로고침
+export const refreshFaxStatus = (id: number) =>
+  api.get<ApiResponse<{ fax_status: string; result_message: string; updated: boolean }>>(`${BASE}/claims/${id}/fax-status`)
+
 // 첨부파일 업로드 (파일 업로드이므로 타임아웃 60초)
 export const uploadAgentClaimDocument = (claimId: number, file: File) => {
   const formData = new FormData()
@@ -140,21 +157,30 @@ export const uploadAgentClaimDocument = (claimId: number, file: File) => {
 export const deleteAgentClaimDocument = (claimId: number, docId: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/claims/${claimId}/documents/${docId}`)
 
-// ===== Schedules (Backend 미구현 - Mock용) =====
+// ===== Schedules (캘린더 일정) =====
 export const fetchSchedules = (params?: Record<string, unknown>) =>
-  api.get<{ data: Schedule[] }>(`${BASE}/schedules`, { params })
+  api.get<ApiResponse<LaravelPagination<CalendarEvent>>>(`${BASE}/schedules`, { params })
 
 export const fetchMonthSchedules = (year: number, month: number) =>
-  api.get<{ data: Record<string, Schedule[]> }>(`${BASE}/schedules/month/${year}/${month}`)
+  api.get<ApiResponse<Record<string, CalendarEvent[]>>>(`${BASE}/schedules/month/${year}/${month}`)
 
-export const createSchedule = (data: Partial<Schedule>) =>
-  api.post<{ data: Schedule }>(`${BASE}/schedules`, data)
+export const fetchUpcomingSchedules = (days?: number) =>
+  api.get<ApiResponse<CalendarEvent[]>>(`${BASE}/schedules/upcoming`, { params: days ? { days } : undefined })
 
-export const updateSchedule = (id: number, data: Partial<Schedule>) =>
-  api.put<{ data: Schedule }>(`${BASE}/schedules/${id}`, data)
+export const createSchedule = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<CalendarEvent>>(`${BASE}/schedules`, data)
+
+export const fetchSchedule = (id: number) =>
+  api.get<ApiResponse<CalendarEvent>>(`${BASE}/schedules/${id}`)
+
+export const updateSchedule = (id: number, data: Record<string, unknown>) =>
+  api.put<ApiResponse<CalendarEvent>>(`${BASE}/schedules/${id}`, data)
 
 export const deleteSchedule = (id: number) =>
   api.delete(`${BASE}/schedules/${id}`)
+
+export const toggleScheduleComplete = (id: number) =>
+  api.put<ApiResponse<CalendarEvent>>(`${BASE}/schedules/${id}/toggle-complete`)
 
 // ===== Statistics (Backend 미구현 - Mock용) =====
 export const fetchCurrentStats = () =>
@@ -274,3 +300,10 @@ export const sendBatchFax = (id: number, claimIds?: number[]) =>
     claimIds ? { claim_ids: claimIds } : {},
     { timeout: 120000 },
   )
+
+// ===== FCM Token =====
+export const registerFcmToken = (data: { fcm_token: string; device_info?: string }) =>
+  api.post<ApiResponse<null>>(`${BASE}/fcm-token`, data)
+
+export const deleteFcmToken = (fcm_token: string) =>
+  api.delete<ApiResponse<null>>(`${BASE}/fcm-token`, { data: { fcm_token } })

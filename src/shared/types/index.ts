@@ -142,7 +142,7 @@ export interface FormField {
   field_name: string
   standard_field_code?: string | null
   field_label: string
-  field_type: 'text' | 'date' | 'number' | 'resident_number' | 'phone' | 'textarea' | 'checkbox' | 'radio' | 'consent' | 'signature'
+  field_type: 'text' | 'date' | 'number' | 'resident_number' | 'resident_number_front' | 'resident_number_back' | 'phone' | 'textarea' | 'checkbox' | 'radio' | 'consent' | 'signature'
   field_order: number
   is_required: boolean
   field_options?: FieldOptions | null
@@ -308,7 +308,9 @@ export const FIELD_TYPE_OPTIONS = [
   { value: 'text', label: '텍스트' },
   { value: 'date', label: '날짜' },
   { value: 'number', label: '숫자' },
-  { value: 'resident_number', label: '주민등록번호' },
+  { value: 'resident_number', label: '주민등록번호 (통합)' },
+  { value: 'resident_number_front', label: '주민번호 앞자리 (생년월일)' },
+  { value: 'resident_number_back', label: '주민번호 뒷자리' },
   { value: 'phone', label: '전화번호' },
   { value: 'textarea', label: '여러 줄 텍스트' },
   { value: 'checkbox', label: '체크박스 (다중선택)' },

@@ -62,7 +62,12 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     }
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // 서버 로그아웃 실패해도 클라이언트 정리 진행
+    }
     localStorage.removeItem('agentToken')
     isLoggedIn.value = false
     agent.value = null
