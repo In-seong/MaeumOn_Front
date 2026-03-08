@@ -236,6 +236,6 @@ export const claimApi = {
     api.get<ApiResponse<PaginatedResponse<InsuranceClaim>>>('/admin/claims', { params }),
 
   // 관리자: 청구 상태 변경
-  updateStatus: (id: number, data: { claim_status: string; notes?: string }) =>
+  updateStatus: (id: number, data: { claim_status: string; approved_amount?: number; notes?: string }) =>
     api.put<ApiResponse<InsuranceClaim>>(`/admin/claims/${id}/status`, data),
 }

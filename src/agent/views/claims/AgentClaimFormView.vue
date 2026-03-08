@@ -1058,10 +1058,6 @@ async function handleFileSelect(event: Event) {
     const files = Array.from(input.files)
     const compressed = await compressImages(files)
     for (const file of compressed) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name}은(는) 압축 후에도 10MB를 초과합니다.`)
-        continue
-      }
       attachedFiles.value.push(file)
     }
     input.value = ''

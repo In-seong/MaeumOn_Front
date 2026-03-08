@@ -38,6 +38,35 @@
             </div>
           </CardSection>
 
+          <!-- 보험금 정보 (승인/지급 완료 시 표시) -->
+          <div
+            v-if="claim.claim_status === 'approved' || claim.claim_status === 'paid'"
+            class="mb-4"
+          >
+            <p class="text-[15px] font-semibold text-[#222] mb-2">보험금 정보</p>
+            <CardSection class="!bg-[#F0FFF4] !border-[#BBF7D0]">
+              <div class="flex items-center gap-2 mb-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="text-[15px] font-bold text-[#22C55E]">
+                  {{ claim.claim_status === 'paid' ? '보험금 지급 완료' : '보험금 승인' }}
+                </span>
+              </div>
+              <InfoRow
+                v-if="claim.approved_amount"
+                label="승인 금액"
+                :value="Number(claim.approved_amount).toLocaleString() + '원'"
+                class="font-semibold"
+              />
+              <InfoRow
+                v-if="claim.approval_date"
+                label="승인일"
+                :value="formatDate(claim.approval_date)"
+              />
+            </CardSection>
+          </div>
+
           <!-- 청구 정보 -->
           <div class="mb-4">
             <p class="text-[15px] font-semibold text-[#222] mb-2">청구 정보</p>
