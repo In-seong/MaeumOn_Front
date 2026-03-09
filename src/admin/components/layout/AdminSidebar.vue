@@ -53,6 +53,7 @@ const navGroups: NavGroup[] = [
       { label: '보험사 관리', icon: 'business', to: '/insurance-companies', match: ['/insurance-companies'] },
       { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'] },
       { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims'] },
+      { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'] },
     ],
   },
 ]

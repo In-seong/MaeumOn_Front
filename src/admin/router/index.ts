@@ -181,6 +181,13 @@ const router = createRouter({
       component: () => import('../views/ClaimsView.vue'),
       meta: { requiresAuth: true },
     },
+    // 동의서 관리
+    {
+      path: '/consent-templates',
+      name: 'consent-templates',
+      component: () => import('../views/ConsentTemplateView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

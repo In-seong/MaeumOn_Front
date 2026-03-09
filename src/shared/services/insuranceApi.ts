@@ -239,3 +239,22 @@ export const claimApi = {
   updateStatus: (id: number, data: { claim_status: string; approved_amount?: number; notes?: string }) =>
     api.put<ApiResponse<InsuranceClaim>>(`/admin/claims/${id}/status`, data),
 }
+
+// ============ 동의서 API ============
+export interface ConsentTemplate {
+  consent_template_id: number
+  consent_type: 'unique_id' | 'sensitive' | 'credit'
+  title: string
+  content: string
+  is_active: boolean
+}
+
+export const consentApi = {
+  // 공개: 동의서 목록 조회
+  getAll: () =>
+    api.get<ApiResponse<ConsentTemplate[]>>('/consent-templates'),
+
+  // 관리자: 동의서 수정
+  update: (id: number, data: { title: string; content: string }) =>
+    api.put<ApiResponse<ConsentTemplate>>(`/admin/consent-templates/${id}`, data),
+}

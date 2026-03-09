@@ -339,6 +339,8 @@ import WizardStepBar from '@shared/components/claim/WizardStepBar.vue'
 import ConsentOverlay from '@shared/components/claim/ConsentOverlay.vue'
 import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 import { compressImages } from '@shared/utils/compressImage'
+import { consentApi } from '@shared/services/insuranceApi'
+import type { ConsentTemplate } from '@shared/services/insuranceApi'
 
 const router = useRouter()
 const route = useRoute()
@@ -373,79 +375,25 @@ const STEP_NEXT_TEXT: Record<number, string> = {
   5: '계좌정보 입력하기',
 }
 
-// ===== 앱 고정 동의 항목 =====
+// ===== 동의서 (API에서 가져오기) =====
+const consentTemplates = ref<ConsentTemplate[]>([])
+
 interface ConsentItem {
   id: string
   title: string
   text: string
 }
 
-const CONSENT_ITEMS: ConsentItem[] = [
-  {
-    id: 'privacy',
-    title: '개인(신용)정보 처리 동의',
-    text: `보험금청구 개인정보 수집/이용 동의
-
-(주)뱅크다이어리는 개인정보보호법, 신용정보법, 정보통신망법 등 관련 법령에 따라 이용자의 개인(신용)정보 및 권익을 보호하고 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같이 동의절차를 준수하고 있습니다. 귀하는 수집된 개인(신용)정보의 처리(열람,정정,삭제 등)을 개인정보보호 책임자에게 요구할 수 있습니다.
-
-처리목적:
-보험금청구 서비스 제공
-청구서 서류를 해당 보험회사로 전송 및 청구요청
-각 보험회사에 전송한 청구내용 확인
-
-처리항목:
-이름(계약자, 피보험자, 보험수익자)
-휴대전화번호, 이메일 주소, 은행명, 계좌번호, 예금주명
-
-이용 및 보유기간: 목적 달성 후 3개월 이내 파기
-
-귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 다만 거부할 경우 뱅크다이어리 보험금청구서비스 이용을 할 수 없습니다.`,
-  },
-  {
-    id: 'sensitive',
-    title: '민감정보 및 고유식별정보 처리 동의',
-    text: `보험금청구 고유식별정보 수집/이용동의
-
-(주)뱅크다이어리는 개인정보보호법, 신용정보법, 정보통신망법 등 관련 법령에 따라 이용자의 개인(신용)정보 및 권익을 보호하고 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같이 동의절차를 준수하고 있습니다. 귀하는 수집된 개인(신용)정보의 처리(열람,정정,삭제 등)을 개인정보보호 책임자에게 요구할 수 있습니다.
-
-처리목적:
-보험금청구 서비스 제공
-사용자가 입력한 주민등록번호 혹은 외국인등록번호를 통한 보험금청구 서비스 제공
-
-처리항목:
-고객이 입력한 주민등록번호 혹은 외국인등록번호
-주민등록번호 뒷자리를 보험사로 전달만 하며 별도로 저장하거나 처리하지 않습니다.
-
-이용 및 보유기간: 저장하지 않음
-
-귀하는 고유식별정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 다만 거부할 경우 뱅크다이어리 보험금청구서비스 이용을 할 수 없습니다.
-
-─────────────────────────────
-
-보험금청구 민감정보 수집/이용 동의
-
-(주)뱅크다이어리는 개인정보보호법, 신용정보법, 정보통신망법 등 관련 법령에 따라 이용자의 개인(신용)정보 및 권익을 보호하고 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같이 동의절차를 준수하고 있습니다. 귀하는 수집된 개인(신용)정보의 처리(열람,정정,삭제 등)을 개인정보보호 책임자에게 요구할 수 있습니다.
-
-처리목적:
-보험금청구 서비스 제공
-청구서 서류를 해당 보험회사로 전송 및 청구요청
-각 보험회사에 전송한 청구내용 확인
-
-처리항목:
-사고유형(질병,상해,교통사고 등)
-진단내용, 병명, 진료기록부, 수술확인서, 입퇴원확인서, 진료비영수증, 약제비영수증, 진료비 세부내역서
-
-이용 및 보유기간: 목적 달성 후 3개월 이내 파기
-
-귀하는 민감정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 다만 거부할 경우 뱅크다이어리 보험금청구서비스 이용을 할 수 없습니다.`,
-  },
-]
+const CONSENT_ITEMS = computed<ConsentItem[]>(() =>
+  consentTemplates.value.map(t => ({
+    id: t.consent_type,
+    title: t.title,
+    text: t.content,
+  }))
+)
 
 // 로컬 동의 상태 (폼 필드와 분리)
-const consentAgreed = ref<Record<string, boolean>>({
-  privacy: false,
-  sensitive: false,
-})
+const consentAgreed = ref<Record<string, boolean>>({})
 
 // ===== 자동채움 상태 =====
 const autoFillFromUser = ref(false)
@@ -542,22 +490,26 @@ const otherStep4Fields = computed(() =>
 
 // ===== 동의 → 템플릿 consent 필드 값 동기화 =====
 const allConsentsAgreed = computed(() =>
-  CONSENT_ITEMS.every(item => consentAgreed.value[item.id])
+  CONSENT_ITEMS.value.length > 0 && CONSENT_ITEMS.value.every(item => consentAgreed.value[item.id])
 )
 
 // 동의 상태 변경 시 → 카테고리별로 consent 필드 동기화
 watch(consentAgreed, (agreed) => {
-  const privacyValue = agreed.privacy ? 'agree' : ''
+  // credit(개인신용정보) → consent_privacy 필드
+  const privacyValue = agreed.credit ? 'agree' : ''
   privacyConsentFields.value.forEach(f => {
     claimStore.setFieldValue(f.form_field_id, privacyValue)
   })
 
-  const sensitiveValue = agreed.sensitive ? 'agree' : ''
+  // sensitive(민감정보) + unique_id(고유식별정보) → consent_sensitive 필드
+  const sensitiveValue = (agreed.sensitive && agreed.unique_id) ? 'agree' : ''
   sensitiveConsentFields.value.forEach(f => {
     claimStore.setFieldValue(f.form_field_id, sensitiveValue)
   })
 
-  const legacyValue = (agreed.privacy && agreed.sensitive) ? 'agree' : ''
+  // 레거시 consent 필드 → 전체 동의 시
+  const allAgreed = agreed.credit && agreed.sensitive && agreed.unique_id
+  const legacyValue = allAgreed ? 'agree' : ''
   legacyConsentFields.value.forEach(f => {
     claimStore.setFieldValue(f.form_field_id, legacyValue)
   })
@@ -565,7 +517,7 @@ watch(consentAgreed, (agreed) => {
 
 function toggleAllConsents() {
   const newValue = !allConsentsAgreed.value
-  CONSENT_ITEMS.forEach(item => {
+  CONSENT_ITEMS.value.forEach(item => {
     consentAgreed.value[item.id] = newValue
   })
 }
@@ -982,6 +934,15 @@ function handleHeaderBack() {
 onMounted(async () => {
   loading.value = true
   try {
+    // 동의서 템플릿 로드
+    try {
+      const res = await consentApi.getAll()
+      consentTemplates.value = res.data.data
+      consentTemplates.value.forEach(t => {
+        consentAgreed.value[t.consent_type] = false
+      })
+    } catch { /* 동의서 로드 실패 시 빈 배열 유지 */ }
+
     if (isEditMode.value) {
       await claimStore.fetchClaimDetail(claimId.value)
       const claim = claimStore.currentClaim
@@ -997,18 +958,20 @@ onMounted(async () => {
         // 수정 모드: 카테고리별 consent 필드 상태 복원
         if (privacyConsentFields.value.length > 0 &&
           privacyConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {
-          consentAgreed.value.privacy = true
+          consentAgreed.value.credit = true
         }
         if (sensitiveConsentFields.value.length > 0 &&
           sensitiveConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {
           consentAgreed.value.sensitive = true
+          consentAgreed.value.unique_id = true
         }
         // 레거시 필드만 있는 경우
         if (privacyConsentFields.value.length === 0 && sensitiveConsentFields.value.length === 0 &&
           legacyConsentFields.value.length > 0 &&
           legacyConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {
-          consentAgreed.value.privacy = true
+          consentAgreed.value.credit = true
           consentAgreed.value.sensitive = true
+          consentAgreed.value.unique_id = true
         }
       }
     } else {
