@@ -737,7 +737,16 @@ async function handleStandardFieldClick(sf: StandardField) {
       height: 30,
       font_size: 12,
       font_color: '#000000',
-      field_options: { wizard_step: wizardStep },
+      field_options: sf.type === 'consent'
+        ? {
+            wizard_step: wizardStep,
+            choices: [
+              { label: '동의함', value: 'agree', x: 0, y: 0 },
+              { label: '동의안함', value: 'disagree', x: 0, y: 0 },
+            ],
+            check_font_size: 14,
+          }
+        : { wizard_step: wizardStep },
     })
   } catch (e: any) {
     alert(e.response?.data?.message || '표준 필드 추가에 실패했습니다.')
@@ -810,6 +819,17 @@ watch(() => store.selectedField, (field) => {
     editForm.field_options = field.field_options
       ? JSON.parse(JSON.stringify(field.field_options))
       : null
+    // consent 필드인데 choices가 없으면 기본 choices 자동 생성
+    if (field.field_type === 'consent' && (!editForm.field_options || !editForm.field_options.choices)) {
+      editForm.field_options = {
+        ...editForm.field_options,
+        choices: [
+          { label: '동의함', value: 'agree', x: 0, y: 0 },
+          { label: '동의안함', value: 'disagree', x: 0, y: 0 },
+        ],
+        check_font_size: editForm.field_options?.check_font_size || 14,
+      }
+    }
     editWizardStep.value = field.field_options?.wizard_step || 2
   }
 }, { immediate: true })
