@@ -649,15 +649,12 @@ const standardFields = ref<StandardField[]>([])
 const groupedStandardFields = ref<Record<string, StandardField[]>>({})
 const loadingStandardFields = ref(false)
 
-// 전체 페이지에서 이미 배치된 표준 필드 코드 집합
+// 전체 필드에서 이미 배치된 표준 필드 코드 집합 (store.fields 기반)
 const placedStandardFieldCodes = computed(() => {
   const codes = new Set<string>()
-  for (const page of store.sortedPages) {
-    const fields = page.form_fields || []
-    for (const f of fields) {
-      if (f.standard_field_code) {
-        codes.add(f.standard_field_code)
-      }
+  for (const f of store.sortedFields) {
+    if (f.standard_field_code) {
+      codes.add(f.standard_field_code)
     }
   }
   return codes
@@ -677,14 +674,12 @@ async function fetchStandardFields() {
   }
 }
 
-// 표준 필드 코드별 배치 횟수
+// 표준 필드 코드별 배치 횟수 (store.fields 기반)
 const standardFieldPlacedCount = computed(() => {
   const counts: Record<string, number> = {}
-  for (const page of store.sortedPages) {
-    for (const f of (page.form_fields || [])) {
-      if (f.standard_field_code) {
-        counts[f.standard_field_code] = (counts[f.standard_field_code] || 0) + 1
-      }
+  for (const f of store.sortedFields) {
+    if (f.standard_field_code) {
+      counts[f.standard_field_code] = (counts[f.standard_field_code] || 0) + 1
     }
   }
   return counts
@@ -696,13 +691,9 @@ async function handleStandardFieldClick(sf: StandardField) {
     const count = standardFieldPlacedCount.value[sf.code] || 0
     if (!confirm(`"${sf.label}" 필드가 이미 ${count}개 배치되어 있습니다.\n현재 페이지에 추가로 배치하시겠습니까?`)) {
       // 취소 시 기존 필드 하이라이트
-      const target = store.sortedPages
-        .flatMap(p => p.form_fields || [])
-        .find(f => f.standard_field_code === sf.code)
+      const target = store.sortedFields.find(f => f.standard_field_code === sf.code)
       if (target) {
-        const targetPage = store.sortedPages.find(p =>
-          (p.form_fields || []).some(f => f.form_field_id === target.form_field_id)
-        )
+        const targetPage = store.sortedPages.find(p => p.form_page_id === target.form_page_id)
         if (targetPage && targetPage.form_page_id !== store.currentPage?.form_page_id) {
           store.selectPage(targetPage)
         }
