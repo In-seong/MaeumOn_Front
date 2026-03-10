@@ -802,9 +802,32 @@ const editForm = reactive({
   field_options: null as FieldOptions | null,
 })
 
+// 이전 선택 필드의 편집 내용을 로컬 store에 반영 (서버 저장 전이라도 유지)
+let previousFieldId: number | null = null
+
+function syncEditFormToStore() {
+  if (previousFieldId === null) return
+  const idx = store.sortedFields.findIndex(f => f.form_field_id === previousFieldId)
+  if (idx === -1) return
+  const storeField = store.sortedFields[idx]
+  if (!storeField) return
+  // field_options (choices 위치 등)를 로컬 store에 반영
+  if (editForm.field_options) {
+    storeField.field_options = JSON.parse(JSON.stringify(editForm.field_options))
+  }
+  storeField.x_position = editForm.x_position
+  storeField.y_position = editForm.y_position
+  storeField.width = editForm.width
+  storeField.height = editForm.height
+}
+
 // 선택된 필드 변경 감지
 watch(() => store.selectedField, (field) => {
+  // 이전 필드 편집 내용 보존
+  syncEditFormToStore()
+
   if (field) {
+    previousFieldId = field.form_field_id
     editForm.field_name = field.field_name
     editForm.field_label = field.field_label
     editForm.field_type = field.field_type
