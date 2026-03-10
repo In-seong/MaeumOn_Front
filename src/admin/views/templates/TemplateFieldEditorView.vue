@@ -720,7 +720,8 @@ async function handleStandardFieldClick(sf: StandardField) {
 
   // 위저드 스텝 자동 결정 (카테고리 기반)
   let wizardStep = 3
-  if (sf.category === '사고/청구 정보') wizardStep = 2
+  if (sf.category === '동의') wizardStep = 1
+  else if (sf.category === '사고/청구 정보') wizardStep = 2
   else if (sf.category === '계약자 정보') wizardStep = 3
   else if (sf.category === '피보험자 정보' || sf.category === '수익자 정보') wizardStep = 4
   else if (sf.category === '계좌 정보') wizardStep = 5

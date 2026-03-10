@@ -560,17 +560,24 @@ const templateConsentFields = computed(() =>
   allFieldsSorted.value.filter(f => f.field_type === 'consent')
 )
 
-// 카테고리별 consent 필드 분류
+// 카테고리별 consent 필드 분류 (standard_field_code 또는 field_name 기반)
 const privacyConsentFields = computed(() =>
-  templateConsentFields.value.filter(f => f.field_name.startsWith('consent_privacy'))
+  templateConsentFields.value.filter(f =>
+    f.standard_field_code === 'CONSENT_CREDIT' || f.field_name.startsWith('consent_privacy') || f.field_name.startsWith('consent_credit')
+  )
 )
 const sensitiveConsentFields = computed(() =>
-  templateConsentFields.value.filter(f => f.field_name.startsWith('consent_sensitive'))
+  templateConsentFields.value.filter(f =>
+    f.standard_field_code === 'CONSENT_SENSITIVE' || f.standard_field_code === 'CONSENT_UNIQUE_ID' ||
+    f.field_name.startsWith('consent_sensitive') || f.field_name.startsWith('consent_unique_id')
+  )
 )
 // 기존 레거시 (카테고리 미지정) consent 필드
 const legacyConsentFields = computed(() =>
   templateConsentFields.value.filter(f =>
-    !f.field_name.startsWith('consent_privacy') && !f.field_name.startsWith('consent_sensitive')
+    !f.standard_field_code?.startsWith('CONSENT_') &&
+    !f.field_name.startsWith('consent_privacy') && !f.field_name.startsWith('consent_sensitive') &&
+    !f.field_name.startsWith('consent_credit') && !f.field_name.startsWith('consent_unique_id')
   )
 )
 
