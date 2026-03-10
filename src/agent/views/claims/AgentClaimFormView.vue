@@ -122,7 +122,7 @@
                           <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
                         </div>
                       </div>
-                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
                     </template>
                   </div>
                 </CardSection>
@@ -160,7 +160,7 @@
                           <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
                         </div>
                       </div>
-                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
                     </template>
                   </div>
                 </CardSection>
@@ -193,7 +193,7 @@
                           <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
                         </div>
                       </div>
-                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                      <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
                     </template>
                   </div>
                 </CardSection>
@@ -231,7 +231,7 @@
                         <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
                       </div>
                     </div>
-                    <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
+                    <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
                   </template>
                 </div>
               </CardSection>
@@ -300,7 +300,7 @@
                       v-else
                       :field="field"
                       :model-value="claimStore.fieldValues[field.form_field_id] || ''"
-                      @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)"
+                      @update:model-value="setFieldValueWithSync(field, $event)"
                       @format-input="formatFieldInput"
                     />
                   </template>
@@ -581,10 +581,50 @@ const legacyConsentFields = computed(() =>
   )
 )
 
-// consent 제외한 일반 필드 (위저드 UI 표시용)
-const wizardDisplayFields = computed(() =>
-  allFieldsSorted.value.filter(f => f.field_type !== 'consent')
-)
+// consent 제외 + 같은 standard_field_code 중복 제거 (첫 번째만 표시)
+const wizardDisplayFields = computed(() => {
+  const seen = new Set<string>()
+  return allFieldsSorted.value.filter(f => {
+    if (f.field_type === 'consent') return false
+    if (f.standard_field_code) {
+      if (seen.has(f.standard_field_code)) return false
+      seen.add(f.standard_field_code)
+    }
+    return true
+  })
+})
+
+// 표준 필드 값 동기화: 같은 standard_field_code를 가진 모든 필드에 동일 값 세팅
+function setFieldValueWithSync(field: FormField, value: string) {
+  claimStore.setFieldValue(field.form_field_id, value)
+  // 서명은 각 위치마다 다를 수 있으므로 동기화하지 않음
+  if (field.standard_field_code && field.field_type !== 'signature') {
+    for (const f of allFieldsSorted.value) {
+      if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
+        claimStore.setFieldValue(f.form_field_id, value)
+      }
+    }
+  }
+}
+
+// 모든 표준 필드 중복값 동기화 (자동채움 후 호출)
+function syncDuplicateStandardFields() {
+  const codeToValue = new Map<string, string>()
+  // 값이 있는 첫 번째 필드를 기준으로
+  for (const f of allFieldsSorted.value) {
+    if (f.standard_field_code && f.field_type !== 'signature' && !codeToValue.has(f.standard_field_code)) {
+      const val = claimStore.fieldValues[f.form_field_id]
+      if (val) codeToValue.set(f.standard_field_code, val)
+    }
+  }
+  // 나머지 동일 코드 필드에 동기화
+  for (const f of allFieldsSorted.value) {
+    if (f.standard_field_code && f.field_type !== 'signature' && codeToValue.has(f.standard_field_code)) {
+      const val = codeToValue.get(f.standard_field_code)!
+      claimStore.setFieldValue(f.form_field_id, val)
+    }
+  }
+}
 
 // ===== 필드 -> 위저드 스텝 매핑 =====
 function getFieldWizardStep(field: FormField): number {
@@ -853,6 +893,8 @@ function handleAutoFillFromCustomer() {
       }
     })
   }
+  // 자동채움 후 중복 표준필드 동기화
+  syncDuplicateStandardFields()
 }
 
 // ===== 자동채움: Step 4 (계약자와 동일) =====
@@ -881,6 +923,8 @@ function autoFillFieldsFromStep3(fields: FormField[], fill: boolean) {
       }
     })
   }
+  // 자동채움 후 중복 표준필드 동기화
+  syncDuplicateStandardFields()
 }
 
 function handleAutoFillInsured() {

@@ -179,8 +179,15 @@
             캔버스를 클릭하여 '{{ editForm.field_options?.choices?.[placingChoiceIndex]?.label || '선택지' }}' 위치를 지정하세요
             <button @click="cancelPlacing" class="ml-3 underline">취소</button>
           </div>
+          <div
+            v-if="placingDatePartIndex !== null"
+            class="absolute top-0 left-0 right-0 bg-blue-500 text-white text-center py-2 text-[13px] z-20"
+          >
+            캔버스를 클릭하여 '{{ editForm.field_options?.date_parts?.[placingDatePartIndex]?.label || '날짜' }}' 위치를 지정하세요
+            <button @click="cancelPlacing" class="ml-3 underline">취소</button>
+          </div>
 
-          <!-- 선택지 위치 마커 -->
+          <!-- 선택지 위치 마커 (checkbox/radio/consent) -->
           <div
             v-if="store.selectedField && ['checkbox', 'radio', 'consent'].includes(editForm.field_type) && editForm.field_options?.choices"
             v-for="(choice, idx) in editForm.field_options.choices"
@@ -194,6 +201,23 @@
           >
             <div class="border-2 border-dashed border-green-500 bg-green-500/20 px-2 py-0.5 rounded text-[11px] text-green-700 font-bold whitespace-nowrap select-none">
               V {{ choice.label }}
+            </div>
+          </div>
+
+          <!-- 날짜 분리 마커 (date) -->
+          <div
+            v-if="store.selectedField && editForm.field_type === 'date' && editForm.field_options?.date_parts"
+            v-for="(dp, idx) in editForm.field_options.date_parts"
+            :key="'dp-' + idx"
+            class="absolute z-10 cursor-move"
+            :style="{
+              left: dp.x + 'px',
+              top: dp.y + 'px',
+            }"
+            @mousedown.stop="startDatePartDrag($event, idx)"
+          >
+            <div class="border-2 border-dashed border-blue-500 bg-blue-500/20 px-2 py-0.5 rounded text-[11px] text-blue-700 font-bold whitespace-nowrap select-none">
+              {{ dp.label }}
             </div>
           </div>
         </div>
@@ -431,6 +455,52 @@
               <!-- 동의 텍스트 안내 (consent만) -->
               <div v-if="editForm.field_type === 'consent'" class="border-t border-[#F0F0F0] pt-3">
                 <p class="text-[11px] text-[#999]">동의서 내용은 앱에서 자체 제공됩니다. 여기서는 동의/미동의 체크 표기 좌표만 지정하세요.</p>
+              </div>
+            </div>
+
+            <!-- 날짜 분리 설정 (date) -->
+            <div v-if="editForm.field_type === 'date'" class="space-y-3">
+              <div class="border-t border-[#F0F0F0] pt-3">
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-[8px] mb-3">
+                  <p class="text-[12px] text-blue-700 font-medium">날짜 분리 필드</p>
+                  <p class="text-[11px] text-blue-600 mt-0.5">년/월/일을 각각의 좌표에 배치합니다.</p>
+                </div>
+
+                <div v-if="editForm.field_options" class="mb-2">
+                  <label class="block text-[12px] text-[#888] mb-1">연도 형식</label>
+                  <select
+                    v-model="editForm.field_options.date_format"
+                    class="w-full px-2 py-1 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[6px] text-[12px] text-[#333]"
+                  >
+                    <option value="full_year">전체 (2026)</option>
+                    <option value="short_year">뒤 2자리 (26) — 양식에 '20' 인쇄됨</option>
+                  </select>
+                </div>
+
+                <h4 class="text-[12px] font-medium text-[#888] mb-2">년/월/일 위치</h4>
+                <div v-for="(dp, idx) in editForm.field_options?.date_parts" :key="'dp-edit-' + idx" class="p-2 bg-[#FAFAFA] rounded-[8px] mb-2">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] text-blue-600 font-medium">{{ dp.label }}</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-1">
+                    <input
+                      v-model.number="dp.x"
+                      type="number"
+                      placeholder="X"
+                      class="px-2 py-1 bg-white border border-[#E8E8E8] rounded-[6px] text-[11px]"
+                    />
+                    <input
+                      v-model.number="dp.y"
+                      type="number"
+                      placeholder="Y"
+                      class="px-2 py-1 bg-white border border-[#E8E8E8] rounded-[6px] text-[11px]"
+                    />
+                    <button
+                      @click="startPlacingDatePart(idx)"
+                      class="px-1 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-[6px] text-[11px] hover:bg-blue-100"
+                    >위치 지정</button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -746,6 +816,16 @@ async function handleStandardFieldClick(sf: StandardField) {
             ],
             check_font_size: 14,
           }
+        : sf.type === 'date'
+        ? {
+            wizard_step: wizardStep,
+            date_format: 'full_year' as const,
+            date_parts: [
+              { label: '년', part: 'year' as const, x: 0, y: 0 },
+              { label: '월', part: 'month' as const, x: 0, y: 0 },
+              { label: '일', part: 'day' as const, x: 0, y: 0 },
+            ],
+          }
         : { wizard_step: wizardStep },
     })
   } catch (e: any) {
@@ -766,6 +846,12 @@ const isDraggingChoice = ref(false)
 const dragChoiceIndex = ref<number | null>(null)
 const dragChoiceOffset = { x: 0, y: 0 }
 const justFinishedDrag = ref(false)
+
+// 날짜 분리 마커 상태
+const placingDatePartIndex = ref<number | null>(null)
+const isDraggingDatePart = ref(false)
+const dragDatePartIndex = ref<number | null>(null)
+const dragDatePartOffset = { x: 0, y: 0 }
 
 // 드래그 상태
 const isDragging = ref(false)
@@ -853,6 +939,18 @@ watch(() => store.selectedField, (field) => {
         check_font_size: editForm.field_options?.check_font_size || 14,
       }
     }
+    // date 필드인데 date_parts가 없으면 기본 파트 자동 생성
+    if (field.field_type === 'date' && (!editForm.field_options || !editForm.field_options.date_parts)) {
+      editForm.field_options = {
+        ...editForm.field_options,
+        date_format: editForm.field_options?.date_format || 'full_year',
+        date_parts: [
+          { label: '년', part: 'year', x: 0, y: 0 },
+          { label: '월', part: 'month', x: 0, y: 0 },
+          { label: '일', part: 'day', x: 0, y: 0 },
+        ],
+      }
+    }
     editWizardStep.value = field.field_options?.wizard_step || 2
   }
 }, { immediate: true })
@@ -907,6 +1005,22 @@ function startPlacingChoice(index: number) {
 
 function cancelPlacing() {
   placingChoiceIndex.value = null
+  placingDatePartIndex.value = null
+}
+
+function startPlacingDatePart(index: number) {
+  placingDatePartIndex.value = index
+}
+
+function startDatePartDrag(event: MouseEvent, index: number) {
+  if (!editForm.field_options?.date_parts || !canvasRef.value) return
+  const dp = editForm.field_options.date_parts[index]
+  if (!dp) return
+  isDraggingDatePart.value = true
+  dragDatePartIndex.value = index
+  const rect = canvasRef.value.getBoundingClientRect()
+  dragDatePartOffset.x = event.clientX - rect.left - dp.x
+  dragDatePartOffset.y = event.clientY - rect.top - dp.y
 }
 
 function handleCanvasClick(event: MouseEvent) {
@@ -915,6 +1029,7 @@ function handleCanvasClick(event: MouseEvent) {
     justFinishedDrag.value = false
     return
   }
+  // 선택지 배치 모드
   if (placingChoiceIndex.value !== null && canvasRef.value && editForm.field_options?.choices) {
     const rect = canvasRef.value.getBoundingClientRect()
     const x = Math.round(event.clientX - rect.left)
@@ -925,6 +1040,19 @@ function handleCanvasClick(event: MouseEvent) {
       choice.y = y
     }
     placingChoiceIndex.value = null
+    return
+  }
+  // 날짜 파트 배치 모드
+  if (placingDatePartIndex.value !== null && canvasRef.value && editForm.field_options?.date_parts) {
+    const rect = canvasRef.value.getBoundingClientRect()
+    const x = Math.round(event.clientX - rect.left)
+    const y = Math.round(event.clientY - rect.top)
+    const dp = editForm.field_options.date_parts[placingDatePartIndex.value]
+    if (dp) {
+      dp.x = x
+      dp.y = y
+    }
+    placingDatePartIndex.value = null
     return
   }
   store.selectField(null)
@@ -1187,6 +1315,19 @@ function handleMouseMove(event: MouseEvent) {
     return
   }
 
+  // 날짜 파트 드래그 처리
+  if (isDraggingDatePart.value && dragDatePartIndex.value !== null && canvasRef.value && editForm.field_options?.date_parts) {
+    const rect = canvasRef.value.getBoundingClientRect()
+    const x = event.clientX - rect.left - dragDatePartOffset.x
+    const y = event.clientY - rect.top - dragDatePartOffset.y
+    const dp = editForm.field_options.date_parts[dragDatePartIndex.value]
+    if (dp) {
+      dp.x = Math.max(0, Math.round(x))
+      dp.y = Math.max(0, Math.round(y))
+    }
+    return
+  }
+
   if (!dragTarget.value) return
 
   if (isDragging.value && canvasRef.value) {
@@ -1233,6 +1374,12 @@ function handleMouseUp() {
   if (isDraggingChoice.value) {
     isDraggingChoice.value = false
     dragChoiceIndex.value = null
+    justFinishedDrag.value = true
+    return
+  }
+  if (isDraggingDatePart.value) {
+    isDraggingDatePart.value = false
+    dragDatePartIndex.value = null
     justFinishedDrag.value = true
     return
   }

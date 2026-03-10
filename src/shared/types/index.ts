@@ -117,12 +117,22 @@ export interface FieldChoice {
   y: number
 }
 
+// 날짜 분리 파트 타입
+export interface DatePart {
+  label: string   // '년', '월', '일'
+  part: 'year' | 'month' | 'day'
+  x: number
+  y: number
+}
+
 // 필드 옵션 타입
 export interface FieldOptions {
   choices?: FieldChoice[]
   check_font_size?: number
   consent_text?: string
   wizard_step?: number  // 1~5, 명시적 위저드 스텝 지정
+  date_format?: 'full_year' | 'short_year'  // 2026 vs 26
+  date_parts?: DatePart[]  // 날짜 분리 좌표 (년/월/일)
 }
 
 // 표준 필드 타입 (백엔드 상수 정의)
