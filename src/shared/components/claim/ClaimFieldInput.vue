@@ -45,7 +45,7 @@
       class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
-    <div v-else-if="field.field_type === 'resident_number'" class="flex items-center gap-2">
+    <div v-else-if="field.field_type === 'resident_number'" class="flex items-center gap-2 w-full min-w-0">
       <input
         type="text"
         inputmode="numeric"
@@ -55,9 +55,9 @@
         :required="field.is_required"
         maxlength="6"
         ref="residentFrontRef"
-        class="flex-1 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+        class="flex-1 min-w-0 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
       />
-      <span class="text-[18px] text-[#999] font-bold">-</span>
+      <span class="text-[18px] text-[#999] font-bold shrink-0">-</span>
       <input
         type="password"
         inputmode="numeric"
@@ -67,7 +67,7 @@
         :required="field.is_required"
         maxlength="7"
         ref="residentBackRef"
-        class="flex-1 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+        class="flex-1 min-w-0 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
       />
     </div>
 
