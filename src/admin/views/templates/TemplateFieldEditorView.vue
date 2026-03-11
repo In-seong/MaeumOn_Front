@@ -785,7 +785,7 @@ async function handleStandardFieldClick(sf: StandardField) {
   else if (sf.category === '사고/청구 정보') wizardStep = 2
   else if (sf.category === '계약자 정보') wizardStep = 3
   else if (sf.category === '피보험자 정보' || sf.category === '수익자 정보') wizardStep = 4
-  else if (sf.category === '계좌 정보') wizardStep = 5
+  else if (sf.category === '계좌 정보' || sf.category === '서명') wizardStep = 5
 
   // 중복 필드는 field_name에 suffix 추가 (unique 제약 대응)
   const existingCount = standardFieldPlacedCount.value[sf.code] || 0

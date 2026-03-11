@@ -285,7 +285,7 @@
                           <ClaimFieldInput
                             :field="field"
                             :model-value="currentEntry.fieldValues[field.form_field_id] || ''"
-                            @update:model-value="batchStore.setActiveFieldValue(field.form_field_id, $event)"
+                            @update:model-value="setFieldValueWithSync(field, $event)"
                             @format-input="formatFieldInput"
                           />
                         </div>
@@ -570,6 +570,7 @@ const activeInnerSteps = computed(() => {
   const steps = new Set<number>()
   steps.add(1) // 약관은 항상 표시
   for (const f of fields) {
+    if (f.field_type === 'consent') continue // consent는 step 1에서 일괄 처리
     const step = getFieldWizardStep(f)
     steps.add(step)
   }
@@ -585,8 +586,33 @@ const maxInnerStep = computed(() => {
 const currentInnerStepFields = computed(() => {
   if (!currentEntry.value?.claimForm) return []
   const fields = getAllFieldsForEntry(currentEntry.value)
-  return fields.filter((f) => getFieldWizardStep(f) === innerStep.value)
+  // consent 제외 + 같은 standard_field_code 중복 제거 (첫 번째만 표시)
+  const seen = new Set<string>()
+  return fields.filter((f) => {
+    if (f.field_type === 'consent') return false
+    if (f.standard_field_code) {
+      if (seen.has(f.standard_field_code)) return false
+      seen.add(f.standard_field_code)
+    }
+    return getFieldWizardStep(f) === innerStep.value
+  })
 })
+
+// 표준 필드 값 동기화: 같은 standard_field_code를 가진 모든 필드에 동일 값 세팅
+function setFieldValueWithSync(field: FormField, value: string) {
+  const entry = currentEntry.value
+  if (!entry) return
+  batchStore.setActiveFieldValue(field.form_field_id, value)
+  // 같은 standard_field_code를 가진 다른 필드들에도 동기화
+  if (field.standard_field_code && field.field_type !== 'signature') {
+    const allFields = getAllFieldsForEntry(entry)
+    for (const f of allFields) {
+      if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
+        batchStore.setActiveFieldValue(f.form_field_id, value)
+      }
+    }
+  }
+}
 
 const canProceedMain = computed(() => {
   if (batchStore.loading) return false
@@ -858,6 +884,9 @@ function getAllFieldsForEntry(entry: { claimForm: import('@shared/types').ClaimF
 function getFieldWizardStep(field: FormField): number {
   // 명시적 wizard_step 지정 시 사용
   if (field.field_options?.wizard_step) return field.field_options.wizard_step
+
+  // 서명 필드는 항상 계좌(마지막) 스텝
+  if (field.field_type === 'signature') return 5
 
   // field_name prefix 기반 추론
   const name = field.field_name.toLowerCase()

@@ -629,6 +629,8 @@ function syncDuplicateStandardFields() {
 // ===== 필드 -> 위저드 스텝 매핑 =====
 function getFieldWizardStep(field: FormField): number {
   if (field.field_options?.wizard_step) return field.field_options.wizard_step
+  // 서명 필드는 항상 계좌(마지막) 스텝
+  if (field.field_type === 'signature') return 5
   const name = field.field_name.toLowerCase()
   if (name.startsWith('contractor_')) return 3
   if (name.startsWith('insured_') || name.startsWith('beneficiary_')) return 4
