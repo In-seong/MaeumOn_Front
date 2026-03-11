@@ -882,11 +882,11 @@ function getAllFieldsForEntry(entry: { claimForm: import('@shared/types').ClaimF
 }
 
 function getFieldWizardStep(field: FormField): number {
+  // 서명 필드는 DB에 저장된 wizard_step 무시하고 항상 마지막 스텝
+  if (field.field_type === 'signature') return 5
+
   // 명시적 wizard_step 지정 시 사용
   if (field.field_options?.wizard_step) return field.field_options.wizard_step
-
-  // 서명 필드는 항상 계좌(마지막) 스텝
-  if (field.field_type === 'signature') return 5
 
   // field_name prefix 기반 추론
   const name = field.field_name.toLowerCase()
