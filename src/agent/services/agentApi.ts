@@ -3,6 +3,7 @@ import type {
   Agent, Customer, Consultation, AgentClaim, CalendarEvent,
   Performance, DbDistribution, DisclosureObligation, Message,
   SatisfactionSurvey, AgentNotification, DashboardSummary,
+  DashboardTask,
   Memo, StatisticsTrend, MessageTemplate,
   BatchClaim,
   ApiResponse, LaravelPagination,
@@ -20,6 +21,10 @@ export const changePassword = (data: { current_password: string; new_password: s
 // ===== Dashboard =====
 export const fetchDashboard = () =>
   api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`)
+
+// ===== Today Tasks (오늘의 할일) =====
+export const fetchTodayTasks = () =>
+  api.get<ApiResponse<DashboardTask[]>>(`${BASE}/dashboard/today-tasks`)
 
 // ===== Profile =====
 export const fetchAgentProfile = () =>
@@ -115,6 +120,12 @@ export const updateAgentClaim = (id: number, data: {
 }) =>
   api.put<ApiResponse<InsuranceClaim>>(`${BASE}/claims/${id}`, data, { timeout: 120000 })
 
+// 수익자 정보 변경 (pending/processing 상태에서 가능)
+export const updateBeneficiary = (id: number, data: {
+  fields: Array<{ form_field_id: number; field_value: string }>
+}) =>
+  api.put<ApiResponse<InsuranceClaim>>(`${BASE}/claims/${id}/beneficiary`, data, { timeout: 120000 })
+
 // ===== Draft (임시저장) =====
 export const saveDraft = (data: {
   customer_id?: string
@@ -203,12 +214,24 @@ export const processDbDistribution = (id: number, data: { notes?: string }) =>
 export const sendMessage = (data: {
   receiver_id: string
   message_type: string
-  phone_number: string
   message_content: string
-  image_url?: string
+  image?: File | null
   scheduled_at?: string
-}) =>
-  api.post<ApiResponse<Message>>(`${BASE}/messages`, data)
+}) => {
+  const formData = new FormData()
+  formData.append('receiver_id', data.receiver_id)
+  formData.append('message_type', data.message_type)
+  formData.append('message_content', data.message_content)
+  if (data.image) {
+    formData.append('image', data.image)
+  }
+  if (data.scheduled_at) {
+    formData.append('scheduled_at', data.scheduled_at)
+  }
+  return api.post<ApiResponse<Message>>(`${BASE}/messages`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
 
 export const fetchMessageHistory = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<Message>>>(`${BASE}/messages`, { params })

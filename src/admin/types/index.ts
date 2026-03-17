@@ -161,6 +161,45 @@ export interface AdminSentNotification {
   created_at?: string
 }
 
+// 상담 타입
+export interface AdminConsultation {
+  consultation_id: number
+  customer_id: string
+  assignee_id: string
+  assignee_type: string
+  consultation_type?: string
+  consultation_date?: string
+  consultation_content?: string
+  consultation_answer?: string
+  consultation_status?: string
+  customer_name?: string
+  customer_phone?: string
+  created_at?: string
+  updated_at?: string
+  customer?: Customer
+}
+
+// 배치 청구 타입
+export interface AdminBatchClaim {
+  batch_claim_id: number
+  customer_id: string
+  agent_id: string
+  batch_status: string
+  batch_status_label?: string
+  total_count: number
+  completed_count: number
+  notes?: string
+  claims_count?: number
+  customer?: Customer
+  agent?: {
+    agent_id: string
+    name: string
+    phone?: string
+  }
+  created_at?: string
+  updated_at?: string
+}
+
 // 대시보드 요약
 export interface DashboardSummary {
   total_customers: number

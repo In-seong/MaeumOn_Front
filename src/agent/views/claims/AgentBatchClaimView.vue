@@ -28,16 +28,13 @@
               "
               @click="currentStep > s.step ? (currentStep = s.step) : undefined"
             >
-              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px]"
-                :class="currentStep > s.step ? 'bg-[#FF7B22] text-white' : ''"
-              >
-                <template v-if="currentStep > s.step">
+              <template v-if="currentStep > s.step">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center bg-[#FF7B22] text-white">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                </template>
-                <template v-else>{{ s.step }}</template>
-              </span>
+                </span>
+              </template>
               {{ s.label }}
             </button>
           </div>
@@ -245,19 +242,86 @@
                 {{ INNER_STEP_TITLES[innerStep] || '' }}
               </p>
 
+              <!-- 고객 정보와 동일 체크박스 (innerStep 3~5에서 매핑 가능한 필드가 있을 때) -->
+              <div
+                v-if="hasCustomerMappableFields"
+                class="mb-3 rounded-[12px] bg-[#FFF0E5] border border-[#FFD4AD] px-4 py-3"
+              >
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <div
+                    class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-all"
+                    :class="isAutoFillChecked
+                      ? 'bg-[#FF7B22] border-[#FF7B22]'
+                      : 'bg-white border-[#CCCCCC]'
+                    "
+                  >
+                    <svg v-if="isAutoFillChecked" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <input
+                    type="checkbox"
+                    class="hidden"
+                    :checked="isAutoFillChecked"
+                    @change="handleAutoFillToggle(innerStep, ($event.target as HTMLInputElement).checked)"
+                  />
+                  <div>
+                    <span class="text-[13px] font-semibold text-[#333]">고객 정보와 동일</span>
+                    <p class="text-[11px] text-[#888] mt-0.5">{{ batchStore.selectedCustomer?.name }}님의 정보로 자동 입력합니다</p>
+                  </div>
+                </label>
+              </div>
+
               <!-- 필드 렌더링 -->
               <CardSection class="mb-4">
                 <!-- Step 1: 약관 동의 -->
                 <template v-if="innerStep === 1">
-                  <div class="flex flex-col items-center justify-center py-6 text-center">
-                    <div class="w-12 h-12 rounded-full bg-[#FFF0E5] flex items-center justify-center mb-3">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 11l3 3L22 4" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <p class="text-[14px] text-[#666]">약관 동의는 최종 제출 시 일괄 처리됩니다</p>
+                  <div v-if="consentFields.length === 0" class="py-6 text-center">
+                    <p class="text-[13px] text-[#999]">이 양식에 동의 항목이 없습니다</p>
                     <p class="text-[12px] text-[#999] mt-1">다음 단계로 이동하여 필드를 입력해주세요</p>
+                  </div>
+                  <div v-else class="flex flex-col gap-3">
+                    <p class="text-[13px] text-[#666] mb-1">아래 항목에 동의해주세요. 대리 청구 시 고객 동의를 확인한 것으로 간주됩니다.</p>
+                    <div v-for="field in consentFields" :key="field.form_field_id">
+                      <label class="flex items-start gap-2.5 cursor-pointer p-3 rounded-[10px] border transition-all"
+                        :class="currentEntry?.fieldValues[field.form_field_id] === 'agree'
+                          ? 'border-[#FF7B22] bg-[#FFF8F3]'
+                          : 'border-[#E8E8E8] bg-white'"
+                      >
+                        <div
+                          class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all"
+                          :class="currentEntry?.fieldValues[field.form_field_id] === 'agree'
+                            ? 'bg-[#FF7B22] border-[#FF7B22]'
+                            : 'bg-white border-[#CCCCCC]'"
+                        >
+                          <svg v-if="currentEntry?.fieldValues[field.form_field_id] === 'agree'" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <input
+                          type="checkbox"
+                          class="hidden"
+                          :checked="currentEntry?.fieldValues[field.form_field_id] === 'agree'"
+                          @change="setConsentValueWithSync(field, ($event.target as HTMLInputElement).checked ? 'agree' : '')"
+                        />
+                        <div class="flex-1">
+                          <span class="text-[13px] font-medium text-[#333]">{{ field.field_label }}</span>
+                          <span v-if="field.is_required" class="text-[#FF0000] ml-0.5">*</span>
+                        </div>
+                      </label>
+                    </div>
+                    <!-- 전체 동의 -->
+                    <button
+                      v-if="consentFields.length > 1"
+                      type="button"
+                      class="w-full py-2.5 rounded-[10px] text-[13px] font-semibold transition-all"
+                      :class="consentFields.every(f => currentEntry?.fieldValues[f.form_field_id] === 'agree')
+                        ? 'bg-[#FF7B22] text-white'
+                        : 'border border-[#E0E0E0] text-[#555]'"
+                      @click="handleToggleAllConsent()"
+                    >
+                      전체 동의
+                    </button>
                   </div>
                 </template>
 
@@ -268,7 +332,33 @@
                   </div>
                   <div v-else class="flex flex-col gap-4">
                     <template v-for="field in currentInnerStepFields" :key="field.form_field_id">
-                      <div class="relative">
+                      <!-- 서명 필드: 캔버스 직접 렌더링 -->
+                      <div v-if="field.field_type === 'signature'">
+                        <label class="block text-[13px] font-medium text-[#888] mb-1.5">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <div v-if="!currentEntry.fieldValues[field.form_field_id]?.startsWith('data:image/')">
+                          <canvas
+                            :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
+                            class="w-full h-32 border border-[#E8E8E8] rounded-[12px] bg-white touch-none"
+                            @mousedown="startSignatureDraw(field.form_field_id, $event)"
+                            @mousemove="drawSignature($event)"
+                            @mouseup="endSignatureDraw"
+                            @mouseleave="endSignatureDraw"
+                            @touchstart="startSignatureDraw(field.form_field_id, $event)"
+                            @touchmove="drawSignature($event)"
+                            @touchend="endSignatureDraw"
+                          ></canvas>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                        </div>
+                        <div v-else class="text-center">
+                          <img :src="currentEntry.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                        </div>
+                      </div>
+                      <!-- 일반 필드 -->
+                      <div v-else class="relative">
                         <!-- 자동 채움 표시 배경 -->
                         <div
                           v-if="batchStore.isFieldAutoFilled(batchStore.activeTabIndex, field.form_field_id)"
@@ -326,7 +416,7 @@
             <!-- 공통 서류 -->
             <div class="rounded-[16px] bg-white border border-[#E8E8E8] p-4 mb-4">
               <p class="text-[14px] font-semibold text-[#222] mb-1">공통 서류</p>
-              <p class="text-[12px] text-[#999] mb-3">전체 보험사에 동일하게 첨부됩니다</p>
+              <p class="text-[12px] text-[#999] mb-3">전체 보험사에 동일하게 첨부됩니다 (최대 20장, 파일당 20MB)</p>
 
               <div v-if="batchStore.commonDocuments.length > 0" class="flex flex-col gap-2 mb-3">
                 <div
@@ -446,6 +536,13 @@
                   @click="goToEntryInput(idx)"
                 >→ 입력하러 가기</button>
 
+                <!-- 동의 상태 -->
+                <div class="flex items-center gap-1.5 mt-1.5">
+                  <span v-if="getConsentStatus(idx) === 'all'" class="text-[12px] text-green-600 font-medium">✅ 약관 동의 완료</span>
+                  <span v-else-if="getConsentStatus(idx) === 'partial'" class="text-[12px] text-[#FF4444] font-medium">⚠️ 약관 미동의 항목 있음</span>
+                  <span v-else-if="getConsentStatus(idx) === 'none'" class="text-[12px] text-[#FF4444] font-medium">⚠️ 약관 동의 필요</span>
+                </div>
+
                 <!-- 서류 요약 -->
                 <div class="text-[12px] text-[#888] mt-1.5">
                   서류: 공통 {{ batchStore.commonDocuments.length }}건
@@ -512,7 +609,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
@@ -522,6 +619,7 @@ import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 import type { Customer } from '../../types'
 import type { FormField, FormPage } from '@shared/types'
 import { useToast } from '../../composables/useToast'
+import { compressImages } from '@shared/utils/compressImage'
 
 const toast = useToast()
 
@@ -550,9 +648,15 @@ const INNER_STEP_TITLES: Record<number, string> = {
 // ===== 상태 =====
 const currentStep = ref(1)
 const innerStep = ref(1)
+const entryInnerSteps = ref<Record<number, number>>({})
 const customerSearch = ref('')
 const initialLoaded = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+// "고객 정보와 동일" 체크 상태 (innerStep별)
+const autoFillCustomerStep3 = ref(false)
+const autoFillCustomerStep4 = ref(false)
+const autoFillCustomerStep5 = ref(false)
 
 // draft 편집 모드
 const batchId = computed(() => {
@@ -583,6 +687,42 @@ const maxInnerStep = computed(() => {
   return last ?? 5
 })
 
+// consent 필드 목록 (innerStep 1에서 표시)
+const consentFields = computed(() => {
+  if (!currentEntry.value?.claimForm) return []
+  const fields = getAllFieldsForEntry(currentEntry.value)
+  const seen = new Set<string>()
+  return fields.filter((f) => {
+    if (f.field_type !== 'consent') return false
+    if (f.standard_field_code) {
+      if (seen.has(f.standard_field_code)) return false
+      seen.add(f.standard_field_code)
+    }
+    return true
+  })
+})
+
+// consent 값 설정 + 같은 entry 내 중복 standard_field_code 동기화
+function setConsentValueWithSync(field: FormField, value: string) {
+  batchStore.setActiveFieldValue(field.form_field_id, value)
+  const entry = currentEntry.value
+  if (!entry || !field.standard_field_code) return
+  const allFields = getAllFieldsForEntry(entry)
+  for (const f of allFields) {
+    if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
+      batchStore.setActiveFieldValue(f.form_field_id, value)
+    }
+  }
+}
+
+function handleToggleAllConsent() {
+  const allAgreed = consentFields.value.every(cf => currentEntry.value?.fieldValues[cf.form_field_id] === 'agree')
+  const newValue = allAgreed ? '' : 'agree'
+  for (const f of consentFields.value) {
+    setConsentValueWithSync(f, newValue)
+  }
+}
+
 const currentInnerStepFields = computed(() => {
   if (!currentEntry.value?.claimForm) return []
   const fields = getAllFieldsForEntry(currentEntry.value)
@@ -603,16 +743,133 @@ function setFieldValueWithSync(field: FormField, value: string) {
   const entry = currentEntry.value
   if (!entry) return
   batchStore.setActiveFieldValue(field.form_field_id, value)
-  // 같은 standard_field_code를 가진 다른 필드들에도 동기화
+
   if (field.standard_field_code && field.field_type !== 'signature') {
+    // 1) 같은 탭 내 중복 필드 동기화
     const allFields = getAllFieldsForEntry(entry)
     for (const f of allFields) {
       if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
         batchStore.setActiveFieldValue(f.form_field_id, value)
       }
     }
+
+    // 2) 다른 탭(entry)의 같은 standard_field_code 필드에도 전파
+    //    RRN 통합↔분리 변환도 처리
+    const code = field.standard_field_code
+    const crossMap: Record<string, string> = { [code]: value }
+
+    // RRN 크로스 매핑: 통합 → 분리, 분리 → 통합
+    const rrnMatch = code.match(/^(CONTRACTOR|INSURED|BENEFICIARY)_RRN(_FRONT|_BACK)?$/)
+    if (rrnMatch) {
+      const prefix = rrnMatch[1]
+      const suffix = rrnMatch[2] || ''
+      if (!suffix) {
+        // 통합(RRN) 입력 → 분리(FRONT/BACK) 생성
+        const digits = value.replace(/\D/g, '')
+        if (digits.length >= 6) {
+          crossMap[`${prefix}_RRN_FRONT`] = digits.slice(0, 6)
+          crossMap[`${prefix}_RRN_BACK`] = digits.length > 6 ? digits.slice(6, 13) : ''
+        }
+      } else if (suffix === '_FRONT' || suffix === '_BACK') {
+        // 분리 입력 → 통합(RRN) 생성 (다른 파트의 현재 값과 조합)
+        const otherSuffix = suffix === '_FRONT' ? '_BACK' : '_FRONT'
+        const otherCode = `${prefix}_RRN${otherSuffix}`
+        // 같은 탭에서 다른 파트 값 찾기
+        const allFields = getAllFieldsForEntry(entry)
+        const otherField = allFields.find(f => f.standard_field_code === otherCode)
+        if (otherField) {
+          const otherVal = entry.fieldValues[otherField.form_field_id] || ''
+          const front = suffix === '_FRONT' ? value : otherVal
+          const back = suffix === '_BACK' ? value : otherVal
+          if (front && back) {
+            crossMap[`${prefix}_RRN`] = `${front.replace(/\D/g, '')}-${back.replace(/\D/g, '')}`
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < batchStore.selectedEntries.length; i++) {
+      if (i === batchStore.activeTabIndex) continue
+      const otherEntry = batchStore.selectedEntries[i]
+      if (!otherEntry?.claimForm) continue
+      const otherFields = getAllFieldsForEntry(otherEntry)
+      for (const f of otherFields) {
+        if (!f.standard_field_code || f.field_type === 'signature') continue
+        const mappedVal = crossMap[f.standard_field_code]
+        if (mappedVal === undefined) continue
+        // 사용자가 직접 수정한 값이면 덮어쓰지 않음
+        const currentVal = otherEntry.fieldValues[f.form_field_id]
+        if (currentVal && !otherEntry.autoFilledFieldIds[f.form_field_id]) continue
+        otherEntry.fieldValues[f.form_field_id] = mappedVal
+        otherEntry.autoFilledFieldIds[f.form_field_id] = true
+      }
+    }
   }
 }
+
+// "고객 정보와 동일" 체크박스 핸들러
+function getAutoFillRef(step: number) {
+  if (step === 3) return autoFillCustomerStep3
+  if (step === 4) return autoFillCustomerStep4
+  if (step === 5) return autoFillCustomerStep5
+  return null
+}
+
+function handleAutoFillToggle(step: number, checked: boolean) {
+  const refObj = getAutoFillRef(step)
+  if (refObj) refObj.value = checked
+
+  const fields = currentInnerStepFields.value
+  batchStore.autoFillStepFromCustomer(batchStore.activeTabIndex, fields, checked)
+
+  // 동기화: 같은 standard_field_code를 가진 다른 필드에도 값 전파
+  if (checked) {
+    const entry = currentEntry.value
+    if (!entry) return
+    const allFields = getAllFieldsForEntry(entry)
+    for (const field of fields) {
+      if (field.standard_field_code && field.field_type !== 'signature') {
+        const val = entry.fieldValues[field.form_field_id]
+        if (val) {
+          for (const f of allFields) {
+            if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
+              batchStore.setActiveFieldValue(f.form_field_id, val)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 현재 innerStep의 자동채움 체크 상태
+const isAutoFillChecked = computed(() => {
+  if (innerStep.value === 3) return autoFillCustomerStep3.value
+  if (innerStep.value === 4) return autoFillCustomerStep4.value
+  if (innerStep.value === 5) return autoFillCustomerStep5.value
+  return false
+})
+
+// 현재 innerStep에 고객 매핑 가능한 필드가 있는지 확인
+const hasCustomerMappableFields = computed(() => {
+  if (!batchStore.selectedCustomer) return false
+  if (innerStep.value < 3) return false
+  return currentInnerStepFields.value.some(f => {
+    if (!f.standard_field_code) return false
+    const map: Record<string, boolean> = {
+      CONTRACTOR_NAME: true, CONTRACTOR_PHONE: true, CONTRACTOR_RRN: true,
+      CONTRACTOR_RRN_FRONT: true, CONTRACTOR_RRN_BACK: true,
+      CONTRACTOR_ADDRESS: true, CONTRACTOR_EMAIL: true,
+      INSURED_NAME: true, INSURED_PHONE: true, INSURED_RRN: true,
+      INSURED_RRN_FRONT: true, INSURED_RRN_BACK: true,
+      INSURED_ADDRESS: true, INSURED_EMAIL: true,
+      BENEFICIARY_NAME: true, BENEFICIARY_PHONE: true, BENEFICIARY_RRN: true,
+      BENEFICIARY_RRN_FRONT: true, BENEFICIARY_RRN_BACK: true,
+      BENEFICIARY_ADDRESS: true, BENEFICIARY_EMAIL: true,
+    }
+    return !!map[f.standard_field_code]
+  })
+})
 
 const canProceedMain = computed(() => {
   if (batchStore.loading) return false
@@ -664,11 +921,24 @@ onUnmounted(() => {
   if (searchTimeout) clearTimeout(searchTimeout)
 })
 
-// 탭 전환 시 내부 스텝 초기화 + 2차 자동 복사
-watch(() => batchStore.activeTabIndex, (newIdx) => {
-  innerStep.value = 1
+// 탭 전환 시 내부 스텝 저장/복원 + 2차 자동 복사 + 체크박스 초기화
+watch(() => batchStore.activeTabIndex, (newIdx, oldIdx) => {
+  // 이전 탭의 innerStep 저장
+  if (oldIdx !== undefined && oldIdx !== null) {
+    entryInnerSteps.value[oldIdx] = innerStep.value
+  }
+  // 새 탭의 저장된 innerStep 복원 (없으면 1)
+  innerStep.value = entryInnerSteps.value[newIdx] ?? 1
+  autoFillCustomerStep3.value = false
+  autoFillCustomerStep4.value = false
+  autoFillCustomerStep5.value = false
   // 2차 채움: 첫 번째 양식의 표준 필드 값을 현재 탭에 복사
   batchStore.autoCopyStandardFields(newIdx)
+})
+
+// innerStep 변경 시 현재 탭의 값 저장
+watch(innerStep, (newStep) => {
+  entryInnerSteps.value[batchStore.activeTabIndex] = newStep
 })
 
 // ===== 핸들러 =====
@@ -718,6 +988,21 @@ function handleMainAction(): void {
     innerStep.value = 1
     batchStore.activeTabIndex = 0
   } else if (currentStep.value === 3) {
+    // 서류 첨부로 넘어가기 전 모든 청구서 필수 필드 검증
+    if (totalRequiredUnfilled.value > 0) {
+      const warnings: string[] = []
+      for (let i = 0; i < batchStore.selectedEntries.length; i++) {
+        const count = getRequiredUnfilledCount(i)
+        if (count > 0) {
+          const entry = batchStore.selectedEntries[i]
+          if (entry) {
+            warnings.push(`${entry.company.company_name}: 미입력 ${count}건`)
+          }
+        }
+      }
+      alert(`필수 필드를 모두 입력해주세요.\n\n${warnings.join('\n')}`)
+      return
+    }
     currentStep.value = 4
   } else if (currentStep.value === 4) {
     currentStep.value = 5
@@ -749,14 +1034,44 @@ async function handleSubmitBatch(): Promise<void> {
 
   let result
   if (isDraftMode.value && batchStore.currentBatch) {
-    // draft → submit
     result = await batchStore.submitDraft(batchStore.currentBatch.batch_claim_id)
   } else {
-    // 새 배치 생성 + 제출
     result = await batchStore.createBatch()
   }
 
-  if (result) {
+  if (result && result.claims && result.claims.length > 0) {
+    // 첨부파일 업로드: 공통 서류 + 개별 서류
+    const { uploadAgentClaimDocument } = await import('../../services/agentApi')
+
+    // selectedEntries 기준으로 claim_form_id 매칭하여 올바른 청구에 업로드
+    for (let i = 0; i < batchStore.selectedEntries.length; i++) {
+      const entry = batchStore.selectedEntries[i]
+      if (!entry?.claimForm) continue
+      const matchedClaim = result.claims.find(
+        (c: { claim_form_id?: number }) => c.claim_form_id === entry.claimForm!.claim_form_id
+      )
+      if (!matchedClaim) continue
+      const claimId = matchedClaim.claim_id
+
+      // 공통 서류 업로드
+      for (const doc of batchStore.commonDocuments) {
+        try {
+          await uploadAgentClaimDocument(claimId, doc.file)
+        } catch { /* 개별 실패 무시 */ }
+      }
+
+      // 해당 청구 개별 서류 업로드
+      const perDocs = batchStore.perClaimDocuments[i] || []
+      for (const doc of perDocs) {
+        try {
+          await uploadAgentClaimDocument(claimId, doc.file)
+        } catch { /* 개별 실패 무시 */ }
+      }
+    }
+
+    toast.showToast('일괄 제출이 완료되었습니다.')
+    router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
+  } else if (result) {
     toast.showToast('일괄 제출이 완료되었습니다.')
     router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
   }
@@ -795,6 +1110,20 @@ async function restoreDraft(batch: import('../../types').BatchClaim): Promise<vo
             for (const fv of claimWithValues.field_values) {
               entry.fieldValues[fv.form_field_id] = fv.field_value
             }
+            // 복원 후 consent 중복 필드 동기화
+            const allFields = getAllFieldsForEntry(entry)
+            for (const f of allFields) {
+              if (f.field_type === 'consent' && f.standard_field_code) {
+                const val = entry.fieldValues[f.form_field_id]
+                if (val) {
+                  for (const dup of allFields) {
+                    if (dup.form_field_id !== f.form_field_id && dup.standard_field_code === f.standard_field_code) {
+                      entry.fieldValues[dup.form_field_id] = val
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -813,12 +1142,29 @@ const hasAutoFilledFields = computed(() => {
 function getRequiredUnfilledCount(entryIdx: number): number {
   const entry = batchStore.selectedEntries[entryIdx]
   if (!entry) return 0
-  const fields = getAllFieldsForEntry(entry)
-  return fields.filter((f) => {
+
+  // 일반 필드 (consent 제외, 중복 제거)
+  const fields = getUniqueFieldsForEntry(entryIdx)
+  let count = fields.filter((f) => {
     if (!f.is_required) return false
     const val = entry.fieldValues[f.form_field_id]
+    if (f.field_type === 'signature') return !val || !val.startsWith('data:image/')
     return !val || val.trim() === ''
   }).length
+
+  // consent 필수 필드 (중복 제거)
+  const allFields = getAllFieldsForEntry(entry)
+  const seenConsent = new Set<string>()
+  for (const f of allFields) {
+    if (f.field_type !== 'consent' || !f.is_required) continue
+    const key = f.standard_field_code || String(f.form_field_id)
+    if (seenConsent.has(key)) continue
+    seenConsent.add(key)
+    const val = entry.fieldValues[f.form_field_id]
+    if (val !== 'agree') count++
+  }
+
+  return count
 }
 
 const totalRequiredUnfilled = computed(() => {
@@ -828,6 +1174,25 @@ const totalRequiredUnfilled = computed(() => {
   }
   return count
 })
+
+function getConsentStatus(entryIdx: number): 'all' | 'partial' | 'none' | 'empty' {
+  const entry = batchStore.selectedEntries[entryIdx]
+  if (!entry) return 'empty'
+  const allFields = getAllFieldsForEntry(entry)
+  const consentFieldsList = allFields.filter(f => f.field_type === 'consent')
+  if (consentFieldsList.length === 0) return 'empty'
+  const seen = new Set<string>()
+  const uniqueConsents = consentFieldsList.filter(f => {
+    const key = f.standard_field_code || String(f.form_field_id)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+  const agreedCount = uniqueConsents.filter(f => entry.fieldValues[f.form_field_id] === 'agree').length
+  if (agreedCount === uniqueConsents.length) return 'all'
+  if (agreedCount > 0) return 'partial'
+  return 'none'
+}
 
 function goToEntryInput(entryIdx: number): void {
   currentStep.value = 3
@@ -840,19 +1205,57 @@ function getPerClaimDocs(entryIdx: number): import('../../stores/agentBatchClaim
 }
 
 // ===== 첨부파일 핸들러 =====
-function handleCommonFileSelect(event: Event): void {
+const MAX_FILE_COUNT = 20
+const MAX_FILE_SIZE_MB = 20
+
+async function handleCommonFileSelect(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   if (!input.files) return
-  for (const file of Array.from(input.files)) {
+  const rawFiles = Array.from(input.files)
+
+  if (batchStore.commonDocuments.length + rawFiles.length > MAX_FILE_COUNT) {
+    alert(`공통 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`)
+    input.value = ''
+    return
+  }
+
+  const files = await compressImages(rawFiles)
+
+  const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
+  if (oversized) {
+    alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`)
+    input.value = ''
+    return
+  }
+
+  for (const file of files) {
     batchStore.addCommonDocument(file)
   }
-  input.value = '' // 같은 파일 다시 선택 가능하도록 초기화
+  input.value = ''
 }
 
-function handlePerClaimFileSelect(event: Event, entryIdx: number): void {
+async function handlePerClaimFileSelect(event: Event, entryIdx: number): Promise<void> {
   const input = event.target as HTMLInputElement
   if (!input.files) return
-  for (const file of Array.from(input.files)) {
+  const rawFiles = Array.from(input.files)
+
+  const currentDocs = batchStore.perClaimDocuments[entryIdx] || []
+  if (currentDocs.length + rawFiles.length > MAX_FILE_COUNT) {
+    alert(`보험사별 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`)
+    input.value = ''
+    return
+  }
+
+  const files = await compressImages(rawFiles)
+
+  const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
+  if (oversized) {
+    alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`)
+    input.value = ''
+    return
+  }
+
+  for (const file of files) {
     batchStore.addPerClaimDocument(entryIdx, file)
   }
   input.value = ''
@@ -862,6 +1265,105 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
+}
+
+// ===== 서명 =====
+const signatureCanvasRefs = ref<Record<number, HTMLCanvasElement>>({})
+const isDrawing = ref(false)
+const activeSignatureFieldId = ref<number | null>(null)
+
+function setSignatureCanvasRef(fieldId: number, el: unknown) {
+  if (el) {
+    signatureCanvasRefs.value[fieldId] = el as HTMLCanvasElement
+    // DOM이 완전히 렌더링된 후 캔버스 초기화 (getBoundingClientRect가 0 반환 방지)
+    nextTick(() => {
+      setTimeout(() => initSignatureCanvas(fieldId), 50)
+    })
+  }
+}
+
+function initSignatureCanvas(fieldId: number) {
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  const dpr = window.devicePixelRatio || 1
+  const rect = canvas.getBoundingClientRect()
+  canvas.width = rect.width * dpr
+  canvas.height = rect.height * dpr
+  const ctx = canvas.getContext('2d')
+  if (ctx) {
+    ctx.scale(dpr, dpr)
+    ctx.lineWidth = 2
+    ctx.lineCap = 'round'
+    ctx.strokeStyle = '#000000'
+  }
+}
+
+function getSignaturePos(canvas: HTMLCanvasElement, e: MouseEvent | TouchEvent) {
+  const rect = canvas.getBoundingClientRect()
+  if ('touches' in e) {
+    const touch = e.touches[0]
+    if (!touch) return { x: 0, y: 0 }
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top }
+  }
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+}
+
+function startSignatureDraw(fieldId: number, e: MouseEvent | TouchEvent) {
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  isDrawing.value = true
+  activeSignatureFieldId.value = fieldId
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const pos = getSignaturePos(canvas, e)
+  ctx.beginPath()
+  ctx.moveTo(pos.x, pos.y)
+  e.preventDefault()
+}
+
+function drawSignature(e: MouseEvent | TouchEvent) {
+  if (!isDrawing.value || activeSignatureFieldId.value === null) return
+  const canvas = signatureCanvasRefs.value[activeSignatureFieldId.value]
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const pos = getSignaturePos(canvas, e)
+  ctx.lineTo(pos.x, pos.y)
+  ctx.stroke()
+  e.preventDefault()
+}
+
+function endSignatureDraw() {
+  isDrawing.value = false
+  activeSignatureFieldId.value = null
+}
+
+function completeSignature(fieldId: number) {
+  const canvas = signatureCanvasRefs.value[fieldId]
+  if (!canvas) return
+  const dataUrl = canvas.toDataURL('image/png')
+  batchStore.setActiveFieldValue(fieldId, dataUrl)
+
+  // 같은 entry 내 동일 standard_field_code 서명 필드에도 동기화
+  const entry = currentEntry.value
+  if (!entry) return
+  const allFields = getAllFieldsForEntry(entry)
+  const thisField = allFields.find(f => f.form_field_id === fieldId)
+  if (thisField?.standard_field_code) {
+    for (const f of allFields) {
+      if (f.form_field_id !== fieldId && f.standard_field_code === thisField.standard_field_code) {
+        batchStore.setActiveFieldValue(f.form_field_id, dataUrl)
+      }
+    }
+  }
+}
+
+function resetSignature(fieldId: number) {
+  batchStore.setActiveFieldValue(fieldId, '')
+  // v-if 전환 후 캔버스가 다시 마운트되므로 nextTick에서 재초기화
+  nextTick(() => {
+    initSignatureCanvas(fieldId)
+  })
 }
 
 // ===== 유틸 =====
@@ -899,10 +1401,25 @@ function getFieldWizardStep(field: FormField): number {
   return 3 // 기본값
 }
 
+function getUniqueFieldsForEntry(entryIdx: number): FormField[] {
+  const entry = batchStore.selectedEntries[entryIdx]
+  if (!entry) return []
+  const allFields = getAllFieldsForEntry(entry)
+  const seen = new Set<string>()
+  return allFields.filter((f) => {
+    if (f.field_type === 'consent') return false
+    if (f.standard_field_code) {
+      if (seen.has(f.standard_field_code)) return false
+      seen.add(f.standard_field_code)
+    }
+    return true
+  })
+}
+
 function getFilledCount(entryIdx: number): number {
   const entry = batchStore.selectedEntries[entryIdx]
   if (!entry) return 0
-  const fields = getAllFieldsForEntry(entry)
+  const fields = getUniqueFieldsForEntry(entryIdx)
   return fields.filter((f) => {
     const val = entry.fieldValues[f.form_field_id]
     return val !== undefined && val !== ''
@@ -910,9 +1427,7 @@ function getFilledCount(entryIdx: number): number {
 }
 
 function getTotalFieldCount(entryIdx: number): number {
-  const entry = batchStore.selectedEntries[entryIdx]
-  if (!entry) return 0
-  return getAllFieldsForEntry(entry).length
+  return getUniqueFieldsForEntry(entryIdx).length
 }
 
 function formatFieldInput(fieldId: number, fieldType: string, event: Event): void {
@@ -950,6 +1465,16 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event): voi
       break
   }
 
+  // 크로스 탭 동기화를 위해 필드 객체를 찾아 setFieldValueWithSync 호출
+  const entry = currentEntry.value
+  if (entry) {
+    const allFields = getAllFieldsForEntry(entry)
+    const matchedField = allFields.find(f => f.form_field_id === fieldId)
+    if (matchedField) {
+      setFieldValueWithSync(matchedField, value)
+      return
+    }
+  }
   batchStore.setActiveFieldValue(fieldId, value)
 }
 </script>

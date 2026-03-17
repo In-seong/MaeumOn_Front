@@ -119,11 +119,12 @@ const store = useAgentClaimStore()
 
 interface FilterChip {
   label: string
-  value: 'all' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid'
+  value: 'all' | 'draft' | 'pending' | 'processing' | 'approved' | 'rejected' | 'paid'
 }
 
 const filterChips: FilterChip[] = [
   { label: '전체', value: 'all' },
+  { label: '임시저장', value: 'draft' },
   { label: '접수대기', value: 'pending' },
   { label: '처리중', value: 'processing' },
   { label: '승인', value: 'approved' },

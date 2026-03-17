@@ -12,14 +12,16 @@
         <!-- Alerts -->
         <section class="flex flex-col gap-2 mb-4">
           <AlertCard
+            v-if="pendingConsultations > 0"
             :title="`미처리 상담요청 ${pendingConsultations}건`"
             subtitle="빠른 응답이 필요합니다"
             variant="warning"
             @click="router.push('/consultations')"
           />
           <AlertCard
-            title="알릴의무 만기 임박 2건"
-            subtitle="7일 이내 처리 필요"
+            v-if="upcomingObligations > 0"
+            :title="`알릴의무 만기 임박 ${upcomingObligations}건`"
+            subtitle="30일 이내 처리 필요"
             variant="danger"
             @click="router.push('/alert-duty')"
           />
@@ -32,7 +34,7 @@
 
         <!-- Todo List -->
         <section class="mb-5">
-          <TodoListCard :items="todoItems" @toggle="toggleTodo" />
+          <TodoListCard :items="todoDisplayItems" @toggle="toggleTodo" @navigate="navigateTo" />
         </section>
 
         <!-- 다가오는 알림 -->
@@ -70,27 +72,6 @@
           </CardSection>
         </section>
 
-        <!-- 이번 달 실적 요약 (통계 업데이트 완료 후 복원)
-        <section>
-          <CardSection>
-            <h3 class="text-[15px] font-semibold text-[#333] mb-3">이번 달 실적 요약</h3>
-            <div class="grid grid-cols-3 gap-3">
-              <div class="text-center">
-                <p class="text-[20px] font-bold text-[#FF7B22]">{{ dbDistributed }}</p>
-                <p class="text-[11px] text-[#999]">DB배분</p>
-              </div>
-              <div class="text-center">
-                <p class="text-[20px] font-bold text-[#4285F4]">{{ contractsCount }}</p>
-                <p class="text-[11px] text-[#999]">계약체결</p>
-              </div>
-              <div class="text-center">
-                <p class="text-[20px] font-bold text-[#1FBD53]">{{ conversionRate }}%</p>
-                <p class="text-[11px] text-[#999]">전환율</p>
-              </div>
-            </div>
-          </CardSection>
-        </section>
-        -->
       </main>
 
       <AgentBottomNav />
@@ -110,16 +91,20 @@ import AlertCard from '../components/ui/AlertCard.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import { useScheduleStore } from '../stores/scheduleStore'
 import { useConsultationStore } from '../stores/consultationStore'
-import { fetchNotifications, registerFcmToken } from '../services/agentApi'
-import type { CalendarEvent } from '../types'
+import { useNotificationStore } from '../stores/notificationStore'
+import { fetchDashboard, registerFcmToken, fetchTodayTasks, toggleScheduleComplete } from '../services/agentApi'
+import type { CalendarEvent, DashboardTask } from '../types'
 
 const router = useRouter()
 const scheduleStore = useScheduleStore()
 const consultationStore = useConsultationStore()
-const unreadCount = ref(0)
+const notificationStore = useNotificationStore()
+const unreadCount = computed(() => notificationStore.unreadCount)
+const upcomingObligations = ref(0)
+const dashboardPendingConsultations = ref(0)
 
 const todayScheduleCount = computed(() => scheduleStore.schedulesForDate.length)
-const pendingConsultations = computed(() => consultationStore.statusCounts.pending)
+const pendingConsultations = computed(() => dashboardPendingConsultations.value)
 
 // 다가오는 일정 (생일, 만기 등)
 const upcomingEvents = computed(() => scheduleStore.upcomingEvents)
@@ -188,22 +173,51 @@ onMounted(async () => {
     consultationStore.loadConsultations(),
     scheduleStore.loadMonth(),
     scheduleStore.loadUpcoming(30),
-    fetchNotifications({ per_page: 1 }).then(res => {
-      unreadCount.value = res.data?.data?.unread_count ?? 0
+    notificationStore.refreshUnreadCount(),
+    fetchDashboard().then(res => {
+      upcomingObligations.value = res.data?.data?.upcoming_obligations ?? 0
+      dashboardPendingConsultations.value = res.data?.data?.pending_consultations ?? 0
+    }).catch(() => { /* silent */ }),
+    fetchTodayTasks().then(res => {
+      todayTasks.value = res.data?.data ?? []
     }).catch(() => { /* silent */ }),
   ])
 })
 
-// Mock data
-const todoItems = ref([
-  { id: 1, text: '김영수 고객 계약 상담 (14:00)', done: false },
-  { id: 2, text: '박미정 고객 만기 안내 전화', done: true },
-  { id: 3, text: 'DB배분 신규 고객 3명 확인', done: false },
-  { id: 4, text: '이정훈 고객 청구서류 확인', done: false },
-])
+// 오늘의 할일 (API 연동)
+const todayTasks = ref<DashboardTask[]>([])
 
-function toggleTodo(id: number) {
-  const item = todoItems.value.find(t => t.id === id)
-  if (item) item.done = !item.done
+const todoDisplayItems = computed(() =>
+  todayTasks.value.map(task => ({
+    id: task.id,
+    text: task.title,
+    done: task.is_completed,
+    type: task.type,
+    subtitle: task.subtitle || undefined,
+    canToggle: task.can_toggle,
+    route: task.route,
+  }))
+)
+
+async function toggleTodo(id: string) {
+  const task = todayTasks.value.find(t => t.id === id)
+  if (!task || !task.can_toggle) return
+
+  // 낙관적 업데이트
+  task.is_completed = !task.is_completed
+
+  try {
+    if (task.type === 'calendar' && task.related_id) {
+      await toggleScheduleComplete(task.related_id)
+    }
+    // obligation 토글은 현재 별도 API가 없으므로 로컬만 변경
+  } catch {
+    // 실패 시 롤백
+    task.is_completed = !task.is_completed
+  }
+}
+
+function navigateTo(route: string) {
+  router.push(route)
 }
 </script>

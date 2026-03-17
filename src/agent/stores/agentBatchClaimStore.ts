@@ -18,6 +18,7 @@ import {
 
 /** standard_field_code → Customer 컬럼명 매핑 (config/standard_fields.php 기반) */
 const CUSTOMER_FIELD_MAP: Record<string, string> = {
+  // 계약자
   CONTRACTOR_NAME: 'name',
   CONTRACTOR_RRN: 'resident_number',
   CONTRACTOR_RRN_FRONT: 'resident_number_front',
@@ -25,6 +26,22 @@ const CUSTOMER_FIELD_MAP: Record<string, string> = {
   CONTRACTOR_PHONE: 'phone',
   CONTRACTOR_ADDRESS: 'address',
   CONTRACTOR_EMAIL: 'email',
+  // 피보험자
+  INSURED_NAME: 'name',
+  INSURED_RRN: 'resident_number',
+  INSURED_RRN_FRONT: 'resident_number_front',
+  INSURED_RRN_BACK: 'resident_number_back',
+  INSURED_PHONE: 'phone',
+  INSURED_ADDRESS: 'address',
+  INSURED_EMAIL: 'email',
+  // 수익자(수령인)
+  BENEFICIARY_NAME: 'name',
+  BENEFICIARY_RRN: 'resident_number',
+  BENEFICIARY_RRN_FRONT: 'resident_number_front',
+  BENEFICIARY_RRN_BACK: 'resident_number_back',
+  BENEFICIARY_PHONE: 'phone',
+  BENEFICIARY_ADDRESS: 'address',
+  BENEFICIARY_EMAIL: 'email',
 }
 
 /** 자동 복사 제외 필드 타입 (법적 요건상 양식마다 개별 필요) */
@@ -225,6 +242,42 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     }
   }
 
+  /**
+   * 주민번호 코드 간 크로스 매핑을 생성합니다.
+   * 예: CONTRACTOR_RRN(통합) ↔ CONTRACTOR_RRN_FRONT + CONTRACTOR_RRN_BACK(분리)
+   * 전화번호도 같은 접두어 기반으로 매핑합니다.
+   */
+  function buildCrossCodeValues(codeValues: Record<string, string>): Record<string, string> {
+    const result = { ...codeValues }
+    const prefixes = ['CONTRACTOR', 'INSURED', 'BENEFICIARY']
+
+    for (const prefix of prefixes) {
+      const rrnCode = `${prefix}_RRN`
+      const frontCode = `${prefix}_RRN_FRONT`
+      const backCode = `${prefix}_RRN_BACK`
+
+      // 통합(RRN) → 분리(FRONT + BACK) 변환
+      if (result[rrnCode] && (!result[frontCode] || !result[backCode])) {
+        const digits = result[rrnCode].replace(/\D/g, '')
+        if (digits.length >= 6) {
+          result[frontCode] = result[frontCode] || digits.slice(0, 6)
+          result[backCode] = result[backCode] || (digits.length > 6 ? digits.slice(6, 13) : '')
+        }
+      }
+
+      // 분리(FRONT + BACK) → 통합(RRN) 변환
+      if (!result[rrnCode] && result[frontCode]) {
+        const front = result[frontCode].replace(/\D/g, '')
+        const back = (result[backCode] || '').replace(/\D/g, '')
+        if (back) {
+          result[rrnCode] = `${front}-${back}`
+        }
+      }
+    }
+
+    return result
+  }
+
   /** 2차 채움: 탭 전환 시 standard_field_code 기반 자동 복사 (첫 번째 양식 → 대상 양식) */
   function autoCopyStandardFields(targetEntryIndex: number): void {
     if (selectedEntries.value.length < 2) return
@@ -238,13 +291,16 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
 
     // 첫 번째 엔트리의 standard_field_code → value 맵 구축
     const firstFields = getFormFields(first.claimForm)
-    const codeValues: Record<string, string> = {}
+    const rawCodeValues: Record<string, string> = {}
     for (const field of firstFields) {
       if (!field.standard_field_code) continue
       if (COPY_EXCLUDED_TYPES.has(field.field_type)) continue
       const val = first.fieldValues[field.form_field_id]
-      if (val) codeValues[field.standard_field_code] = val
+      if (val) rawCodeValues[field.standard_field_code] = val
     }
+
+    // 크로스 매핑 (통합 ↔ 분리 주민번호 변환)
+    const codeValues = buildCrossCodeValues(rawCodeValues)
 
     // 타겟 엔트리에 복사
     const targetFields = getFormFields(target.claimForm)
@@ -258,6 +314,57 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
       if (currentVal && !target.autoFilledFieldIds[field.form_field_id]) continue
       target.fieldValues[field.form_field_id] = srcVal
       target.autoFilledFieldIds[field.form_field_id] = true
+    }
+  }
+
+  /** 특정 스텝의 필드를 고객 정보로 자동 채움 */
+  function autoFillStepFromCustomer(entryIndex: number, stepFields: FormField[], fill: boolean): void {
+    const customer = selectedCustomer.value
+    const entry = selectedEntries.value[entryIndex]
+    if (!entry) return
+
+    for (const field of stepFields) {
+      if (!field.standard_field_code) continue
+      const customerKey = CUSTOMER_FIELD_MAP[field.standard_field_code]
+      if (!customerKey) continue
+
+      if (fill && customer) {
+        let val: string | undefined
+        if (customerKey === 'resident_number_front') {
+          const rrn = customer.resident_number || ''
+          val = rrn.replace(/-/g, '').slice(0, 6) || undefined
+        } else if (customerKey === 'resident_number_back') {
+          const rrn = customer.resident_number || ''
+          const raw = rrn.replace(/-/g, '')
+          val = raw.length > 6 ? raw.slice(6, 13) : undefined
+        } else if (customerKey === 'resident_number') {
+          const rrn = customer.resident_number || ''
+          const digits = rrn.replace(/\D/g, '')
+          val = digits.length === 13 ? `${digits.slice(0, 6)}-${digits.slice(6)}` : rrn || undefined
+        } else if (customerKey === 'phone') {
+          const p = customer.phone || ''
+          if (/^\d{10,11}$/.test(p)) {
+            val = p.length === 11
+              ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}`
+              : `${p.slice(0, 3)}-${p.slice(3, 6)}-${p.slice(6)}`
+          } else {
+            val = p || undefined
+          }
+        } else {
+          const raw = (customer as Record<string, unknown>)[customerKey]
+          val = raw && typeof raw === 'string' ? raw : undefined
+        }
+        if (val) {
+          entry.fieldValues[field.form_field_id] = val
+          entry.autoFilledFieldIds[field.form_field_id] = true
+        }
+      } else {
+        // 체크 해제: 자동 채움된 값만 비움
+        if (entry.autoFilledFieldIds[field.form_field_id]) {
+          entry.fieldValues[field.form_field_id] = ''
+          delete entry.autoFilledFieldIds[field.form_field_id]
+        }
+      }
     }
   }
 
@@ -400,13 +507,36 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
   }> {
     return selectedEntries.value
       .filter((e) => e.claimForm !== null)
-      .map((e) => ({
-        claim_form_id: e.claimForm!.claim_form_id,
-        fields: Object.entries(e.fieldValues).map(([id, val]) => ({
+      .map((e) => {
+        const fields = Object.entries(e.fieldValues).map(([id, val]) => ({
           form_field_id: parseInt(id),
           field_value: val,
-        })),
-      }))
+        }))
+
+        // consent 필드 자동 동의 처리 (설계사 대리 청구 - 화면에서 별도 입력 없이 일괄 동의)
+        const form = e.claimForm!
+        const allFormFields: Array<{ form_field_id: number; field_type: string }> = []
+        if (form.form_pages && form.form_pages.length > 0) {
+          for (const page of form.form_pages) {
+            if (page.form_fields) allFormFields.push(...page.form_fields)
+          }
+        } else if (form.form_fields) {
+          allFormFields.push(...form.form_fields)
+        }
+
+        for (const f of allFormFields) {
+          if (f.field_type === 'consent') {
+            const existing = fields.find(fv => fv.form_field_id === f.form_field_id)
+            if (!existing) {
+              fields.push({ form_field_id: f.form_field_id, field_value: 'agree' })
+            } else if (!existing.field_value) {
+              existing.field_value = 'agree'
+            }
+          }
+        }
+
+        return { claim_form_id: form.claim_form_id, fields }
+      })
   }
 
   async function createBatch(): Promise<BatchClaim | null> {
@@ -643,6 +773,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
 
     // 액션 - 자동 매핑
     autoFillFromCustomer,
+    autoFillStepFromCustomer,
     autoCopyStandardFields,
     isFieldAutoFilled,
     getFormFields,

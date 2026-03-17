@@ -64,6 +64,17 @@
                 label="승인일"
                 :value="formatDate(claim.approval_date)"
               />
+              <InfoRow
+                v-if="claim.paid_amount"
+                label="지급 금액"
+                :value="Number(claim.paid_amount).toLocaleString() + '원'"
+                class="font-semibold"
+              />
+              <InfoRow
+                v-if="claim.paid_date"
+                label="지급일"
+                :value="formatDate(claim.paid_date)"
+              />
             </CardSection>
           </div>
 
@@ -77,19 +88,6 @@
                 v-if="claim.fax_sent_at"
                 label="팩스 발송일"
                 :value="formatDate(claim.fax_sent_at)"
-              />
-            </CardSection>
-          </div>
-
-          <!-- 입력 정보 -->
-          <div v-if="claimFieldValues && claimFieldValues.length > 0" class="mb-4">
-            <p class="text-[15px] font-semibold text-[#222] mb-2">입력 정보</p>
-            <CardSection>
-              <InfoRow
-                v-for="fieldValue in claimFieldValues"
-                :key="fieldValue.claim_field_value_id"
-                :label="fieldValue.form_field?.field_label || ''"
-                :value="fieldValue.field_value || '-'"
               />
             </CardSection>
           </div>
@@ -256,6 +254,20 @@
 
           <!-- 액션 버튼 -->
           <div class="flex flex-col gap-3 mb-6">
+            <!-- 수익자 변경 버튼 (pending/processing 상태) -->
+            <button
+              v-if="claim.claim_status === 'pending' || claim.claim_status === 'processing'"
+              class="w-full bg-white border border-[#6366F1] text-[#6366F1] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+              @click="showBeneficiaryModal = true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="9" cy="7" r="4" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19 8v6M22 11h-6" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              수익자 변경
+            </button>
+
             <!-- 수정 버튼 (pending 상태이고 팩스 미발송일 때) -->
             <button
               v-if="claim.claim_status === 'pending' && !claim.fax_status"
@@ -296,6 +308,41 @@
       </main>
       <AgentBottomNav />
 
+      <!-- 수익자 변경 모달 -->
+      <Transition name="fade">
+        <div v-if="showBeneficiaryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" @click.self="showBeneficiaryModal = false">
+          <div class="w-full max-w-[402px] bg-white rounded-t-[20px] p-5 pb-8 animate-slide-up">
+            <div class="flex items-center justify-between mb-4">
+              <p class="text-[16px] font-bold text-[#222]">수익자 정보 변경</p>
+              <button @click="showBeneficiaryModal = false" class="text-[#999] text-[20px]">&times;</button>
+            </div>
+
+            <div class="space-y-3 mb-5">
+              <div v-for="field in beneficiaryFields" :key="field.form_field_id">
+                <label class="block text-[13px] font-medium text-[#888] mb-1">{{ field.label }}</label>
+                <input
+                  v-model="beneficiaryFormValues[field.form_field_id]"
+                  type="text"
+                  class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[10px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#6366F1] transition-colors"
+                />
+              </div>
+              <p v-if="beneficiaryFields.length === 0" class="text-[13px] text-[#999] text-center py-4">
+                이 청구서에는 수익자 필드가 없습니다.
+              </p>
+            </div>
+
+            <button
+              v-if="beneficiaryFields.length > 0"
+              :disabled="savingBeneficiary"
+              class="w-full bg-[#6366F1] text-white rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+              @click="handleUpdateBeneficiary"
+            >
+              {{ savingBeneficiary ? '변경 중...' : '수익자 변경' }}
+            </button>
+          </div>
+        </div>
+      </Transition>
+
       <!-- Toast -->
       <Transition name="fade">
         <div
@@ -314,6 +361,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
+import { updateBeneficiary } from '../../services/agentApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import type { InsuranceClaim as SharedInsuranceClaim } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
@@ -344,10 +392,6 @@ const claimImageUrls = computed(() => {
   return raw?.generated_image_urls ?? null
 })
 
-const claimFieldValues = computed(() => {
-  const raw = claim.value as unknown as SharedInsuranceClaim | null
-  return raw?.field_values ?? null
-})
 
 const claimDocuments = computed(() => {
   const raw = claim.value as unknown as SharedInsuranceClaim | null
@@ -465,6 +509,52 @@ async function handleSendFax(): Promise<void> {
     }
   } finally {
     sendingFax.value = false
+  }
+}
+
+// ===== 수익자 변경 =====
+const showBeneficiaryModal = ref(false)
+const savingBeneficiary = ref(false)
+const beneficiaryFormValues = ref<Record<number, string>>({})
+
+const BENEFICIARY_CODES = ['BENEFICIARY_NAME', 'BENEFICIARY_RRN_FRONT', 'BENEFICIARY_RRN_BACK', 'BENEFICIARY_PHONE', 'BENEFICIARY_RELATION']
+
+const beneficiaryFields = computed(() => {
+  const raw = claim.value as unknown as SharedInsuranceClaim | null
+  const fieldValues = raw?.field_values ?? []
+  return fieldValues
+    .filter(fv => fv.form_field?.standard_field_code && BENEFICIARY_CODES.includes(fv.form_field.standard_field_code))
+    .map(fv => ({
+      form_field_id: fv.form_field_id ?? fv.form_field?.form_field_id ?? 0,
+      label: fv.form_field?.field_label ?? '',
+      value: fv.field_value ?? '',
+    }))
+})
+
+watch(showBeneficiaryModal, (visible) => {
+  if (visible) {
+    beneficiaryFormValues.value = {}
+    for (const field of beneficiaryFields.value) {
+      beneficiaryFormValues.value[field.form_field_id] = field.value
+    }
+  }
+})
+
+async function handleUpdateBeneficiary(): Promise<void> {
+  savingBeneficiary.value = true
+  try {
+    const fields = Object.entries(beneficiaryFormValues.value).map(([id, value]) => ({
+      form_field_id: Number(id),
+      field_value: value,
+    }))
+    await updateBeneficiary(claimId.value, { fields })
+    await store.loadClaim(claimId.value)
+    showBeneficiaryModal.value = false
+    toast.showToast('수익자 정보가 변경되었습니다.')
+  } catch {
+    toast.showToast('수익자 변경에 실패했습니다.', 'error')
+  } finally {
+    savingBeneficiary.value = false
   }
 }
 

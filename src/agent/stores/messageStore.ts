@@ -40,9 +40,8 @@ export const useMessageStore = defineStore('agentMessage', () => {
   async function send(data: {
     receiver_id: string
     message_type: string
-    phone_number: string
     message_content: string
-    image_url?: string
+    image?: File | null
     scheduled_at?: string
   }) {
     loading.value = true

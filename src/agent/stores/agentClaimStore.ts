@@ -45,15 +45,10 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
   // ===== Computed =====
   const filteredClaims = computed(() => claims.value)
 
-  const statusCounts = computed(() => ({
-    all: total.value,
-    draft: claims.value.filter((c) => c.claim_status === 'draft').length,
-    pending: claims.value.filter((c) => c.claim_status === 'pending').length,
-    processing: claims.value.filter((c) => c.claim_status === 'processing').length,
-    approved: claims.value.filter((c) => c.claim_status === 'approved').length,
-    rejected: claims.value.filter((c) => c.claim_status === 'rejected').length,
-    paid: claims.value.filter((c) => c.claim_status === 'paid').length,
-  }))
+  const serverStatusCounts = ref({
+    all: 0, draft: 0, pending: 0, processing: 0, approved: 0, rejected: 0, paid: 0,
+  })
+  const statusCounts = computed(() => serverStatusCounts.value)
 
   // ===== 목록 조회 액션 =====
   async function loadClaims(params?: Record<string, unknown>) {
@@ -67,12 +62,28 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
       if (filterStatus.value !== 'all') {
         queryParams.claim_status = filterStatus.value
       }
+      if (searchQuery.value.trim()) {
+        queryParams.search = searchQuery.value.trim()
+      }
       const res = await fetchClaims(queryParams)
       const paginated = res.data.data
       claims.value = paginated.data
       currentPage.value = paginated.current_page
       lastPage.value = paginated.last_page
       total.value = paginated.total
+      // 서버에서 전체 상태별 건수 수신
+      const sc = (res.data as unknown as Record<string, unknown>).status_counts as Record<string, number> | undefined
+      if (sc) {
+        serverStatusCounts.value = {
+          all: sc.all ?? 0,
+          draft: sc.draft ?? 0,
+          pending: sc.pending ?? 0,
+          processing: sc.processing ?? 0,
+          approved: sc.approved ?? 0,
+          rejected: sc.rejected ?? 0,
+          paid: sc.paid ?? 0,
+        }
+      }
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
       error.value = msg || '청구 목록을 불러오는데 실패했습니다.'
@@ -105,6 +116,8 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
 
   function setSearchQuery(query: string) {
     searchQuery.value = query
+    currentPage.value = 1
+    loadClaims()
   }
 
   // ===== 보험사/양식 조회 액션 =====

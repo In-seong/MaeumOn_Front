@@ -14,12 +14,8 @@ export const useConsultationStore = defineStore('agentConsultation', () => {
 
   const filteredConsultations = computed(() => consultations.value)
 
-  const statusCounts = computed(() => ({
-    all: total.value,
-    pending: consultations.value.filter((c) => c.consultation_status === 'pending').length,
-    in_progress: consultations.value.filter((c) => c.consultation_status === 'in_progress').length,
-    completed: consultations.value.filter((c) => c.consultation_status === 'completed').length,
-  }))
+  const serverStatusCounts = ref({ all: 0, pending: 0, in_progress: 0, completed: 0 })
+  const statusCounts = computed(() => serverStatusCounts.value)
 
   async function loadConsultations(params?: Record<string, unknown>) {
     loading.value = true
@@ -38,6 +34,15 @@ export const useConsultationStore = defineStore('agentConsultation', () => {
       currentPage.value = paginated.current_page
       lastPage.value = paginated.last_page
       total.value = paginated.total
+      const sc = (res.data as unknown as Record<string, unknown>).status_counts as Record<string, number> | undefined
+      if (sc) {
+        serverStatusCounts.value = {
+          all: sc.all ?? 0,
+          pending: sc.pending ?? 0,
+          in_progress: sc.in_progress ?? 0,
+          completed: sc.completed ?? 0,
+        }
+      }
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
       error.value = msg || '상담 목록을 불러오는데 실패했습니다.'

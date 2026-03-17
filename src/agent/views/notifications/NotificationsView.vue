@@ -62,50 +62,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
-import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../services/agentApi'
+import { useNotificationStore } from '../../stores/notificationStore'
 import type { AgentNotification } from '../../types'
 
-const notifications = ref<AgentNotification[]>([])
-const loading = ref(false)
+const store = useNotificationStore()
 const markingAllRead = ref(false)
 
-const unreadCount = computed(() =>
-  notifications.value.filter(n => !n.is_read).length,
-)
+const notifications = computed(() => store.notifications)
+const loading = computed(() => store.loading)
+const unreadCount = computed(() => store.unreadCount)
 
-onMounted(async () => {
-  loading.value = true
-  try {
-    const res = await fetchNotifications()
-    const data = res.data?.data
-    notifications.value = data?.notifications?.data ?? []
-  } catch {
-    // Error handled globally
-  } finally {
-    loading.value = false
-  }
+onMounted(() => {
+  store.loadNotifications()
 })
 
 async function handleMarkRead(noti: AgentNotification): Promise<void> {
-  if (noti.is_read) return
-  try {
-    await markNotificationRead(noti.notification_id)
-    noti.is_read = true
-  } catch {
-    // Error handled globally
-  }
+  await store.markRead(noti)
 }
 
 async function handleMarkAllRead(): Promise<void> {
   markingAllRead.value = true
   try {
-    await markAllNotificationsRead()
-    notifications.value.forEach(n => { n.is_read = true })
-  } catch {
-    // Error handled globally
+    await store.markAllRead()
   } finally {
     markingAllRead.value = false
   }

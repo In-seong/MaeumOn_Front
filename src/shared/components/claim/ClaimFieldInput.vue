@@ -58,17 +58,33 @@
         class="flex-1 min-w-0 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
       />
       <span class="text-[18px] text-[#999] font-bold shrink-0">-</span>
-      <input
-        type="password"
-        inputmode="numeric"
-        :value="residentBack"
-        @input="handleResidentBack"
-        placeholder="뒷자리"
-        :required="field.is_required"
-        maxlength="7"
-        ref="residentBackRef"
-        class="flex-1 min-w-0 px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
-      />
+      <div class="flex-1 min-w-0 relative">
+        <input
+          :type="showResidentBack ? 'text' : 'password'"
+          inputmode="numeric"
+          :value="residentBack"
+          @input="handleResidentBack"
+          placeholder="뒷자리"
+          :required="field.is_required"
+          maxlength="7"
+          ref="residentBackRef"
+          class="w-full px-4 py-3 pr-10 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] text-center outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+        />
+        <button
+          type="button"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#999] hover:text-[#666] transition-colors"
+          @click="showResidentBack = !showResidentBack"
+        >
+          <svg v-if="showResidentBack" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <input
@@ -83,17 +99,32 @@
       class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
-    <input
-      v-else-if="field.field_type === 'resident_number_back'"
-      type="password"
-      inputmode="numeric"
-      :value="modelValue"
-      @input="emitInput"
-      placeholder="뒷자리 7자리"
-      :required="field.is_required"
-      maxlength="7"
-      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
-    />
+    <div v-else-if="field.field_type === 'resident_number_back'" class="relative">
+      <input
+        :type="showResidentBack ? 'text' : 'password'"
+        inputmode="numeric"
+        :value="modelValue"
+        @input="emitInput"
+        placeholder="뒷자리 7자리"
+        :required="field.is_required"
+        maxlength="7"
+        class="w-full px-4 py-3 pr-10 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      />
+      <button
+        type="button"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#999] hover:text-[#666] transition-colors"
+        @click="showResidentBack = !showResidentBack"
+      >
+        <svg v-if="showResidentBack" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+      </button>
+    </div>
 
     <textarea
       v-else-if="field.field_type === 'textarea'"
@@ -170,6 +201,7 @@ function emitInput(event: Event) {
 // @ts-ignore template ref used in template
 const residentFrontRef = ref<HTMLInputElement | null>(null)
 const residentBackRef = ref<HTMLInputElement | null>(null)
+const showResidentBack = ref(false)
 
 const residentFront = computed(() => {
   const raw = (props.modelValue || '').replace(/-/g, '')

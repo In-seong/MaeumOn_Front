@@ -366,7 +366,7 @@
                 @change="handleFileSelect"
                 class="hidden"
               />
-              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 이미지 자동 압축</p>
+              <p class="text-[11px] text-[#B0B0B0] mt-1">JPG, PNG, PDF / 최대 20장, 파일당 20MB / 이미지 자동 압축</p>
             </CardSection>
 
             <!-- 에러 메시지 -->
@@ -448,7 +448,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { useCustomerStore } from '../../stores/customerStore'
@@ -814,11 +814,14 @@ function matchAutoFillKey(field: FormField): AutoFillKey {
   const label = (field.field_label || '').toLowerCase()
   const type = field.field_type
 
-  // 주민번호 뒷자리: field_name에 jumin 포함 (생년월일이 아닌 것)
-  if (name.includes('jumin') || (name.includes('resident') && !name.includes('birth'))) {
+  // 주민번호 관련: field_name에 jumin, resident, rrn 포함 (생년월일이 아닌 것)
+  if (name.includes('jumin') || name.includes('rrn') || (name.includes('resident') && !name.includes('birth'))) {
     // label로 뒷자리 판별
     if (label.includes('뒷') || label.includes('후')) return 'resident_back'
-    // field_type이 resident_number면 전체 주민번호일 수 있음
+    // field_type으로 분리 입력 판별
+    if (type === 'resident_number_back') return 'resident_back'
+    if (type === 'resident_number_front') return 'resident_front'
+    // field_type이 resident_number면 전체 주민번호
     if (type === 'resident_number') return 'resident_full'
     // 기본: 뒷자리로 간주 (birth 필드가 따로 있으므로)
     return 'resident_back'
@@ -900,13 +903,21 @@ function handleAutoFillFromCustomer() {
 }
 
 // ===== 자동채움: Step 4 (계약자와 동일) =====
-// Step 3 필드에서 같은 AutoFillKey 값을 찾아 복사
+// Step 3 필드에서 같은 AutoFillKey 값을 찾아 복사, 없으면 고객 정보 fallback
 function getStep3ValueByKey(key: AutoFillKey): string {
   if (!key) return ''
   const step3Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 3)
   const match = step3Fields.find(f => matchAutoFillKey(f) === key)
-  if (!match) return ''
-  return claimStore.fieldValues[match.form_field_id] || ''
+  if (match) {
+    const val = claimStore.fieldValues[match.form_field_id] || ''
+    if (val) return val
+  }
+  // Step 3에 없으면 고객 정보에서 fallback
+  const customer = customerStore.selectedCustomer
+  if (customer) {
+    return getCustomerValueByKey(customer, key)
+  }
+  return ''
 }
 
 function autoFillFieldsFromStep3(fields: FormField[], fill: boolean) {
@@ -946,7 +957,9 @@ function handleAutoFillStep4() {
 function setSignatureCanvasRef(fieldId: number, el: unknown) {
   if (el) {
     signatureCanvasRefs.value[fieldId] = el as HTMLCanvasElement
-    initSignatureCanvas(fieldId)
+    nextTick(() => {
+      setTimeout(() => initSignatureCanvas(fieldId), 50)
+    })
   }
 }
 
@@ -1011,6 +1024,16 @@ function completeSignature(fieldId: number) {
   if (!canvas) return
   const dataUrl = canvas.toDataURL('image/png')
   claimStore.setFieldValue(fieldId, dataUrl)
+
+  // 같은 standard_field_code 서명 필드에도 동기화
+  const thisField = allFieldsSorted.value.find(f => f.form_field_id === fieldId)
+  if (thisField?.standard_field_code) {
+    for (const f of allFieldsSorted.value) {
+      if (f.form_field_id !== fieldId && f.standard_field_code === thisField.standard_field_code) {
+        claimStore.setFieldValue(f.form_field_id, dataUrl)
+      }
+    }
+  }
 }
 
 function resetSignature(fieldId: number) {
@@ -1053,14 +1076,38 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
       break
   }
 
-  claimStore.setFieldValue(fieldId, value)
+  const matchedField = allFieldsSorted.value.find(f => f.form_field_id === fieldId)
+  if (matchedField) {
+    setFieldValueWithSync(matchedField, value)
+  } else {
+    claimStore.setFieldValue(fieldId, value)
+  }
 }
 
 // ===== 파일 관리 =====
+const MAX_FILE_COUNT = 20
+const MAX_FILE_SIZE_MB = 20
+
 async function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files) {
     const files = Array.from(input.files)
+
+    // 장수 제한
+    if (attachedFiles.value.length + files.length > MAX_FILE_COUNT) {
+      alert(`첨부파일은 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`)
+      input.value = ''
+      return
+    }
+
+    // 개별 파일 크기 제한
+    const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
+    if (oversized) {
+      alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`)
+      input.value = ''
+      return
+    }
+
     const compressed = await compressImages(files)
     for (const file of compressed) {
       attachedFiles.value.push(file)

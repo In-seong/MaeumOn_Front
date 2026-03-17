@@ -98,6 +98,7 @@ export interface Consultation {
   consultation_type: string
   consultation_date?: string
   consultation_content: string
+  consultation_answer?: string
   consultation_status: 'pending' | 'in_progress' | 'completed'
   customer_name?: string
   customer_phone?: string
@@ -126,6 +127,8 @@ export interface InsuranceClaim {
   claim_status: string
   claim_date?: string
   approval_date?: string
+  paid_date?: string
+  paid_amount?: string
   rejection_reason?: string
   generated_pdf_path?: string
   generated_pdf_url?: string
@@ -320,6 +323,21 @@ export interface CalendarReminder {
 
 // 하위 호환용 alias (기존 ScheduleView 등에서 사용)
 export type Schedule = CalendarEvent
+
+// ===== DashboardTask (오늘의 할일) =====
+export type DashboardTaskType = 'calendar' | 'consultation' | 'assignment' | 'claim' | 'obligation'
+
+export interface DashboardTask {
+  id: string                    // "calendar_3", "consultation_5" 등
+  type: DashboardTaskType
+  title: string
+  subtitle: string
+  is_completed: boolean
+  can_toggle: boolean           // 체크 토글 가능 여부
+  related_id: number | null
+  due_time: string | null       // "14:00"
+  route: string                 // 상세 이동 경로
+}
 
 // ===== Performance (월간 실적) - Backend 미구현, Mock 유지 =====
 export interface Performance {

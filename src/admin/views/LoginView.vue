@@ -6,8 +6,8 @@ import { useAuthStore } from '../stores/authStore'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const username = ref('admin')
-const password = ref('password')
+const username = ref('')
+const password = ref('')
 const error = ref('')
 
 const handleLogin = async () => {
@@ -70,9 +70,6 @@ const handleLogin = async () => {
         </button>
       </form>
 
-      <p class="mt-4 text-center text-[12px] text-[#999]">
-        테스트 계정: admin / password
-      </p>
     </div>
   </div>
 </template>

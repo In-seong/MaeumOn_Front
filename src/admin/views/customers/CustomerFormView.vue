@@ -160,15 +160,18 @@
 
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
-              담당 설계사 ID
+              담당 설계사
             </label>
-            <input
+            <select
               v-model="form.agent_id"
-              type="text"
-              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-              placeholder="예: A0000001 (선택사항)"
-            />
-            <p class="mt-1 text-[12px] text-[#999]">설계사 ID를 입력하면 해당 설계사에게 배정됩니다.</p>
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+            >
+              <option value="">선택 안함</option>
+              <option v-for="agent in agentList" :key="agent.agent_id" :value="agent.agent_id">
+                {{ agent.name }} ({{ agent.agent_id }})
+              </option>
+            </select>
+            <p class="mt-1 text-[12px] text-[#999]">설계사를 선택하면 해당 설계사에게 배정됩니다.</p>
           </div>
         </div>
 
@@ -196,10 +199,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { fetchAgents } from '../../services/adminApi'
+import type { AdminAgent } from '../../types'
 
 const route = useRoute()
 const router = useRouter()
 const store = useCustomerStore()
+
+const agentList = ref<AdminAgent[]>([])
 
 const isEdit = computed(() => !!route.params.id)
 const loading = ref(false)
@@ -284,7 +291,17 @@ async function handleSubmit() {
   }
 }
 
+async function loadAgentList() {
+  try {
+    const response = await fetchAgents({ per_page: 200, is_active: true } as Record<string, unknown>)
+    agentList.value = response.data.data.data
+  } catch {
+    // 설계사 목록 로딩 실패 시 무시
+  }
+}
+
 onMounted(() => {
   loadData()
+  loadAgentList()
 })
 </script>

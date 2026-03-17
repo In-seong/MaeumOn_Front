@@ -235,8 +235,12 @@ export const claimApi = {
   getAdminList: (params?: { search?: string; claim_status?: string; company_id?: number; date_from?: string; date_to?: string; per_page?: number; page?: number }) =>
     api.get<ApiResponse<PaginatedResponse<InsuranceClaim>>>('/admin/claims', { params }),
 
+  // 관리자: 청구 상세
+  getAdminDetail: (id: number) =>
+    api.get<ApiResponse<InsuranceClaim>>(`/admin/claims/${id}`),
+
   // 관리자: 청구 상태 변경
-  updateStatus: (id: number, data: { claim_status: string; approved_amount?: number; notes?: string }) =>
+  updateStatus: (id: number, data: { claim_status: string; approved_amount?: number; paid_amount?: number; notes?: string }) =>
     api.put<ApiResponse<InsuranceClaim>>(`/admin/claims/${id}/status`, data),
 }
 

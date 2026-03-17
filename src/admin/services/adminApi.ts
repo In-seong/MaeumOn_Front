@@ -5,6 +5,7 @@ import type {
   Assignment, AdditionalContractResult,
   PerformanceSummary, AgentPerformance, MonthlyPerformance,
   DashboardSummary, AdminSentNotification,
+  AdminConsultation, AdminBatchClaim,
 } from '../types'
 
 const BASE = '/admin'
@@ -112,3 +113,11 @@ export const sendNotification = (data: {
 
 export const fetchSentNotifications = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminSentNotification>>>(`${BASE}/notifications`, { params })
+
+// ===== Consultations (상담 관리) =====
+export const fetchConsultations = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminConsultation>>>(`${BASE}/consultations`, { params })
+
+// ===== Batch Claims (배치 청구 관리) =====
+export const fetchBatchClaims = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminBatchClaim>>>(`${BASE}/batch-claims`, { params })

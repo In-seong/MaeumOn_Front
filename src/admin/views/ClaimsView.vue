@@ -58,7 +58,9 @@
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
           <tr v-for="claim in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#333]">{{ claim.claim_id }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]">
+              <router-link :to="`/claims/${claim.claim_id}`" class="text-[#FF7B22] hover:underline font-medium">{{ claim.claim_id }}</router-link>
+            </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <div class="text-[14px] font-medium text-[#333]">{{ claim.customer?.name }}</div>
               <div class="text-[12px] text-[#999]">{{ claim.customer?.email }}</div>
@@ -145,12 +147,12 @@
       <div v-if="showApprovalModal" class="fixed inset-0 z-50 flex items-center justify-center">
         <div class="absolute inset-0 bg-black/40" @click="cancelApproval"></div>
         <div class="relative bg-white rounded-[16px] w-[90%] max-w-[400px] p-6 shadow-xl">
-          <h3 class="text-[18px] font-bold text-[#222] mb-1">승인 처리</h3>
+          <h3 class="text-[18px] font-bold text-[#222] mb-1">{{ pendingApproval?.newStatus === 'paid' ? '지급 처리' : '승인 처리' }}</h3>
           <p class="text-[13px] text-[#888] mb-5">
             청구 #{{ pendingApproval?.claim.claim_id }} — {{ pendingApproval?.claim.customer?.name }}
           </p>
 
-          <label class="block text-[13px] font-medium text-[#555] mb-2">승인 금액 (원)</label>
+          <label class="block text-[13px] font-medium text-[#555] mb-2">{{ pendingApproval?.newStatus === 'paid' ? '지급 금액' : '승인 금액' }} (원)</label>
           <input
             v-model="approvalAmount"
             type="text"
@@ -172,7 +174,7 @@
               class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3 text-[14px] font-semibold"
               @click="confirmApproval"
             >
-              승인 확정
+              {{ pendingApproval?.newStatus === 'paid' ? '지급 확정' : '승인 확정' }}
             </button>
           </div>
         </div>
@@ -257,8 +259,8 @@ function formatAmountInput(event: Event) {
 }
 
 async function handleStatusChange(claim: InsuranceClaim, newStatus: string) {
-  // approved로 변경 시 승인금액 입력 모달 표시
-  if (newStatus === 'approved') {
+  // approved/paid로 변경 시 금액 입력 모달 표시
+  if (newStatus === 'approved' || newStatus === 'paid') {
     pendingApproval.value = { claim, newStatus }
     approvalAmount.value = ''
     showApprovalModal.value = true
@@ -290,17 +292,18 @@ function cancelApproval() {
   fetchData() // select 원래 값으로 복원
 }
 
-async function doStatusChange(claimId: number, newStatus: string, approvedAmount?: number) {
+async function doStatusChange(claimId: number, newStatus: string, amount?: number) {
   try {
-    await claimApi.updateStatus(claimId, {
-      claim_status: newStatus,
-      approved_amount: approvedAmount,
-    })
+    const payload: Record<string, unknown> = { claim_status: newStatus }
+    if (newStatus === 'approved' && amount) payload.approved_amount = amount
+    if (newStatus === 'paid' && amount) payload.paid_amount = amount
+    await claimApi.updateStatus(claimId, payload as Parameters<typeof claimApi.updateStatus>[1])
     const claim = claims.value.find(c => c.claim_id === claimId)
     if (claim) {
       claim.claim_status = newStatus as typeof claim.claim_status
-      if (approvedAmount !== undefined) {
-        claim.approved_amount = approvedAmount
+      if (amount !== undefined) {
+        if (newStatus === 'approved') claim.approved_amount = amount
+        if (newStatus === 'paid') claim.paid_amount = amount
       }
     }
   } catch (e: any) {

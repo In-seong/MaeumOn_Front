@@ -4,6 +4,22 @@
       <BackHeader title="메시지 발송" />
 
       <main class="px-6 py-3 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
+        <!-- 업데이트 진행중 안내 -->
+        <div class="flex flex-col items-center justify-center py-20">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#FFF0E5] flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+          </div>
+          <h3 class="text-[18px] font-bold text-[#333] mb-2">업데이트 진행중</h3>
+          <p class="text-[14px] text-[#999] leading-relaxed text-center">
+            메시지 발송 기능을 개선하고 있습니다.<br />
+            빠른 시일 내에 업데이트될 예정입니다.
+          </p>
+        </div>
+
+        <!-- 기존 메시지 발송 UI (SMS/카카오/PUSH 연동 완료 후 v-if="false" 제거) -->
+        <template v-if="false">
         <!-- Send Method Tabs -->
         <div class="flex gap-2 mb-5">
           <button
@@ -26,8 +42,8 @@
           <CardSection>
             <FormInput
               v-model="smsForm.receiverId"
-              label="수신자 ID"
-              placeholder="고객 ID를 입력하세요"
+              label="수신 고객 ID"
+              placeholder="예: C0000001"
             />
             <div class="mt-4">
               <FormTextarea
@@ -104,7 +120,7 @@
               <div class="bg-[#FEE500] rounded-[12px] p-4">
                 <div class="bg-white rounded-[10px] p-4">
                   <p class="text-[13px] text-[#333] whitespace-pre-line leading-relaxed">
-                    {{ selectedTemplate.content }}
+                    {{ selectedTemplate?.content }}
                   </p>
                 </div>
               </div>
@@ -121,8 +137,8 @@
           <CardSection>
             <FormInput
               v-model="pushForm.receiverId"
-              label="수신자 ID"
-              placeholder="고객 ID를 입력하세요"
+              label="수신 고객 ID"
+              placeholder="예: C0000001"
             />
             <div class="mt-4">
               <FormInput
@@ -173,6 +189,7 @@
             </div>
           </div>
         </section>
+        </template>
       </main>
 
       <AgentBottomNav />
@@ -263,8 +280,8 @@ async function handleSmsSend(): Promise<void> {
     await messageStore.send({
       receiver_id: smsForm.value.receiverId,
       message_type: 'general',
-      phone_number: smsForm.value.receiverId,
       message_content: smsForm.value.content,
+      image: smsForm.value.imageFile,
     })
     smsForm.value.content = ''
     smsForm.value.receiverId = ''
@@ -285,7 +302,6 @@ async function handleKakaoSend(): Promise<void> {
     await messageStore.send({
       receiver_id: kakaoForm.value.receiverId,
       message_type: 'template',
-      phone_number: kakaoForm.value.receiverId,
       message_content: template.content,
     })
     kakaoForm.value.receiverId = ''
@@ -301,11 +317,13 @@ async function handlePushSend(): Promise<void> {
   if (!pushForm.value.receiverId || !pushForm.value.content) return
   sending.value = true
   try {
+    const content = pushForm.value.title
+      ? `[${pushForm.value.title}] ${pushForm.value.content}`
+      : pushForm.value.content
     await messageStore.send({
       receiver_id: pushForm.value.receiverId,
       message_type: 'notification',
-      phone_number: pushForm.value.receiverId,
-      message_content: pushForm.value.content,
+      message_content: content,
     })
     pushForm.value.title = ''
     pushForm.value.content = ''

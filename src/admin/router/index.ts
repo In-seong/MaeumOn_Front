@@ -174,11 +174,17 @@ const router = createRouter({
       component: () => import('../views/templates/TemplateFieldEditorView.vue'),
       meta: { requiresAuth: true },
     },
-    // 청구 관리 (기존)
+    // 청구 관리
     {
       path: '/claims',
       name: 'claims',
       component: () => import('../views/ClaimsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/claims/:id',
+      name: 'claim-detail',
+      component: () => import('../views/claims/ClaimDetailView.vue'),
       meta: { requiresAuth: true },
     },
     // 동의서 관리
@@ -188,14 +194,30 @@ const router = createRouter({
       component: () => import('../views/ConsentTemplateView.vue'),
       meta: { requiresAuth: true },
     },
+    // 상담 관리
+    {
+      path: '/consultations',
+      name: 'consultations',
+      component: () => import('../views/consultations/ConsultationListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 배치 청구 관리
+    {
+      path: '/batch-claims',
+      name: 'batch-claims',
+      component: () => import('../views/claims/BatchClaimListView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
 // 인증 가드
 router.beforeEach((to, _from, next) => {
-  const isLoggedIn = localStorage.getItem('adminIsLoggedIn') === 'true'
+  const hasToken = !!localStorage.getItem('adminToken')
+  const isLoggedIn = hasToken && localStorage.getItem('adminIsLoggedIn') === 'true'
 
   if (to.meta.requiresAuth && !isLoggedIn) {
+    localStorage.removeItem('adminIsLoggedIn')
     next({ name: 'login' })
   } else if (to.name === 'login' && isLoggedIn) {
     next({ name: 'dashboard' })

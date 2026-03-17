@@ -211,6 +211,8 @@ export interface InsuranceClaim {
   claim_status: string
   claim_date?: string
   approval_date?: string
+  paid_date?: string
+  paid_amount?: number
   rejection_reason?: string
   generated_pdf_path?: string
   generated_pdf_url?: string
