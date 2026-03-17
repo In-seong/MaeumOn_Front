@@ -972,6 +972,16 @@ watch(() => editForm.field_type, (newType) => {
         check_font_size: 14,
       }
       break
+    case 'date':
+      editForm.field_options = {
+        date_format: 'full_year',
+        date_parts: [
+          { label: '년', part: 'year', x: 0, y: 0 },
+          { label: '월', part: 'month', x: 0, y: 0 },
+          { label: '일', part: 'day', x: 0, y: 0 },
+        ],
+      }
+      break
     case 'signature':
     default:
       editForm.field_options = null
@@ -1205,10 +1215,17 @@ async function applyFieldChanges() {
   }
 
   try {
-    await store.updateField(store.selectedField.form_field_id, {
+    // 표준 필드는 field_name, field_label, field_type 제외 (백엔드에서 수정 거부)
+    const payload: Record<string, unknown> = {
       ...editForm,
       field_options: mergedOptions,
-    })
+    }
+    if (store.selectedField.standard_field_code) {
+      delete payload.field_name
+      delete payload.field_label
+      delete payload.field_type
+    }
+    await store.updateField(store.selectedField.form_field_id, payload as Partial<FormField>)
   } catch (e: any) {
     alert(e.response?.data?.message || '속성 적용에 실패했습니다.')
   }
@@ -1217,6 +1234,16 @@ async function applyFieldChanges() {
 async function handleSave() {
   saving.value = true
   try {
+    // 현재 편집 중인 필드 속성을 로컬 store에 반영
+    syncEditFormToStore()
+    // 모든 필드의 field_options를 개별 업데이트 (choices 좌표 등 보존)
+    for (const field of store.sortedFields) {
+      if (field.field_options) {
+        await store.updateField(field.form_field_id, {
+          field_options: field.field_options,
+        })
+      }
+    }
     await store.saveFieldPositions(Number(route.params.id))
     alert('저장되었습니다.')
   } catch (e: any) {
