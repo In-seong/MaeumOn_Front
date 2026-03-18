@@ -956,7 +956,9 @@ watch(() => store.selectedField, (field) => {
 }, { immediate: true })
 
 // field_type 변경 시 field_options 자동 초기화
+// (필드 선택에 의한 변경이면 skip — DB에서 로드한 field_options를 보존)
 watch(() => editForm.field_type, (newType) => {
+  if (store.selectedField && store.selectedField.field_type === newType) return
   switch (newType) {
     case 'checkbox':
     case 'radio':
@@ -1235,22 +1237,29 @@ async function applyFieldChanges() {
 async function handleSave() {
   saving.value = true
   try {
-    // 현재 편집 중인 필드 속성을 로컬 store에 반영
+    // 이전에 편집한 필드들의 변경사항을 store에 반영
     syncEditFormToStore()
 
     // 모든 필드의 위치 + field_options를 개별 업데이트
     for (const field of store.sortedFields) {
+      // 현재 선택된 필드는 editForm에서 직접 가져옴 (reactivity 이슈 방지)
+      const isCurrentField = field.form_field_id === previousFieldId
+
       const payload: Record<string, unknown> = {
-        x_position: field.x_position,
-        y_position: field.y_position,
-        width: field.width,
-        height: field.height,
-        font_size: field.font_size,
-        font_color: field.font_color,
+        x_position: isCurrentField ? editForm.x_position : field.x_position,
+        y_position: isCurrentField ? editForm.y_position : field.y_position,
+        width: isCurrentField ? editForm.width : field.width,
+        height: isCurrentField ? editForm.height : field.height,
+        font_size: isCurrentField ? editForm.font_size : field.font_size,
+        font_color: isCurrentField ? editForm.font_color : field.font_color,
       }
-      if (field.field_options) {
-        payload.field_options = field.field_options
+
+      // field_options: 현재 필드는 editForm에서, 나머지는 store에서 (deep clone)
+      const options = isCurrentField ? editForm.field_options : field.field_options
+      if (options) {
+        payload.field_options = JSON.parse(JSON.stringify(options))
       }
+
       await formFieldApi.update(field.form_field_id, payload as Partial<FormField>)
     }
 
