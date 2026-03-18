@@ -701,7 +701,7 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
-import { standardFieldApi } from '@shared/services/insuranceApi'
+import { standardFieldApi, formFieldApi } from '@shared/services/insuranceApi'
 import { FIELD_TYPE_OPTIONS } from '@shared/types'
 import type { FormField, FormPage, FieldOptions, StandardField } from '@shared/types'
 
@@ -994,6 +994,7 @@ function selectField(field: FormField) {
 }
 
 function selectPage(page: FormPage) {
+  syncEditFormToStore()
   store.selectPage(page)
 }
 
@@ -1236,14 +1237,24 @@ async function handleSave() {
   try {
     // 현재 편집 중인 필드 속성을 로컬 store에 반영
     syncEditFormToStore()
-    // 모든 필드의 field_options를 개별 업데이트 (choices 좌표 등 보존)
+
+    // 모든 필드의 위치 + field_options를 개별 업데이트
     for (const field of store.sortedFields) {
-      if (field.field_options) {
-        await store.updateField(field.form_field_id, {
-          field_options: field.field_options,
-        })
+      const payload: Record<string, unknown> = {
+        x_position: field.x_position,
+        y_position: field.y_position,
+        width: field.width,
+        height: field.height,
+        font_size: field.font_size,
+        font_color: field.font_color,
       }
+      if (field.field_options) {
+        payload.field_options = field.field_options
+      }
+      await formFieldApi.update(field.form_field_id, payload as Partial<FormField>)
     }
+
+    // 필드 순서 일괄 저장 + store 갱신
     await store.saveFieldPositions(Number(route.params.id))
     alert('저장되었습니다.')
   } catch (e: any) {
