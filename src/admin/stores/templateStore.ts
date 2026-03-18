@@ -221,6 +221,13 @@ export const useTemplateStore = defineStore('template', () => {
       }))
       const response = await formFieldApi.bulkUpdate(templateId, fieldData)
       fields.value = response.data.data
+      // selectedField가 stale 객체를 참조하지 않도록 갱신
+      if (selectedField.value) {
+        const updated = fields.value.find(f => f.form_field_id === selectedField.value!.form_field_id)
+        if (updated) {
+          selectedField.value = updated
+        }
+      }
       return response.data.data
     } catch (e: any) {
       error.value = e.response?.data?.message || '필드 위치 저장에 실패했습니다.'
