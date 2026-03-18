@@ -16,34 +16,32 @@
 
       <form v-else @submit.prevent="handleSubmit" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6">
         <div class="space-y-5">
-          <!-- 계정 정보 (등록 시에만) -->
-          <template v-if="!isEdit">
-            <div>
-              <label class="block text-[13px] font-medium text-[#555] mb-2">
-                계정 아이디 <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.username"
-                type="text"
-                required
-                class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-                placeholder="로그인에 사용할 아이디"
-              />
-            </div>
+          <!-- 계정 정보 -->
+          <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
+              계정 아이디 <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.username"
+              type="text"
+              :required="!isEdit"
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+              placeholder="로그인에 사용할 아이디"
+            />
+          </div>
 
-            <div>
-              <label class="block text-[13px] font-medium text-[#555] mb-2">
-                비밀번호 <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="form.password"
-                type="password"
-                required
-                class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-                placeholder="6자 이상"
-              />
-            </div>
-          </template>
+          <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
+              비밀번호 <span v-if="!isEdit" class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.password"
+              type="password"
+              :required="!isEdit"
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+              :placeholder="isEdit ? '변경 시에만 입력' : '6자 이상'"
+            />
+          </div>
 
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
@@ -118,7 +116,7 @@
             />
           </div>
 
-          <div v-if="!isEdit">
+          <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
               입사일
             </label>
@@ -183,7 +181,7 @@ async function loadData() {
     const agent = await store.loadAgent(route.params.id as string)
     if (agent) {
       form.value = {
-        username: '',
+        username: agent.account?.username || '',
         password: '',
         name: agent.name || '',
         employee_number: agent.employee_number || '',
@@ -206,13 +204,17 @@ async function handleSubmit() {
     name: form.value.name,
   }
 
-  // 등록 시에만 계정 정보 포함
   if (!isEdit.value) {
+    // 등록: username, password 필수
     payload.username = form.value.username
     payload.password = form.value.password
-    if (form.value.hire_date) payload.hire_date = form.value.hire_date
+  } else {
+    // 수정: username 변경된 경우, password 입력된 경우만 전송
+    if (form.value.username) payload.username = form.value.username
+    if (form.value.password) payload.password = form.value.password
   }
 
+  if (form.value.hire_date) payload.hire_date = form.value.hire_date
   if (form.value.employee_number) payload.employee_number = form.value.employee_number
   if (form.value.phone) payload.phone = form.value.phone
   if (form.value.email) payload.email = form.value.email
