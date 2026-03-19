@@ -755,6 +755,10 @@ function setFieldValueWithSync(field: FormField, value: string) {
 
     // 2) 다른 탭(entry)의 같은 standard_field_code 필드에도 전파
     //    RRN 통합↔분리 변환도 처리
+    //    단, 청구서마다 선택지가 달라 개별 입력이 필요한 필드는 제외
+    const SYNC_EXCLUDED_CODES = new Set(['ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE'])
+    if (SYNC_EXCLUDED_CODES.has(field.standard_field_code)) return
+
     const code = field.standard_field_code
     const crossMap: Record<string, string> = { [code]: value }
 

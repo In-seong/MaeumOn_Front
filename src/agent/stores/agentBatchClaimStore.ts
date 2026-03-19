@@ -47,6 +47,9 @@ const CUSTOMER_FIELD_MAP: Record<string, string> = {
 /** 자동 복사 제외 필드 타입 (법적 요건상 양식마다 개별 필요) */
 const COPY_EXCLUDED_TYPES = new Set(['signature', 'consent'])
 
+/** 자동 복사 제외 표준 필드 코드 (청구서마다 선택지가 달라 개별 입력 필요) */
+const COPY_EXCLUDED_CODES = new Set(['ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE'])
+
 /** 첨부파일 로컬 참조 */
 export interface LocalAttachment {
   id: string
@@ -295,6 +298,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     for (const field of firstFields) {
       if (!field.standard_field_code) continue
       if (COPY_EXCLUDED_TYPES.has(field.field_type)) continue
+      if (COPY_EXCLUDED_CODES.has(field.standard_field_code)) continue
       const val = first.fieldValues[field.form_field_id]
       if (val) rawCodeValues[field.standard_field_code] = val
     }
@@ -307,6 +311,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     for (const field of targetFields) {
       if (!field.standard_field_code) continue
       if (COPY_EXCLUDED_TYPES.has(field.field_type)) continue
+      if (COPY_EXCLUDED_CODES.has(field.standard_field_code)) continue
       const srcVal = codeValues[field.standard_field_code]
       if (!srcVal) continue
       // 사용자가 직접 수정한 값이 있으면 덮어쓰지 않음
