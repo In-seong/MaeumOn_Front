@@ -142,6 +142,7 @@ export interface StandardField {
   type: FormField['field_type']
   category: string
   customer_field: string | null
+  default_choices?: Array<{ label: string; value: string }>
 }
 
 // 양식 필드 타입

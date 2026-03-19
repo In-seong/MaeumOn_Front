@@ -826,6 +826,14 @@ async function handleStandardFieldClick(sf: StandardField) {
               { label: '일', part: 'day' as const, x: 0, y: 0 },
             ],
           }
+        : sf.type === 'checkbox' || sf.type === 'radio'
+        ? {
+            wizard_step: wizardStep,
+            choices: sf.default_choices
+              ? sf.default_choices.map((c: { label: string; value: string }) => ({ label: c.label, value: c.value, x: 0, y: 0 }))
+              : [],
+            check_font_size: 14,
+          }
         : { wizard_step: wizardStep },
     })
   } catch (e: any) {
