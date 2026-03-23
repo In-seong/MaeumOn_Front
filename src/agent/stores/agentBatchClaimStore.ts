@@ -48,7 +48,7 @@ const CUSTOMER_FIELD_MAP: Record<string, string> = {
 const COPY_EXCLUDED_TYPES = new Set(['signature', 'consent'])
 
 /** 자동 복사 제외 표준 필드 코드 (청구서마다 선택지가 달라 개별 입력 필요) */
-const COPY_EXCLUDED_CODES = new Set(['ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE', 'INSURED_RELATION'])
+const COPY_EXCLUDED_CODES = new Set(['ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE', 'INSURED_RELATION', 'COMPENSATION_RECIPIENT'])
 
 /** 첨부파일 로컬 참조 */
 export interface LocalAttachment {
