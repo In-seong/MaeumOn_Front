@@ -560,6 +560,11 @@ const templateConsentFields = computed(() =>
   allFieldsSorted.value.filter(f => f.field_type === 'consent')
 )
 
+// 자동동의 필드 (CONSENT_AUTO) — UI에 표시하지 않고 자동으로 'agree' 처리
+const autoConsentFields = computed(() =>
+  templateConsentFields.value.filter(f => f.standard_field_code === 'CONSENT_AUTO')
+)
+
 // 카테고리별 consent 필드 분류 (standard_field_code 또는 field_name 기반)
 const privacyConsentFields = computed(() =>
   templateConsentFields.value.filter(f =>
@@ -1284,6 +1289,11 @@ onMounted(async () => {
     } else {
       await claimStore.fetchClaimFormDetail(templateId.value)
     }
+
+    // CONSENT_AUTO 필드 자동 동의 처리
+    autoConsentFields.value.forEach(f => {
+      claimStore.setFieldValue(f.form_field_id, 'agree')
+    })
 
     // 첫 번째 활성 스텝으로 이동
     if (activeSteps.value.length > 0) {

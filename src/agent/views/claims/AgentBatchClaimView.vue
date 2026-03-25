@@ -687,13 +687,14 @@ const maxInnerStep = computed(() => {
   return last ?? 5
 })
 
-// consent 필드 목록 (innerStep 1에서 표시)
+// consent 필드 목록 (innerStep 1에서 표시, CONSENT_AUTO 제외)
 const consentFields = computed(() => {
   if (!currentEntry.value?.claimForm) return []
   const fields = getAllFieldsForEntry(currentEntry.value)
   const seen = new Set<string>()
   return fields.filter((f) => {
     if (f.field_type !== 'consent') return false
+    if (f.standard_field_code === 'CONSENT_AUTO') return false
     if (f.standard_field_code) {
       if (seen.has(f.standard_field_code)) return false
       seen.add(f.standard_field_code)
@@ -923,6 +924,19 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (searchTimeout) clearTimeout(searchTimeout)
+})
+
+// 양식 로드 완료 시 CONSENT_AUTO 필드 자동 동의 처리
+watch(() => batchStore.allFormsLoaded, (loaded) => {
+  if (!loaded) return
+  for (const entry of batchStore.selectedEntries) {
+    const fields = getAllFieldsForEntry(entry)
+    for (const f of fields) {
+      if (f.field_type === 'consent' && f.standard_field_code === 'CONSENT_AUTO') {
+        entry.fieldValues[f.form_field_id] = 'agree'
+      }
+    }
+  }
 })
 
 // 탭 전환 시 내부 스텝 저장/복원 + 2차 자동 복사 + 체크박스 초기화
