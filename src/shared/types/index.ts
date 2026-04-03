@@ -341,3 +341,17 @@ export const CLAIM_STATUS_OPTIONS = [
   { value: 'rejected', label: '거절', color: 'red' },
   { value: 'paid', label: '지급 완료', color: 'emerald' },
 ] as const
+
+// Re-export Credit4U types
+export type {
+  Credit4uAccount,
+  InsuranceContract,
+  InsuranceCoverage,
+  InsurancePaymentHistory,
+  InsuranceStatistic,
+  TwoWayResponse,
+  TwoWayType,
+  TwoWayConfirmRequest,
+} from './credit4u'
+
+export { CODEF_ERROR_MESSAGES, getCodefErrorMessage } from './credit4u'

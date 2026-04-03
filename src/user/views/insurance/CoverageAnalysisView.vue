@@ -3,75 +3,110 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보장 분석" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
-        <!-- Score Card -->
-        <CardSection class="mb-4">
-          <div class="flex items-center gap-4">
-            <div class="relative w-[80px] h-[80px]">
-              <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#F0F0F0" stroke-width="8" />
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#FF7B22" stroke-width="8" stroke-dasharray="263.9" :stroke-dashoffset="263.9 * (1 - score / 100)" stroke-linecap="round" />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-[22px] font-bold text-[#FF7B22]">{{ score }}점</span>
-              </div>
-            </div>
-            <div>
-              <p class="text-[15px] font-semibold text-[#222] mb-1">보장 점수</p>
-              <p class="text-[12px] text-[#888] leading-relaxed">전체적으로 양호하나 일부<br/>보장 항목 보완이 필요합니다.</p>
-            </div>
-          </div>
-        </CardSection>
-
-        <!-- Coverage Status -->
-        <div class="mb-4">
-          <p class="text-[15px] font-semibold text-[#222] mb-2">보장 현황</p>
-          <div class="flex flex-col gap-3">
-            <CardSection v-for="item in coverageStatus" :key="item.name">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-[14px] font-medium text-[#333]">{{ item.name }}</span>
-                <StatusBadge :label="item.badge.label" :variant="item.badge.variant" />
-              </div>
-              <ProgressBar :percent="item.percent" :variant="item.progressVariant" />
-              <p class="text-[11px] text-[#999] mt-1.5">{{ item.description }}</p>
-            </CardSection>
-          </div>
+        <!-- 로딩 -->
+        <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+          <svg class="animate-spin h-8 w-8 text-[#FF7B22] mb-3" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <p class="text-[14px] text-[#999]">보장 분석 데이터를 불러오는 중...</p>
         </div>
 
-        <!-- Duplicate Warning -->
-        <CardSection class="mb-4 !bg-[#FFF9F0]">
-          <div class="flex items-start gap-2">
-            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#F3940E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- 데이터 없음 -->
+        <div v-else-if="!hasData" class="flex flex-col items-center justify-center py-16">
+          <div class="w-[64px] h-[64px] mb-4 bg-[#F0F0F0] rounded-full flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <div>
-              <p class="text-[13px] font-semibold text-[#F3940E] mb-0.5">중복 보장 주의</p>
-              <p class="text-[12px] text-[#888] leading-relaxed">실손보험과 건강보험에서 입원일당이 중복됩니다. 보험료 절약을 위해 조정을 권장합니다.</p>
+          </div>
+          <p class="text-[16px] font-semibold text-[#222] mb-2">분석 데이터가 없습니다</p>
+          <p class="text-[13px] text-[#999] text-center leading-relaxed">
+            보험정보를 조회하면 보장 분석을<br/>확인할 수 있습니다.
+          </p>
+        </div>
+
+        <!-- 분석 결과 -->
+        <template v-else>
+          <!-- 정액형 보장 통계 -->
+          <div v-if="flatRateStats.length > 0" class="mb-5">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">정액형 보장 현황</p>
+            <div class="flex flex-col gap-3">
+              <CardSection v-for="stat in flatRateStats" :key="stat.stat_id">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[14px] font-medium text-[#333]">{{ stat.coverage_name }}</span>
+                  <StatusBadge
+                    :label="getCoverageBadgeLabel(stat)"
+                    :variant="getCoverageBadgeVariant(stat)"
+                  />
+                </div>
+                <ProgressBar
+                  :percent="getCoveragePercent(stat)"
+                  :variant="getCoverageProgressVariant(stat)"
+                />
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-[11px] text-[#999]">
+                    내 보장: {{ formatStatAmount(stat.self_coverage_amt) }}
+                  </span>
+                  <span class="text-[11px] text-[#999]">
+                    동일그룹 평균: {{ formatStatAmount(stat.avg_group_coverage_amt) }}
+                  </span>
+                </div>
+              </CardSection>
             </div>
           </div>
-        </CardSection>
 
-        <!-- Recommendations -->
-        <div class="mb-5">
-          <p class="text-[15px] font-semibold text-[#222] mb-2">추천 보완 사항</p>
-          <div class="flex flex-col gap-2">
-            <CardSection v-for="rec in recommendations" :key="rec.title">
-              <div class="flex items-start gap-3">
-                <div class="w-[36px] h-[36px] rounded-full bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
-                  <span class="text-[16px]">{{ rec.icon }}</span>
+          <!-- 실손형 보장 통계 -->
+          <div v-if="actualLossStats.length > 0" class="mb-5">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">실손형 보장 현황</p>
+            <div class="flex flex-col gap-3">
+              <CardSection v-for="stat in actualLossStats" :key="stat.stat_id">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[14px] font-medium text-[#333]">{{ stat.coverage_name }}</span>
+                  <StatusBadge
+                    :label="stat.self_reg_yn === 'Y' ? '가입' : '미가입'"
+                    :variant="stat.self_reg_yn === 'Y' ? 'success' : 'danger'"
+                  />
                 </div>
+                <div class="bg-[#F8F8F8] rounded-[10px] px-3 py-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[12px] text-[#888]">동일그룹 가입률</span>
+                    <span class="text-[14px] font-bold text-[#FF7B22]">
+                      {{ stat.avg_group_reg_rate || '-' }}
+                    </span>
+                  </div>
+                </div>
+              </CardSection>
+            </div>
+          </div>
+
+          <!-- 전체 보험 목록 요약 -->
+          <div v-if="store.contracts.length > 0" class="mb-5">
+            <p class="text-[15px] font-semibold text-[#222] mb-2">가입 보험 현황</p>
+            <CardSection>
+              <div
+                v-for="contract in store.contracts"
+                :key="contract.insurance_id"
+                class="flex items-center justify-between py-2.5 border-b border-[#F5F5F5] last:border-b-0"
+              >
                 <div>
-                  <p class="text-[14px] font-semibold text-[#222] mb-0.5">{{ rec.title }}</p>
-                  <p class="text-[12px] text-[#888] leading-relaxed">{{ rec.description }}</p>
+                  <p class="text-[13px] font-medium text-[#333]">{{ contract.product_name || '보험상품' }}</p>
+                  <p class="text-[11px] text-[#999]">{{ contract.insurance_company?.company_name || '' }}</p>
                 </div>
+                <span v-if="contract.premium_amount" class="text-[13px] font-bold text-[#222]">
+                  월 {{ formatAmount(contract.premium_amount) }}
+                </span>
               </div>
             </CardSection>
           </div>
-        </div>
 
-        <!-- CTA -->
-        <button class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform mb-6" @click="router.push('/consultation')">
-          전문가 상담 받기
-        </button>
+          <!-- CTA -->
+          <button
+            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform mb-6"
+            @click="router.push('/consultation')"
+          >
+            전문가 상담 받기
+          </button>
+        </template>
       </main>
       <BottomNav />
     </div>
@@ -79,42 +114,85 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
 import ProgressBar from '@user/components/ui/ProgressBar.vue'
 import BottomNav from '@user/components/layout/BottomNav.vue'
+import { useCredit4uStore } from '@user/stores/credit4uStore'
+import type { InsuranceStatistic } from '@shared/types/credit4u'
 
 const router = useRouter()
+const store = useCredit4uStore()
 
-const score = 72
+const loading = ref(false)
 
-interface CoverageStatusItem {
-  name: string
-  badge: { label: string; variant: 'success' | 'warning' | 'danger' | 'primary' | 'info' | 'default' }
-  percent: number
-  progressVariant: string
-  description: string
+const flatRateStats = computed(() =>
+  store.statistics.filter(s => s.stat_type === 'flat_rate')
+)
+
+const actualLossStats = computed(() =>
+  store.statistics.filter(s => s.stat_type === 'actual_loss')
+)
+
+const hasData = computed(() =>
+  store.statistics.length > 0 || store.contracts.length > 0
+)
+
+function formatAmount(amount: number | null | undefined): string {
+  if (!amount) return '0원'
+  return amount.toLocaleString('ko-KR') + '원'
 }
 
-const coverageStatus: CoverageStatusItem[] = [
-  { name: '사망보장', badge: { label: '충분', variant: 'success' }, percent: 90, progressVariant: 'success', description: '종신보험 1억 + 건강보험 1억 = 2억원' },
-  { name: '암 보장', badge: { label: '충분', variant: 'success' }, percent: 85, progressVariant: 'success', description: '암보험 5,000만원 + 건강보험 3,000만원' },
-  { name: '뇌/심장 보장', badge: { label: '보통', variant: 'warning' }, percent: 60, progressVariant: 'warning', description: '건강보험 2,000만원 (추가 보완 권장)' },
-  { name: '입원/수술 보장', badge: { label: '부족', variant: 'danger' }, percent: 35, progressVariant: 'danger', description: '입원일당 5만원 (10만원 이상 권장)' },
-  { name: '실손 보장', badge: { label: '양호', variant: 'primary' }, percent: 75, progressVariant: 'primary', description: '4세대 실손보험 가입 중' },
-]
-
-interface Recommendation {
-  icon: string
-  title: string
-  description: string
+function formatStatAmount(amount: number | null | undefined): string {
+  if (!amount) return '-'
+  // 큰 금액은 만원 단위로 표시
+  if (amount >= 10000) {
+    return Math.round(amount / 10000).toLocaleString('ko-KR') + '만원'
+  }
+  return amount.toLocaleString('ko-KR') + '원'
 }
 
-const recommendations: Recommendation[] = [
-  { icon: '🏥', title: '입원/수술 보장 강화', description: '현재 입원일당 5만원으로 부족합니다. 10만원 이상으로 보완하는 것을 권장합니다.' },
-  { icon: '🧠', title: '뇌혈관 보장 추가', description: '뇌출혈만 보장되며, 뇌경색 등 광범위 뇌혈관 보장 추가를 권장합니다.' },
-  { icon: '💰', title: '중복 보장 정리', description: '입원일당 중복 부분을 정리하면 월 약 15,000원 절약 가능합니다.' },
-]
+function getCoveragePercent(stat: InsuranceStatistic): number {
+  if (!stat.self_coverage_amt || !stat.avg_group_coverage_amt || stat.avg_group_coverage_amt === 0) {
+    return 0
+  }
+  const pct = (stat.self_coverage_amt / stat.avg_group_coverage_amt) * 100
+  return Math.min(pct, 100)
+}
+
+function getCoverageBadgeLabel(stat: InsuranceStatistic): string {
+  const pct = getCoveragePercent(stat)
+  if (pct >= 80) return '충분'
+  if (pct >= 50) return '보통'
+  return '부족'
+}
+
+type BadgeVariant = 'success' | 'warning' | 'danger' | 'primary' | 'info' | 'default'
+
+function getCoverageBadgeVariant(stat: InsuranceStatistic): BadgeVariant {
+  const pct = getCoveragePercent(stat)
+  if (pct >= 80) return 'success'
+  if (pct >= 50) return 'warning'
+  return 'danger'
+}
+
+function getCoverageProgressVariant(stat: InsuranceStatistic): string {
+  return getCoverageBadgeVariant(stat)
+}
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    // 통계 + 계약 목록 동시 조회
+    await Promise.all([
+      store.fetchStatistics(),
+      store.contracts.length === 0 ? store.checkContracts() : Promise.resolve(),
+    ])
+  } finally {
+    loading.value = false
+  }
+})
 </script>
