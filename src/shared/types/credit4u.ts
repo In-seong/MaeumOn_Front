@@ -120,6 +120,7 @@ export type TwoWayType =
   | 'register_info'    // 가입정보(ID/PW/이메일) 입력
   | 'temp_password'    // 임시비밀번호 입력
   | 'new_password'     // 변경할 비밀번호 입력
+  | 'unknown'          // 판별 불가 (fallback)
 
 /** 2-Way 확인 요청 */
 export interface TwoWayConfirmRequest {
