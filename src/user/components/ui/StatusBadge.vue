@@ -1,6 +1,6 @@
 <template>
   <span
-    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block"
+    class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block whitespace-nowrap flex-shrink-0"
     :class="variantClasses"
   >
     {{ label }}

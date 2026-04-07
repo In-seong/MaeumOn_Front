@@ -61,6 +61,36 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/insurance/consent',
+      name: 'credit4u-consent',
+      component: () => import('../views/insurance/Credit4uConsentView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/insurance/credit4u/login',
+      name: 'credit4u-login',
+      component: () => import('../views/insurance/Credit4uLoginView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/insurance/credit4u/register',
+      name: 'credit4u-register',
+      component: () => import('../views/insurance/Credit4uRegisterView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/insurance/credit4u/find-id',
+      name: 'credit4u-find-id',
+      component: () => import('../views/insurance/Credit4uFindIdView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/insurance/credit4u/change-pwd',
+      name: 'credit4u-change-pwd',
+      component: () => import('../views/insurance/Credit4uChangePwdView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/insurance/:id',
       name: 'insurance-detail',
       component: () => import('../views/insurance/InsuranceDetailView.vue'),
