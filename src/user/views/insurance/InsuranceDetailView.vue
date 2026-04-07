@@ -27,12 +27,12 @@
         <template v-else-if="contract">
           <!-- Policy Header -->
           <CardSection class="mb-4">
-            <div class="flex items-start justify-between mb-3">
-              <div>
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="min-w-0 flex-1">
                 <span class="text-[13px] text-[#888]">
                   {{ contract.insurance_company?.company_name || '보험사' }}
                 </span>
-                <p class="text-[18px] font-bold text-[#222] mt-0.5">
+                <p class="text-[18px] font-bold text-[#222] mt-0.5 break-keep">
                   {{ contract.product_name || '보험상품' }}
                 </p>
               </div>
@@ -197,9 +197,11 @@ const contractPeriod = computed(() => {
   return contract.value.payment_period || ''
 })
 
-function formatAmount(amount: number | null | undefined): string {
-  if (!amount) return '-'
-  return amount.toLocaleString('ko-KR') + '원'
+function formatAmount(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined || amount === '') return '-'
+  const num = Math.round(Number(amount))
+  if (isNaN(num) || num === 0) return '-'
+  return num.toLocaleString('ko-KR') + '원'
 }
 
 function formatDate(dateStr: string | null | undefined): string {

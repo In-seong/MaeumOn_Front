@@ -158,6 +158,7 @@ export interface CheckRegistrationRequest {
 export interface RegisterRequest {
   userName: string
   identity: string
+  birthDate?: string
   telecom: string
   phoneNo: string
   type?: '0' | '1'

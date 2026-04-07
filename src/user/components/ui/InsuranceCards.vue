@@ -3,11 +3,25 @@
     <div class="flex-1 flex flex-col justify-between bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 cursor-pointer" @click="router.push('/insurance')">
       <div>
         <h3 class="text-[15px] font-medium text-[#FF7B22] mb-3">내 보험 현황</h3>
-        <p class="text-[13px] font-semibold text-[#555555] mb-0.5">월 납입료</p>
-        <p class="text-[17px] font-semibold text-black">385,000원</p>
+        <template v-if="hasContracts">
+          <p class="text-[13px] font-semibold text-[#555555] mb-0.5">월 납입료</p>
+          <p class="text-[17px] font-semibold text-black">{{ formattedTotalPremium }}</p>
+        </template>
+        <template v-else>
+          <p class="text-[13px] font-medium text-[#555555] leading-[1.5]">가입된 내 보험 정보를<br>조회하세요.</p>
+        </template>
       </div>
       <div class="flex justify-end">
-        <span class="text-[28px] font-bold text-[#FF7B22]" style="text-decoration: underline; text-decoration-color: #FF7B22; text-underline-offset: 6px; text-decoration-thickness: 2px;">5건</span>
+        <span
+          v-if="hasContracts"
+          class="text-[28px] font-bold text-[#FF7B22]"
+          style="text-decoration: underline; text-decoration-color: #FF7B22; text-underline-offset: 6px; text-decoration-thickness: 2px;"
+        >{{ contractCount }}건</span>
+        <span
+          v-else
+          class="text-[17px] font-bold text-[#FF7B22]"
+          style="text-decoration: underline; text-decoration-color: #FF7B22; text-underline-offset: 6px; text-decoration-thickness: 2px;"
+        >조회하기</span>
       </div>
     </div>
     <div class="flex-1 flex flex-col justify-between bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 cursor-pointer" @click="showModal = true">
@@ -52,11 +66,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useCredit4uStore } from '@user/stores/credit4uStore'
 
 const router = useRouter()
 const showModal = ref(false)
+
+const store = useCredit4uStore()
+
+const hasContracts = computed(() => store.hasContracts)
+const contractCount = computed(() => store.activeContracts.length)
+
+const formattedTotalPremium = computed(() => {
+  const total = store.totalPremium
+  if (!total) return '0원'
+  return Math.round(total).toLocaleString('ko-KR') + '원'
+})
+
+onMounted(() => {
+  // 메인 페이지 진입 시 최신 보험 목록 로드 (이미 로드되어 있으면 갱신)
+  if (!store.hasContracts) {
+    store.checkContracts()
+  }
+})
 
 function handleClaim(type: 'direct' | 'agent'): void {
   showModal.value = false

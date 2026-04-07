@@ -13,7 +13,7 @@
         </div>
 
         <!-- 데이터 있음 -->
-        <template v-else-if="store.hasContracts">
+        <template v-else-if="hasAnyContracts">
           <div class="flex items-center justify-between mb-4">
             <span class="text-[12px] text-[#999]">{{ syncDateLabel }}</span>
             <button
@@ -37,7 +37,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-[12px] text-[#999]">총 보험 수</p>
-                <p class="text-[20px] font-bold text-[#222]">{{ store.contracts.length }}건</p>
+                <p class="text-[20px] font-bold text-[#222]">{{ displayedContracts.length }}건</p>
               </div>
               <div class="text-right">
                 <p class="text-[12px] text-[#999]">월 납입료</p>
@@ -46,10 +46,11 @@
             </div>
           </CardSection>
 
+          <!-- 빈 목록 안내 (토글로 인해 표시할 항목이 없을 때) -->
           <!-- 보험 목록 -->
           <div class="flex flex-col gap-3 mb-5">
             <router-link
-              v-for="item in store.contracts"
+              v-for="item in displayedContracts"
               :key="item.insurance_id"
               :to="'/insurance/' + item.insurance_id"
               class="block"
@@ -172,6 +173,10 @@ const showRefreshLogin = ref(false)
 const refreshLoginId = ref('')
 const refreshPassword = ref('')
 
+// 만기 제외 계약만 표시 (메인 페이지와 동일)
+const displayedContracts = computed(() => store.activeContracts)
+const hasAnyContracts = computed(() => displayedContracts.value.length > 0)
+
 const syncDateLabel = computed(() => {
   if (store.lastSyncedAt) {
     const date = new Date(store.lastSyncedAt)
@@ -181,12 +186,19 @@ const syncDateLabel = computed(() => {
 })
 
 const formattedTotalPremium = computed(() => {
-  return formatAmount(store.totalPremium)
+  // 화면에 표시되는 보험 기준으로 합산 (만기 토글 상태 반영)
+  const total = displayedContracts.value.reduce(
+    (sum, c) => sum + (Number(c.premium_amount) || 0),
+    0,
+  )
+  return formatAmount(total)
 })
 
-function formatAmount(amount: number | null | undefined): string {
-  if (!amount) return '0원'
-  return amount.toLocaleString('ko-KR') + '원'
+function formatAmount(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined || amount === '') return '0원'
+  const num = Math.round(Number(amount))
+  if (isNaN(num)) return '0원'
+  return num.toLocaleString('ko-KR') + '원'
 }
 
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'primary' | 'info' | 'default'

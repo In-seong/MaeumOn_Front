@@ -32,10 +32,21 @@ export const useCredit4uStore = defineStore('credit4u', () => {
   const foundLoginId = ref<string | null>(null)
 
   // ============ Computed ============
-  const hasContracts = computed(() => contracts.value.length > 0)
+  /** 만기 여부 판별 */
+  function isExpired(c: InsuranceContract): boolean {
+    const status = (c.contract_status || '').toLowerCase()
+    return status === '만기' || status === 'expired' || status === '해지' || status === '소멸'
+  }
+
+  /** 만기 제외 계약 (메인 페이지 / 기본 목록용) */
+  const activeContracts = computed(() =>
+    Array.isArray(contracts.value) ? contracts.value.filter(c => !isExpired(c)) : [],
+  )
+
+  const hasContracts = computed(() => activeContracts.value.length > 0)
   const hasCredit4uAccount = computed(() => credit4uAccount.value !== null)
   const totalPremium = computed(() => {
-    return contracts.value.reduce((sum, c) => sum + (c.premium_amount || 0), 0)
+    return activeContracts.value.reduce((sum, c) => sum + (Number(c.premium_amount) || 0), 0)
   })
   const lastSyncedAt = computed(() => credit4uAccount.value?.last_synced_at || null)
 
@@ -55,22 +66,25 @@ export const useCredit4uStore = defineStore('credit4u', () => {
     twoWayPending.value = true
     twoWayData.value = data
 
-    // extraInfo에서 현재 단계 판별
+    // extraInfo에서 현재 단계 판별 (우선순위: 후반 단계 먼저)
+    // CODEF는 단계별로 해당 단계의 플래그만 내려주므로, 존재하는 플래그를 체크
     const extra = data.extraInfo || {}
-    if (extra.reqSecureNo !== undefined || extra.secureNoImage) {
-      twoWayType.value = 'captcha'
+
+    if (extra.reqEmailAuthNo !== undefined) {
+      twoWayType.value = 'email'
+    } else if (extra.reqUserPass1 !== undefined) {
+      twoWayType.value = 'temp_password'
+    } else if (extra.reqUserPass !== undefined) {
+      // 비밀번호변경 type=1 마지막 단계 또는 회원가입 가입정보 입력
+      twoWayType.value = extra.reqUserId !== undefined ? 'register_info' : 'new_password'
+    } else if (extra.reqUserId !== undefined) {
+      twoWayType.value = 'register_info'
     } else if (extra.reqSMSAuthNo !== undefined) {
       twoWayType.value = 'sms'
     } else if (extra.commSimpleAuth !== undefined) {
       twoWayType.value = 'pass'
-    } else if (extra.reqUserPass1 !== undefined) {
-      twoWayType.value = 'temp_password'
-    } else if (extra.reqUserId !== undefined) {
-      twoWayType.value = 'register_info'
-    } else if (extra.reqEmailAuthNo !== undefined) {
-      twoWayType.value = 'email'
-    } else if (extra.reqUserPass !== undefined) {
-      twoWayType.value = 'new_password'
+    } else if (extra.reqSecureNo !== undefined) {
+      twoWayType.value = 'captcha'
     } else {
       twoWayType.value = 'unknown'
     }
@@ -96,9 +110,11 @@ export const useCredit4uStore = defineStore('credit4u', () => {
     try {
       const response = await insuranceApi.getInsurances()
       if (response.data.success) {
-        contracts.value = response.data.data
+        const data: any = response.data.data
+        contracts.value = Array.isArray(data) ? data : []
         return contracts.value.length > 0
       }
+      contracts.value = []
       return false
     } catch (e: any) {
       // 404 등 — 데이터 없음
@@ -196,7 +212,7 @@ export const useCredit4uStore = defineStore('credit4u', () => {
   async function fetchContracts(data: FetchContractsRequest): Promise<boolean> {
     loading.value = true
     error.value = null
-    currentApi.value = 'fetch-contracts'
+    currentApi.value = 'contract'
     try {
       const response = await credit4uApi.fetchContracts(data)
 
@@ -206,9 +222,17 @@ export const useCredit4uStore = defineStore('credit4u', () => {
       }
 
       if (response.data.success) {
-        contracts.value = response.data.data.contracts
+        // 백엔드 응답: { success: true, data: [insurances] } (Collection 직접 반환)
+        const respData: any = response.data.data
+        if (Array.isArray(respData)) {
+          contracts.value = respData
+        } else if (respData && Array.isArray(respData.contracts)) {
+          contracts.value = respData.contracts
+        } else {
+          contracts.value = []
+        }
         if (credit4uAccount.value) {
-          credit4uAccount.value.last_synced_at = response.data.data.synced_at
+          credit4uAccount.value.last_synced_at = (respData?.synced_at as string) || new Date().toISOString()
         }
         return true
       }
@@ -253,7 +277,7 @@ export const useCredit4uStore = defineStore('credit4u', () => {
   async function changePassword(data: ChangePasswordRequest): Promise<boolean> {
     loading.value = true
     error.value = null
-    currentApi.value = 'change-password'
+    currentApi.value = 'change-pwd'
     try {
       const response = await credit4uApi.changePassword(data)
 
@@ -291,9 +315,12 @@ export const useCredit4uStore = defineStore('credit4u', () => {
 
       if (response.data.success) {
         // 최종 성공 — currentApi에 따라 후처리
-        if (currentApi.value === 'fetch-contracts') {
+        if (currentApi.value === 'contract') {
           const contractData = response.data.data as any
-          if (contractData?.contracts) {
+          // 백엔드: { success, data: [collection] } 직접 반환
+          if (Array.isArray(contractData)) {
+            contracts.value = contractData
+          } else if (contractData?.contracts && Array.isArray(contractData.contracts)) {
             contracts.value = contractData.contracts
           }
         } else if (currentApi.value === 'find-id') {
@@ -335,11 +362,14 @@ export const useCredit4uStore = defineStore('credit4u', () => {
     try {
       const response = await insuranceApi.getStatistics()
       if (response.data.success) {
-        statistics.value = response.data.data
+        const data: any = response.data.data
+        statistics.value = Array.isArray(data) ? data : []
         return true
       }
+      statistics.value = []
       return false
     } catch (e: any) {
+      statistics.value = []
       error.value = e.response?.data?.message || '통계 데이터를 불러오는데 실패했습니다.'
       return false
     } finally {
@@ -412,6 +442,7 @@ export const useCredit4uStore = defineStore('credit4u', () => {
     hasCredit4uAccount,
     totalPremium,
     lastSyncedAt,
+    activeContracts,
 
     // Actions
     checkContracts,

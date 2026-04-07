@@ -26,10 +26,14 @@
 
         <!-- 보안문자 (captcha) -->
         <div v-if="store.twoWayType === 'captcha'" class="flex flex-col gap-3">
-          <div v-if="store.twoWayData?.secure_no_image" class="flex justify-center">
-            <img :src="store.twoWayData.secure_no_image" alt="보안문자" class="h-[60px] rounded-[8px] border border-[#E8E8E8]" />
+          <div v-if="captchaImage" class="flex justify-center">
+            <img :src="captchaImage" alt="보안문자" class="h-[60px] rounded-[8px] border border-[#E8E8E8]" />
+          </div>
+          <div v-else class="bg-[#F0F4FF] rounded-[10px] p-3 text-center">
+            <p class="text-[12px] text-[#4A7CFF]">자동 인식 처리 중입니다. 확인 버튼을 눌러주세요.</p>
           </div>
           <FormInput
+            v-if="captchaImage"
             v-model="inputValues.secureNo"
             label="보안문자 입력"
             placeholder="위 이미지의 문자를 입력하세요"
@@ -42,7 +46,8 @@
             v-model="inputValues.smsAuthNo"
             label="SMS 인증번호"
             placeholder="문자로 받은 인증번호를 입력하세요"
-            type="number"
+            type="text"
+            inputmode="numeric"
           />
         </div>
 
@@ -104,6 +109,7 @@
             label="임시 비밀번호"
             type="password"
             placeholder="이메일로 받은 임시 비밀번호"
+            :show-toggle="true"
           />
         </div>
 
@@ -114,12 +120,14 @@
             label="새 비밀번호"
             type="password"
             placeholder="9~20자 영문+숫자+특수문자"
+            :show-toggle="true"
           />
           <FormInput
             v-model="inputValues.passwordConfirm"
             label="비밀번호 확인"
             type="password"
             placeholder="새 비밀번호를 다시 입력하세요"
+            :show-toggle="true"
           />
         </div>
 
@@ -198,9 +206,17 @@ const guideMessage = computed(() => {
   }
 })
 
+// 보안문자 이미지 (CODEF 수동 입력 모드 시)
+const captchaImage = computed(() => {
+  const extra = (store.twoWayData as any)?.extraInfo || {}
+  const img = extra.secureNoImage || extra.reqSecureNo
+  // 이미지는 보통 base64로 긴 문자열, 빈 문자열이면 자동 인식 모드
+  return typeof img === 'string' && img.length > 50 ? img : null
+})
+
 const isInputValid = computed(() => {
   switch (store.twoWayType) {
-    case 'captcha': return inputValues.secureNo.length > 0
+    case 'captcha': return !captchaImage.value || inputValues.secureNo.length > 0
     case 'sms': return inputValues.smsAuthNo.length > 0
     case 'pass': return true // PASS는 앱에서 인증 후 확인만
     case 'email': return inputValues.emailAuthNo.length > 0

@@ -141,18 +141,22 @@ const hasData = computed(() =>
   store.statistics.length > 0 || store.contracts.length > 0
 )
 
-function formatAmount(amount: number | null | undefined): string {
-  if (!amount) return '0원'
-  return amount.toLocaleString('ko-KR') + '원'
+function formatAmount(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined || amount === '') return '0원'
+  const num = Math.round(Number(amount))
+  if (isNaN(num)) return '0원'
+  return num.toLocaleString('ko-KR') + '원'
 }
 
-function formatStatAmount(amount: number | null | undefined): string {
-  if (!amount) return '-'
+function formatStatAmount(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined || amount === '') return '-'
+  const num = Number(amount)
+  if (isNaN(num) || num === 0) return '-'
   // 큰 금액은 만원 단위로 표시
-  if (amount >= 10000) {
-    return Math.round(amount / 10000).toLocaleString('ko-KR') + '만원'
+  if (num >= 10000) {
+    return Math.round(num / 10000).toLocaleString('ko-KR') + '만원'
   }
-  return amount.toLocaleString('ko-KR') + '원'
+  return Math.round(num).toLocaleString('ko-KR') + '원'
 }
 
 function getCoveragePercent(stat: InsuranceStatistic): number {
