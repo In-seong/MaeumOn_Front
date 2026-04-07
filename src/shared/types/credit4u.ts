@@ -183,6 +183,7 @@ export interface FetchContractsRequest {
 export interface FindIdRequest {
   userName: string
   identity: string
+  birthDate?: string
   telecom: string
   phoneNo: string
 }
