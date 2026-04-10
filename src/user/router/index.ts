@@ -129,9 +129,39 @@ const router = createRouter({
     },
     // 건강 관련 라우트
     {
+      path: '/health',
+      name: 'health-home',
+      component: () => import('../views/health/HealthHomeView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/health-checkup',
       name: 'health-checkup',
       component: () => import('../views/health/HealthCheckupView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/medical-info',
+      name: 'medical-info',
+      component: () => import('../views/health/MedicalInfoView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/health-examination',
+      name: 'health-examination',
+      component: () => import('../views/health/HealthExaminationView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/health-age',
+      name: 'health-age',
+      component: () => import('../views/health/HealthAgeView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/health-prediction/:type',
+      name: 'health-prediction',
+      component: () => import('../views/health/HealthPredictionView.vue'),
       meta: { requiresAuth: true },
     },
     // 마이페이지 관련 라우트

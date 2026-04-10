@@ -34,6 +34,7 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
+        timeout: 300000, // 5분 (CODEF API 응답 대기)
       }
     }
   },
