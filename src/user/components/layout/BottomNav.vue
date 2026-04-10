@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[402px] h-[60px] bg-white border-t border-[#E0E0E0] flex items-center justify-between py-1 z-50">
+  <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[402px] h-[60px] bg-white border-t border-[#E0E0E0] flex items-center justify-between py-1 z-40">
     <button
       v-for="item in navItems"
       :key="item.label"
