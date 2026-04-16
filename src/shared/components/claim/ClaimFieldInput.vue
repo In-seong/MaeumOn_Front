@@ -142,9 +142,9 @@
       :value="modelValue"
       @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors appearance-none"
+      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors appearance-none bg-no-repeat"
       :class="{ 'text-[#B0B0B0]': !modelValue }"
-      :style="{ backgroundImage: `url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }"
+      :style="selectArrowStyle"
     >
       <option value="" disabled>선택해주세요</option>
       <option
@@ -210,6 +210,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'format-input': [fieldId: number, fieldType: string, event: Event]
 }>()
+
+const selectArrowStyle = {
+  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
+  backgroundPosition: 'right 16px center',
+}
 
 function emitInput(event: Event) {
   emit('format-input', props.field.form_field_id, props.field.field_type, event)
