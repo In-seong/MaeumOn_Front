@@ -1331,8 +1331,8 @@ function startChoiceDrag(event: MouseEvent, index: number) {
   const rect = canvasRef.value.getBoundingClientRect()
   const choice = editForm.field_options.choices[index]
   if (!choice) return
-  dragChoiceOffset.x = event.clientX - rect.left - choice.x
-  dragChoiceOffset.y = event.clientY - rect.top - choice.y
+  dragChoiceOffset.x = event.clientX - rect.left - (choice.x ?? 0)
+  dragChoiceOffset.y = event.clientY - rect.top - (choice.y ?? 0)
   event.preventDefault()
   event.stopPropagation()
 }
