@@ -90,7 +90,7 @@
                   <p class="text-[15px] font-semibold text-[#222] mb-3">피보험자 정보</p>
                   <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
                     <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillInsured" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                    <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
+                    <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '회원 정보와 동일' }}</span>
                   </label>
                   <div class="flex flex-col gap-4">
                     <ClaimFieldInput v-for="field in insuredStepFields" :key="field.form_field_id" :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
@@ -102,7 +102,7 @@
                   <p class="text-[15px] font-semibold text-[#222] mb-3">보험 수익자 정보</p>
                   <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
                     <input type="checkbox" v-model="autoFillBeneficiaryFromContractor" @change="handleAutoFillBeneficiary" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                    <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
+                    <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '피보험자와 동일' }}</span>
                   </label>
                   <div class="flex flex-col gap-4">
                     <ClaimFieldInput v-for="field in beneficiaryStepFields" :key="field.form_field_id" :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="claimStore.setFieldValue(field.form_field_id, $event)" @format-input="formatFieldInput" />
@@ -121,7 +121,7 @@
               <CardSection v-else class="mb-4">
                 <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
                   <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillStep4" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                  <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
+                  <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '회원 정보와 동일' }}</span>
                 </label>
                 <div class="flex flex-col gap-4">
                   <template v-for="field in currentStepFields" :key="field.form_field_id">
@@ -500,6 +500,9 @@ const otherStep4Fields = computed(() =>
   })
 )
 
+// 계약자 필드 유무 판단 (Step 3 활성 여부)
+const hasContractorStep = computed(() => activeSteps.value.includes(3))
+
 // ===== 동의 → 템플릿 consent 필드 값 동기화 =====
 const allConsentsAgreed = computed(() =>
   CONSENT_ITEMS.value.length > 0 && CONSENT_ITEMS.value.every(item => consentAgreed.value[item.id])
@@ -750,17 +753,78 @@ function autoFillFieldsFromStep3(fields: FormField[], fill: boolean) {
   }
 }
 
+// 피보험자 필드에서 값을 가져오기 (수익자 → 피보험자와 동일 용)
+function getInsuredValueByKey(key: AutoFillKey): string {
+  if (!key) return ''
+  const match = insuredStepFields.value.find(f => matchAutoFillKey(f) === key)
+  if (match) {
+    const val = claimStore.fieldValues[match.form_field_id] || ''
+    if (val) return val
+  }
+  return ''
+}
+
+function autoFillFieldsFromInsured(fields: FormField[], fill: boolean) {
+  if (fill) {
+    fields.forEach(field => {
+      const key = matchAutoFillKey(field)
+      if (key) {
+        const val = getInsuredValueByKey(key)
+        if (val) claimStore.setFieldValue(field.form_field_id, val)
+      }
+    })
+  } else {
+    fields.forEach(field => {
+      if (matchAutoFillKey(field)) {
+        claimStore.setFieldValue(field.form_field_id, '')
+      }
+    })
+  }
+}
+
+// 고객 정보(회원 정보)에서 직접 채우기 (계약자 필드 없을 때)
+function autoFillFieldsFromUserDirect(fields: FormField[], fill: boolean) {
+  const customer = authStore.user?.customer
+  if (fill && customer) {
+    fields.forEach(field => {
+      const key = matchAutoFillKey(field)
+      if (key) {
+        const val = getCustomerValueByKey(customer, key)
+        if (val) claimStore.setFieldValue(field.form_field_id, val)
+      }
+    })
+  } else {
+    fields.forEach(field => {
+      if (matchAutoFillKey(field)) {
+        claimStore.setFieldValue(field.form_field_id, '')
+      }
+    })
+  }
+}
+
 function handleAutoFillInsured() {
-  autoFillFieldsFromStep3(insuredStepFields.value, autoFillInsuredFromContractor.value)
+  if (hasContractorStep.value) {
+    autoFillFieldsFromStep3(insuredStepFields.value, autoFillInsuredFromContractor.value)
+  } else {
+    autoFillFieldsFromUserDirect(insuredStepFields.value, autoFillInsuredFromContractor.value)
+  }
 }
 
 function handleAutoFillBeneficiary() {
-  autoFillFieldsFromStep3(beneficiaryStepFields.value, autoFillBeneficiaryFromContractor.value)
+  if (hasContractorStep.value) {
+    autoFillFieldsFromStep3(beneficiaryStepFields.value, autoFillBeneficiaryFromContractor.value)
+  } else {
+    autoFillFieldsFromInsured(beneficiaryStepFields.value, autoFillBeneficiaryFromContractor.value)
+  }
 }
 
 // ===== 자동채움: Step 4 일반 (접두어 없이 wizard_step=4인 경우) =====
 function handleAutoFillStep4() {
-  autoFillFieldsFromStep3(currentStepFields.value, autoFillInsuredFromContractor.value)
+  if (hasContractorStep.value) {
+    autoFillFieldsFromStep3(currentStepFields.value, autoFillInsuredFromContractor.value)
+  } else {
+    autoFillFieldsFromUserDirect(currentStepFields.value, autoFillInsuredFromContractor.value)
+  }
 }
 
 // ===== 서명 헬퍼 =====
