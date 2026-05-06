@@ -92,7 +92,7 @@
                 <!-- 피보험자 섹션 -->
                 <CardSection v-if="insuredStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">피보험자 정보</p>
-                  <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
+                  <label v-if="hasContractorStep || customerId" class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
                     <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillInsured" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
                     <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
                   </label>
@@ -201,7 +201,7 @@
 
               <!-- 접두어 없이 wizard_step=4로만 지정된 경우 -->
               <CardSection v-else class="mb-4">
-                <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
+                <label v-if="hasContractorStep || customerId" class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
                   <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillStep4" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
                   <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
                 </label>
