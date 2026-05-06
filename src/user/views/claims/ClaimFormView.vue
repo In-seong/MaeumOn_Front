@@ -40,33 +40,29 @@
             <div v-if="currentStep === 1">
               <CardSection class="mb-4">
                 <!-- 전체동의 -->
-                <label
-                  class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
+                <button
+                  type="button"
+                  class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]"
+                  :class="allConsentsAgreed ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'"
+                  @click="toggleAllConsents"
                 >
-                  <input
-                    type="checkbox"
-                    :checked="allConsentsAgreed"
-                    @change="toggleAllConsents"
-                    class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
-                  />
-                  <span class="text-[15px] text-[#333] font-semibold">전체 동의</span>
-                </label>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="allConsentsAgreed ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="allConsentsAgreed" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-[15px] font-semibold">전체 동의</span>
+                </button>
 
                 <!-- 동의 항목 리스트 -->
                 <div class="flex flex-col gap-2">
                   <div
                     v-for="item in CONSENT_ITEMS"
                     :key="item.id"
-                    class="flex items-center gap-3 p-3 bg-white border border-[#E8E8E8] rounded-[12px] cursor-pointer"
+                    class="flex items-center gap-3 p-3 bg-white border rounded-[12px] cursor-pointer transition-colors"
+                    :class="consentAgreed[item.id] ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
                     @click="openConsentOverlay(item)"
                   >
-                    <input
-                      type="checkbox"
-                      :checked="consentAgreed[item.id]"
-                      @click.stop
-                      @change="toggleConsentItem(item.id)"
-                      class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22] flex-shrink-0"
-                    />
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="shrink-0" @click.stop="toggleConsentItem(item.id)">
+                      <circle cx="12" cy="12" r="10" :fill="consentAgreed[item.id] ? '#FF7B22' : 'none'" :stroke="consentAgreed[item.id] ? '#FF7B22' : '#D0D0D0'" stroke-width="2"/>
+                      <path v-if="consentAgreed[item.id]" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     <span class="flex-1 text-[14px] text-[#333]">
                       <span class="text-[#FF0000] font-medium">[필수]</span>
                       {{ item.title }}
@@ -159,18 +155,16 @@
             <div v-else>
               <CardSection class="mb-4">
                 <!-- 자동채움: Step 3 "회원 정보와 동일" -->
-                <label
+                <button
                   v-if="currentStep === 3"
-                  class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
+                  type="button"
+                  class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]"
+                  :class="autoFillFromUser ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'"
+                  @click="autoFillFromUser = !autoFillFromUser; handleAutoFillFromUser()"
                 >
-                  <input
-                    type="checkbox"
-                    v-model="autoFillFromUser"
-                    @change="handleAutoFillFromUser"
-                    class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
-                  />
-                  <span class="text-[14px] text-[#333] font-medium">회원 정보와 동일</span>
-                </label>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillFromUser ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillFromUser" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-[14px] font-medium">회원 정보와 동일</span>
+                </button>
 
                 <!-- 필드 렌더링 -->
                 <div class="flex flex-col gap-4">
