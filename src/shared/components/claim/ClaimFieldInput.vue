@@ -177,21 +177,18 @@
       </div>
     </div>
 
-    <!-- 체크박스 (다중선택) -->
-    <div v-else-if="field.field_type === 'checkbox' && field.field_options?.choices" class="flex flex-wrap gap-3">
-      <label
+    <!-- 체크박스 (다중선택 - 버튼 토글) -->
+    <div v-else-if="field.field_type === 'checkbox' && field.field_options?.choices" class="flex flex-wrap gap-2">
+      <button
         v-for="choice in field.field_options.choices"
         :key="choice.value || choice.label"
-        class="flex items-center gap-2 cursor-pointer"
-      >
-        <input
-          type="checkbox"
-          :checked="isChoiceSelected(choice.value || choice.label)"
-          @change="toggleCheckboxChoice(choice.value || choice.label)"
-          class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
-        />
-        <span class="text-[14px] text-[#333]">{{ choice.label }}</span>
-      </label>
+        type="button"
+        class="px-4 py-2.5 rounded-[10px] text-[14px] font-medium border transition-all active:scale-[0.97]"
+        :class="isChoiceSelected(choice.value || choice.label)
+          ? 'bg-[#FF7B22] text-white border-[#FF7B22]'
+          : 'bg-white text-[#666] border-[#E0E0E0]'"
+        @click="toggleCheckboxChoice(choice.value || choice.label)"
+      >{{ choice.label }}</button>
     </div>
 
     <!-- 라디오 (단일선택) -->

@@ -51,7 +51,7 @@
                     type="checkbox"
                     :checked="allConsentsAgreed"
                     @change="toggleAllConsents"
-                    class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
+                    class="hidden peer"
                   />
                   <span class="text-[15px] text-[#333] font-semibold">전체 동의</span>
                 </label>
@@ -92,10 +92,10 @@
                 <!-- 피보험자 섹션 -->
                 <CardSection v-if="insuredStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">피보험자 정보</p>
-                  <label v-if="hasContractorStep || customerId" class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
-                    <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillInsured" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                    <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
-                  </label>
+                  <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillInsured()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
+                  </button>
                   <div class="flex flex-col gap-4">
                     <template v-for="field in insuredStepFields" :key="field.form_field_id">
                       <div v-if="field.field_type === 'signature'">
@@ -130,10 +130,10 @@
                 <!-- 수익자 섹션 -->
                 <CardSection v-if="beneficiaryStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">보험 수익자 정보</p>
-                  <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
-                    <input type="checkbox" v-model="autoFillBeneficiaryFromContractor" @change="handleAutoFillBeneficiary" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                    <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '피보험자와 동일' }}</span>
-                  </label>
+                  <button type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillBeneficiaryFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillBeneficiaryFromContractor = !autoFillBeneficiaryFromContractor; handleAutoFillBeneficiary()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillBeneficiaryFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillBeneficiaryFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '피보험자와 동일' }}</span>
+                  </button>
                   <div class="flex flex-col gap-4">
                     <template v-for="field in beneficiaryStepFields" :key="field.form_field_id">
                       <div v-if="field.field_type === 'signature'">
@@ -201,10 +201,10 @@
 
               <!-- 접두어 없이 wizard_step=4로만 지정된 경우 -->
               <CardSection v-else class="mb-4">
-                <label v-if="hasContractorStep || customerId" class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
-                  <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillStep4" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                  <span class="text-[14px] text-[#333] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
-                </label>
+                <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillStep4()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
+                </button>
                 <div class="flex flex-col gap-4">
                   <template v-for="field in currentStepFields" :key="field.form_field_id">
                     <div v-if="field.field_type === 'signature'">
@@ -249,7 +249,7 @@
                     type="checkbox"
                     v-model="autoFillFromCustomer"
                     @change="handleAutoFillFromCustomer"
-                    class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
+                    class="hidden peer"
                   />
                   <span class="text-[14px] text-[#333] font-medium">고객 정보와 동일</span>
                 </label>
