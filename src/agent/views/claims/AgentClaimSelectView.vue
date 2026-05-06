@@ -100,29 +100,6 @@
             <button
               type="button"
               class="w-full text-left rounded-[16px] bg-white border-[1.5px] border-transparent shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-5 active:scale-[0.98] transition-all"
-              @click="claimMode = 'customer'"
-            >
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-full bg-[#FFF0E5] flex items-center justify-center shrink-0">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="9" cy="7" r="4" stroke="#FF7B22" stroke-width="2"/>
-                    <path d="M22 21v-2a4 4 0 00-3-3.87" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <p class="text-[15px] font-semibold text-[#222]">고객 선택 후 청구</p>
-                  <p class="text-[12px] text-[#999] mt-0.5">등록된 고객을 선택하여 청구합니다</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0">
-                  <path d="M9 5l7 7-7 7" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              class="w-full text-left rounded-[16px] bg-white border-[1.5px] border-transparent shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-5 active:scale-[0.98] transition-all"
               @click="claimMode = 'direct'"
             >
               <div class="flex items-center gap-3.5">
@@ -136,6 +113,29 @@
                 <div class="flex-1">
                   <p class="text-[15px] font-semibold text-[#222]">바로 청구</p>
                   <p class="text-[12px] text-[#999] mt-0.5">고객 정보를 직접 입력하여 청구합니다</p>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0">
+                  <path d="M9 5l7 7-7 7" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="w-full text-left rounded-[16px] bg-white border-[1.5px] border-transparent shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-5 active:scale-[0.98] transition-all"
+              @click="claimMode = 'customer'"
+            >
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-full bg-[#FFF0E5] flex items-center justify-center shrink-0">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="9" cy="7" r="4" stroke="#FF7B22" stroke-width="2"/>
+                    <path d="M22 21v-2a4 4 0 00-3-3.87" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[15px] font-semibold text-[#222]">고객 선택 후 청구</p>
+                  <p class="text-[12px] text-[#999] mt-0.5">등록된 고객을 선택하여 청구합니다</p>
                 </div>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0">
                   <path d="M9 5l7 7-7 7" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
