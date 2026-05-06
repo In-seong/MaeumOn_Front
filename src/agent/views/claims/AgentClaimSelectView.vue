@@ -318,6 +318,13 @@
             <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
           </div>
 
+          <!-- 양식 1개: 자동 선택 완료 표시 -->
+          <div v-else-if="claimStore.claimForms.length === 1 && selectedFormId" class="p-4 bg-[#FFF0E5] border-[1.5px] border-[#FF7B22] rounded-[12px]">
+            <p class="text-[14px] font-semibold text-[#222]">{{ claimStore.claimForms[0]?.form_name }}</p>
+            <p class="text-[12px] text-[#FF7B22] mt-1">양식이 자동 선택되었습니다</p>
+          </div>
+
+          <!-- 양식 2개 이상: 선택 리스트 -->
           <div v-else class="flex flex-col gap-3">
             <button
               v-for="form in claimStore.claimForms"
@@ -450,11 +457,15 @@ onMounted(async () => {
   }
 })
 
-// 보험사 선택 시 양식 로드
+// 보험사 선택 시 양식 로드 + 1개면 자동 선택
 watch(selectedCompanyId, async (newId) => {
   selectedFormId.value = null
   if (newId != null) {
     await claimStore.fetchClaimForms(newId)
+    if (claimStore.claimForms.length === 1) {
+      const form = claimStore.claimForms[0]
+      if (form) selectedFormId.value = form.claim_form_id
+    }
   } else {
     claimStore.claimForms = []
   }
