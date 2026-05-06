@@ -20,8 +20,9 @@
       type="date"
       :value="modelValue"
       @input="emitInput"
+      @click="($event.target as HTMLInputElement).showPicker?.()"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors cursor-pointer"
     />
 
     <input
