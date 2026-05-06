@@ -12,7 +12,7 @@
       @input="emitInput"
       :placeholder="field.placeholder"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
     <input
@@ -21,7 +21,7 @@
       :value="modelValue"
       @input="emitInput"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
     />
 
     <input
@@ -32,7 +32,7 @@
       @input="emitInput"
       :placeholder="field.placeholder"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
     <input
@@ -42,7 +42,7 @@
       @input="emitInput"
       placeholder="010-1234-5678"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
     <div v-else-if="field.field_type === 'resident_number'" class="flex items-center gap-2 w-full min-w-0">
@@ -96,7 +96,7 @@
       placeholder="생년월일 6자리"
       :required="field.is_required"
       maxlength="6"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
     <div v-else-if="field.field_type === 'resident_number_back'" class="relative">
@@ -108,7 +108,7 @@
         placeholder="뒷자리 7자리"
         :required="field.is_required"
         maxlength="7"
-        class="w-full px-4 py-3 pr-10 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+        class="w-full px-4 py-3 pr-10 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
       />
       <button
         type="button"
@@ -133,7 +133,7 @@
       :placeholder="field.placeholder"
       :required="field.is_required"
       rows="3"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]"
     ></textarea>
 
     <!-- 셀렉트 (드롭다운) -->
@@ -142,7 +142,7 @@
       :value="modelValue"
       @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-none border-0 border-b border-[#E0E0E0] text-[14px] text-[#333] outline-none focus:border-[#FF7B22] transition-colors appearance-none bg-no-repeat"
+      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors appearance-none bg-no-repeat"
       :class="{ 'text-[#B0B0B0]': !modelValue }"
       :style="selectArrowStyle"
     >
