@@ -826,6 +826,13 @@ async function handleStandardFieldClick(sf: StandardField) {
               { label: '일', part: 'day' as const, x: 0, y: 0 },
             ],
           }
+        : sf.type === 'select'
+        ? {
+            wizard_step: wizardStep,
+            choices: sf.default_choices
+              ? sf.default_choices.map((c: { label: string; value: string }) => ({ label: c.label, value: c.value }))
+              : [],
+          }
         : sf.type === 'checkbox' || sf.type === 'radio'
         ? {
             wizard_step: wizardStep,
@@ -1324,8 +1331,8 @@ function startChoiceDrag(event: MouseEvent, index: number) {
   const rect = canvasRef.value.getBoundingClientRect()
   const choice = editForm.field_options.choices[index]
   if (!choice) return
-  dragChoiceOffset.x = event.clientX - rect.left - choice.x
-  dragChoiceOffset.y = event.clientY - rect.top - choice.y
+  dragChoiceOffset.x = event.clientX - rect.left - (choice.x ?? 0)
+  dragChoiceOffset.y = event.clientY - rect.top - (choice.y ?? 0)
   event.preventDefault()
   event.stopPropagation()
 }

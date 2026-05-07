@@ -44,33 +44,29 @@
             <div v-if="currentStep === 1">
               <CardSection class="mb-4">
                 <!-- 전체동의 -->
-                <label
-                  class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
+                <button
+                  type="button"
+                  class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]"
+                  :class="allConsentsAgreed ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'"
+                  @click="toggleAllConsents"
                 >
-                  <input
-                    type="checkbox"
-                    :checked="allConsentsAgreed"
-                    @change="toggleAllConsents"
-                    class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
-                  />
-                  <span class="text-[15px] text-[#333] font-semibold">전체 동의</span>
-                </label>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="allConsentsAgreed ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="allConsentsAgreed" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-[15px] font-semibold">전체 동의</span>
+                </button>
 
                 <!-- 동의 항목 리스트 -->
                 <div class="flex flex-col gap-2">
                   <div
                     v-for="item in CONSENT_ITEMS"
                     :key="item.id"
-                    class="flex items-center gap-3 p-3 bg-white border border-[#E8E8E8] rounded-[12px] cursor-pointer"
+                    class="flex items-center gap-3 p-3 bg-white border rounded-[12px] cursor-pointer transition-colors"
+                    :class="consentAgreed[item.id] ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
                     @click="openConsentOverlay(item)"
                   >
-                    <input
-                      type="checkbox"
-                      :checked="consentAgreed[item.id]"
-                      @click.stop
-                      @change="toggleConsentItem(item.id)"
-                      class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22] flex-shrink-0"
-                    />
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="shrink-0" @click.stop="toggleConsentItem(item.id)">
+                      <circle cx="12" cy="12" r="10" :fill="consentAgreed[item.id] ? '#FF7B22' : 'none'" :stroke="consentAgreed[item.id] ? '#FF7B22' : '#D0D0D0'" stroke-width="2"/>
+                      <path v-if="consentAgreed[item.id]" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     <span class="flex-1 text-[14px] text-[#333]">
                       <span class="text-[#FF0000] font-medium">[필수]</span>
                       {{ item.title }}
@@ -92,10 +88,10 @@
                 <!-- 피보험자 섹션 -->
                 <CardSection v-if="insuredStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">피보험자 정보</p>
-                  <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
-                    <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillInsured" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                    <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
-                  </label>
+                  <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillInsured()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
+                  </button>
                   <div class="flex flex-col gap-4">
                     <template v-for="field in insuredStepFields" :key="field.form_field_id">
                       <div v-if="field.field_type === 'signature'">
@@ -130,10 +126,10 @@
                 <!-- 수익자 섹션 -->
                 <CardSection v-if="beneficiaryStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">보험 수익자 정보</p>
-                  <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
-                    <input type="checkbox" v-model="autoFillBeneficiaryFromContractor" @change="handleAutoFillBeneficiary" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                    <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
-                  </label>
+                  <button type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillBeneficiaryFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillBeneficiaryFromContractor = !autoFillBeneficiaryFromContractor; handleAutoFillBeneficiary()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillBeneficiaryFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillBeneficiaryFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '피보험자와 동일' }}</span>
+                  </button>
                   <div class="flex flex-col gap-4">
                     <template v-for="field in beneficiaryStepFields" :key="field.form_field_id">
                       <div v-if="field.field_type === 'signature'">
@@ -201,10 +197,10 @@
 
               <!-- 접두어 없이 wizard_step=4로만 지정된 경우 -->
               <CardSection v-else class="mb-4">
-                <label class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer">
-                  <input type="checkbox" v-model="autoFillInsuredFromContractor" @change="handleAutoFillStep4" class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]" />
-                  <span class="text-[14px] text-[#333] font-medium">계약자와 동일</span>
-                </label>
+                <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillStep4()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
+                </button>
                 <div class="flex flex-col gap-4">
                   <template v-for="field in currentStepFields" :key="field.form_field_id">
                     <div v-if="field.field_type === 'signature'">
@@ -241,18 +237,16 @@
             <div v-else>
               <CardSection class="mb-4">
                 <!-- 자동채움: Step 3 "고객 정보와 동일" (고객 선택 청구 시만 표시) -->
-                <label
+                <button
                   v-if="currentStep === 3 && customerId"
-                  class="flex items-center gap-2 p-3 bg-[#FFF3ED] rounded-[12px] mb-4 cursor-pointer"
+                  type="button"
+                  class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]"
+                  :class="autoFillFromCustomer ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'"
+                  @click="autoFillFromCustomer = !autoFillFromCustomer; handleAutoFillFromCustomer()"
                 >
-                  <input
-                    type="checkbox"
-                    v-model="autoFillFromCustomer"
-                    @change="handleAutoFillFromCustomer"
-                    class="w-5 h-5 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
-                  />
-                  <span class="text-[14px] text-[#333] font-medium">고객 정보와 동일</span>
-                </label>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillFromCustomer ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillFromCustomer" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-[14px] font-medium">고객 정보와 동일</span>
+                </button>
 
                 <!-- 필드 렌더링 -->
                 <div class="flex flex-col gap-4">
@@ -671,6 +665,9 @@ const otherStep4Fields = computed(() =>
   })
 )
 
+// 계약자 필드 유무 판단 (Step 3 활성 여부)
+const hasContractorStep = computed(() => activeSteps.value.includes(3))
+
 // ===== 동의 -> 템플릿 consent 필드 값 동기화 =====
 const allConsentsAgreed = computed(() =>
   CONSENT_ITEMS.value.length > 0 && CONSENT_ITEMS.value.every(item => consentAgreed.value[item.id])
@@ -945,17 +942,81 @@ function autoFillFieldsFromStep3(fields: FormField[], fill: boolean) {
   syncDuplicateStandardFields()
 }
 
+// 피보험자 필드에서 값을 가져오기 (수익자 → 피보험자와 동일 용)
+function getInsuredValueByKey(key: AutoFillKey): string {
+  if (!key) return ''
+  const match = insuredStepFields.value.find(f => matchAutoFillKey(f) === key)
+  if (match) {
+    const val = claimStore.fieldValues[match.form_field_id] || ''
+    if (val) return val
+  }
+  return ''
+}
+
+function autoFillFieldsFromInsured(fields: FormField[], fill: boolean) {
+  if (fill) {
+    fields.forEach(field => {
+      const key = matchAutoFillKey(field)
+      if (key) {
+        const val = getInsuredValueByKey(key)
+        if (val) claimStore.setFieldValue(field.form_field_id, val)
+      }
+    })
+  } else {
+    fields.forEach(field => {
+      if (matchAutoFillKey(field)) {
+        claimStore.setFieldValue(field.form_field_id, '')
+      }
+    })
+  }
+  syncDuplicateStandardFields()
+}
+
+// 고객 정보에서 직접 채우기 (계약자 필드 없을 때 피보험자용)
+function autoFillFieldsFromCustomerDirect(fields: FormField[], fill: boolean) {
+  const customer = customerStore.selectedCustomer
+  if (fill && customer) {
+    fields.forEach(field => {
+      const key = matchAutoFillKey(field)
+      if (key) {
+        const val = getCustomerValueByKey(customer, key)
+        if (val) claimStore.setFieldValue(field.form_field_id, val)
+      }
+    })
+  } else {
+    fields.forEach(field => {
+      if (matchAutoFillKey(field)) {
+        claimStore.setFieldValue(field.form_field_id, '')
+      }
+    })
+  }
+  syncDuplicateStandardFields()
+}
+
 function handleAutoFillInsured() {
-  autoFillFieldsFromStep3(insuredStepFields.value, autoFillInsuredFromContractor.value)
+  if (hasContractorStep.value) {
+    autoFillFieldsFromStep3(insuredStepFields.value, autoFillInsuredFromContractor.value)
+  } else {
+    autoFillFieldsFromCustomerDirect(insuredStepFields.value, autoFillInsuredFromContractor.value)
+  }
 }
 
 function handleAutoFillBeneficiary() {
-  autoFillFieldsFromStep3(beneficiaryStepFields.value, autoFillBeneficiaryFromContractor.value)
+  if (hasContractorStep.value) {
+    autoFillFieldsFromStep3(beneficiaryStepFields.value, autoFillBeneficiaryFromContractor.value)
+  } else {
+    // 계약자 없으면 피보험자에서 복사
+    autoFillFieldsFromInsured(beneficiaryStepFields.value, autoFillBeneficiaryFromContractor.value)
+  }
 }
 
 // ===== 자동채움: Step 4 일반 (접두어 없이 wizard_step=4인 경우) =====
 function handleAutoFillStep4() {
-  autoFillFieldsFromStep3(currentStepFields.value, autoFillInsuredFromContractor.value)
+  if (hasContractorStep.value) {
+    autoFillFieldsFromStep3(currentStepFields.value, autoFillInsuredFromContractor.value)
+  } else {
+    autoFillFieldsFromCustomerDirect(currentStepFields.value, autoFillInsuredFromContractor.value)
+  }
 }
 
 // ===== 서명 헬퍼 =====

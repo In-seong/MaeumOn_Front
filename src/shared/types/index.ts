@@ -109,12 +109,12 @@ export interface FormPage {
   updated_at?: string
 }
 
-// 선택지 타입 (checkbox/radio/consent)
+// 선택지 타입 (checkbox/radio/consent/select)
 export interface FieldChoice {
   label: string
   value: string
-  x: number
-  y: number
+  x?: number
+  y?: number
 }
 
 // 날짜 분리 파트 타입
@@ -153,7 +153,7 @@ export interface FormField {
   field_name: string
   standard_field_code?: string | null
   field_label: string
-  field_type: 'text' | 'date' | 'number' | 'resident_number' | 'resident_number_front' | 'resident_number_back' | 'phone' | 'textarea' | 'checkbox' | 'radio' | 'consent' | 'signature'
+  field_type: 'text' | 'date' | 'number' | 'resident_number' | 'resident_number_front' | 'resident_number_back' | 'phone' | 'textarea' | 'checkbox' | 'radio' | 'select' | 'consent' | 'signature'
   field_order: number
   is_required: boolean
   field_options?: FieldOptions | null
