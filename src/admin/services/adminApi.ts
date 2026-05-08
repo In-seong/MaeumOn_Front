@@ -118,6 +118,15 @@ export const fetchSentNotifications = (params?: Record<string, unknown>) =>
 export const fetchConsultations = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminConsultation>>>(`${BASE}/consultations`, { params })
 
+export const fetchConsultation = (id: number) =>
+  api.get<ApiResponse<{ consultation: AdminConsultation; agent: AdminAgent | null }>>(`${BASE}/consultations/${id}`)
+
+export const answerConsultation = (id: number, answer: string) =>
+  api.put<ApiResponse<AdminConsultation>>(`${BASE}/consultations/${id}/answer`, { answer })
+
+export const assignConsultation = (id: number, agentId: string) =>
+  api.put<ApiResponse<AdminConsultation>>(`${BASE}/consultations/${id}/assign`, { agent_id: agentId })
+
 // ===== Batch Claims (배치 청구 관리) =====
 export const fetchBatchClaims = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminBatchClaim>>>(`${BASE}/batch-claims`, { params })
