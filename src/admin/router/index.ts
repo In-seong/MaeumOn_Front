@@ -226,4 +226,12 @@ router.beforeEach((to, _from, next) => {
   }
 })
 
+// 배포 후 stale chunk 처리: 동적 import 실패 시 자동 새로고침
+router.onError((err) => {
+  const msg = (err as Error)?.message ?? ''
+  if (msg.includes('Failed to fetch dynamically imported module') || msg.includes('Importing a module script failed')) {
+    window.location.reload()
+  }
+})
+
 export default router
