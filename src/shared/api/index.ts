@@ -39,17 +39,34 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
-    // 401 에러 처리 (인증 만료)
+    // 401 에러 처리 (인증 만료) — 토큰 제거 + 로그인 페이지로 자동 이동
     if (error.response?.status === 401) {
-      // 현재 URL에 따라 적절한 토큰 제거
-      if (window.location.pathname.includes('admin')) {
+      const host = window.location.hostname
+      const path = window.location.pathname
+      const hash = window.location.hash
+      const isAdmin = host.includes('admin') || path.includes('/admin')
+      const isAgent = host.includes('agent') || path.includes('/agent')
+
+      if (isAdmin) {
         localStorage.removeItem('adminToken')
         localStorage.removeItem('adminIsLoggedIn')
-      } else if (window.location.pathname.includes('agent')) {
+        // admin: hash 라우터
+        if (!hash.includes('/login')) {
+          window.location.hash = '/login'
+        }
+      } else if (isAgent) {
         localStorage.removeItem('agentToken')
+        // agent: history 라우터
+        if (!path.endsWith('/login')) {
+          window.location.assign('/login')
+        }
       } else {
         localStorage.removeItem('userToken')
         localStorage.removeItem('userIsLoggedIn')
+        // user: history 라우터, /login 또는 /pin-login이면 redirect 생략
+        if (!path.endsWith('/login') && !path.endsWith('/pin-login')) {
+          window.location.assign('/login')
+        }
       }
     }
     return Promise.reject(error)
