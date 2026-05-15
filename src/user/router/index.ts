@@ -209,4 +209,24 @@ router.beforeEach(async (to, _from, next) => {
   }
 })
 
+// 배포 후 stale chunk 처리: 동적 import 실패 시 자동 새로고침 (무한루프 방지)
+router.onError((err) => {
+  const msg = (err as Error)?.message ?? ''
+  const isChunkLoadError =
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Importing a module script failed') ||
+    msg.includes('Failed to load module script') ||
+    msg.includes('error loading dynamically imported module')
+
+  if (!isChunkLoadError) return
+
+  const RELOAD_KEY = '__chunk_reload__'
+  if (sessionStorage.getItem(RELOAD_KEY)) {
+    sessionStorage.removeItem(RELOAD_KEY)
+    return
+  }
+  sessionStorage.setItem(RELOAD_KEY, '1')
+  window.location.reload()
+})
+
 export default router

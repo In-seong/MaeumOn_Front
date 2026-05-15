@@ -4,18 +4,16 @@
       <BackHeader title="상담 요청" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
-        <!-- Agent Profile Card -->
+        <!-- Assignee notice -->
         <CardSection class="mb-4">
-          <div class="flex items-center gap-3">
-            <div class="w-[48px] h-[48px] rounded-full bg-[#FF7B22] flex items-center justify-center flex-shrink-0">
-              <span class="text-white text-[18px] font-bold">김</span>
-            </div>
-            <div>
-              <p class="text-[16px] font-bold text-[#222]">김설계</p>
-              <p class="text-[12px] text-[#888]">글로벌금융 OSK 온마음지사</p>
-              <p class="text-[12px] text-[#999]">010-1234-5678</p>
-            </div>
-          </div>
+          <p class="text-[13px] text-[#555] leading-relaxed">
+            <template v-if="hasAssignedAgent">
+              요청 접수 시 <span class="font-semibold text-[#FF7B22]">담당 설계사</span>가 곧 연락드립니다.
+            </template>
+            <template v-else>
+              담당 설계사 미배정 상태입니다. <span class="font-semibold text-[#FF7B22]">관리자</span>가 배정 후 연락드립니다.
+            </template>
+          </p>
         </CardSection>
 
         <!-- Consultation Type -->
@@ -47,9 +45,9 @@
         <CardSection class="mb-4">
           <p class="text-[14px] font-semibold text-[#222] mb-3">고객 정보</p>
           <div class="flex flex-col gap-3">
-            <FormInput label="이름" v-model="name" readonly />
-            <FormInput label="연락처" v-model="phone" readonly />
-            <FormInput label="생년월일" v-model="birthdate" readonly />
+            <FormInput label="이름" :model-value="customerName" readonly />
+            <FormInput label="연락처" :model-value="customerPhone" readonly />
+            <FormInput label="생년월일" :model-value="customerBirth" readonly />
             <FormSelect label="지역" v-model="region" :options="['서울', '경기', '인천', '기타']" />
           </div>
         </CardSection>
@@ -84,10 +82,11 @@
         <!-- Submit Button -->
         <button
           class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
-          :class="!consent ? 'opacity-50 cursor-not-allowed' : ''"
-          :disabled="!consent"
+          :class="!canSubmit ? 'opacity-50 cursor-not-allowed' : ''"
+          :disabled="!canSubmit"
+          @click="submit"
         >
-          상담 요청하기
+          {{ submitting ? '요청 중…' : '상담 요청하기' }}
         </button>
       </main>
 
@@ -97,29 +96,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import BottomNav from '@user/components/layout/BottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormSelect from '@user/components/form/FormSelect.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
+import { useAuthStore } from '@user/stores/authStore'
+import { createConsultation } from '@user/services/consultationApi'
 
-const selectedType = ref(0)
+const router = useRouter()
+const authStore = useAuthStore()
+
 const consultTypes = [
   { label: '보험 상담', desc: '신규 가입 보장 분석' },
   { label: '보험금 청구', desc: '청구 대행 요청' },
   { label: '병원 예약', desc: '제휴 병원 예약 지원' },
   { label: '기타 문의', desc: '계약 변경 해지 등' },
 ]
+const timeSlots = ['오전 9-12시', '오후 12-18시', '저녁 18-21시', '언제든']
 
-const name = ref('홍길동')
-const phone = ref('010-1234-5678')
-const birthdate = ref('1985.03.15')
+const selectedType = ref(0)
 const region = ref('서울')
 const content = ref('')
 const selectedTime = ref('오전 9-12시')
 const consent = ref(false)
+const submitting = ref(false)
 
-const timeSlots = ['오전 9-12시', '오후 12-18시', '저녁 18-21시', '언제든']
+const customer = computed(() => authStore.user?.customer ?? null)
+const customerName = computed(() => customer.value?.name ?? '')
+const customerPhone = computed(() => customer.value?.phone ?? '')
+const customerBirth = computed(() => customer.value?.birth_date ?? '')
+const hasAssignedAgent = computed(() => Boolean(customer.value?.agent_id))
+
+const canSubmit = computed(
+  () => consent.value && content.value.trim().length > 0 && !submitting.value,
+)
+
+async function submit() {
+  if (!canSubmit.value) return
+
+  submitting.value = true
+  try {
+    const composed = `[지역: ${region.value} / 희망연락: ${selectedTime.value}]\n\n${content.value.trim()}`
+    await createConsultation({
+      consultation_type: consultTypes[selectedType.value]?.label ?? '기타 문의',
+      consultation_content: composed,
+    })
+    alert('상담 요청이 접수되었습니다. 곧 연락드리겠습니다.')
+    router.back()
+  } catch (e: unknown) {
+    const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+    alert(msg || '상담 요청에 실패했습니다.')
+  } finally {
+    submitting.value = false
+  }
+}
 </script>
