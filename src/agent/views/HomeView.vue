@@ -152,6 +152,7 @@ function setupFcmTokenHandler() {
   const win = window as unknown as Record<string, unknown>
   win.__handleFCMToken__ = async (token: string) => {
     if (!token) return
+    win.__fcmToken__ = token // 토큰 저장 (홈 진입 시 재사용)
     try {
       await registerFcmToken({ fcm_token: token })
     } catch {
@@ -159,10 +160,16 @@ function setupFcmTokenHandler() {
     }
   }
 
-  // 네이티브 앱에 토큰 요청
+  // 네이티브 앱에 토큰 요청 (Android)
   const android = (window as unknown as Record<string, { sendFCMToken?: () => void }>).Android
   if (android?.sendFCMToken) {
     android.sendFCMToken()
+  }
+
+  // iOS: 이미 저장된 토큰이 있으면 바로 등록 시도
+  const savedToken = (window as unknown as Record<string, string>).__fcmToken__
+  if (savedToken) {
+    win.__handleFCMToken__(savedToken)
   }
 }
 
