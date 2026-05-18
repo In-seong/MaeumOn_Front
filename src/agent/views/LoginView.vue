@@ -86,6 +86,8 @@ async function handleLogin() {
   }
 
   try {
+    // 이전 토큰 정리 (중복 요청 방지)
+    localStorage.removeItem('agentToken')
     await agentAuthStore.login(username.value, password.value)
     router.push('/')
   } catch {
