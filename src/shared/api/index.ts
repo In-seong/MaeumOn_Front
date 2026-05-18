@@ -40,7 +40,8 @@ api.interceptors.response.use(
   },
   (error) => {
     // 401 에러 처리 (인증 만료) — 토큰 제거 + 로그인 페이지로 자동 이동
-    if (error.response?.status === 401) {
+    // 로그인 API 자체의 401은 무시 (토큰 삭제 방지)
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       const host = window.location.hostname
       const path = window.location.pathname
       const hash = window.location.hash

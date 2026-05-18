@@ -19,6 +19,7 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
   }
 
   async function login(username: string, password: string) {
+    if (loading.value) return // 중복 호출 방지
     loading.value = true
     error.value = null
     try {
