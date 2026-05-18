@@ -167,9 +167,9 @@ function setupFcmTokenHandler() {
   }
 
   // iOS: 이미 저장된 토큰이 있으면 바로 등록 시도
-  const savedToken = (window as unknown as Record<string, string>).__fcmToken__
+  const savedToken = win.__fcmToken__ as string | undefined
   if (savedToken) {
-    win.__handleFCMToken__(savedToken)
+    ;(win.__handleFCMToken__ as (token: string) => void)(savedToken)
   }
 }
 
