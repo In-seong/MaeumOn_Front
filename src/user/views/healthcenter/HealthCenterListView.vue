@@ -23,8 +23,24 @@
             </div>
           </div>
 
+          <!-- 내 위치 버튼 -->
+          <button
+            class="absolute top-[70px] right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+            @click="goToMyLocation"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="3" fill="#FF7B22"/>
+              <circle cx="12" cy="12" r="8" stroke="#FF7B22" stroke-width="2" fill="none"/>
+              <line x1="12" y1="2" x2="12" y2="5" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+              <line x1="12" y1="19" x2="12" y2="22" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+              <line x1="2" y1="12" x2="5" y2="12" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+              <line x1="19" y1="12" x2="22" y2="12" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+
           <!-- 전체화면 지도 -->
           <NaverMap
+            ref="mapRef"
             :height="mapHeight"
             :markers="mapMarkers"
             :rounded="false"
@@ -125,6 +141,7 @@ const loading = ref(false)
 const searchQuery = ref('')
 const viewMode = ref<'map' | 'list'>('map')
 const selectedCenter = ref<HealthCenterItem | null>(null)
+const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
 const mapHeight = computed(() => window.innerHeight - 56 - 72)
 
@@ -176,6 +193,19 @@ function onMarkerClick(id: number) {
 function toggleView() {
   selectedCenter.value = null
   viewMode.value = viewMode.value === 'map' ? 'list' : 'map'
+}
+
+function goToMyLocation() {
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      mapRef.value?.moveToLocation(pos.coords.latitude, pos.coords.longitude)
+    },
+    () => {
+      alert('위치 정보를 가져올 수 없습니다.')
+    },
+    { enableHighAccuracy: true, timeout: 5000 }
+  )
 }
 
 function goToDetail(id: number) {
