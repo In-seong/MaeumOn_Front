@@ -15,7 +15,10 @@
           <p class="text-[13px] text-[#888]">예약 관리</p>
         </div>
       </div>
-      <button @click="logout" class="px-4 py-2 text-[14px] text-[#888] hover:text-[#333]">로그아웃</button>
+      <div class="flex items-center gap-3">
+        <button @click="openScheduleModal" class="px-4 py-2 text-[14px] text-[#FF7B22] font-medium hover:bg-[#FFF0E5] rounded-[8px]">예약 시간 설정</button>
+        <button @click="logout" class="px-4 py-2 text-[14px] text-[#888] hover:text-[#333]">로그아웃</button>
+      </div>
     </header>
 
     <main class="max-w-[900px] mx-auto p-4 lg:p-6">
@@ -81,6 +84,25 @@
 
       <p class="text-center text-[13px] text-[#999] mt-4">총 {{ reservations.length }}건의 예약</p>
     </main>
+
+    <!-- 스케줄 설정 모달 -->
+    <div v-if="scheduleModalOpen" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" @click.self="scheduleModalOpen = false">
+      <div class="bg-white rounded-[16px] w-full max-w-[600px] max-h-[90vh] overflow-y-auto shadow-xl">
+        <div class="px-6 py-4 border-b border-[#F0F0F0] flex items-center justify-between">
+          <h2 class="text-[18px] font-bold text-[#222]">예약 시간 설정</h2>
+          <button @click="scheduleModalOpen = false" class="text-[#888] hover:text-[#333] text-[22px]">&times;</button>
+        </div>
+        <div class="px-6 py-5">
+          <ScheduleConfigEditor v-model="scheduleConfig" />
+        </div>
+        <div class="px-6 py-4 border-t border-[#F0F0F0] flex justify-end gap-3">
+          <button @click="scheduleModalOpen = false" class="px-4 py-2 text-[#555] text-[14px]">취소</button>
+          <button @click="saveSchedule" :disabled="scheduleSaving" class="px-5 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:opacity-50 hover:bg-[#E66A1A]">
+            {{ scheduleSaving ? '저장 중...' : '저장' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -89,6 +111,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@shared/api'
 import type { ApiResponse } from '@shared/types'
+import type { ScheduleConfig } from '../../types'
+import { fetchPortalSchedule, updatePortalSchedule } from '../../services/adminApi'
+import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 
 interface Reservation {
   reservation_id: number
@@ -166,6 +191,37 @@ function getStatusLabel(s: string) {
 function getStatusClass(s: string) {
   const m: Record<string, string> = { pending: 'bg-yellow-100 text-yellow-800', confirmed: 'bg-green-100 text-green-800', cancelled: 'bg-red-100 text-red-800', completed: 'bg-blue-100 text-blue-800' }
   return m[s] || 'bg-gray-100 text-gray-800'
+}
+
+const scheduleModalOpen = ref(false)
+const scheduleConfig = ref<ScheduleConfig | null>(null)
+const scheduleSaving = ref(false)
+
+async function openScheduleModal() {
+  const token = getToken()
+  if (!token) return
+  try {
+    const res = await fetchPortalSchedule(token)
+    scheduleConfig.value = res.data.data
+  } catch {
+    scheduleConfig.value = null
+  }
+  scheduleModalOpen.value = true
+}
+
+async function saveSchedule() {
+  const token = getToken()
+  if (!token) return
+  scheduleSaving.value = true
+  try {
+    await updatePortalSchedule(token, scheduleConfig.value)
+    alert('예약 시간 설정이 저장되었습니다.')
+    scheduleModalOpen.value = false
+  } catch {
+    alert('저장에 실패했습니다.')
+  } finally {
+    scheduleSaving.value = false
+  }
 }
 
 onMounted(() => fetchReservations())

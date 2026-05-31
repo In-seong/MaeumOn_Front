@@ -200,6 +200,26 @@ export interface AdminBatchClaim {
   updated_at?: string
 }
 
+// ===== 예약 스케줄 커스터마이징 =====
+
+export interface ScheduleTimeRange {
+  start: string
+  end: string
+  interval?: number
+}
+
+export interface ScheduleDayConfig {
+  slots: ScheduleTimeRange[]
+  interval?: number
+}
+
+export interface ScheduleConfig {
+  default_interval: number
+  weekly: Record<string, ScheduleDayConfig | null>
+  blocked_dates: string[]
+  custom_dates: Record<string, ScheduleDayConfig>
+}
+
 // ===== 사용자 앱 리뉴얼 타입 =====
 
 // 병원 관리
@@ -215,6 +235,7 @@ export interface AdminHospital {
   business_hours?: string
   introduction?: string
   specialties?: string
+  schedule_config?: ScheduleConfig | null
   is_active: boolean
   accounts?: AdminHospitalAccount[]
   created_at?: string
@@ -232,6 +253,7 @@ export interface AdminHealthCenter {
   contact_phone?: string
   business_hours?: string
   introduction?: string
+  schedule_config?: ScheduleConfig | null
   is_active: boolean
   accounts?: AdminHospitalAccount[]
   created_at?: string

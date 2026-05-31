@@ -78,6 +78,9 @@
                   <div v-if="slotsLoading" class="text-center py-4">
                     <p class="text-[13px] text-[#999]">시간을 불러오는 중...</p>
                   </div>
+                  <div v-else-if="timeSlots.length === 0" class="py-4 text-center">
+                    <p class="text-[14px] text-[#999]">해당 날짜는 예약이 불가합니다.</p>
+                  </div>
                   <div v-else class="flex flex-wrap gap-2">
                     <button
                       v-for="slot in timeSlots"

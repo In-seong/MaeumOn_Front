@@ -101,6 +101,14 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
             <textarea v-model="formData.introduction" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none"></textarea>
           </div>
+          <!-- 예약 시간 설정 -->
+          <div class="border-t border-[#F0F0F0] pt-4">
+            <button type="button" @click="scheduleOpen = !scheduleOpen" class="flex items-center gap-2 text-[13px] font-medium text-[#555] mb-2 hover:text-[#FF7B22]">
+              <span>{{ scheduleOpen ? '▼' : '▶' }}</span>
+              <span>예약 시간 설정</span>
+            </button>
+            <ScheduleConfigEditor v-if="scheduleOpen" v-model="formData.schedule_config" />
+          </div>
           <div v-if="!editingId" class="border-t border-[#F0F0F0] pt-4">
             <p class="text-[13px] font-medium text-[#555] mb-2">포털 계정 (선택)</p>
             <div class="grid grid-cols-2 gap-4">
@@ -123,7 +131,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter } from '../../services/adminApi'
-import type { AdminHealthCenter, LaravelPagination } from '../../types'
+import type { AdminHealthCenter, LaravelPagination, ScheduleConfig } from '../../types'
+import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 
 const centers = ref<AdminHealthCenter[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminHealthCenter>, 'data'> | null>(null)
@@ -134,8 +143,9 @@ let searchTimeout: ReturnType<typeof setTimeout>
 const formOpen = ref(false)
 const editingId = ref<number | null>(null)
 const submitting = ref(false)
+const scheduleOpen = ref(false)
 const formData = reactive({
-  center_name: '', address: '', contact_phone: '', latitude: '' as string | number, longitude: '' as string | number, business_hours: '', introduction: '', portal_username: '', portal_password: '',
+  center_name: '', address: '', contact_phone: '', latitude: '' as string | number, longitude: '' as string | number, business_hours: '', introduction: '', schedule_config: null as ScheduleConfig | null, portal_username: '', portal_password: '',
 })
 
 function debouncedSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => fetchData(), 300) }
@@ -153,11 +163,12 @@ async function fetchData(page = 1) {
 function openForm(center?: AdminHealthCenter) {
   if (center) {
     editingId.value = center.center_id
-    Object.assign(formData, { center_name: center.center_name, address: center.address, contact_phone: center.contact_phone || '', latitude: center.latitude || '', longitude: center.longitude || '', business_hours: center.business_hours || '', introduction: center.introduction || '', portal_username: '', portal_password: '' })
+    Object.assign(formData, { center_name: center.center_name, address: center.address, contact_phone: center.contact_phone || '', latitude: center.latitude || '', longitude: center.longitude || '', business_hours: center.business_hours || '', introduction: center.introduction || '', schedule_config: center.schedule_config ? JSON.parse(JSON.stringify(center.schedule_config)) : null, portal_username: '', portal_password: '' })
   } else {
     editingId.value = null
-    Object.assign(formData, { center_name: '', address: '', contact_phone: '', latitude: '', longitude: '', business_hours: '', introduction: '', portal_username: '', portal_password: '' })
+    Object.assign(formData, { center_name: '', address: '', contact_phone: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '' })
   }
+  scheduleOpen.value = false
   formOpen.value = true
 }
 

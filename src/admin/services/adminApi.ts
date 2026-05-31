@@ -7,7 +7,7 @@ import type {
   DashboardSummary, AdminSentNotification,
   AdminConsultation, AdminBatchClaim,
   AdminHospital, AdminHealthCenter, AdminClaimRequest,
-  AdminReservation,
+  AdminReservation, ScheduleConfig,
 } from '../types'
 
 const BASE = '/admin'
@@ -197,5 +197,16 @@ export const fetchPortalReservations = (token: string, date?: string) =>
 
 export const updatePortalReservationStatus = (token: string, id: number, status: string) =>
   api.put<ApiResponse<unknown>>(`/hospital-portal/reservations/${id}/status`, { status }, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+// ===== Hospital Portal Schedule (포털 스케줄 설정) =====
+export const fetchPortalSchedule = (token: string) =>
+  api.get<ApiResponse<ScheduleConfig | null>>('/hospital-portal/schedule', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+export const updatePortalSchedule = (token: string, config: ScheduleConfig | null) =>
+  api.put<ApiResponse<ScheduleConfig | null>>('/hospital-portal/schedule', { schedule_config: config }, {
     headers: { Authorization: `Bearer ${token}` },
   })
