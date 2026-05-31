@@ -8,7 +8,7 @@
     <div class="bg-white rounded-[12px] border border-[#E8E8E8] p-4 mb-4 flex flex-wrap gap-3 items-end">
       <div>
         <label class="block text-[12px] text-[#888] mb-1">상태</label>
-        <select v-model="filters.status" class="border border-[#DDD] rounded-lg px-3 py-2 text-[14px] min-w-[120px]" @change="loadReservations">
+        <select v-model="filters.status" class="border border-[#DDD] rounded-lg px-3 py-2 text-[14px] min-w-[120px]" @change="loadReservations()">
           <option value="">전체</option>
           <option value="pending">대기</option>
           <option value="confirmed">확정</option>
@@ -18,7 +18,7 @@
       </div>
       <div>
         <label class="block text-[12px] text-[#888] mb-1">유형</label>
-        <select v-model="filters.reservation_type" class="border border-[#DDD] rounded-lg px-3 py-2 text-[14px] min-w-[120px]" @change="loadReservations">
+        <select v-model="filters.reservation_type" class="border border-[#DDD] rounded-lg px-3 py-2 text-[14px] min-w-[120px]" @change="loadReservations()">
           <option value="">전체</option>
           <option value="hospital">병원</option>
           <option value="health_center">건강검진센터</option>
@@ -26,7 +26,7 @@
       </div>
       <div>
         <label class="block text-[12px] text-[#888] mb-1">날짜</label>
-        <input v-model="filters.date" type="date" class="border border-[#DDD] rounded-lg px-3 py-2 text-[14px]" @change="loadReservations" />
+        <input v-model="filters.date" type="date" class="border border-[#DDD] rounded-lg px-3 py-2 text-[14px]" @change="loadReservations()" />
       </div>
       <div class="flex-1 min-w-[200px]">
         <label class="block text-[12px] text-[#888] mb-1">검색</label>
