@@ -25,7 +25,6 @@
 
           <!-- 전체화면 지도 -->
           <NaverMap
-            ref="mapRef"
             :height="mapHeight"
             :markers="mapMarkers"
             :rounded="false"
@@ -126,7 +125,6 @@ const loading = ref(false)
 const searchQuery = ref('')
 const viewMode = ref<'map' | 'list'>('map')
 const selectedCenter = ref<HealthCenterItem | null>(null)
-const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
 const mapHeight = computed(() => window.innerHeight - 56 - 72)
 

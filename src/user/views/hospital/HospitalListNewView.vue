@@ -25,7 +25,6 @@
 
           <!-- 전체화면 지도 -->
           <NaverMap
-            ref="mapRef"
             :height="mapHeight"
             :markers="mapMarkers"
             :rounded="false"
@@ -128,7 +127,6 @@ const loading = ref(false)
 const searchQuery = ref('')
 const viewMode = ref<'map' | 'list'>('map')
 const selectedHospital = ref<PartnerHospital | null>(null)
-const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
 // 헤더(56px) + 하단네비(72px) 제외한 지도 높이
 const mapHeight = computed(() => window.innerHeight - 56 - 72)
