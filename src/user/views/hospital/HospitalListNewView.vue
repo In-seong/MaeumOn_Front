@@ -25,7 +25,8 @@
 
           <!-- 내 위치 버튼 -->
           <button
-            class="absolute top-[70px] right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+            class="absolute bottom-4 right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+            :style="selectedHospital ? 'bottom: 100px' : ''"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
