@@ -26,7 +26,7 @@
           <!-- 내 위치 버튼 -->
           <button
             class="absolute bottom-4 right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-            :style="selectedCenter ? 'bottom: 130px' : ''"
+            :style="selectedCenter ? 'bottom: 140px' : ''"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -52,11 +52,11 @@
           <div v-if="selectedCenter" class="absolute bottom-4 left-4 right-4 z-10">
             <div class="relative">
               <button
-                class="absolute -top-2 -right-2 z-10 w-7 h-7 bg-[#333] rounded-full flex items-center justify-center shadow-md"
+                class="absolute -top-2 -right-2 z-10 w-7 h-7 bg-white border border-[#E0E0E0] rounded-full flex items-center justify-center shadow-sm"
                 @click.stop="selectedCenter = null"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="#999" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
               </button>
               <HospitalCard
