@@ -39,6 +39,7 @@ const emit = defineEmits<{
 const mapContainer = ref<HTMLDivElement>()
 let map: any = null
 let markerInstances: any[] = []
+let myLocationMarker: any = null
 
 onMounted(() => {
   initMap()
@@ -116,8 +117,24 @@ watch(() => props.markers, updateMarkers, { deep: true })
 
 function moveToLocation(lat: number, lng: number) {
   if (!map) return
-  map.setCenter(new naver.maps.LatLng(lat, lng))
+  const pos = new naver.maps.LatLng(lat, lng)
+  map.setCenter(pos)
   map.setZoom(16)
+
+  // 기존 내 위치 마커 제거
+  if (myLocationMarker) {
+    myLocationMarker.setMap(null)
+  }
+
+  myLocationMarker = new naver.maps.Marker({
+    position: pos,
+    map,
+    icon: {
+      content: `<div style="width:18px;height:18px;background:#4285F4;border:3px solid white;border-radius:50%;box-shadow:0 0 6px rgba(66,133,244,0.5);"></div>`,
+      anchor: new naver.maps.Point(9, 9),
+    },
+    title: '내 위치',
+  })
 }
 
 defineExpose({ moveToLocation })
