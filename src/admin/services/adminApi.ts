@@ -7,6 +7,7 @@ import type {
   DashboardSummary, AdminSentNotification,
   AdminConsultation, AdminBatchClaim,
   AdminHospital, AdminHealthCenter, AdminClaimRequest,
+  AdminReservation,
 } from '../types'
 
 const BASE = '/admin'
@@ -176,6 +177,13 @@ export const assignClaimRequest = (id: number, agentId: string) =>
 
 export const updateClaimRequestStatus = (id: number, status: string) =>
   api.put<ApiResponse<AdminClaimRequest>>(`${BASE}/claim-requests/${id}/status`, { status })
+
+// ===== Reservations (예약 관리) =====
+export const fetchAdminReservations = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminReservation>>>(`${BASE}/reservations`, { params })
+
+export const updateAdminReservationStatus = (id: number, status: string) =>
+  api.put<ApiResponse<AdminReservation>>(`${BASE}/reservations/${id}/status`, { status })
 
 // ===== Hospital Portal (병원 포털 API) =====
 export const hospitalPortalLogin = (username: string, password: string) =>

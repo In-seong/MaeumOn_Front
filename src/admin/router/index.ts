@@ -222,6 +222,13 @@ const router = createRouter({
       component: () => import('../views/health-centers/HealthCenterListView.vue'),
       meta: { requiresAuth: true },
     },
+    // 예약 관리
+    {
+      path: '/reservations',
+      name: 'reservations',
+      component: () => import('../views/reservations/ReservationListView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 청구 신청 관리
     {
       path: '/claim-requests',

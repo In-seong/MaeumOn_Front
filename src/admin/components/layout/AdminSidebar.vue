@@ -63,6 +63,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: '병원 관리', icon: 'local_hospital', to: '/hospitals', match: ['/hospitals'] },
       { label: '건강검진 센터', icon: 'health_and_safety', to: '/health-centers', match: ['/health-centers'] },
+      { label: '예약 관리', icon: 'event_note', to: '/reservations', match: ['/reservations'] },
       { label: '청구 신청 관리', icon: 'assignment', to: '/claim-requests', match: ['/claim-requests'] },
     ],
   },
