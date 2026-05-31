@@ -26,7 +26,7 @@
           <!-- 내 위치 버튼 -->
           <button
             class="absolute bottom-4 right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-            :style="selectedCenter ? 'bottom: 100px' : ''"
+            :style="selectedCenter ? 'bottom: 130px' : ''"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -50,12 +50,22 @@
 
           <!-- 선택된 센터 카드 (하단 오버레이) -->
           <div v-if="selectedCenter" class="absolute bottom-4 left-4 right-4 z-10">
-            <HospitalCard
-              :name="selectedCenter.center_name"
-              :address="selectedCenter.address"
-              :phone="selectedCenter.contact_phone"
-              @click="goToDetail(selectedCenter!.center_id)"
-            />
+            <div class="relative">
+              <button
+                class="absolute -top-2 -right-2 z-10 w-7 h-7 bg-[#333] rounded-full flex items-center justify-center shadow-md"
+                @click.stop="selectedCenter = null"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <HospitalCard
+                :name="selectedCenter.center_name"
+                :address="selectedCenter.address"
+                :phone="selectedCenter.contact_phone"
+                @click="goToDetail(selectedCenter!.center_id)"
+              />
+            </div>
           </div>
         </template>
 
@@ -106,7 +116,7 @@
         <button
           class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
           :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-4' : 'bg-[#FF7B22] text-white bottom-4'"
-          :style="selectedCenter && viewMode === 'map' ? 'bottom: 100px' : ''"
+          :style="selectedCenter && viewMode === 'map' ? 'bottom: 130px' : ''"
           @click="toggleView"
         >
           <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">
