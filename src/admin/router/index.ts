@@ -252,6 +252,14 @@ const router = createRouter({
 
 // 인증 가드
 router.beforeEach((to, _from, next) => {
+  const isHospitalPortal = window.location.hostname === 'hospital.bohumon.co.kr'
+
+  // hospital.bohumon.co.kr 접속 시 포털 라우트가 아니면 포털 로그인으로 이동
+  if (isHospitalPortal && !to.path.startsWith('/portal')) {
+    next({ name: 'portal-login' })
+    return
+  }
+
   const hasToken = !!localStorage.getItem('adminToken')
   const isLoggedIn = hasToken && localStorage.getItem('adminIsLoggedIn') === 'true'
 
