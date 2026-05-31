@@ -200,6 +200,101 @@ export interface AdminBatchClaim {
   updated_at?: string
 }
 
+// ===== 사용자 앱 리뉴얼 타입 =====
+
+// 병원 관리
+export interface AdminHospital {
+  hospital_id: number
+  hospital_name: string
+  business_number?: string
+  address: string
+  detailed_address?: string
+  contact_phone?: string
+  latitude?: number
+  longitude?: number
+  business_hours?: string
+  introduction?: string
+  specialties?: string
+  is_active: boolean
+  accounts?: AdminHospitalAccount[]
+  created_at?: string
+  updated_at?: string
+}
+
+// 건강검진 센터 관리
+export interface AdminHealthCenter {
+  center_id: number
+  center_name: string
+  address: string
+  detailed_address?: string
+  latitude?: number
+  longitude?: number
+  contact_phone?: string
+  business_hours?: string
+  introduction?: string
+  is_active: boolean
+  accounts?: AdminHospitalAccount[]
+  created_at?: string
+  updated_at?: string
+}
+
+// 병원/센터 계정
+export interface AdminHospitalAccount {
+  account_id: number
+  hospital_id?: number
+  center_id?: number
+  username: string
+  account_name?: string
+  is_active: boolean
+  created_at?: string
+}
+
+// 간편 청구 신청
+export interface AdminClaimRequest {
+  request_id: number
+  name: string
+  phone: string
+  memo?: string
+  status: 'pending' | 'assigned' | 'completed' | 'cancelled'
+  assigned_agent_id?: string
+  linked_claim_id?: number
+  files?: AdminClaimRequestFile[]
+  assigned_agent?: {
+    agent_id: string
+    name: string
+    phone?: string
+  }
+  created_at?: string
+  updated_at?: string
+}
+
+export interface AdminClaimRequestFile {
+  file_id: number
+  request_id: number
+  file_url: string
+  file_name?: string
+  file_size?: number
+  file_download_url?: string
+}
+
+// 예약 관리
+export interface AdminReservation {
+  reservation_id: number
+  hospital_id?: number
+  center_id?: number
+  reservation_type: 'hospital' | 'health_center'
+  patient_name: string
+  patient_phone: string
+  reservation_date: string
+  reservation_time: string
+  memo?: string
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+  hospital?: AdminHospital
+  health_center?: AdminHealthCenter
+  created_at?: string
+  updated_at?: string
+}
+
 // 대시보드 요약
 export interface DashboardSummary {
   total_customers: number

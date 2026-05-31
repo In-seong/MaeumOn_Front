@@ -6,6 +6,7 @@ import type {
   PerformanceSummary, AgentPerformance, MonthlyPerformance,
   DashboardSummary, AdminSentNotification,
   AdminConsultation, AdminBatchClaim,
+  AdminHospital, AdminHealthCenter, AdminClaimRequest,
 } from '../types'
 
 const BASE = '/admin'
@@ -130,3 +131,63 @@ export const assignConsultation = (id: number, agentId: string) =>
 // ===== Batch Claims (배치 청구 관리) =====
 export const fetchBatchClaims = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminBatchClaim>>>(`${BASE}/batch-claims`, { params })
+
+// ===== Hospitals (병원 관리) =====
+export const fetchAdminHospitals = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminHospital>>>(`${BASE}/hospitals`, { params })
+
+export const fetchAdminHospital = (id: number) =>
+  api.get<ApiResponse<AdminHospital>>(`${BASE}/hospitals/${id}`)
+
+export const createAdminHospital = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<AdminHospital>>(`${BASE}/hospitals`, data)
+
+export const updateAdminHospital = (id: number, data: Record<string, unknown>) =>
+  api.put<ApiResponse<AdminHospital>>(`${BASE}/hospitals/${id}`, data)
+
+export const deleteAdminHospital = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/hospitals/${id}`)
+
+// ===== Health Centers (건강검진 센터 관리) =====
+export const fetchAdminHealthCenters = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminHealthCenter>>>(`${BASE}/health-centers`, { params })
+
+export const fetchAdminHealthCenter = (id: number) =>
+  api.get<ApiResponse<AdminHealthCenter>>(`${BASE}/health-centers/${id}`)
+
+export const createAdminHealthCenter = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<AdminHealthCenter>>(`${BASE}/health-centers`, data)
+
+export const updateAdminHealthCenter = (id: number, data: Record<string, unknown>) =>
+  api.put<ApiResponse<AdminHealthCenter>>(`${BASE}/health-centers/${id}`, data)
+
+export const deleteAdminHealthCenter = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/health-centers/${id}`)
+
+// ===== Claim Requests (간편 청구 신청 관리) =====
+export const fetchAdminClaimRequests = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<AdminClaimRequest>>>(`${BASE}/claim-requests`, { params })
+
+export const fetchAdminClaimRequest = (id: number) =>
+  api.get<ApiResponse<AdminClaimRequest>>(`${BASE}/claim-requests/${id}`)
+
+export const assignClaimRequest = (id: number, agentId: string) =>
+  api.put<ApiResponse<AdminClaimRequest>>(`${BASE}/claim-requests/${id}/assign`, { agent_id: agentId })
+
+export const updateClaimRequestStatus = (id: number, status: string) =>
+  api.put<ApiResponse<AdminClaimRequest>>(`${BASE}/claim-requests/${id}/status`, { status })
+
+// ===== Hospital Portal (병원 포털 API) =====
+export const hospitalPortalLogin = (username: string, password: string) =>
+  api.post<ApiResponse<{ token: string; account_name: string; hospital_id?: number; center_id?: number }>>('/hospital-portal/login', { username, password })
+
+export const fetchPortalReservations = (token: string, date?: string) =>
+  api.get<ApiResponse<AdminClaimRequest[]>>('/hospital-portal/reservations', {
+    params: { date },
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+export const updatePortalReservationStatus = (token: string, id: number, status: string) =>
+  api.put<ApiResponse<unknown>>(`/hospital-portal/reservations/${id}/status`, { status }, {
+    headers: { Authorization: `Bearer ${token}` },
+  })

@@ -58,6 +58,14 @@ const navGroups: NavGroup[] = [
       { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'] },
     ],
   },
+  {
+    title: '병원/예약',
+    items: [
+      { label: '병원 관리', icon: 'local_hospital', to: '/hospitals', match: ['/hospitals'] },
+      { label: '건강검진 센터', icon: 'health_and_safety', to: '/health-centers', match: ['/health-centers'] },
+      { label: '청구 신청 관리', icon: 'assignment', to: '/claim-requests', match: ['/claim-requests'] },
+    ],
+  },
 ]
 
 function isActive(item: NavItem): boolean {

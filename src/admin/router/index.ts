@@ -208,6 +208,38 @@ const router = createRouter({
       component: () => import('../views/claims/BatchClaimListView.vue'),
       meta: { requiresAuth: true },
     },
+    // 병원 관리
+    {
+      path: '/hospitals',
+      name: 'hospitals',
+      component: () => import('../views/hospitals/HospitalListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 건강검진 센터 관리
+    {
+      path: '/health-centers',
+      name: 'health-centers',
+      component: () => import('../views/health-centers/HealthCenterListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 청구 신청 관리
+    {
+      path: '/claim-requests',
+      name: 'claim-requests',
+      component: () => import('../views/claim-requests/ClaimRequestListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // ========== 병원 포털 (별도 레이아웃, 관리자 인증 불필요) ==========
+    {
+      path: '/portal/login',
+      name: 'portal-login',
+      component: () => import('../views/hospital-portal/PortalLoginView.vue'),
+    },
+    {
+      path: '/portal/reservations',
+      name: 'portal-reservations',
+      component: () => import('../views/hospital-portal/PortalReservationsView.vue'),
+    },
   ],
 })
 
