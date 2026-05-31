@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapContainer" class="w-full rounded-[16px] overflow-hidden" :style="{ height: height + 'px' }"></div>
+  <div ref="mapContainer" class="w-full overflow-hidden" :class="rounded ? 'rounded-[16px]' : ''" :style="{ height: height + 'px' }"></div>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +20,7 @@ interface Props {
   centerLat?: number
   centerLng?: number
   zoom?: number
+  rounded?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -28,6 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
   centerLat: 37.5665,
   centerLng: 126.978,
   zoom: 14,
+  rounded: true,
 })
 
 const emit = defineEmits<{

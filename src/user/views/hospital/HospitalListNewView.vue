@@ -3,56 +3,108 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="병원 예약" />
 
-      <main class="overflow-y-auto pb-24" style="height: calc(100vh - 56px);">
-        <!-- 검색바 -->
-        <div class="px-5 py-3">
-          <div class="relative">
-            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
-              <path d="M21 21L16.65 16.65" stroke="#999" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="병원명, 진료과목 검색"
-              class="w-full bg-[#F8F8F8] rounded-[12px] pl-10 pr-4 py-3 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
-              @input="debouncedSearch"
-            />
+      <main class="relative" style="height: calc(100vh - 56px - 72px);">
+        <!-- 지도 모드 -->
+        <template v-if="viewMode === 'map'">
+          <!-- 검색바 (지도 위 오버레이) -->
+          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3">
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
+                <path d="M21 21L16.65 16.65" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="병원명, 진료과목 검색"
+                class="w-full bg-white/95 backdrop-blur-sm rounded-[14px] pl-10 pr-4 py-3.5 text-[16px] border border-[#E0E0E0] outline-none focus:border-[#FF7B22] transition-colors text-[#333] shadow-lg"
+                @input="debouncedSearch"
+              />
+            </div>
           </div>
-        </div>
 
-        <!-- 지도 -->
-        <div class="px-5 mb-4">
+          <!-- 전체화면 지도 -->
           <NaverMap
             ref="mapRef"
-            :height="250"
+            :height="mapHeight"
             :markers="mapMarkers"
-            @marker-click="scrollToHospital"
+            :rounded="false"
+            @marker-click="onMarkerClick"
           />
-        </div>
 
-        <!-- 로딩 -->
-        <div v-if="loading" class="px-5 py-8 text-center">
-          <p class="text-[14px] text-[#999]">병원 목록을 불러오는 중...</p>
-        </div>
+          <!-- 선택된 병원 카드 (하단 오버레이) -->
+          <div v-if="selectedHospital" class="absolute bottom-4 left-4 right-4 z-10">
+            <HospitalCard
+              :name="selectedHospital.hospital_name"
+              :address="selectedHospital.address"
+              :specialties="selectedHospital.specialties"
+              :phone="selectedHospital.contact_phone"
+              @click="goToDetail(selectedHospital!.hospital_id)"
+            />
+          </div>
+        </template>
 
-        <!-- 병원 목록 -->
-        <div v-else class="px-5 space-y-3">
-          <p class="text-[13px] text-[#888]">협약 병원 {{ hospitals.length }}곳</p>
-          <HospitalCard
-            v-for="hospital in hospitals"
-            :key="hospital.hospital_id"
-            :ref="(el: any) => { if (el) hospitalRefs[hospital.hospital_id] = el }"
-            :name="hospital.hospital_name"
-            :address="hospital.address"
-            :specialties="hospital.specialties"
-            :phone="hospital.contact_phone"
-            @click="goToDetail(hospital.hospital_id)"
-          />
-          <p v-if="hospitals.length === 0" class="text-center text-[14px] text-[#999] py-8">
-            검색 결과가 없습니다
-          </p>
-        </div>
+        <!-- 리스트 모드 -->
+        <template v-else>
+          <div class="h-full overflow-y-auto pb-4">
+            <!-- 검색바 -->
+            <div class="px-5 py-3">
+              <div class="relative">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
+                  <path d="M21 21L16.65 16.65" stroke="#999" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="병원명, 진료과목 검색"
+                  class="w-full bg-[#F8F8F8] rounded-[14px] pl-10 pr-4 py-3.5 text-[16px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  @input="debouncedSearch"
+                />
+              </div>
+            </div>
+
+            <!-- 로딩 -->
+            <div v-if="loading" class="px-5 py-8 text-center">
+              <p class="text-[15px] text-[#999]">병원 목록을 불러오는 중...</p>
+            </div>
+
+            <!-- 병원 목록 -->
+            <div v-else class="px-5 space-y-3">
+              <p class="text-[14px] text-[#888] font-medium">협약 병원 {{ hospitals.length }}곳</p>
+              <HospitalCard
+                v-for="hospital in hospitals"
+                :key="hospital.hospital_id"
+                :name="hospital.hospital_name"
+                :address="hospital.address"
+                :specialties="hospital.specialties"
+                :phone="hospital.contact_phone"
+                @click="goToDetail(hospital.hospital_id)"
+              />
+              <p v-if="hospitals.length === 0" class="text-center text-[15px] text-[#999] py-8">
+                검색 결과가 없습니다
+              </p>
+            </div>
+          </div>
+        </template>
+
+        <!-- 보기 전환 버튼 -->
+        <button
+          class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
+          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-4' : 'bg-[#FF7B22] text-white bottom-4'"
+          :style="selectedHospital && viewMode === 'map' ? 'bottom: 100px' : ''"
+          @click="toggleView"
+        >
+          <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/>
+            <line x1="8" y1="2" x2="8" y2="18" stroke="currentColor" stroke-width="2"/>
+            <line x1="16" y1="6" x2="16" y2="22" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          {{ viewMode === 'map' ? '리스트 보기' : '지도 보기' }}
+        </button>
       </main>
 
       <SeniorBottomNav />
@@ -74,7 +126,12 @@ const router = useRouter()
 const hospitals = ref<PartnerHospital[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
-const hospitalRefs: Record<number, any> = {}
+const viewMode = ref<'map' | 'list'>('map')
+const selectedHospital = ref<PartnerHospital | null>(null)
+const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
+
+// 헤더(56px) + 하단네비(72px) 제외한 지도 높이
+const mapHeight = computed(() => window.innerHeight - 56 - 72)
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -116,11 +173,14 @@ function debouncedSearch() {
   }, 300)
 }
 
-function scrollToHospital(id: number) {
-  const el = hospitalRefs[id]?.$el
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+function onMarkerClick(id: number) {
+  const found = hospitals.value.find(h => h.hospital_id === id)
+  selectedHospital.value = found ?? null
+}
+
+function toggleView() {
+  selectedHospital.value = null
+  viewMode.value = viewMode.value === 'map' ? 'list' : 'map'
 }
 
 function goToDetail(id: number) {
