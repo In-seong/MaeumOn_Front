@@ -223,8 +223,9 @@ async function submitReservation() {
       reservation_time: reserveForm.value.reservation_time,
       memo: reserveForm.value.memo || undefined,
     })
+    localStorage.setItem('reservationPhone', reserveForm.value.patient_phone)
     alert('예약이 접수되었습니다!')
-    router.push('/hospitals')
+    router.push('/my-reservations')
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
     alert(msg || '예약에 실패했습니다. 다시 시도해주세요.')
