@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="정보이용 동의" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 안내 카드 -->
         <CardSection class="mb-4">
           <div class="flex items-start gap-3">
-            <div class="w-[44px] h-[44px] rounded-full bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
+            <div class="w-[44px] h-[44px] rounded-full bg-[#E5F6EB] flex items-center justify-center flex-shrink-0">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div>
@@ -35,7 +35,7 @@
           <label class="flex items-center gap-3 px-1 cursor-pointer" @click="agreed = !agreed">
             <div
               class="w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-colors"
-              :class="agreed ? 'bg-[#FF7B22] border-[#FF7B22]' : 'bg-white border-[#D0D0D0]'"
+              :class="agreed ? 'bg-[#03C75A] border-[#03C75A]' : 'bg-white border-[#D0D0D0]'"
             >
               <svg v-if="agreed" width="12" height="12" viewBox="0 0 24 24" fill="none">
                 <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -52,7 +52,7 @@
 
         <!-- 동의 버튼 -->
         <button
-          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="!agreed || store.loading"
           @click="onAgree"
         >

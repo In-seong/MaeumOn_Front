@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="병원 상세" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- Hospital Info -->
@@ -13,9 +13,9 @@
             <StatusBadge label="협약병원" variant="primary" />
           </div>
           <div class="flex items-center gap-1.5 mt-2">
-            <span class="text-[14px] font-medium text-[#FF7B22]">4.8</span>
+            <span class="text-[14px] font-medium text-[#03C75A]">4.8</span>
             <div class="flex">
-              <svg v-for="s in 5" :key="s" width="14" height="14" viewBox="0 0 24 24" :fill="s <= 5 ? '#FF7B22' : '#E0E0E0'">
+              <svg v-for="s in 5" :key="s" width="14" height="14" viewBox="0 0 24 24" :fill="s <= 5 ? '#03C75A' : '#E0E0E0'">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             </div>
@@ -27,10 +27,10 @@
         <CardSection class="mb-4 !bg-[#FFF9F0]">
           <div class="flex items-start gap-2">
             <svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <div>
-              <p class="text-[13px] font-semibold text-[#FF7B22] mb-0.5">보험 혜택 안내</p>
+              <p class="text-[13px] font-semibold text-[#03C75A] mb-0.5">보험 혜택 안내</p>
               <p class="text-[12px] text-[#888] leading-relaxed">협약병원으로 보험금 직접 청구 및 진료비 할인 혜택이 제공됩니다.</p>
             </div>
           </div>
@@ -92,7 +92,7 @@
           <a href="tel:02-2019-3114" class="flex-1 bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[15px] font-semibold text-center active:scale-[0.98] transition-transform">
             전화하기
           </a>
-          <button class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform" @click="router.push('/reservation')">
+          <button class="flex-1 bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform" @click="router.push('/reservation')">
             예약하기
           </button>
         </div>

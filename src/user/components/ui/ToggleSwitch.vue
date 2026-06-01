@@ -2,7 +2,7 @@
   <button
     type="button"
     class="relative w-[44px] h-[24px] rounded-full transition-colors duration-200 flex-shrink-0 overflow-hidden"
-    :class="modelValue ? 'bg-[#FF7B22]' : 'bg-[#D9D9D9]'"
+    :class="modelValue ? 'bg-[#03C75A]' : 'bg-[#D9D9D9]'"
     @click="$emit('update:modelValue', !modelValue)"
   >
     <span

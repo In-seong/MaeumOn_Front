@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="내 보험" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <!-- 로딩 -->
         <div v-if="store.loading && !isRefreshing" class="flex flex-col items-center justify-center py-20">
-          <svg class="animate-spin h-8 w-8 text-[#FF7B22] mb-3" viewBox="0 0 24 24">
+          <svg class="animate-spin h-8 w-8 text-[#03C75A] mb-3" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
@@ -17,7 +17,7 @@
           <div class="flex items-center justify-between mb-4">
             <span class="text-[12px] text-[#999]">{{ syncDateLabel }}</span>
             <button
-              class="flex items-center gap-1 text-[12px] text-[#FF7B22] font-medium disabled:opacity-50"
+              class="flex items-center gap-1 text-[12px] text-[#03C75A] font-medium disabled:opacity-50"
               :disabled="isRefreshing"
               @click="onRefresh"
             >
@@ -25,8 +25,8 @@
                 width="14" height="14" viewBox="0 0 24 24" fill="none"
                 :class="{ 'animate-spin': isRefreshing }"
               >
-                <path d="M23 4v6h-6M1 20v-6h6" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M23 4v6h-6M1 20v-6h6" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               {{ isRefreshing ? '동기화 중...' : '새로고침' }}
             </button>
@@ -41,7 +41,7 @@
               </div>
               <div class="text-right">
                 <p class="text-[12px] text-[#999]">월 납입료</p>
-                <p class="text-[20px] font-bold text-[#FF7B22]">{{ formattedTotalPremium }}</p>
+                <p class="text-[20px] font-bold text-[#03C75A]">{{ formattedTotalPremium }}</p>
               </div>
             </div>
           </CardSection>
@@ -68,7 +68,7 @@
                   {{ item.product_name || '보험상품' }}
                 </p>
                 <div class="flex items-center gap-1.5">
-                  <span v-if="item.premium_amount" class="text-[14px] font-bold text-[#FF7B22]">
+                  <span v-if="item.premium_amount" class="text-[14px] font-bold text-[#03C75A]">
                     월 {{ formatAmount(item.premium_amount) }}
                   </span>
                   <span class="text-[12px] text-[#B0B0B0]">
@@ -80,7 +80,7 @@
           </div>
 
           <button
-            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
             @click="router.push('/coverage-analysis')"
           >
             전체 보장 분석 보기
@@ -90,9 +90,9 @@
         <!-- 데이터 없음 -->
         <template v-else>
           <div class="flex flex-col items-center justify-center py-16">
-            <div class="w-[64px] h-[64px] mb-4 bg-[#FFF0E5] rounded-full flex items-center justify-center">
+            <div class="w-[64px] h-[64px] mb-4 bg-[#E5F6EB] rounded-full flex items-center justify-center">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <p class="text-[16px] font-semibold text-[#222] mb-2">보험정보가 없습니다</p>
@@ -100,7 +100,7 @@
               내보험다보여 서비스를 통해<br/>가입 보험정보를 조회해보세요.
             </p>
             <button
-              class="bg-[#FF7B22] text-white rounded-[12px] px-8 py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+              class="bg-[#03C75A] text-white rounded-[12px] px-8 py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
               @click="goToConsent"
             >
               보험정보 조회하기
@@ -139,7 +139,7 @@
               <FormInput v-model="refreshPassword" label="비밀번호" type="password" placeholder="비밀번호" />
             </div>
             <button
-              class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold disabled:opacity-50"
+              class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold disabled:opacity-50"
               :disabled="!refreshLoginId || !refreshPassword || store.loading"
               @click="doRefresh"
             >

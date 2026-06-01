@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="미청구 보험금" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- Summary -->
-        <CardSection class="mb-4 !bg-[#FF7B22]">
+        <CardSection class="mb-4 !bg-[#03C75A]">
           <div class="text-center">
             <p class="text-[13px] text-white/80 mb-1">받을 수 있는 미청구 보험금</p>
             <p class="text-[28px] font-bold text-white">2,150,000원</p>
@@ -27,12 +27,12 @@
               <div class="bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 mb-3">
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-[12px] text-[#888]">예상 수령액</span>
-                  <span class="text-[15px] font-bold text-[#FF7B22]">{{ item.amount }}</span>
+                  <span class="text-[15px] font-bold text-[#03C75A]">{{ item.amount }}</span>
                 </div>
                 <p class="text-[11px] text-[#999]">{{ item.reason }}</p>
               </div>
               <div class="flex gap-2">
-                <button class="flex-1 bg-[#FF7B22] text-white rounded-[10px] py-2.5 text-[13px] font-semibold active:scale-[0.98] transition-transform" @click="router.push('/claims/new')">
+                <button class="flex-1 bg-[#03C75A] text-white rounded-[10px] py-2.5 text-[13px] font-semibold active:scale-[0.98] transition-transform" @click="router.push('/claims/new')">
                   직접 청구
                 </button>
                 <button class="flex-1 bg-white border border-[#E0E0E0] text-[#555] rounded-[10px] py-2.5 text-[13px] font-semibold active:scale-[0.98] transition-transform" @click="router.push('/consultation')">

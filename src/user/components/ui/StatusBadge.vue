@@ -24,7 +24,7 @@ const variantClasses = computed(() => {
     success: 'bg-[#E8F9EE] text-[#1FBD53]',
     warning: 'bg-[#FFF4E5] text-[#F3940E]',
     danger: 'bg-[#FFE5E5] text-[#FF0000]',
-    primary: 'bg-[#FFF0E5] text-[#FF7B22]',
+    primary: 'bg-[#E5F6EB] text-[#03C75A]',
     info: 'bg-[#E8F0FE] text-[#4285F4]',
     default: 'bg-[#F0F0F0] text-[#888]'
   }

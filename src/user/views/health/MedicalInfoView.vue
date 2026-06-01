@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="내 진료내역" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <div v-if="initialLoading" class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#FF7B22] border-t-transparent"></div>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#03C75A] border-t-transparent"></div>
           <p class="text-[13px] text-[#888] mt-3">불러오는 중...</p>
         </div>
 
@@ -13,10 +13,10 @@
           <!-- ① 동의 안내 -->
           <CardSection v-if="!consentStatus?.medical_info_consented" class="mb-4">
             <div class="text-center py-4">
-              <div class="w-[56px] h-[56px] mx-auto mb-3 bg-[#FFF0E5] rounded-full flex items-center justify-center">
+              <div class="w-[56px] h-[56px] mx-auto mb-3 bg-[#E5F6EB] rounded-full flex items-center justify-center">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <p class="text-[15px] font-semibold text-[#222] mb-1">내진료정보열람 동의 필요</p>
@@ -24,11 +24,11 @@
                 건강보험심사평가원(HIRA)에 등록된<br/>
                 최근 5년 진료내역을 조회합니다.
               </p>
-              <p class="text-[11px] text-[#FF7B22] mb-4 px-2">
+              <p class="text-[11px] text-[#03C75A] mb-4 px-2">
                 ※ 민감상병 정보(정신질환·감염질환 등)가 포함될 수 있습니다.
               </p>
               <button
-                class="bg-[#FF7B22] text-white rounded-[10px] px-6 py-2.5 text-[14px] font-semibold disabled:opacity-50"
+                class="bg-[#03C75A] text-white rounded-[10px] px-6 py-2.5 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="busy"
                 @click="onAgreeConsent"
               >
@@ -53,7 +53,7 @@
               </div>
 
               <button
-                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="!canSubmit"
                 @click="onFetchMedicalInfo"
               >
@@ -72,13 +72,13 @@
             <CardSection class="mb-4">
               <div class="flex items-center justify-between mb-2">
                 <p class="text-[14px] font-semibold text-[#222]">진료 요약</p>
-                <button class="text-[12px] text-[#FF7B22] underline" @click="onFetchMedicalInfo" :disabled="busy">
+                <button class="text-[12px] text-[#03C75A] underline" @click="onFetchMedicalInfo" :disabled="busy">
                   새로고침
                 </button>
               </div>
               <div class="grid grid-cols-3 gap-2 mt-2">
                 <div class="bg-[#FFF7F0] rounded-[10px] p-3 text-center">
-                  <p class="text-[20px] font-bold text-[#FF7B22]">{{ summary?.total_records ?? 0 }}</p>
+                  <p class="text-[20px] font-bold text-[#03C75A]">{{ summary?.total_records ?? 0 }}</p>
                   <p class="text-[11px] text-[#888] mt-0.5">전체 진료</p>
                 </div>
                 <div class="bg-[#F0F4FF] rounded-[10px] p-3 text-center">
@@ -133,7 +133,7 @@
                 선택하신 간편인증 앱에서 인증 요청을 확인하고, 완료 후 아래 버튼을 눌러주세요.
               </p>
               <button
-                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="busy"
                 @click="onConfirmTwoWay"
               >

@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="비밀번호 변경" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 완료 화면 -->
@@ -18,7 +18,7 @@
           </CardSection>
 
           <button
-            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
             @click="router.push('/insurance/credit4u/login')"
           >
             로그인하러 가기
@@ -41,7 +41,7 @@
               <button
                 class="flex-1 rounded-[12px] py-3 text-[14px] font-medium border-2 transition-colors"
                 :class="changeType === '0'
-                  ? 'border-[#FF7B22] bg-[#FFF0E5] text-[#FF7B22]'
+                  ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
                   : 'border-[#E8E8E8] bg-white text-[#888]'"
                 @click="changeType = '0'"
               >
@@ -50,7 +50,7 @@
               <button
                 class="flex-1 rounded-[12px] py-3 text-[14px] font-medium border-2 transition-colors"
                 :class="changeType === '1'
-                  ? 'border-[#FF7B22] bg-[#FFF0E5] text-[#FF7B22]'
+                  ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
                   : 'border-[#E8E8E8] bg-white text-[#888]'"
                 @click="changeType = '1'"
               >
@@ -97,7 +97,7 @@
                   :key="t.value"
                   class="rounded-[10px] py-2.5 text-[13px] font-medium border transition-colors"
                   :class="form.telecom === t.value
-                    ? 'border-[#FF7B22] bg-[#FFF0E5] text-[#FF7B22]'
+                    ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
                     : 'border-[#E8E8E8] bg-[#F8F8F8] text-[#888]'"
                   @click="form.telecom = t.value"
                 >
@@ -120,7 +120,7 @@
 
           <!-- 변경 버튼 -->
           <button
-            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+            class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
             :disabled="!isFormValid || store.loading"
             @click="onChangePassword"
           >

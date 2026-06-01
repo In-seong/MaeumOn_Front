@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="보험금 청구 신청" />
 
       <!-- 완료 화면 -->
@@ -15,7 +15,7 @@
           설계사가 확인 후<br />연락드리겠습니다.
         </p>
         <button
-          class="mt-8 w-full py-4 bg-[#FF7B22] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98]"
+          class="mt-8 w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98]"
           @click="$router.push('/')"
         >
           홈으로 돌아가기
@@ -56,7 +56,7 @@
         <!-- 신청 버튼 -->
         <button
           class="w-full py-4 rounded-[12px] text-[16px] font-semibold transition-all active:scale-[0.98] mt-4"
-          :class="isValid ? 'bg-[#FF7B22] text-white' : 'bg-[#E0E0E0] text-[#999] cursor-not-allowed'"
+          :class="isValid ? 'bg-[#03C75A] text-white' : 'bg-[#E0E0E0] text-[#999] cursor-not-allowed'"
           :disabled="!isValid || loading"
           @click="submitRequest"
         >

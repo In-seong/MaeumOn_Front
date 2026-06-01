@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="청구 상세" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="claimStore.loadingClaims" class="flex items-center justify-center py-20">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03C75A]"></div>
         </div>
 
         <!-- 청구 상세 -->
@@ -28,7 +28,7 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[13px] text-[#888]">청구번호</span>
-              <span class="text-[14px] font-bold text-[#FF7B22]">#{{ claimStore.currentClaim.claim_id }}</span>
+              <span class="text-[14px] font-bold text-[#03C75A]">#{{ claimStore.currentClaim.claim_id }}</span>
             </div>
           </CardSection>
 
@@ -102,7 +102,7 @@
                   v-if="doc.document_url"
                   :href="doc.document_url"
                   target="_blank"
-                  class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0"
+                  class="text-[12px] text-[#03C75A] font-semibold flex-shrink-0"
                 >
                   보기
                 </a>
@@ -129,11 +129,11 @@
             <button
               v-if="claimStore.currentClaim.claim_status === 'pending' && !claimStore.currentClaim.fax_status"
               @click="goToEdit"
-              class="w-full bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+              class="w-full bg-white border border-[#03C75A] text-[#03C75A] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               청구서 수정
             </button>
@@ -153,9 +153,9 @@
             <!-- 발송대기/발송중 상태 표시 -->
             <div
               v-if="claimStore.currentClaim.fax_status === 'pending' || claimStore.currentClaim.fax_status === 'sending'"
-              class="w-full bg-[#FFF3ED] text-[#FF7B22] rounded-[12px] py-3.5 text-[15px] font-semibold text-center flex items-center justify-center gap-2"
+              class="w-full bg-[#E8F7EE] text-[#03C75A] rounded-[12px] py-3.5 text-[15px] font-semibold text-center flex items-center justify-center gap-2"
             >
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#03C75A]"></div>
               {{ claimStore.currentClaim.fax_status === 'pending' ? '발송 대기중...' : '팩스 발송중...' }}
             </div>
 
@@ -163,7 +163,7 @@
             <button
               v-if="!claimStore.currentClaim.fax_status"
               @click="showFaxModal = true"
-              class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+              class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
             >
               팩스 발송
             </button>
@@ -184,7 +184,7 @@
           <p class="text-[15px] text-[#888]">청구 정보를 찾을 수 없습니다.</p>
           <button
             @click="goBack"
-            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
+            class="mt-4 bg-[#03C75A] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
           >
             목록으로 돌아가기
           </button>
@@ -209,7 +209,7 @@
             v-model="faxNumber"
             type="tel"
             placeholder="02-1234-5678"
-            class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+            class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#03C75A] transition-colors"
           />
           <p class="mt-2 text-[11px] text-[#999]">
             보험사 기본 팩스번호가 입력되어 있습니다. 변경 가능합니다.
@@ -230,7 +230,7 @@
           <button
             @click="handleSendFax"
             :disabled="sendingFax"
-            class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
+            class="flex-1 bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
           >
             {{ sendingFax ? '발송 중...' : '발송하기' }}
           </button>

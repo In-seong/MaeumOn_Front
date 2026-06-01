@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="건강검진 결과" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <!-- 로딩 -->
         <div v-if="initialLoading" class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#FF7B22] border-t-transparent"></div>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#03C75A] border-t-transparent"></div>
           <p class="text-[13px] text-[#888] mt-3">불러오는 중...</p>
         </div>
 
@@ -19,7 +19,7 @@
                 <button
                   class="mt-0.5 flex-shrink-0 w-[22px] h-[22px] rounded-[6px] border-2 flex items-center justify-center transition-colors"
                   :class="consentAgreed
-                    ? 'bg-[#FF7B22] border-[#FF7B22]'
+                    ? 'bg-[#03C75A] border-[#03C75A]'
                     : 'bg-white border-[#CCC]'"
                   @click="toggleConsent"
                   :disabled="busy"
@@ -55,7 +55,7 @@
                 </div>
 
                 <button
-                  class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                  class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                   :disabled="!canSubmit"
                   @click="onFetchCheckup"
                 >
@@ -70,10 +70,10 @@
           <template v-else>
             <CardSection class="mb-4">
               <div class="flex items-center gap-4">
-                <div class="w-[48px] h-[48px] rounded-full bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
+                <div class="w-[48px] h-[48px] rounded-full bg-[#E5F6EB] flex items-center justify-center flex-shrink-0">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z" stroke="#FF7B22" stroke-width="1.5"/>
-                    <path d="M12 8v4M12 16h.01" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z" stroke="#03C75A" stroke-width="1.5"/>
+                    <path d="M12 8v4M12 16h.01" stroke="#03C75A" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
                 <div class="flex-1">
@@ -81,7 +81,7 @@
                   <p class="text-[18px] font-bold text-[#222]">{{ formatDate(latestCheckup.checkup_date) }}</p>
                   <p class="text-[12px] text-[#888]">{{ latestCheckup.organization_name || latestCheckup.hospital_name || '국민건강보험공단' }}</p>
                 </div>
-                <button class="text-[12px] text-[#FF7B22] underline" @click="onRefreshClick" :disabled="busy">
+                <button class="text-[12px] text-[#03C75A] underline" @click="onRefreshClick" :disabled="busy">
                   새로고침
                 </button>
               </div>
@@ -117,7 +117,7 @@
             </CardSection>
 
             <button
-              class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+              class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
               @click="router.push('/hospital')"
             >
               주변 병원 찾기
@@ -141,7 +141,7 @@
                 카카오톡 앱에서 인증 요청을 확인하고, 완료 후 아래 버튼을 눌러주세요.
               </p>
               <button
-                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="busy"
                 @click="onConfirmTwoWay"
               >

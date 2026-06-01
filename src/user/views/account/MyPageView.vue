@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-white flex flex-col">
       <BackHeader title="마이페이지" />
       <main class="flex-1 px-6 py-4 pb-20 overflow-y-auto">
         <!-- Profile Section -->
-        <div class="flex items-center gap-4 mb-6 p-4 bg-[#FFF3ED] rounded-2xl">
-          <div class="w-[56px] h-[56px] bg-[#FF7B22] rounded-full flex items-center justify-center">
+        <div class="flex items-center gap-4 mb-6 p-4 bg-[#E8F7EE] rounded-2xl">
+          <div class="w-[56px] h-[56px] bg-[#03C75A] rounded-full flex items-center justify-center">
             <span class="text-white text-[20px] font-bold">{{ userInitial }}</span>
           </div>
           <div>

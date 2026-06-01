@@ -28,6 +28,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const variantClass = computed(() => {
   if (props.variant === 'outline') return 'bg-white border border-[#E0E0E0] text-[#555]'
-  return 'bg-[#FF7B22] text-white'
+  return 'bg-[#03C75A] text-white'
 })
 </script>

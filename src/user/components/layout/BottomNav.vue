@@ -11,7 +11,7 @@
       </div>
       <span
         class="text-[10px] font-medium"
-        :class="isActive(item) ? 'text-[#FF7B22]' : 'text-[#B0B0B0]'"
+        :class="isActive(item) ? 'text-[#03C75A]' : 'text-[#B0B0B0]'"
       >
         {{ item.label }}
       </span>

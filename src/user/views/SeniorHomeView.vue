@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <!-- 헤더 -->
       <header class="pt-12 pb-6 px-6 text-center">
-        <div class="w-16 h-16 mx-auto rounded-full bg-[#FF7B22] flex items-center justify-center mb-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-[#03C75A] flex items-center justify-center mb-4">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" stroke="white" stroke-width="2" fill="white"/>
           </svg>
@@ -20,12 +20,12 @@
           @click="$router.push('/claim-request')"
         >
           <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-[16px] bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
+            <div class="w-14 h-14 rounded-[16px] bg-[#E5F6EB] flex items-center justify-center flex-shrink-0">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M14 2V8H20" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 18V12" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 15H15" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 2V8H20" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 18V12" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 15H15" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="flex-1">

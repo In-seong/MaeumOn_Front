@@ -81,10 +81,10 @@ const calendarCells = computed<CalendarCell[]>(() => {
 
 function getCellClass(cell: CalendarCell): string {
   if (cell.disabled) return 'text-[#D9D9D9] cursor-default'
-  if (cell.day === selected.value) return 'bg-[#FF7B22] text-white'
-  if (cell.isSunday) return 'text-[#FF0000] hover:bg-[#FFF0E5]'
-  if (cell.isSaturday) return 'text-[#4285F4] hover:bg-[#FFF0E5]'
-  return 'text-[#333] hover:bg-[#FFF0E5]'
+  if (cell.day === selected.value) return 'bg-[#03C75A] text-white'
+  if (cell.isSunday) return 'text-[#FF0000] hover:bg-[#E5F6EB]'
+  if (cell.isSaturday) return 'text-[#4285F4] hover:bg-[#E5F6EB]'
+  return 'text-[#333] hover:bg-[#E5F6EB]'
 }
 
 function selectDate(day: number): void {

@@ -91,10 +91,10 @@ function formatDate(year: number, month: number, day: number): string {
 
 function getCellClass(cell: CalendarCell): string {
   if (cell.disabled) return 'text-[#D9D9D9] cursor-default'
-  if (cell.dateStr === props.selectedDate) return 'bg-[#FF7B22] text-white'
+  if (cell.dateStr === props.selectedDate) return 'bg-[#03C75A] text-white'
   if (cell.isSunday) return 'text-[#FF0000]'
-  if (cell.isSaturday) return 'text-[#4285F4] hover:bg-[#FFF0E5]'
-  return 'text-[#333] hover:bg-[#FFF0E5]'
+  if (cell.isSaturday) return 'text-[#4285F4] hover:bg-[#E5F6EB]'
+  return 'text-[#333] hover:bg-[#E5F6EB]'
 }
 
 function selectDate(cell: CalendarCell): void {

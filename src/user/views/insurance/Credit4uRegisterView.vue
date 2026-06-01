@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
       <BackHeader title="내보험다보여 회원가입" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 안내 -->
@@ -17,7 +17,7 @@
             <button
               class="flex-1 rounded-[12px] py-3 text-[14px] font-medium border-2 transition-colors"
               :class="registerType === '0'
-                ? 'border-[#FF7B22] bg-[#FFF0E5] text-[#FF7B22]'
+                ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
                 : 'border-[#E8E8E8] bg-white text-[#888]'"
               @click="registerType = '0'"
             >
@@ -26,7 +26,7 @@
             <button
               class="flex-1 rounded-[12px] py-3 text-[14px] font-medium border-2 transition-colors"
               :class="registerType === '1'
-                ? 'border-[#FF7B22] bg-[#FFF0E5] text-[#FF7B22]'
+                ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
                 : 'border-[#E8E8E8] bg-white text-[#888]'"
               @click="registerType = '1'"
             >
@@ -59,7 +59,7 @@
                 :key="t.value"
                 class="rounded-[10px] py-2.5 text-[13px] font-medium border transition-colors"
                 :class="form.telecom === t.value
-                  ? 'border-[#FF7B22] bg-[#FFF0E5] text-[#FF7B22]'
+                  ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
                   : 'border-[#E8E8E8] bg-[#F8F8F8] text-[#888]'"
                 @click="form.telecom = t.value"
               >
@@ -106,7 +106,7 @@
 
         <!-- 가입 버튼 -->
         <button
-          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
           :disabled="!isFormValid || store.loading"
           @click="onRegister"
         >

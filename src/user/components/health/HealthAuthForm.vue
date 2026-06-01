@@ -5,7 +5,7 @@
       <label class="text-[13px] font-medium text-[#555]">이름</label>
       <input
         :value="modelValue.userName"
-        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22]"
+        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#03C75A]"
         placeholder="홍길동"
         @input="update('userName', ($event.target as HTMLInputElement).value)"
       />
@@ -16,7 +16,7 @@
       <label class="text-[13px] font-medium text-[#555]">생년월일</label>
       <input
         :value="formatBirthDate(modelValue.birthDate)"
-        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22]"
+        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#03C75A]"
         placeholder="YYYY-MM-DD (예: 1990-01-15)"
         type="text"
         inputmode="numeric"
@@ -31,7 +31,7 @@
       <label class="text-[13px] font-medium text-[#555]">주민등록번호</label>
       <input
         :value="formatRrn(modelValue.rrn)"
-        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22]"
+        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#03C75A]"
         placeholder="000000-0000000"
         type="text"
         maxlength="14"
@@ -49,7 +49,7 @@
       <label class="text-[13px] font-medium text-[#555]">휴대폰 번호</label>
       <input
         :value="modelValue.phoneNo"
-        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22]"
+        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#03C75A]"
         placeholder="01012345678"
         type="tel"
         inputmode="numeric"
@@ -63,7 +63,7 @@
       <label class="text-[13px] font-medium text-[#555]">통신사</label>
       <select
         :value="modelValue.telecom"
-        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22]"
+        class="bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#03C75A]"
         @change="update('telecom', ($event.target as HTMLSelectElement).value)"
       >
         <option value="">통신사 선택</option>
