@@ -19,6 +19,7 @@ import BackArrowIcon from '@user/components/icons/BackArrowIcon.vue'
 interface Props {
   title: string
   customBack?: boolean
+  fallbackRoute?: string
 }
 
 const props = defineProps<Props>()
@@ -29,7 +30,7 @@ function goBack(): void {
   if (props.customBack) {
     emit('back')
   } else {
-    router.back()
+    router.push({ name: props.fallbackRoute ?? 'home' })
   }
 }
 </script>

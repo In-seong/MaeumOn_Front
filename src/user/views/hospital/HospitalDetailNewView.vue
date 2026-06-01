@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
-      <BackHeader :title="hospital?.hospital_name || '병원 상세'" />
+      <BackHeader :title="hospital?.hospital_name || '병원 상세'" fallback-route="hospital-list" />
 
       <main class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->

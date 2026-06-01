@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
-      <BackHeader :title="center?.center_name || '센터 상세'" />
+      <BackHeader :title="center?.center_name || '센터 상세'" fallback-route="health-center-list" />
 
       <main class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
         <div v-if="loading" class="py-12 text-center">
