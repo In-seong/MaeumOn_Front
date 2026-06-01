@@ -22,6 +22,11 @@
         <svg v-else-if="item.icon === 'health'" width="28" height="28" viewBox="0 0 24 24" fill="none">
           <path d="M22 12H18L15 21L9 3L6 12H2" :stroke="isActive(item) ? '#03C75A' : '#B0B0B0'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        <svg v-else-if="item.icon === 'reservation'" width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="2" :stroke="isActive(item) ? '#03C75A' : '#B0B0B0'" stroke-width="2"/>
+          <path d="M16 2V6M8 2V6M3 10H21" :stroke="isActive(item) ? '#03C75A' : '#B0B0B0'" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 14H10M14 14H16M8 18H10" :stroke="isActive(item) ? '#03C75A' : '#B0B0B0'" stroke-width="2" stroke-linecap="round"/>
+        </svg>
       </div>
       <span
         class="text-[12px] font-semibold"
@@ -50,6 +55,7 @@ const navItems: NavItem[] = [
   { icon: 'claim', label: '청구신청', path: '/claim-request', matchPaths: ['/claim-request'] },
   { icon: 'hospital', label: '병원예약', path: '/hospitals', matchPaths: ['/hospitals'] },
   { icon: 'health', label: '건강검진', path: '/health-centers', matchPaths: ['/health-centers'] },
+  { icon: 'reservation', label: '내 예약', path: '/my-reservations', matchPaths: ['/my-reservations'] },
 ]
 
 function isActive(item: NavItem): boolean {

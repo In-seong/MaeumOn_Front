@@ -37,6 +37,12 @@ const router = createRouter({
       name: 'health-center-detail',
       component: () => import('../views/healthcenter/HealthCenterDetailView.vue'),
     },
+    // 내 예약
+    {
+      path: '/my-reservations',
+      name: 'my-reservations',
+      component: () => import('../views/MyReservationsView.vue'),
+    },
 
     // ========== 기존 라우트 (비활성화 — 코드 유지, 라우트에서만 제외) ==========
     // 기존 홈, 로그인, PIN, 청구, 보험, 건강, 마이페이지 등

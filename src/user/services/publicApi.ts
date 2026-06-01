@@ -66,6 +66,11 @@ export interface HospitalReservation {
   updated_at?: string
 }
 
+export interface MyReservation extends HospitalReservation {
+  hospital?: { hospital_id: number; hospital_name: string; address: string; contact_phone?: string } | null
+  health_center?: { center_id: number; center_name: string; address: string; contact_phone?: string } | null
+}
+
 export interface ClaimRequestItem {
   request_id: number
   name: string
@@ -123,3 +128,11 @@ export const fetchHealthCenterSlots = (id: number, date: string) =>
 // 예약 신청
 export const submitReservation = (data: ReservationRequest) =>
   api.post<ApiResponse<HospitalReservation>>(`${BASE}/reservations`, data)
+
+// 내 예약 조회
+export const fetchMyReservations = (phone: string) =>
+  api.get<ApiResponse<MyReservation[]>>(`${BASE}/my-reservations`, { params: { phone } })
+
+// 예약 취소
+export const cancelReservation = (id: number, phone: string) =>
+  api.put<ApiResponse<unknown>>(`${BASE}/reservations/${id}/cancel`, { phone })
