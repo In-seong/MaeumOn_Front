@@ -72,25 +72,23 @@ function updateMarkers() {
   props.markers.forEach(item => {
     if (!item.latitude || !item.longitude) return
 
+    const escapedName = item.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
     const marker = new naver.maps.Marker({
       position: new naver.maps.LatLng(item.latitude, item.longitude),
       map,
+      icon: {
+        content: `<div style="display:flex;flex-direction:column;align-items:center;">
+          <div style="padding:3px 8px;background:#fff;border:1px solid #03C75A;border-radius:8px;font-size:12px;font-weight:600;color:#222;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.12);">${escapedName}</div>
+          <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #03C75A;margin-top:-1px;"></div>
+          <div style="width:10px;height:10px;background:#03C75A;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.3);margin-top:2px;"></div>
+        </div>`,
+        anchor: new naver.maps.Point(0, 45),
+      },
       title: item.name,
     })
 
-    const infoWindow = new naver.maps.InfoWindow({
-      content: `<div style="padding:8px 12px;font-size:13px;font-weight:600;">${item.name}</div>`,
-      borderWidth: 1,
-      borderColor: '#E0E0E0',
-      backgroundColor: '#fff',
-    })
-
     naver.maps.Event.addListener(marker, 'click', () => {
-      if (infoWindow.getMap()) {
-        infoWindow.close()
-      } else {
-        infoWindow.open(map, marker)
-      }
       emit('markerClick', item.id)
     })
 
