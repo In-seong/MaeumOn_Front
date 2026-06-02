@@ -120,16 +120,19 @@
             </button>
             <ScheduleConfigEditor v-if="scheduleOpen" v-model="formData.schedule_config" />
           </div>
-          <div v-if="!editingId" class="border-t border-[#F0F0F0] pt-4">
-            <p class="text-[13px] font-medium text-[#555] mb-2">포털 계정 (선택)</p>
+          <div class="border-t border-[#F0F0F0] pt-4">
+            <p class="text-[13px] font-medium text-[#555] mb-2">포털 계정 {{ editingId && existingAccount ? '(수정)' : '(선택)' }}</p>
+            <div v-if="editingId && existingAccount" class="mb-2 px-3 py-2 bg-[#F0F7FF] rounded-[8px] text-[12px] text-[#555]">
+              현재 계정: <span class="font-semibold text-[#333]">{{ existingAccount }}</span>
+            </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="text-[12px] text-[#888] mb-1 block">아이디</label>
-                <input v-model="formData.portal_username" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
+                <input v-model="formData.portal_username" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" :placeholder="editingId && existingAccount ? '변경 시 입력' : ''" />
               </div>
               <div>
-                <label class="text-[12px] text-[#888] mb-1 block">비밀번호</label>
-                <input v-model="formData.portal_password" type="password" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
+                <label class="text-[12px] text-[#888] mb-1 block">{{ editingId && existingAccount ? '새 비밀번호' : '비밀번호' }}</label>
+                <input v-model="formData.portal_password" type="password" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" :placeholder="editingId && existingAccount ? '변경 시 입력' : ''" />
               </div>
             </div>
           </div>
@@ -161,6 +164,7 @@ const formOpen = ref(false)
 const editingId = ref<number | null>(null)
 const submitting = ref(false)
 const scheduleOpen = ref(false)
+const existingAccount = ref('')
 const formData = reactive({
   hospital_name: '',
   address: '',
@@ -205,12 +209,14 @@ function openForm(hospital?: AdminHospital) {
       business_hours: hospital.business_hours || '',
       introduction: hospital.introduction || '',
       schedule_config: hospital.schedule_config ? JSON.parse(JSON.stringify(hospital.schedule_config)) : null,
-      portal_username: '',
+      portal_username: hospital.accounts?.[0]?.username || '',
       portal_password: '',
     })
+    existingAccount.value = hospital.accounts?.[0]?.username || ''
   } else {
     editingId.value = null
     Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '' })
+    existingAccount.value = ''
   }
   scheduleOpen.value = false
   formOpen.value = true
