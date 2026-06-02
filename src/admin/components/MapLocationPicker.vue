@@ -95,7 +95,18 @@ function placeMarker(latlng: any) {
   }
 }
 
-function reverseGeocode(latlng: any) {
+function waitForService(): Promise<void> {
+  return new Promise((resolve) => {
+    if (naver.maps.Service) { resolve(); return }
+    const check = setInterval(() => {
+      if (naver.maps.Service) { clearInterval(check); resolve() }
+    }, 100)
+    setTimeout(() => { clearInterval(check); resolve() }, 5000)
+  })
+}
+
+async function reverseGeocode(latlng: any) {
+  await waitForService()
   if (!naver.maps.Service) return
   naver.maps.Service.reverseGeocode({
     coords: latlng,
@@ -122,8 +133,10 @@ function reverseGeocode(latlng: any) {
   })
 }
 
-function searchAddress() {
-  if (!searchQuery.value.trim() || !naver.maps.Service) return
+async function searchAddress() {
+  if (!searchQuery.value.trim()) return
+  await waitForService()
+  if (!naver.maps.Service) { alert('지도 서비스 로딩 중입니다. 잠시 후 다시 시도해주세요.'); return }
   naver.maps.Service.geocode({
     query: searchQuery.value,
   }, (status: any, response: any) => {
