@@ -77,24 +77,32 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">주소 *</label>
             <input v-model="formData.address" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-[13px] font-medium text-[#555] mb-1 block">전화번호</label>
-              <input v-model="formData.contact_phone" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
-            </div>
-            <div>
-              <label class="text-[13px] font-medium text-[#555] mb-1 block">위도</label>
-              <input v-model="formData.latitude" type="number" step="any" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
-            </div>
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-1 block">전화번호</label>
+            <input v-model="formData.contact_phone" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-[13px] font-medium text-[#555] mb-1 block">경도</label>
-              <input v-model="formData.longitude" type="number" step="any" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
-            </div>
-            <div>
-              <label class="text-[13px] font-medium text-[#555] mb-1 block">영업시간</label>
-              <input v-model="formData.business_hours" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-1 block">영업시간</label>
+            <input v-model="formData.business_hours" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-2 block">위치 선택</label>
+            <MapLocationPicker
+              :latitude="formData.latitude"
+              :longitude="formData.longitude"
+              @update:latitude="formData.latitude = $event"
+              @update:longitude="formData.longitude = $event"
+              @update:address="formData.address = $event"
+            />
+            <div class="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <label class="text-[11px] text-[#999] mb-0.5 block">위도</label>
+                <input v-model="formData.latitude" type="number" step="any" class="w-full px-2.5 py-1.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] text-[12px] text-[#888] focus:outline-none focus:border-[#FF7B22]" />
+              </div>
+              <div>
+                <label class="text-[11px] text-[#999] mb-0.5 block">경도</label>
+                <input v-model="formData.longitude" type="number" step="any" class="w-full px-2.5 py-1.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] text-[12px] text-[#888] focus:outline-none focus:border-[#FF7B22]" />
+              </div>
             </div>
           </div>
           <div>
@@ -136,6 +144,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter } from '../../services/adminApi'
 import type { AdminHealthCenter, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
+import MapLocationPicker from '../../components/MapLocationPicker.vue'
 
 const centers = ref<AdminHealthCenter[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminHealthCenter>, 'data'> | null>(null)
