@@ -35,7 +35,7 @@
       </div>
 
       <!-- 6개 아이콘 그리드 -->
-      <div class="mx-5 mt-6 bg-white rounded-[16px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-5">
+      <div class="mx-5 mt-6 bg-white rounded-[16px] border border-[#E0E0E0] shadow-[0_2px_12px_rgba(0,0,0,0.08)] p-5">
         <div class="grid grid-cols-3 gap-4">
           <button
             v-for="item in menuItems"
