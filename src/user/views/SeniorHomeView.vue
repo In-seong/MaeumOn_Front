@@ -1,28 +1,35 @@
 <template>
   <div class="min-h-screen bg-[#F5F7FA] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-[#F5F7FA]">
-      <!-- 초록 헤더 -->
-      <header class="bg-[#03C75A] rounded-b-[24px] px-6 pt-12 pb-16">
-        <div class="flex items-center gap-2 mb-4">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" stroke="white" stroke-width="2" fill="white"/>
-          </svg>
-          <span class="text-white text-[18px] font-bold">마음ON</span>
+      <!-- 상단 바 -->
+      <header class="bg-white px-5 pt-12 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-[#03C75A] flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" fill="white"/>
+            </svg>
+          </div>
+          <span class="text-[#222] text-[20px] font-bold">ON 케어</span>
         </div>
-        <p class="text-white text-[20px] font-bold">안녕하세요 :)</p>
-        <p class="text-white/70 text-[14px] mt-1">오늘도 건강하고 행복한 하루 되세요!</p>
       </header>
 
+      <!-- 인사말 섹션 -->
+      <div class="bg-white px-5 pb-5">
+        <p class="text-[#222] text-[20px] font-bold">안녕하세요 :)</p>
+        <p class="text-[#888] text-[14px] mt-1">오늘도 건강하고 행복한 하루 되세요!</p>
+      </div>
+
       <!-- 프로모션 배너 카드 -->
-      <div class="-mt-10 mx-5">
-        <div class="bg-gradient-to-r from-[#02A94D] to-[#05D662] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.1)] p-5 text-white">
-          <p class="text-[15px] font-semibold">놓치고 있는 보험금이 있을 수 있어요</p>
-          <p class="text-[13px] text-white/80 mt-1">지금 확인하고 간편하게 청구하세요!</p>
+      <div class="mx-5 mt-4">
+        <div class="bg-gradient-to-r from-[#E8F7EE] to-[#F0FBF4] rounded-[16px] p-5 relative overflow-hidden">
+          <p class="text-[13px] text-[#666]">놓치고 있는</p>
+          <p class="text-[18px] font-bold text-[#222] mt-0.5">보험금이 있을 수 있어요</p>
+          <p class="text-[13px] text-[#888] mt-1">지금 확인하고 간편하게 청구하세요!</p>
           <button
-            class="mt-4 bg-white text-[#03C75A] text-[13px] font-bold px-4 py-2 rounded-full"
+            class="mt-4 bg-[#03C75A] text-white text-[13px] font-bold px-4 py-2.5 rounded-full"
             @click="$router.push('/claim-request')"
           >
-            보험금 청구하기 &gt;
+            내 보험 조회하기 &gt;
           </button>
         </div>
       </div>
