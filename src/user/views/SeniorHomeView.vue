@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-[#F5F7FA] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F5F7FA]">
+  <div class="min-h-screen bg-white flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-white">
       <!-- 상단 바 -->
       <header class="bg-white px-5 pt-4 pb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
