@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#F5F7FA] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F5F7FA]">
       <BackHeader title="병원 예약" />
 
       <main class="relative" style="height: calc(100vh - 56px - 72px);">

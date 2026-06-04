@@ -15,6 +15,18 @@ const router = createRouter({
       name: 'claim-request',
       component: () => import('../views/ClaimRequestView.vue'),
     },
+    // 예약 선택
+    {
+      path: '/reservation-select',
+      name: 'reservation-select',
+      component: () => import('../views/ReservationSelectView.vue'),
+    },
+    // 혜택
+    {
+      path: '/benefits',
+      name: 'benefits',
+      component: () => import('../views/BenefitsView.vue'),
+    },
     // 병원 예약
     {
       path: '/hospitals',

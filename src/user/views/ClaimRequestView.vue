@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#F5F7FA] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F5F7FA]">
       <BackHeader title="보험금 청구 신청" />
 
       <!-- 완료 화면 -->
