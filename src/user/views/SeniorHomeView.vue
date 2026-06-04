@@ -22,15 +22,52 @@
       <!-- 프로모션 배너 카드 -->
       <div class="mx-5 mt-2">
         <div class="bg-gradient-to-r from-[#E8F7EE] to-[#F0FBF4] rounded-[16px] p-5 relative overflow-hidden">
-          <p class="text-[13px] text-[#666]">놓치고 있는</p>
-          <p class="text-[18px] font-bold text-[#222] mt-0.5">보험금이 있을 수 있어요</p>
-          <p class="text-[13px] text-[#888] mt-1">지금 확인하고 간편하게 청구하세요!</p>
-          <button
-            class="mt-4 bg-[#03C75A] text-white text-[13px] font-bold px-4 py-2.5 rounded-full"
-            @click="$router.push('/claim-request')"
-          >
-            내 보험 조회하기 &gt;
-          </button>
+          <div class="flex items-center">
+            <!-- 텍스트 영역 -->
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] text-[#666]">놓치고 있는</p>
+              <p class="text-[18px] font-bold text-[#222] mt-0.5">보험금이 있을 수 있어요</p>
+              <p class="text-[13px] text-[#888] mt-1">지금 확인하고 간편하게 청구하세요!</p>
+              <button
+                class="mt-4 bg-[#03C75A] text-white text-[13px] font-bold px-4 py-2.5 rounded-full"
+                @click="$router.push('/claim-request')"
+              >
+                내 보험 조회하기 &gt;
+              </button>
+            </div>
+            <!-- 일러스트 -->
+            <div class="flex-shrink-0 w-[110px] h-[110px] ml-2">
+              <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                <!-- 서류 (뒤) -->
+                <rect x="30" y="8" width="52" height="68" rx="6" fill="white" stroke="#E0E0E0" stroke-width="1.5"/>
+                <text x="44" y="24" font-size="8" font-weight="bold" fill="#333">보험금</text>
+                <rect x="40" y="30" width="8" height="8" rx="2" fill="#03C75A"/>
+                <path d="M42 34.5L44 36.5L48 32.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="52" y="32" width="22" height="3" rx="1.5" fill="#E0E0E0"/>
+                <rect x="40" y="42" width="8" height="8" rx="2" fill="#03C75A"/>
+                <path d="M42 46.5L44 48.5L48 44.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="52" y="44" width="18" height="3" rx="1.5" fill="#E0E0E0"/>
+                <rect x="40" y="54" width="8" height="8" rx="2" fill="#03C75A"/>
+                <path d="M42 58.5L44 60.5L48 56.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="52" y="56" width="20" height="3" rx="1.5" fill="#E0E0E0"/>
+                <!-- 지갑 (ON) -->
+                <rect x="10" y="62" width="50" height="36" rx="8" fill="#2D8B4E"/>
+                <rect x="10" y="62" width="50" height="14" rx="6" fill="#03C75A"/>
+                <text x="24" y="90" font-size="16" font-weight="900" fill="white" letter-spacing="1">ON</text>
+                <!-- 돋보기 -->
+                <circle cx="88" cy="42" r="14" fill="white" stroke="#03C75A" stroke-width="3"/>
+                <circle cx="88" cy="42" r="8" fill="#E8F7EE"/>
+                <line x1="98" y1="52" x2="108" y2="62" stroke="#03C75A" stroke-width="4" stroke-linecap="round"/>
+                <!-- 동전들 -->
+                <ellipse cx="72" cy="100" rx="12" ry="5" fill="#F5C842"/>
+                <ellipse cx="72" cy="97" rx="12" ry="5" fill="#FFD74B"/>
+                <ellipse cx="58" cy="104" rx="9" ry="4" fill="#F5C842"/>
+                <ellipse cx="58" cy="101" rx="9" ry="4" fill="#FFD74B"/>
+                <ellipse cx="84" cy="106" rx="8" ry="3.5" fill="#F5C842"/>
+                <ellipse cx="84" cy="103.5" rx="8" ry="3.5" fill="#FFD74B"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 
