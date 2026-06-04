@@ -15,15 +15,65 @@
       class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
     />
 
-    <input
-      v-else-if="field.field_type === 'date'"
-      type="date"
-      :value="modelValue"
-      @input="emitInput"
-      @click="($event.target as HTMLInputElement).showPicker?.()"
-      :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors cursor-pointer"
-    />
+    <div v-else-if="field.field_type === 'date'" class="relative" ref="datePickerWrapperRef">
+      <button
+        type="button"
+        class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] outline-none border transition-colors text-left cursor-pointer"
+        :class="datePickerOpen ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+        @click="openDatePicker"
+      >
+        <span :class="modelValue ? 'text-[#333]' : 'text-[#B0B0B0]'">
+          {{ modelValue || '날짜를 선택해주세요' }}
+        </span>
+      </button>
+      <div
+        v-if="datePickerOpen"
+        class="absolute left-0 right-0 top-[calc(100%+4px)] bg-white border border-[#E8E8E8] rounded-[12px] shadow-[0_4px_16px_rgba(0,0,0,0.12)] z-50 p-3"
+      >
+        <!-- 년월 헤더 -->
+        <div class="flex items-center justify-between mb-2">
+          <button type="button" @click="dpChangeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] text-[#555]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 19L8 12L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="flex items-center gap-1">
+            <button type="button" @click="dpYearSelectOpen = !dpYearSelectOpen" class="text-[15px] font-bold text-[#222] hover:text-[#FF7B22] px-1">
+              {{ dpYear }}년
+            </button>
+            <span class="text-[15px] font-bold text-[#222]">{{ dpMonth + 1 }}월</span>
+          </div>
+          <button type="button" @click="dpChangeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] text-[#555]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <!-- 연도 선택 그리드 -->
+        <div v-if="dpYearSelectOpen" class="grid grid-cols-4 gap-1 mb-2 max-h-[180px] overflow-y-auto">
+          <button
+            v-for="y in dpYearRange"
+            :key="y"
+            type="button"
+            class="py-1.5 text-[13px] rounded-[8px] transition-colors"
+            :class="y === dpYear ? 'bg-[#FF7B22] text-white font-bold' : 'text-[#555] hover:bg-[#F5F5F5]'"
+            @click="dpSelectYear(y)"
+          >{{ y }}</button>
+        </div>
+        <!-- 요일 헤더 -->
+        <div v-if="!dpYearSelectOpen" class="grid grid-cols-7 gap-0 mb-1">
+          <div v-for="d in ['일','월','화','수','목','금','토']" :key="d" class="text-center text-[11px] font-medium text-[#999] py-1">{{ d }}</div>
+        </div>
+        <!-- 날짜 그리드 -->
+        <div v-if="!dpYearSelectOpen" class="grid grid-cols-7 gap-0">
+          <button
+            v-for="(day, i) in dpDays"
+            :key="i"
+            type="button"
+            class="h-8 text-[13px] rounded-full transition-colors"
+            :class="dpDayClass(day)"
+            :disabled="!day.current"
+            @click="day.current && dpSelectDate(day.date)"
+          >{{ day.label }}</button>
+        </div>
+      </div>
+    </div>
 
     <input
       v-else-if="field.field_type === 'number'"
@@ -324,6 +374,80 @@ function handleResidentBack(event: Event): void {
   target.value = value
   emitResidentValue(residentFront.value, value)
 }
+
+// ===== 커스텀 날짜 선택기 =====
+const datePickerOpen = ref(false)
+const datePickerWrapperRef = ref<HTMLElement | null>(null)
+const dpYearSelectOpen = ref(false)
+const dpYear = ref(new Date().getFullYear())
+const dpMonth = ref(new Date().getMonth())
+
+const dpYearRange = computed(() => {
+  const years: number[] = []
+  const current = new Date().getFullYear()
+  for (let y = current; y >= current - 30; y--) years.push(y)
+  return years
+})
+
+interface DpDay { label: string; date: string; current: boolean; selected: boolean; today: boolean }
+
+const dpDays = computed((): DpDay[] => {
+  const firstDay = new Date(dpYear.value, dpMonth.value, 1).getDay()
+  const daysInMonth = new Date(dpYear.value, dpMonth.value + 1, 0).getDate()
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const days: DpDay[] = []
+
+  for (let i = 0; i < firstDay; i++) {
+    days.push({ label: '', date: '', current: false, selected: false, today: false })
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${dpYear.value}-${String(dpMonth.value + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+    days.push({ label: String(d), date: dateStr, current: true, selected: dateStr === props.modelValue, today: dateStr === todayStr })
+  }
+  return days
+})
+
+function dpDayClass(day: DpDay): string {
+  if (!day.current) return ''
+  if (day.selected) return 'bg-[#FF7B22] text-white font-bold'
+  if (day.today) return 'text-[#FF7B22] font-bold hover:bg-[#FFF3ED]'
+  return 'text-[#333] hover:bg-[#F5F5F5]'
+}
+
+function openDatePicker() {
+  if (props.modelValue) {
+    const parts = props.modelValue.split('-')
+    if (parts[0]) dpYear.value = Number(parts[0])
+    if (parts[1]) dpMonth.value = Number(parts[1]) - 1
+  }
+  dpYearSelectOpen.value = false
+  datePickerOpen.value = !datePickerOpen.value
+}
+
+function dpChangeMonth(delta: number) {
+  dpMonth.value += delta
+  if (dpMonth.value < 0) { dpMonth.value = 11; dpYear.value-- }
+  if (dpMonth.value > 11) { dpMonth.value = 0; dpYear.value++ }
+}
+
+function dpSelectYear(y: number) {
+  dpYear.value = y
+  dpYearSelectOpen.value = false
+}
+
+function dpSelectDate(dateStr: string) {
+  emit('update:modelValue', dateStr)
+  datePickerOpen.value = false
+}
+
+function handleDatePickerClickOutside(e: MouseEvent) {
+  if (datePickerWrapperRef.value && !datePickerWrapperRef.value.contains(e.target as Node)) {
+    datePickerOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('click', handleDatePickerClickOutside))
+onUnmounted(() => document.removeEventListener('click', handleDatePickerClickOutside))
 
 function isChoiceSelected(value: string): boolean {
   try {
