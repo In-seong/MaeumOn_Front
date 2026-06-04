@@ -14,13 +14,13 @@
       </header>
 
       <!-- 인사말 섹션 -->
-      <div class="bg-white px-5 pb-5">
+      <div class="bg-white px-5 pb-3">
         <p class="text-[#222] text-[20px] font-bold">안녕하세요 :)</p>
         <p class="text-[#888] text-[14px] mt-1">오늘도 건강하고 행복한 하루 되세요!</p>
       </div>
 
       <!-- 프로모션 배너 카드 -->
-      <div class="mx-5 mt-4">
+      <div class="mx-5 mt-2">
         <div class="bg-gradient-to-r from-[#E8F7EE] to-[#F0FBF4] rounded-[16px] p-5 relative overflow-hidden">
           <p class="text-[13px] text-[#666]">놓치고 있는</p>
           <p class="text-[18px] font-bold text-[#222] mt-0.5">보험금이 있을 수 있어요</p>
