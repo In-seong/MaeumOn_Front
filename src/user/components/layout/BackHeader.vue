@@ -29,6 +29,8 @@ const router = useRouter()
 function goBack(): void {
   if (props.customBack) {
     emit('back')
+  } else if (window.history.length > 1) {
+    router.back()
   } else {
     router.push({ name: props.fallbackRoute ?? 'home' })
   }
