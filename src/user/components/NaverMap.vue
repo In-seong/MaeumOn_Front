@@ -79,14 +79,14 @@ function updateMarkers() {
       map,
       icon: {
         content: `<div style="display:flex;flex-direction:column;align-items:center;">
-          <div style="width:36px;height:36px;background:#2D7FF9;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="transform:rotate(45deg);">
-              <path d="M12 6V18M6 12H18" stroke="white" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div style="font-size:11px;font-weight:600;color:#222;white-space:nowrap;margin-top:4px;padding:1px 6px;background:rgba(255,255,255,0.9);border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.15);">${escapedName}</div>
+          <svg width="32" height="40" viewBox="0 0 32 40">
+            <path d="M16 0C7.2 0 0 7.2 0 16c0 10 16 24 16 24s16-14 16-24C32 7.2 24.8 0 16 0z" fill="#2D7FF9"/>
+            <rect x="8" y="8" width="16" height="16" rx="3" fill="white"/>
+            <path d="M16 12v8M12 16h8" stroke="#2D7FF9" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <div style="font-size:11px;font-weight:600;color:#222;white-space:nowrap;margin-top:2px;padding:1px 6px;background:rgba(255,255,255,0.9);border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.15);">${escapedName}</div>
         </div>`,
-        anchor: new naver.maps.Point(18, 36),
+        anchor: new naver.maps.Point(16, 40),
       },
       title: item.name,
     })
