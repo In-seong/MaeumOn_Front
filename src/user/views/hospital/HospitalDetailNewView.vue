@@ -37,7 +37,7 @@
 
           <!-- 로드뷰 -->
           <div v-if="hospital.latitude && hospital.longitude" class="mb-5 rounded-[16px] overflow-hidden">
-            <div ref="panoContainer" style="width:100%;height:200px;"></div>
+            <div v-show="!panoUnavailable" ref="panoContainer" style="width:100%;height:250px;"></div>
             <div v-if="panoUnavailable" class="flex items-center justify-center bg-[#F5F5F5] rounded-[16px]" style="height:200px;">
               <p class="text-[14px] text-[#999]">이 위치의 로드뷰가 제공되지 않습니다.</p>
             </div>
@@ -188,19 +188,39 @@ function initPanorama() {
   }
 
   const position = new naver.maps.LatLng(hospital.value.latitude, hospital.value.longitude)
-  const pano = new naver.maps.Panorama(panoContainer.value, {
-    position,
-    pov: { pan: 0, tilt: 0, fov: 100 },
-  })
 
-  naver.maps.Event.addListener(pano, 'pano_status', (status: string) => {
-    if (status !== 'OK') {
-      panoUnavailable.value = true
-      if (panoContainer.value) {
-        panoContainer.value.style.display = 'none'
+  try {
+    const pano = new naver.maps.Panorama(panoContainer.value, {
+      position,
+      pov: { pan: 0, tilt: 0, fov: 100 },
+      flightSpot: false,
+      aroundControl: true,
+      zoomControl: false,
+    })
+
+    naver.maps.Event.addListener(pano, 'pano_status', (status: string) => {
+      if (status !== 'OK') {
+        panoUnavailable.value = true
       }
-    }
-  })
+    })
+
+    naver.maps.Event.addListener(pano, 'pano_changed', () => {
+      const panoId = pano.getPanoId()
+      if (!panoId) {
+        panoUnavailable.value = true
+      }
+    })
+
+    // 타임아웃: 3초 내 로드 안 되면 미제공 처리
+    setTimeout(() => {
+      const panoId = pano.getPanoId()
+      if (!panoId) {
+        panoUnavailable.value = true
+      }
+    }, 3000)
+  } catch {
+    panoUnavailable.value = true
+  }
 }
 
 function formatPhone(value: string) {
