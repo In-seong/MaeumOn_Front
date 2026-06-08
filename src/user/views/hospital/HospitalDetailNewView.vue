@@ -35,12 +35,15 @@
             </CardSection>
           </div>
 
-          <!-- 로드뷰 -->
-          <div v-if="hospital.latitude && hospital.longitude" class="mb-5 rounded-[16px] overflow-hidden">
-            <div v-show="!panoUnavailable" ref="panoContainer" style="width:100%;height:250px;"></div>
-            <div v-if="panoUnavailable" class="flex items-center justify-center bg-[#F5F5F5] rounded-[16px]" style="height:200px;">
-              <p class="text-[14px] text-[#999]">이 위치의 로드뷰가 제공되지 않습니다.</p>
-            </div>
+          <!-- 지도 -->
+          <div v-if="hospital.latitude && hospital.longitude" class="mb-5">
+            <NaverMap
+              :height="200"
+              :markers="[{ id: hospital.hospital_id, name: hospital.hospital_name, latitude: hospital.latitude, longitude: hospital.longitude }]"
+              :center-lat="hospital.latitude"
+              :center-lng="hospital.longitude"
+              :zoom="16"
+            />
           </div>
 
           <!-- 예약 섹션 -->
@@ -123,12 +126,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
-
-declare const naver: any
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
+import NaverMap from '@user/components/NaverMap.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import ReservationCalendar from '@user/components/ReservationCalendar.vue'
@@ -142,8 +144,6 @@ const hospitalId = Number(route.params.id)
 
 const hospital = ref<PartnerHospital | null>(null)
 const loading = ref(false)
-const panoContainer = ref<HTMLDivElement>()
-const panoUnavailable = ref(false)
 const timeSlots = ref<TimeSlotItem[]>([])
 const slotsLoading = ref(false)
 const reserveLoading = ref(false)
@@ -170,8 +170,6 @@ onMounted(async () => {
   try {
     const res = await fetchHospital(hospitalId)
     hospital.value = res.data.data
-    await nextTick()
-    initPanorama()
   } catch {
     alert('병원 정보를 불러오지 못했습니다.')
     router.back()
@@ -179,48 +177,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-function initPanorama() {
-  if (!panoContainer.value || !hospital.value?.latitude || !hospital.value?.longitude) return
-  if (typeof naver === 'undefined') {
-    panoUnavailable.value = true
-    return
-  }
-
-  const createPano = () => {
-    if (!panoContainer.value || !hospital.value) return
-    const position = new naver.maps.LatLng(hospital.value.latitude, hospital.value.longitude)
-
-    try {
-      const pano = new naver.maps.Panorama(panoContainer.value, {
-        position,
-        pov: { pan: 0, tilt: 0, fov: 100 },
-        flightSpot: false,
-        aroundControl: false,
-        zoomControl: false,
-      })
-
-      naver.maps.Event.addListener(pano, 'pano_status', (status: string) => {
-        if (status !== 'OK') {
-          panoUnavailable.value = true
-        }
-      })
-    } catch {
-      panoUnavailable.value = true
-    }
-  }
-
-  // 파노라마 서브모듈이 비동기 로드되므로 콜백 사용
-  if (naver.maps.Panorama) {
-    createPano()
-  } else {
-    const prevCallback = naver.maps.onJSContentLoaded
-    naver.maps.onJSContentLoaded = () => {
-      if (prevCallback) prevCallback()
-      createPano()
-    }
-  }
-}
 
 function formatPhone(value: string) {
   const numbers = value.replace(/[^0-9]/g, '')
