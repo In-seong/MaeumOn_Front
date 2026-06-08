@@ -103,7 +103,10 @@ async function remove(id: number) {
 <template>
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-xl font-bold">배너 관리</h1>
+      <div>
+        <h1 class="text-xl font-bold">배너 관리</h1>
+        <p class="text-xs text-gray-400 mt-1">권장 이미지: 720 x 320px (비율 2.25:1)</p>
+      </div>
       <button
         class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
         @click="openAdd"
@@ -115,32 +118,37 @@ async function remove(id: number) {
     <!-- 배너 목록 -->
     <div v-if="loading" class="text-center py-10 text-gray-400">불러오는 중...</div>
     <div v-else-if="banners.length === 0" class="text-center py-10 text-gray-400">등록된 배너가 없습니다.</div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div v-else class="space-y-4">
       <div
         v-for="b in banners"
         :key="b.banner_id"
         class="border rounded-xl overflow-hidden bg-white shadow-sm"
       >
-        <img
-          v-if="b.image_url"
-          :src="b.image_url"
-          :alt="b.title"
-          class="w-full h-40 object-cover"
-        />
-        <div class="p-4">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="font-semibold text-sm">{{ b.title }}</h3>
+        <!-- 실제 앱 비율 미리보기 (362:160 = 2.26:1) -->
+        <div class="relative bg-gray-100" style="aspect-ratio: 362/160;">
+          <img
+            v-if="b.image_url"
+            :src="b.image_url"
+            :alt="b.title"
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute top-2 right-2 flex gap-1">
             <span
-              class="text-xs px-2 py-0.5 rounded-full"
-              :class="b.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
+              class="text-[11px] px-2 py-0.5 rounded-full backdrop-blur-sm"
+              :class="b.is_active ? 'bg-green-500/80 text-white' : 'bg-gray-500/80 text-white'"
             >
               {{ b.is_active ? '활성' : '비활성' }}
             </span>
           </div>
-          <p class="text-xs text-gray-400 mb-3">순서: {{ b.sort_order }}</p>
-          <div class="flex gap-2">
-            <button class="text-xs text-blue-600 hover:underline" @click="openEdit(b)">수정</button>
-            <button class="text-xs text-red-500 hover:underline" @click="remove(b.banner_id)">삭제</button>
+        </div>
+        <div class="p-3 flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-sm">{{ b.title }}</h3>
+            <p class="text-xs text-gray-400">순서: {{ b.sort_order }}</p>
+          </div>
+          <div class="flex gap-3">
+            <button class="text-sm text-blue-600 hover:underline" @click="openEdit(b)">수정</button>
+            <button class="text-sm text-red-500 hover:underline" @click="remove(b.banner_id)">삭제</button>
           </div>
         </div>
       </div>
@@ -148,7 +156,7 @@ async function remove(id: number) {
 
     <!-- 추가/수정 모달 -->
     <div v-if="showForm" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" @click.self="showForm = false">
-      <div class="bg-white rounded-2xl w-full max-w-md mx-4 p-6">
+      <div class="bg-white rounded-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <h2 class="text-lg font-bold mb-4">{{ editingId ? '배너 수정' : '배너 추가' }}</h2>
 
         <div class="space-y-4">
@@ -158,9 +166,21 @@ async function remove(id: number) {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">이미지</label>
+            <label class="block text-sm font-medium text-gray-600 mb-1">
+              이미지
+              <span class="text-xs text-gray-400 font-normal ml-1">권장 720 x 320px</span>
+            </label>
             <input type="file" accept="image/*" class="w-full text-sm" @change="onFileChange" />
-            <img v-if="imagePreview" :src="imagePreview" class="mt-2 w-full h-32 object-cover rounded-lg" />
+          </div>
+
+          <!-- 실제 앱 미리보기 -->
+          <div v-if="imagePreview">
+            <label class="block text-sm font-medium text-gray-600 mb-1">미리보기 (사용자 앱 기준)</label>
+            <div class="border-2 border-dashed border-gray-200 rounded-xl overflow-hidden bg-gray-50 mx-auto" style="max-width:362px;">
+              <div style="aspect-ratio: 362/160;">
+                <img :src="imagePreview" class="w-full h-full object-cover" />
+              </div>
+            </div>
           </div>
 
           <div>
