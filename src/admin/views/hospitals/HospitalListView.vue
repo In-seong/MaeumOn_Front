@@ -199,7 +199,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
-import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, uploadHospitalImage, addHospitalImage, deleteHospitalImage } from '../../services/adminApi'
+import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, addHospitalImage, deleteHospitalImage } from '../../services/adminApi'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
