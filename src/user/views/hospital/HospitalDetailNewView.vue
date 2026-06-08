@@ -182,44 +182,43 @@ onMounted(async () => {
 
 function initPanorama() {
   if (!panoContainer.value || !hospital.value?.latitude || !hospital.value?.longitude) return
-  if (typeof naver === 'undefined' || !naver.maps.Panorama) {
+  if (typeof naver === 'undefined') {
     panoUnavailable.value = true
     return
   }
 
-  const position = new naver.maps.LatLng(hospital.value.latitude, hospital.value.longitude)
+  const createPano = () => {
+    if (!panoContainer.value || !hospital.value) return
+    const position = new naver.maps.LatLng(hospital.value.latitude, hospital.value.longitude)
 
-  try {
-    const pano = new naver.maps.Panorama(panoContainer.value, {
-      position,
-      pov: { pan: 0, tilt: 0, fov: 100 },
-      flightSpot: false,
-      aroundControl: true,
-      zoomControl: false,
-    })
+    try {
+      const pano = new naver.maps.Panorama(panoContainer.value, {
+        position,
+        pov: { pan: 0, tilt: 0, fov: 100 },
+        flightSpot: false,
+        aroundControl: false,
+        zoomControl: false,
+      })
 
-    naver.maps.Event.addListener(pano, 'pano_status', (status: string) => {
-      if (status !== 'OK') {
-        panoUnavailable.value = true
-      }
-    })
+      naver.maps.Event.addListener(pano, 'pano_status', (status: string) => {
+        if (status !== 'OK') {
+          panoUnavailable.value = true
+        }
+      })
+    } catch {
+      panoUnavailable.value = true
+    }
+  }
 
-    naver.maps.Event.addListener(pano, 'pano_changed', () => {
-      const panoId = pano.getPanoId()
-      if (!panoId) {
-        panoUnavailable.value = true
-      }
-    })
-
-    // 타임아웃: 3초 내 로드 안 되면 미제공 처리
-    setTimeout(() => {
-      const panoId = pano.getPanoId()
-      if (!panoId) {
-        panoUnavailable.value = true
-      }
-    }, 3000)
-  } catch {
-    panoUnavailable.value = true
+  // 파노라마 서브모듈이 비동기 로드되므로 콜백 사용
+  if (naver.maps.Panorama) {
+    createPano()
+  } else {
+    const prevCallback = naver.maps.onJSContentLoaded
+    naver.maps.onJSContentLoaded = () => {
+      if (prevCallback) prevCallback()
+      createPano()
+    }
   }
 }
 
