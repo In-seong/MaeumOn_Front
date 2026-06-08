@@ -233,7 +233,7 @@ function openForm(hospital?: AdminHospital) {
       schedule_config: hospital.schedule_config ? JSON.parse(JSON.stringify(hospital.schedule_config)) : null,
       portal_username: hospital.accounts?.[0]?.username || '',
       portal_password: '',
-      image_url: (hospital as Record<string, unknown>).image_url as string | null ?? null,
+      image_url: (hospital as unknown as { image_url?: string | null }).image_url ?? null,
     })
     existingAccount.value = hospital.accounts?.[0]?.username || ''
   } else {
@@ -267,7 +267,7 @@ async function submitForm() {
       hospitalId = editingId.value
     } else {
       const res = await createAdminHospital(payload)
-      hospitalId = (res.data.data as Record<string, number>).hospital_id
+      hospitalId = (res.data.data as unknown as { hospital_id: number }).hospital_id
     }
     if (imageFile.value) {
       const fd = new FormData()
