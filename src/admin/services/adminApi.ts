@@ -146,6 +146,11 @@ export const createAdminHospital = (data: Record<string, unknown>) =>
 export const updateAdminHospital = (id: number, data: Record<string, unknown>) =>
   api.put<ApiResponse<AdminHospital>>(`${BASE}/hospitals/${id}`, data)
 
+export const uploadHospitalImage = (id: number, formData: FormData) =>
+  api.post<ApiResponse<AdminHospital>>(`${BASE}/hospitals/${id}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
 export const deleteAdminHospital = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/hospitals/${id}`)
 

@@ -122,6 +122,14 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
             <textarea v-model="formData.introduction" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none"></textarea>
           </div>
+          <!-- 병원 이미지 -->
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-1 block">병원 이미지</label>
+            <input type="file" accept="image/*" class="text-sm" @change="onImageChange" />
+            <div v-if="imagePreviewUrl || formData.image_url" class="mt-2 rounded-lg overflow-hidden" style="aspect-ratio:720/320;max-width:360px;">
+              <img :src="imagePreviewUrl || formData.image_url || ''" class="w-full h-full object-cover" />
+            </div>
+          </div>
           <!-- 예약 시간 설정 -->
           <div class="border-t border-[#F0F0F0] pt-4">
             <button type="button" @click="scheduleOpen = !scheduleOpen" class="flex items-center gap-2 text-[13px] font-medium text-[#555] mb-2 hover:text-[#FF7B22]">
@@ -160,7 +168,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital } from '../../services/adminApi'
+import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, uploadHospitalImage } from '../../services/adminApi'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -176,6 +184,8 @@ const editingId = ref<number | null>(null)
 const submitting = ref(false)
 const scheduleOpen = ref(false)
 const existingAccount = ref('')
+const imageFile = ref<File | null>(null)
+const imagePreviewUrl = ref<string | null>(null)
 const formData = reactive({
   hospital_name: '',
   address: '',
@@ -188,6 +198,7 @@ const formData = reactive({
   schedule_config: null as ScheduleConfig | null,
   portal_username: '',
   portal_password: '',
+  image_url: '' as string | null,
 })
 
 function debouncedSearch() {
@@ -222,29 +233,48 @@ function openForm(hospital?: AdminHospital) {
       schedule_config: hospital.schedule_config ? JSON.parse(JSON.stringify(hospital.schedule_config)) : null,
       portal_username: hospital.accounts?.[0]?.username || '',
       portal_password: '',
+      image_url: (hospital as Record<string, unknown>).image_url as string | null ?? null,
     })
     existingAccount.value = hospital.accounts?.[0]?.username || ''
   } else {
     editingId.value = null
-    Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '' })
+    Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '', image_url: null })
     existingAccount.value = ''
   }
+  imageFile.value = null
+  imagePreviewUrl.value = null
   scheduleOpen.value = false
   formOpen.value = true
+}
+
+function onImageChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  imageFile.value = file
+  imagePreviewUrl.value = URL.createObjectURL(file)
 }
 
 async function submitForm() {
   if (!formData.hospital_name || !formData.address) { alert('병원명과 주소는 필수입니다.'); return }
   submitting.value = true
   try {
-    const payload: Record<string, unknown> = { ...formData }
+    const { image_url: _iu, ...rest } = formData
+    const payload: Record<string, unknown> = { ...rest }
+    let hospitalId: number
     if (editingId.value) {
       await updateAdminHospital(editingId.value, payload)
-      alert('병원 정보가 수정되었습니다.')
+      hospitalId = editingId.value
     } else {
-      await createAdminHospital(payload)
-      alert('병원이 등록되었습니다.')
+      const res = await createAdminHospital(payload)
+      hospitalId = (res.data.data as Record<string, number>).hospital_id
     }
+    if (imageFile.value) {
+      const fd = new FormData()
+      fd.append('image', imageFile.value)
+      await uploadHospitalImage(hospitalId, fd)
+    }
+    alert(editingId.value ? '병원 정보가 수정되었습니다.' : '병원이 등록되었습니다.')
     formOpen.value = false
     fetchData()
   } catch (e: unknown) {
