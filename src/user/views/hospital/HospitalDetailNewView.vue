@@ -35,13 +35,11 @@
             </CardSection>
           </div>
 
-          <!-- 병원 이미지 -->
+          <!-- 병원 이미지 또는 지도 -->
           <div v-if="(hospital as any).image_url" class="mb-5 rounded-[16px] overflow-hidden">
-            <img :src="(hospital as any).image_url" :alt="hospital.hospital_name" class="w-full h-[200px] object-cover" />
+            <img :src="(hospital as any).image_url" :alt="hospital.hospital_name" class="w-full h-[280px] object-cover" />
           </div>
-
-          <!-- 지도 -->
-          <div v-if="hospital.latitude && hospital.longitude" class="mb-5">
+          <div v-else-if="hospital.latitude && hospital.longitude" class="mb-5">
             <NaverMap
               :height="200"
               :markers="[{ id: hospital.hospital_id, name: hospital.hospital_name, latitude: hospital.latitude, longitude: hospital.longitude }]"

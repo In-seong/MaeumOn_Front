@@ -124,9 +124,9 @@
           </div>
           <!-- 병원 이미지 -->
           <div>
-            <label class="text-[13px] font-medium text-[#555] mb-1 block">병원 이미지</label>
+            <label class="text-[13px] font-medium text-[#555] mb-1 block">병원 이미지 <span class="text-[11px] text-[#999] font-normal">720x400 비율로 크롭</span></label>
             <input type="file" accept="image/*" class="text-sm" @change="onImageChange" />
-            <div v-if="imagePreviewUrl || formData.image_url" class="mt-2 rounded-lg overflow-hidden" style="aspect-ratio:720/320;max-width:360px;">
+            <div v-if="imagePreviewUrl || formData.image_url" class="mt-2 rounded-lg overflow-hidden border border-[#E8E8E8]" style="aspect-ratio:720/400;">
               <img :src="imagePreviewUrl || formData.image_url || ''" class="w-full h-full object-cover" />
             </div>
           </div>
@@ -163,11 +163,27 @@
         </div>
       </div>
     </div>
+    <!-- 크롭 모달 -->
+    <div v-if="showCropper" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
+      <div class="bg-white rounded-2xl w-full max-w-2xl mx-4 p-5">
+        <h3 class="text-base font-bold mb-2">이미지 크롭</h3>
+        <p class="text-xs text-gray-400 mb-3">원하는 영역을 선택하세요 (720x400 비율 고정)</p>
+        <div class="bg-gray-100 rounded-lg overflow-hidden" style="max-height:400px;">
+          <img ref="cropImgRef" :src="rawImageUrl" class="block max-w-full" />
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button class="px-4 py-2 text-sm text-gray-500" @click="closeCropper">취소</button>
+          <button class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-sm font-medium" @click="applyCrop">크롭 적용</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
+import Cropper from 'cropperjs'
+import 'cropperjs/dist/cropper.css'
 import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, uploadHospitalImage } from '../../services/adminApi'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
@@ -186,6 +202,10 @@ const scheduleOpen = ref(false)
 const existingAccount = ref('')
 const imageFile = ref<File | null>(null)
 const imagePreviewUrl = ref<string | null>(null)
+const showCropper = ref(false)
+const cropImgRef = ref<HTMLImageElement>()
+const rawImageUrl = ref('')
+let cropperInstance: Cropper | null = null
 const formData = reactive({
   hospital_name: '',
   address: '',
@@ -251,8 +271,36 @@ function onImageChange(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
-  imageFile.value = file
-  imagePreviewUrl.value = URL.createObjectURL(file)
+  rawImageUrl.value = URL.createObjectURL(file)
+  showCropper.value = true
+  nextTick(() => {
+    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null }
+    if (cropImgRef.value) {
+      cropperInstance = new Cropper(cropImgRef.value, {
+        aspectRatio: 720 / 400,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+      })
+    }
+  })
+}
+
+function applyCrop() {
+  if (!cropperInstance) return
+  const canvas = cropperInstance.getCroppedCanvas({ width: 720, height: 400, imageSmoothingQuality: 'high' })
+  canvas.toBlob((blob: Blob | null) => {
+    if (!blob) return
+    imageFile.value = new File([blob], 'hospital.jpg', { type: 'image/jpeg' })
+    imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+    closeCropper()
+  }, 'image/jpeg', 0.9)
+}
+
+function closeCropper() {
+  if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null }
+  showCropper.value = false
+  if (rawImageUrl.value) { URL.revokeObjectURL(rawImageUrl.value); rawImageUrl.value = '' }
 }
 
 async function submitForm() {
