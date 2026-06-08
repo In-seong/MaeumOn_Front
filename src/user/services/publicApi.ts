@@ -136,3 +136,16 @@ export const fetchMyReservations = (phone: string) =>
 // 예약 취소
 export const cancelReservation = (id: number, phone: string) =>
   api.put<ApiResponse<unknown>>(`${BASE}/reservations/${id}/cancel`, { phone })
+
+// 배너
+export interface BannerData {
+  banner_id: number
+  title: string
+  image_url: string | null
+  link_url: string | null
+  sort_order: number
+  is_active: boolean
+}
+
+export const fetchBanners = () =>
+  api.get<ApiResponse<BannerData[]>>(`${BASE}/banners`)

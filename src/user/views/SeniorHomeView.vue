@@ -119,10 +119,38 @@
         </div>
       </div>
 
-      <!-- 하단 프로모션 배너 -->
-      <div class="mx-5 mt-5 mb-28 bg-[#E8F7EE] rounded-[16px] p-6">
+      <!-- 배너 캐러셀 -->
+      <div v-if="banners.length > 0" class="mx-5 mt-5 mb-28">
+        <div class="relative rounded-[16px] overflow-hidden" @touchstart="onTouchStart" @touchend="onTouchEnd">
+          <div
+            class="flex transition-transform duration-300 ease-out"
+            :style="{ transform: `translateX(-${currentBanner * 100}%)` }"
+          >
+            <div v-for="b in banners" :key="b.banner_id" class="w-full flex-shrink-0">
+              <img
+                v-if="b.image_url"
+                :src="b.image_url"
+                :alt="b.title"
+                class="w-full h-[160px] object-cover"
+              />
+            </div>
+          </div>
+        </div>
+        <!-- 인디케이터 -->
+        <div v-if="banners.length > 1" class="flex justify-center gap-1.5 mt-3">
+          <button
+            v-for="(_, i) in banners"
+            :key="i"
+            class="w-2 h-2 rounded-full transition-colors"
+            :class="i === currentBanner ? 'bg-[#03C75A]' : 'bg-[#D9D9D9]'"
+            @click="currentBanner = i"
+          ></button>
+        </div>
+      </div>
+      <!-- 배너 없을 때 기본 -->
+      <div v-else class="mx-5 mt-5 mb-28 bg-[#E8F7EE] rounded-[16px] p-6">
         <p class="text-[15px] font-semibold text-[#222] leading-relaxed">
-          보험 청구부터 건강 관리까지<br />마음ON이 함께합니다
+          보험 청구부터 건강 관리까지<br />ON케어가 함께합니다
         </p>
         <p class="text-[13px] text-[#888] mt-2">언제든 편하게 이용하세요</p>
       </div>
@@ -133,10 +161,42 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SeniorBottomNav from '@user/components/SeniorBottomNav.vue'
+import { fetchBanners } from '@user/services/publicApi'
+import type { BannerData } from '@user/services/publicApi'
 
 const router = useRouter()
+const banners = ref<BannerData[]>([])
+const currentBanner = ref(0)
+let touchStartX = 0
+
+onMounted(async () => {
+  try {
+    const res = await fetchBanners()
+    banners.value = res.data.data
+  } catch {
+    banners.value = []
+  }
+})
+
+function onTouchStart(e: TouchEvent) {
+  const touch = e.touches[0]
+  if (touch) touchStartX = touch.clientX
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const touch = e.changedTouches[0]
+  if (!touch) return
+  const diff = touchStartX - touch.clientX
+  if (Math.abs(diff) < 50) return
+  if (diff > 0 && currentBanner.value < banners.value.length - 1) {
+    currentBanner.value++
+  } else if (diff < 0 && currentBanner.value > 0) {
+    currentBanner.value--
+  }
+}
 
 interface MenuItem {
   icon: string

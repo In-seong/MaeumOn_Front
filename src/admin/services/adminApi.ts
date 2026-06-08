@@ -210,3 +210,30 @@ export const updatePortalSchedule = (token: string, config: ScheduleConfig | nul
   api.put<ApiResponse<ScheduleConfig | null>>('/hospital-portal/schedule', { schedule_config: config }, {
     headers: { Authorization: `Bearer ${token}` },
   })
+
+// ===== Banners =====
+export interface BannerItem {
+  banner_id: number
+  title: string
+  image_path: string
+  image_url: string | null
+  link_url: string | null
+  sort_order: number
+  is_active: boolean
+}
+
+export const fetchBanners = () =>
+  api.get<ApiResponse<BannerItem[]>>(`${BASE}/banners`)
+
+export const createBanner = (formData: FormData) =>
+  api.post<ApiResponse<BannerItem>>(`${BASE}/banners`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const updateBanner = (id: number, formData: FormData) =>
+  api.post<ApiResponse<BannerItem>>(`${BASE}/banners/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deleteBanner = (id: number) =>
+  api.delete(`${BASE}/banners/${id}`)

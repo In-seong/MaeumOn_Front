@@ -229,6 +229,13 @@ const router = createRouter({
       component: () => import('../views/reservations/ReservationListView.vue'),
       meta: { requiresAuth: true },
     },
+    // 배너 관리
+    {
+      path: '/banners',
+      name: 'banners',
+      component: () => import('../views/banners/BannerListView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 청구 신청 관리
     {
       path: '/claim-requests',
