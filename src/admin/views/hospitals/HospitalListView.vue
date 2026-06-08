@@ -122,13 +122,28 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
             <textarea v-model="formData.introduction" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none"></textarea>
           </div>
-          <!-- 병원 이미지 -->
+          <!-- 병원 이미지 (다중) -->
           <div>
-            <label class="text-[13px] font-medium text-[#555] mb-1 block">병원 이미지 <span class="text-[11px] text-[#999] font-normal">720x400 비율로 크롭</span></label>
-            <input type="file" accept="image/*" class="text-sm" @change="onImageChange" />
-            <div v-if="imagePreviewUrl || formData.image_url" class="mt-2 rounded-lg overflow-hidden border border-[#E8E8E8]" style="aspect-ratio:720/400;">
-              <img :src="imagePreviewUrl || formData.image_url || ''" class="w-full h-full object-cover" />
+            <label class="text-[13px] font-medium text-[#555] mb-2 block">병원 이미지 <span class="text-[11px] text-[#999] font-normal">여러 장 가능, 720x400 비율 크롭</span></label>
+            <!-- 기존 이미지 목록 -->
+            <div v-if="hospitalImages.length > 0" class="flex gap-2 flex-wrap mb-3">
+              <div v-for="img in hospitalImages" :key="img.image_id" class="relative group">
+                <img :src="img.image_url || ''" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
+                <button
+                  type="button"
+                  class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click="removeImage(img.image_id)"
+                >&times;</button>
+              </div>
             </div>
+            <!-- 신규 등록 시 미리보기 -->
+            <div v-if="!editingId && imagePreviewUrl" class="mb-3">
+              <img :src="imagePreviewUrl" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
+            </div>
+            <label class="inline-flex items-center gap-1.5 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] text-[#555] cursor-pointer hover:bg-[#F0F0F0]">
+              <span>{{ imageUploading ? '업로드 중...' : '+ 이미지 추가' }}</span>
+              <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageChange" />
+            </label>
           </div>
           <!-- 예약 시간 설정 -->
           <div class="border-t border-[#F0F0F0] pt-4">
@@ -184,7 +199,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
-import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, uploadHospitalImage } from '../../services/adminApi'
+import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, uploadHospitalImage, addHospitalImage, deleteHospitalImage } from '../../services/adminApi'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -206,6 +221,14 @@ const showCropper = ref(false)
 const cropImgRef = ref<HTMLImageElement>()
 const rawImageUrl = ref('')
 let cropperInstance: Cropper | null = null
+
+interface HospitalImageItem {
+  image_id: number
+  image_url: string | null
+  sort_order: number
+}
+const hospitalImages = ref<HospitalImageItem[]>([])
+const imageUploading = ref(false)
 const formData = reactive({
   hospital_name: '',
   address: '',
@@ -256,9 +279,11 @@ function openForm(hospital?: AdminHospital) {
       image_url: (hospital as unknown as { image_url?: string | null }).image_url ?? null,
     })
     existingAccount.value = hospital.accounts?.[0]?.username || ''
+    hospitalImages.value = ((hospital as unknown as { images?: HospitalImageItem[] }).images ?? [])
   } else {
     editingId.value = null
     Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '', image_url: null })
+    hospitalImages.value = []
     existingAccount.value = ''
   }
   imageFile.value = null
@@ -289,12 +314,45 @@ function onImageChange(e: Event) {
 function applyCrop() {
   if (!cropperInstance) return
   const canvas = cropperInstance.getCroppedCanvas({ width: 720, height: 400, imageSmoothingQuality: 'high' })
-  canvas.toBlob((blob: Blob | null) => {
+  canvas.toBlob(async (blob: Blob | null) => {
     if (!blob) return
-    imageFile.value = new File([blob], 'hospital.jpg', { type: 'image/jpeg' })
-    imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+    const file = new File([blob], 'hospital.jpg', { type: 'image/jpeg' })
+
+    // 편집 중이면 바로 업로드
+    if (editingId.value) {
+      imageUploading.value = true
+      try {
+        const fd = new FormData()
+        fd.append('image', file)
+        await addHospitalImage(editingId.value, fd)
+        // 목록 새로고침
+        const res = await fetchAdminHospitals({ search: undefined, page: 1, per_page: 100 })
+        const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
+          (h: unknown) => (h as { hospital_id: number }).hospital_id === editingId.value
+        ) as unknown as { images?: HospitalImageItem[] } | undefined
+        hospitalImages.value = found?.images ?? []
+      } catch {
+        alert('이미지 업로드에 실패했습니다.')
+      } finally {
+        imageUploading.value = false
+      }
+    } else {
+      // 신규 등록 시 파일만 저장
+      imageFile.value = file
+      imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+    }
     closeCropper()
   }, 'image/jpeg', 0.9)
+}
+
+async function removeImage(imageId: number) {
+  if (!editingId.value || !confirm('이 이미지를 삭제하시겠습니까?')) return
+  try {
+    await deleteHospitalImage(editingId.value, imageId)
+    hospitalImages.value = hospitalImages.value.filter(i => i.image_id !== imageId)
+  } catch {
+    alert('삭제에 실패했습니다.')
+  }
 }
 
 function closeCropper() {
@@ -320,7 +378,7 @@ async function submitForm() {
     if (imageFile.value) {
       const fd = new FormData()
       fd.append('image', imageFile.value)
-      await uploadHospitalImage(hospitalId, fd)
+      await addHospitalImage(hospitalId, fd)
     }
     alert(editingId.value ? '병원 정보가 수정되었습니다.' : '병원이 등록되었습니다.')
     formOpen.value = false

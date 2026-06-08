@@ -35,9 +35,21 @@
             </CardSection>
           </div>
 
-          <!-- 병원 이미지 또는 지도 -->
-          <div v-if="(hospital as any).image_url" class="mb-5 rounded-[16px] overflow-hidden">
-            <img :src="(hospital as any).image_url" :alt="hospital.hospital_name" class="w-full h-[280px] object-cover" />
+          <!-- 병원 이미지 캐러셀 또는 지도 -->
+          <div v-if="hospitalImages.length > 0" class="mb-5 rounded-[16px] overflow-hidden relative" @touchstart="onImgTouchStart" @touchend="onImgTouchEnd">
+            <div class="flex transition-transform duration-300 ease-out" :style="{ transform: `translateX(-${currentImg * 100}%)` }">
+              <div v-for="img in hospitalImages" :key="img.image_id" class="w-full flex-shrink-0">
+                <img :src="img.image_url" :alt="hospital.hospital_name" class="w-full h-[280px] object-cover" />
+              </div>
+            </div>
+            <div v-if="hospitalImages.length > 1" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+              <span
+                v-for="(_, i) in hospitalImages"
+                :key="i"
+                class="w-2 h-2 rounded-full"
+                :class="i === currentImg ? 'bg-white' : 'bg-white/50'"
+              ></span>
+            </div>
           </div>
           <div v-else-if="hospital.latitude && hospital.longitude" class="mb-5">
             <NaverMap
@@ -145,8 +157,16 @@ const route = useRoute()
 const router = useRouter()
 const hospitalId = Number(route.params.id)
 
+interface HospitalImageData {
+  image_id: number
+  image_url: string
+}
+
 const hospital = ref<PartnerHospital | null>(null)
 const loading = ref(false)
+const hospitalImages = ref<HospitalImageData[]>([])
+const currentImg = ref(0)
+let imgTouchStartX = 0
 const timeSlots = ref<TimeSlotItem[]>([])
 const slotsLoading = ref(false)
 const reserveLoading = ref(false)
@@ -173,6 +193,8 @@ onMounted(async () => {
   try {
     const res = await fetchHospital(hospitalId)
     hospital.value = res.data.data
+    const imgs = (res.data.data as unknown as { images?: HospitalImageData[] }).images
+    hospitalImages.value = imgs?.filter(i => i.image_url) ?? []
   } catch {
     alert('병원 정보를 불러오지 못했습니다.')
     router.back()
@@ -180,6 +202,23 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+function onImgTouchStart(e: TouchEvent) {
+  const touch = e.touches[0]
+  if (touch) imgTouchStartX = touch.clientX
+}
+
+function onImgTouchEnd(e: TouchEvent) {
+  const touch = e.changedTouches[0]
+  if (!touch) return
+  const diff = imgTouchStartX - touch.clientX
+  if (Math.abs(diff) < 50) return
+  if (diff > 0 && currentImg.value < hospitalImages.value.length - 1) {
+    currentImg.value++
+  } else if (diff < 0 && currentImg.value > 0) {
+    currentImg.value--
+  }
+}
 
 function formatPhone(value: string) {
   const numbers = value.replace(/[^0-9]/g, '')

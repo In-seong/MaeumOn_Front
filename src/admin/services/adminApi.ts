@@ -151,6 +151,14 @@ export const uploadHospitalImage = (id: number, formData: FormData) =>
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 
+export const addHospitalImage = (id: number, formData: FormData) =>
+  api.post(`${BASE}/hospitals/${id}/images`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deleteHospitalImage = (hospitalId: number, imageId: number) =>
+  api.delete(`${BASE}/hospitals/${hospitalId}/images/${imageId}`)
+
 export const deleteAdminHospital = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/hospitals/${id}`)
 
