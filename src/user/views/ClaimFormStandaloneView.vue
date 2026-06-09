@@ -43,6 +43,7 @@
             type="tel"
             inputmode="tel"
             placeholder="010-0000-0000"
+            :maxlength="13"
             @update:model-value="formatPhone"
           />
 

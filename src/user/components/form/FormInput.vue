@@ -8,6 +8,7 @@
         :value="modelValue"
         :placeholder="placeholder"
         :readonly="readonly"
+        :maxlength="maxlength"
         class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#03C75A] transition-colors no-spinner"
         :class="[
           readonly ? 'text-[#999] cursor-default' : 'text-[#333]',
@@ -48,6 +49,7 @@ interface Props {
   placeholder?: string
   readonly?: boolean
   showToggle?: boolean
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -58,6 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: '',
   readonly: false,
   showToggle: false,
+  maxlength: undefined,
 })
 
 defineEmits<{
