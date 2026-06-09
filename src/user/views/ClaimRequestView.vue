@@ -172,13 +172,13 @@ const isValid = computed(() => {
 })
 
 function formatPhone(value: string) {
-  const numbers = value.replace(/[^0-9]/g, '')
+  const numbers = value.replace(/[^0-9]/g, '').slice(0, 11)
   if (numbers.length <= 3) {
     form.value.phone = numbers
   } else if (numbers.length <= 7) {
     form.value.phone = `${numbers.slice(0, 3)}-${numbers.slice(3)}`
   } else {
-    form.value.phone = `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`
+    form.value.phone = `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`
   }
 }
 
