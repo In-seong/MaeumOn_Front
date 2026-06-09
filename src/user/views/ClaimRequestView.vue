@@ -81,7 +81,7 @@
 
       <!-- 병원 선택 모달 -->
       <div v-if="hospitalPickerOpen" class="fixed inset-0 bg-black/40 z-50 flex items-end justify-center" @click.self="hospitalPickerOpen = false">
-        <div class="bg-white rounded-t-[20px] w-full max-w-[402px] max-h-[70vh] flex flex-col">
+        <div class="bg-white rounded-t-[20px] w-full max-w-[402px] h-[70vh] flex flex-col">
           <div class="px-5 pt-5 pb-3">
             <div class="flex items-center justify-between mb-3">
               <h3 class="text-[16px] font-bold text-[#222]">병원 선택</h3>
