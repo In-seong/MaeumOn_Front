@@ -126,7 +126,7 @@
             class="flex transition-transform duration-300 ease-out"
             :style="{ transform: `translateX(-${currentBanner * 100}%)` }"
           >
-            <div v-for="b in banners" :key="b.banner_id" class="w-full flex-shrink-0">
+            <div v-for="b in banners" :key="b.banner_id" class="w-full flex-shrink-0 cursor-pointer" @click="onBannerClick(b)">
               <img
                 v-if="b.image_url"
                 :src="b.image_url"
@@ -171,6 +171,7 @@ const router = useRouter()
 const banners = ref<BannerData[]>([])
 const currentBanner = ref(0)
 let touchStartX = 0
+let swiped = false
 
 onMounted(async () => {
   try {
@@ -184,13 +185,28 @@ onMounted(async () => {
 function onTouchStart(e: TouchEvent) {
   const touch = e.touches[0]
   if (touch) touchStartX = touch.clientX
+  swiped = false
+}
+
+function onBannerClick(b: BannerData) {
+  if (swiped) return
+  if (!b.link_url) return
+  if (b.link_url.startsWith('http')) {
+    window.open(b.link_url, '_blank')
+  } else {
+    router.push(b.link_url)
+  }
 }
 
 function onTouchEnd(e: TouchEvent) {
   const touch = e.changedTouches[0]
   if (!touch) return
   const diff = touchStartX - touch.clientX
-  if (Math.abs(diff) < 50) return
+  if (Math.abs(diff) < 50) {
+    swiped = false
+    return
+  }
+  swiped = true
   if (diff > 0 && currentBanner.value < banners.value.length - 1) {
     currentBanner.value++
   } else if (diff < 0 && currentBanner.value > 0) {
