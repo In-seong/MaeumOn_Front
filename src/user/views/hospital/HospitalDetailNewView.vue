@@ -82,6 +82,29 @@
                   @update:model-value="formatPhone"
                 />
 
+                <!-- 방문 목적 -->
+                <div>
+                  <p class="text-[13px] font-medium text-[#555] mb-2">방문 목적</p>
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      class="flex-1 py-3 rounded-[10px] text-[14px] font-medium border transition-colors"
+                      :class="reserveForm.visit_type === 'treatment' ? 'bg-[#03C75A] text-white border-[#03C75A]' : 'bg-white text-[#555] border-[#E0E0E0]'"
+                      @click="reserveForm.visit_type = 'treatment'"
+                    >
+                      치료
+                    </button>
+                    <button
+                      type="button"
+                      class="flex-1 py-3 rounded-[10px] text-[14px] font-medium border transition-colors"
+                      :class="reserveForm.visit_type === 'checkup' ? 'bg-[#03C75A] text-white border-[#03C75A]' : 'bg-white text-[#555] border-[#E0E0E0]'"
+                      @click="reserveForm.visit_type = 'checkup'"
+                    >
+                      검진
+                    </button>
+                  </div>
+                </div>
+
                 <!-- 날짜 선택 -->
                 <div>
                   <p class="text-[13px] font-medium text-[#555] mb-2">날짜 선택</p>
@@ -174,6 +197,7 @@ const reserveLoading = ref(false)
 const reserveForm = ref({
   patient_name: '',
   patient_phone: '',
+  visit_type: 'treatment' as 'treatment' | 'checkup',
   reservation_date: '',
   reservation_time: '',
   memo: '',
@@ -256,6 +280,8 @@ async function submitReservation() {
 
   reserveLoading.value = true
   try {
+    const visitLabel = reserveForm.value.visit_type === 'checkup' ? '[검진]' : '[치료]'
+    const memoWithType = reserveForm.value.memo ? `${visitLabel} ${reserveForm.value.memo}` : visitLabel
     await apiSubmitReservation({
       hospital_id: hospitalId,
       reservation_type: 'hospital',
@@ -263,7 +289,7 @@ async function submitReservation() {
       patient_phone: reserveForm.value.patient_phone,
       reservation_date: reserveForm.value.reservation_date,
       reservation_time: reserveForm.value.reservation_time,
-      memo: reserveForm.value.memo || undefined,
+      memo: memoWithType,
     })
     localStorage.setItem('reservationPhone', reserveForm.value.patient_phone)
     alert('예약이 접수되었습니다!')
