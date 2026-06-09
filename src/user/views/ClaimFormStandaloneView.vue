@@ -4,7 +4,6 @@
 
       <!-- 1) 랜딩 화면 -->
       <main v-if="step === 'landing'" class="flex flex-col items-center justify-center px-5 min-h-screen">
-        <img src="/icons/LogoIcon.svg" alt="ON케어" class="w-[80px] h-[80px] mb-4" />
         <h1 class="text-[22px] font-bold text-[#222] mb-2">ON케어</h1>
         <p class="text-[15px] text-[#666] text-center leading-relaxed mb-10">
           놓치고 있는 보험금,<br />간편하게 청구하세요
