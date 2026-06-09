@@ -56,6 +56,13 @@ const router = createRouter({
       component: () => import('../views/MyReservationsView.vue'),
     },
 
+    // QR 독립 청구 폼 (네비/헤더 없음)
+    {
+      path: '/claim-form',
+      name: 'claim-form-standalone',
+      component: () => import('../views/ClaimFormStandaloneView.vue'),
+    },
+
     // ========== 기존 라우트 (비활성화 — 코드 유지, 라우트에서만 제외) ==========
     // 기존 홈, 로그인, PIN, 청구, 보험, 건강, 마이페이지 등
     // 기존 views/ 파일은 삭제하지 않고 유지
