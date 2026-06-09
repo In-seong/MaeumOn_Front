@@ -43,11 +43,16 @@
         </button>
       </div>
     </div>
+    <!-- 압축 중 표시 -->
+    <p v-if="compressing" class="mt-2 text-[12px] text-[#03C75A] text-center">이미지 최적화 중...</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+
+const MAX_DIMENSION = 2560
+const JPEG_QUALITY = 0.85
 
 const emit = defineEmits<{
   'update:files': [files: File[]]
@@ -55,23 +60,86 @@ const emit = defineEmits<{
 
 const fileInputRef = ref<HTMLInputElement>()
 const files = ref<File[]>([])
+const compressing = ref(false)
 
 function triggerFileInput() {
   fileInputRef.value?.click()
 }
 
-function handleFileSelect(event: Event) {
+function isImageFile(file: File): boolean {
+  return file.type.startsWith('image/')
+}
+
+function compressImage(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+
+      let { width, height } = img
+      // 이미 작으면 원본 반환
+      if (width <= MAX_DIMENSION && height <= MAX_DIMENSION && file.size <= 2 * 1024 * 1024) {
+        resolve(file)
+        return
+      }
+
+      // 비율 유지하며 축소
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height)
+        width = Math.round(width * ratio)
+        height = Math.round(height * ratio)
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { resolve(file); return }
+
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return }
+          // 원본 파일명 유지하되 확장자는 jpg로
+          const baseName = file.name.replace(/\.[^.]+$/, '')
+          const compressed = new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' })
+          resolve(compressed)
+        },
+        'image/jpeg',
+        JPEG_QUALITY,
+      )
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      resolve(file)
+    }
+    img.src = url
+  })
+}
+
+async function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement
   const selectedFiles = target.files
   if (!selectedFiles) return
 
-  for (let i = 0; i < selectedFiles.length; i++) {
-    const file = selectedFiles[i]
-    if (file) {
-      files.value.push(file)
+  compressing.value = true
+  try {
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i]
+      if (!file) continue
+
+      if (isImageFile(file)) {
+        const compressed = await compressImage(file)
+        files.value.push(compressed)
+      } else {
+        files.value.push(file)
+      }
     }
+    emit('update:files', files.value)
+  } finally {
+    compressing.value = false
   }
-  emit('update:files', files.value)
 
   // input 초기화 (같은 파일 재선택 가능하도록)
   target.value = ''
