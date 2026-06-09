@@ -104,6 +104,12 @@
         </button>
       </main>
 
+      <!-- 접수 중 오버레이 -->
+      <div v-if="loading" class="fixed inset-0 z-[70] bg-white/70 flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-[#E0E0E0] border-t-[#03C75A] rounded-full animate-spin mb-4"></div>
+        <p class="text-[15px] font-medium text-[#555]">접수 중입니다...</p>
+      </div>
+
       <!-- 병원 선택 모달 -->
       <div v-if="hospitalPickerOpen" class="fixed inset-0 bg-black/40 z-50 flex items-end justify-center" @click.self="hospitalPickerOpen = false">
         <div class="bg-white rounded-t-[20px] w-full max-w-[402px] h-[70vh] flex flex-col">

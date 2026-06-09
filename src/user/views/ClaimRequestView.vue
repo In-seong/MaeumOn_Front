@@ -110,6 +110,12 @@
         </div>
       </div>
 
+      <!-- 접수 중 오버레이 -->
+      <div v-if="loading" class="fixed inset-0 z-[70] bg-white/70 flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-[#E0E0E0] border-t-[#03C75A] rounded-full animate-spin mb-4"></div>
+        <p class="text-[15px] font-medium text-[#555]">접수 중입니다...</p>
+      </div>
+
       <SeniorBottomNav v-if="!submitted" />
     </div>
   </div>
