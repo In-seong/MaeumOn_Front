@@ -82,7 +82,7 @@
           >
             <div class="w-[60px] h-[60px] rounded-[16px] flex items-center justify-center" :class="item.bgClass">
               <!-- 보험금 청구: 서류 + 원화 마크 -->
-              <svg v-if="item.icon === 'claim'" width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <svg v-if="item.icon === 'claim'" width="45" height="45" viewBox="0 0 40 40" fill="none">
                 <rect x="8" y="4" width="20" height="28" rx="3" fill="#4CAF50" opacity="0.15"/>
                 <rect x="10" y="6" width="20" height="28" rx="3" fill="white" stroke="#4CAF50" stroke-width="1.5"/>
                 <rect x="14" y="12" width="12" height="1.5" rx="0.75" fill="#A5D6A7"/>
@@ -92,7 +92,7 @@
                 <text x="27" y="32" text-anchor="middle" font-size="11" font-weight="bold" fill="white">&#8361;</text>
               </svg>
               <!-- 병원 예약: 건물 + 십자가 -->
-              <svg v-else-if="item.icon === 'hospital'" width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <svg v-else-if="item.icon === 'hospital'" width="45" height="45" viewBox="0 0 40 40" fill="none">
                 <rect x="9" y="10" width="22" height="24" rx="3" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.5"/>
                 <rect x="14" y="4" width="12" height="12" rx="2" fill="#4CAF50"/>
                 <path d="M20 7V13M17 10H23" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -101,7 +101,7 @@
                 <rect x="16" y="28" width="8" height="6" rx="1" fill="#4CAF50"/>
               </svg>
               <!-- 건강검진 예약: 클립보드 + 체크 -->
-              <svg v-else-if="item.icon === 'health'" width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <svg v-else-if="item.icon === 'health'" width="45" height="45" viewBox="0 0 40 40" fill="none">
                 <rect x="8" y="8" width="24" height="28" rx="3" fill="white" stroke="#43A047" stroke-width="1.5"/>
                 <rect x="14" y="4" width="12" height="7" rx="2" fill="#43A047"/>
                 <circle cx="20" cy="7.5" r="1.5" fill="white"/>
@@ -109,7 +109,7 @@
                 <path d="M16.5 23L19 25.5L24 20" stroke="#43A047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <!-- 내 예약 조회: 달력 (초록색) -->
-              <svg v-else-if="item.icon === 'calendar'" width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <svg v-else-if="item.icon === 'calendar'" width="45" height="45" viewBox="0 0 40 40" fill="none">
                 <rect x="6" y="9" width="28" height="26" rx="4" fill="white" stroke="#43A047" stroke-width="1.5"/>
                 <rect x="6" y="9" width="28" height="9" rx="4" fill="#43A047"/>
                 <rect x="12" y="5" width="3" height="7" rx="1.5" fill="#43A047"/>
@@ -121,14 +121,14 @@
                 <rect x="18" y="28" width="5" height="4" rx="1" fill="#43A047" opacity="0.6"/>
               </svg>
               <!-- 내 보험 조회: 방패 + 체크 -->
-              <svg v-else-if="item.icon === 'shield'" width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <svg v-else-if="item.icon === 'shield'" width="45" height="45" viewBox="0 0 40 40" fill="none">
                 <path d="M20 4L6 10V18C6 26.8 12.2 34.6 20 37C27.8 34.6 34 26.8 34 18V10L20 4Z" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5"/>
                 <path d="M20 6L8 11.2V18C8 25.8 13.4 32.8 20 35C26.6 32.8 32 25.8 32 18V11.2L20 6Z" fill="white"/>
                 <path d="M20 4L6 10V18C6 26.8 12.2 34.6 20 37C27.8 34.6 34 26.8 34 18V10L20 4Z" fill="none" stroke="#43A047" stroke-width="1.5"/>
                 <path d="M15 20L18.5 23.5L26 16" stroke="#43A047" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <!-- 전문가 상담: 사람 + 헤드셋 -->
-              <svg v-else-if="item.icon === 'consultant'" width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <svg v-else-if="item.icon === 'consultant'" width="45" height="45" viewBox="0 0 40 40" fill="none">
                 <circle cx="20" cy="14" r="7" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5"/>
                 <circle cx="20" cy="13" r="4.5" fill="white"/>
                 <circle cx="20" cy="11.5" r="3" fill="#C8E6C9"/>
