@@ -175,6 +175,14 @@ export const createAdminHealthCenter = (data: Record<string, unknown>) =>
 export const updateAdminHealthCenter = (id: number, data: Record<string, unknown>) =>
   api.put<ApiResponse<AdminHealthCenter>>(`${BASE}/health-centers/${id}`, data)
 
+export const addHealthCenterImage = (id: number, formData: FormData) =>
+  api.post(`${BASE}/health-centers/${id}/images`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deleteHealthCenterImage = (centerId: number, imageId: number) =>
+  api.delete(`${BASE}/health-centers/${centerId}/images/${imageId}`)
+
 export const deleteAdminHealthCenter = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/health-centers/${id}`)
 

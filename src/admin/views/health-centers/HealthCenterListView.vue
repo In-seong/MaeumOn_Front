@@ -109,6 +109,24 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
             <textarea v-model="formData.introduction" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none"></textarea>
           </div>
+          <!-- 센터 이미지 (다중) -->
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-2 block">센터 이미지 <span class="text-[11px] text-[#999] font-normal">여러 장 가능</span></label>
+            <div v-if="centerImages.length > 0" class="flex gap-2 flex-wrap mb-3">
+              <div v-for="img in centerImages" :key="img.image_id" class="relative group">
+                <img :src="img.image_url || ''" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
+                <button
+                  type="button"
+                  class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click="removeImage(img.image_id)"
+                >&times;</button>
+              </div>
+            </div>
+            <label class="inline-flex items-center gap-1.5 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] text-[#555] cursor-pointer hover:bg-[#F0F0F0]">
+              <span>{{ imageUploading ? '업로드 중...' : '+ 이미지 추가' }}</span>
+              <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageChange" />
+            </label>
+          </div>
           <!-- 예약 시간 설정 -->
           <div class="border-t border-[#F0F0F0] pt-4">
             <button type="button" @click="scheduleOpen = !scheduleOpen" class="flex items-center gap-2 text-[13px] font-medium text-[#555] mb-2 hover:text-[#FF7B22]">
@@ -141,7 +159,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter } from '../../services/adminApi'
+import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter, addHealthCenterImage, deleteHealthCenterImage } from '../../services/adminApi'
 import type { AdminHealthCenter, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -157,6 +175,14 @@ const editingId = ref<number | null>(null)
 const submitting = ref(false)
 const scheduleOpen = ref(false)
 const existingAccount = ref('')
+
+interface CenterImageItem {
+  image_id: number
+  image_url: string | null
+  sort_order: number
+}
+const centerImages = ref<CenterImageItem[]>([])
+const imageUploading = ref(false)
 const formData = reactive({
   center_name: '', address: '', contact_phone: '', latitude: '' as string | number, longitude: '' as string | number, business_hours: '', introduction: '', schedule_config: null as ScheduleConfig | null, portal_username: '', portal_password: '',
 })
@@ -183,8 +209,41 @@ function openForm(center?: AdminHealthCenter) {
     Object.assign(formData, { center_name: '', address: '', contact_phone: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '' })
     existingAccount.value = ''
   }
+  centerImages.value = center ? ((center as unknown as { images?: CenterImageItem[] }).images ?? []) : []
   scheduleOpen.value = false
   formOpen.value = true
+}
+
+async function onImageChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file || !editingId.value) return
+  imageUploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('image', file)
+    await addHealthCenterImage(editingId.value, fd)
+    // 목록 새로고침
+    const res = await fetchAdminHealthCenters({ per_page: 100 })
+    const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
+      (h: unknown) => (h as { center_id: number }).center_id === editingId.value
+    ) as unknown as { images?: CenterImageItem[] } | undefined
+    centerImages.value = found?.images ?? []
+  } catch {
+    alert('이미지 업로드에 실패했습니다.')
+  } finally {
+    imageUploading.value = false
+  }
+}
+
+async function removeImage(imageId: number) {
+  if (!editingId.value || !confirm('이 이미지를 삭제하시겠습니까?')) return
+  try {
+    await deleteHealthCenterImage(editingId.value, imageId)
+    centerImages.value = centerImages.value.filter(i => i.image_id !== imageId)
+  } catch {
+    alert('삭제에 실패했습니다.')
+  }
 }
 
 async function submitForm() {
