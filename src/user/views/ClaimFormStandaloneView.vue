@@ -9,13 +9,6 @@
         <p class="text-[15px] text-[#666] text-center leading-relaxed mb-10">
           놓치고 있는 보험금,<br />간편하게 청구하세요
         </p>
-        <div class="w-20 h-20 mb-10 flex items-center justify-center">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect x="8" y="12" width="48" height="40" rx="6" stroke="#03C75A" stroke-width="2.5" fill="#E8F7EE"/>
-            <path d="M22 32L30 40L42 24" stroke="#03C75A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="24" y="6" width="16" height="12" rx="3" stroke="#03C75A" stroke-width="2" fill="white"/>
-          </svg>
-        </div>
         <button
           class="w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[17px] font-semibold active:scale-[0.98] transition-transform"
           @click="step = 'form'"
