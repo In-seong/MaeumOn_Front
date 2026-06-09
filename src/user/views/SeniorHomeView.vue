@@ -108,19 +108,24 @@
                 <circle cx="20" cy="23" r="7" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5"/>
                 <path d="M16.5 23L19 25.5L24 20" stroke="#43A047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <!-- 내 예약 조회: 달력 + 체크 -->
+              <svg v-else-if="item.icon === 'calendar'" width="30" height="30" viewBox="0 0 40 40" fill="none">
+                <rect x="6" y="9" width="28" height="26" rx="4" fill="white" stroke="#F57C00" stroke-width="1.5"/>
+                <rect x="6" y="9" width="28" height="9" rx="4" fill="#F57C00"/>
+                <rect x="12" y="5" width="3" height="7" rx="1.5" fill="#F57C00"/>
+                <rect x="25" y="5" width="3" height="7" rx="1.5" fill="#F57C00"/>
+                <rect x="11" y="22" width="5" height="4" rx="1" fill="#FFE0B2"/>
+                <rect x="18" y="22" width="5" height="4" rx="1" fill="#FFE0B2"/>
+                <rect x="25" y="22" width="5" height="4" rx="1" fill="#FFE0B2"/>
+                <rect x="11" y="28" width="5" height="4" rx="1" fill="#FFE0B2"/>
+                <rect x="18" y="28" width="5" height="4" rx="1" fill="#F57C00" opacity="0.6"/>
+              </svg>
               <!-- 내 보험 조회: 방패 + 체크 -->
               <svg v-else-if="item.icon === 'shield'" width="30" height="30" viewBox="0 0 40 40" fill="none">
                 <path d="M20 4L6 10V18C6 26.8 12.2 34.6 20 37C27.8 34.6 34 26.8 34 18V10L20 4Z" fill="#E8F5E9" stroke="#43A047" stroke-width="1.5"/>
                 <path d="M20 6L8 11.2V18C8 25.8 13.4 32.8 20 35C26.6 32.8 32 25.8 32 18V11.2L20 6Z" fill="white"/>
                 <path d="M20 4L6 10V18C6 26.8 12.2 34.6 20 37C27.8 34.6 34 26.8 34 18V10L20 4Z" fill="none" stroke="#43A047" stroke-width="1.5"/>
                 <path d="M15 20L18.5 23.5L26 16" stroke="#43A047" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <!-- 미청구 보험금 찾기: 돋보기 + 원화 -->
-              <svg v-else-if="item.icon === 'search'" width="30" height="30" viewBox="0 0 40 40" fill="none">
-                <circle cx="18" cy="18" r="10" fill="#F5F5F5" stroke="#616161" stroke-width="1.8"/>
-                <line x1="26" y1="26" x2="34" y2="34" stroke="#616161" stroke-width="2.5" stroke-linecap="round"/>
-                <circle cx="18" cy="18" r="6" fill="white" stroke="#BDBDBD" stroke-width="1"/>
-                <text x="18" y="22" text-anchor="middle" font-size="10" font-weight="bold" fill="#616161">&#8361;</text>
               </svg>
               <!-- 전문가 상담 연결: 사람 + 헤드셋 -->
               <svg v-else-if="item.icon === 'consultant'" width="30" height="30" viewBox="0 0 40 40" fill="none">
@@ -247,9 +252,9 @@ const menuItems: MenuItem[] = [
   { icon: 'claim', label: '보험금 청구', sub: '간편하게 청구하기', path: '/claim-request', bgClass: 'bg-[#E8F5E9]' },
   { icon: 'hospital', label: '병원 예약', sub: '협약 병원 찾기', path: '/hospitals', bgClass: 'bg-[#E8F5E9]' },
   { icon: 'health', label: '건강검진 예약', sub: '검진센터 예약하기', path: '/health-centers', bgClass: 'bg-[#E8F5E9]' },
+  { icon: 'calendar', label: '내 예약 조회', sub: '예약 현황 확인', path: '/my-reservations', bgClass: 'bg-[#FFF3E0]' },
   { icon: 'shield', label: '내 보험 조회', sub: '가입 내역 확인', bgClass: 'bg-[#E8F5E9]', comingSoon: true },
-  { icon: 'search', label: '미청구 보험금 찾기', sub: '숨은 보험금 확인', bgClass: 'bg-[#F5F5F5]', comingSoon: true },
-  { icon: 'consultant', label: '전문가 상담 연결', sub: '담당 설계사 연결', bgClass: 'bg-[#E8F5E9]', comingSoon: true },
+  { icon: 'consultant', label: '전문가 상담', sub: '담당 설계사 연결', bgClass: 'bg-[#E8F5E9]', comingSoon: true },
 ]
 
 function handleMenuClick(item: MenuItem): void {
