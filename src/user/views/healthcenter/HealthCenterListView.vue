@@ -127,7 +127,7 @@
             <line x1="8" y1="2" x2="8" y2="18" stroke="currentColor" stroke-width="2"/>
             <line x1="16" y1="6" x2="16" y2="22" stroke="currentColor" stroke-width="2"/>
           </svg>
-          {{ viewMode === 'map' ? '리스트 보기' : '지도 보기' }}
+          {{ viewMode === 'map' ? '목록 보기' : '지도 보기' }}
         </button>
       </main>
 
