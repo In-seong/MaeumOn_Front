@@ -1,13 +1,15 @@
 <template>
-  <div class="bg-white flex justify-center overflow-hidden" style="height: 100vh; height: 100dvh;">
-    <div class="w-full max-w-[402px] relative bg-white flex flex-col" style="height: 100vh; height: 100dvh;">
-      <BackHeader title="병원 예약" />
+  <div class="fixed inset-0 bg-white flex justify-center overflow-hidden overscroll-none">
+    <div class="w-full max-w-[402px] relative bg-white flex flex-col h-full">
+      <div @touchmove.prevent>
+        <BackHeader title="병원 예약" />
+      </div>
 
       <main class="relative flex-1 overflow-hidden">
         <!-- 지도 모드 -->
         <template v-if="viewMode === 'map'">
           <!-- 검색바 (지도 위 오버레이) -->
-          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3" @touchmove.stop>
+          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3" @touchmove.prevent>
             <div class="relative">
               <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
