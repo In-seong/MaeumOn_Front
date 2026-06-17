@@ -50,6 +50,7 @@
             <td class="px-4 lg:px-6 py-4 text-right space-x-2">
               <button @click="openForm(h)" class="px-3 py-1.5 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#E66A1A]">수정</button>
               <button v-if="h.is_active" @click="deactivate(h.hospital_id)" class="px-3 py-1.5 bg-red-500 text-white rounded-[8px] text-[13px] font-medium hover:bg-red-600">비활성</button>
+              <button @click="forceDelete(h.hospital_id)" class="px-3 py-1.5 bg-gray-700 text-white rounded-[8px] text-[13px] font-medium hover:bg-gray-800">삭제</button>
             </td>
           </tr>
           <tr v-if="hospitals.length === 0">
@@ -199,7 +200,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
-import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, addHospitalImage, deleteHospitalImage } from '../../services/adminApi'
+import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, forceDeleteAdminHospital, addHospitalImage, deleteHospitalImage } from '../../services/adminApi'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -398,6 +399,16 @@ async function deactivate(id: number) {
     fetchData(pagination.value?.current_page ?? 1)
   } catch {
     alert('비활성화에 실패했습니다.')
+  }
+}
+
+async function forceDelete(id: number) {
+  if (!confirm('정말 삭제하시겠습니까?\n삭제된 병원은 목록에서 완전히 사라지며 복구할 수 없습니다.')) return
+  try {
+    await forceDeleteAdminHospital(id)
+    fetchData(pagination.value?.current_page ?? 1)
+  } catch {
+    alert('삭제에 실패했습니다.')
   }
 }
 
