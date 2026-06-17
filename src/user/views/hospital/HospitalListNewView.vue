@@ -64,6 +64,7 @@
                 :address="selectedHospital.address"
                 :specialties="selectedHospital.specialties"
                 :phone="selectedHospital.contact_phone"
+                :image-url="getHospitalImageUrl(selectedHospital)"
                 @click="goToDetail(selectedHospital!.hospital_id)"
               />
             </div>
@@ -105,6 +106,7 @@
                 :address="hospital.address"
                 :specialties="hospital.specialties"
                 :phone="hospital.contact_phone"
+                :image-url="getHospitalImageUrl(hospital)"
                 @click="goToDetail(hospital.hospital_id)"
               />
               <p v-if="hospitals.length === 0" class="text-center text-[15px] text-[#999] py-8">
@@ -220,6 +222,12 @@ function goToMyLocation() {
     },
     { enableHighAccuracy: true, timeout: 5000 }
   )
+}
+
+function getHospitalImageUrl(h: PartnerHospital): string | undefined {
+  if (h.image_url) return h.image_url
+  const firstImg = h.images?.[0]
+  return firstImg?.image_url ?? undefined
 }
 
 function goToDetail(id: number) {

@@ -3,6 +3,12 @@ import type { ApiResponse } from '@shared/types'
 
 // ========== 타입 정의 ==========
 
+export interface HospitalImage {
+  image_id: number
+  image_url: string | null
+  sort_order: number
+}
+
 export interface PartnerHospital {
   hospital_id: number
   hospital_name: string
@@ -15,6 +21,8 @@ export interface PartnerHospital {
   business_hours?: string
   introduction?: string
   specialties?: string
+  image_url?: string | null
+  images?: HospitalImage[]
   is_active: boolean
   created_at?: string
   updated_at?: string
