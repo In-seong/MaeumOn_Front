@@ -714,6 +714,17 @@ function toggleAllConsents() {
   CONSENT_ITEMS.value.forEach(item => {
     consentAgreed.value[item.id] = newValue
   })
+  // Step 1의 checkbox 필드도 함께 토글
+  const step1Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 1)
+  step1Fields.forEach(f => {
+    if (f.field_type === 'checkbox' && f.field_options?.choices?.length) {
+      const firstChoice = f.field_options.choices[0]
+      const val = firstChoice?.value || firstChoice?.label
+      if (val) {
+        claimStore.setFieldValue(f.form_field_id, newValue ? JSON.stringify([val]) : '')
+      }
+    }
+  })
 }
 
 function toggleConsentItem(itemId: string) {
