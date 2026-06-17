@@ -1,6 +1,6 @@
 <template>
-  <div class="h-screen bg-white flex justify-center overflow-hidden">
-    <div class="w-full max-w-[402px] h-screen relative bg-white flex flex-col">
+  <div class="bg-white flex justify-center overflow-hidden" style="height: 100vh; height: 100dvh;">
+    <div class="w-full max-w-[402px] relative bg-white flex flex-col" style="height: 100vh; height: 100dvh;">
       <BackHeader :title="hospital?.hospital_name || '병원 상세'" fallback-route="hospital-list" />
 
       <main class="px-5 flex-1 overflow-y-auto overscroll-none pb-28">

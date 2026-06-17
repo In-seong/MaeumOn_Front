@@ -1,6 +1,6 @@
 <template>
-  <div class="h-screen bg-white flex justify-center overflow-hidden">
-    <div class="w-full max-w-[402px] h-screen relative bg-white flex flex-col">
+  <div class="bg-white flex justify-center overflow-hidden" style="height: 100vh; height: 100dvh;">
+    <div class="w-full max-w-[402px] relative bg-white flex flex-col" style="height: 100vh; height: 100dvh;">
       <BackHeader title="병원 예약" />
 
       <main class="relative flex-1 overflow-hidden">
@@ -143,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import NaverMap from '@user/components/NaverMap.vue'
@@ -160,8 +160,10 @@ const viewMode = ref<'map' | 'list'>('map')
 const selectedHospital = ref<PartnerHospital | null>(null)
 const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
-// 헤더(56px) + 하단네비(72px) 제외한 지도 높이
-const mapHeight = computed(() => window.innerHeight - 56 - 72)
+const viewportHeight = ref(window.innerHeight)
+const mapHeight = computed(() => viewportHeight.value - 56 - 72)
+
+function onResize() { viewportHeight.value = window.innerHeight }
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -177,7 +179,12 @@ const mapMarkers = computed(() =>
 )
 
 onMounted(() => {
+  window.addEventListener('resize', onResize)
   loadHospitals()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize)
 })
 
 async function loadHospitals() {
