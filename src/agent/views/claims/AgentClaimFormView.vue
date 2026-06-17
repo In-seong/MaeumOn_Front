@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '청구서 이어쓰기' : (isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성'))" :custom-back="true" @back="handleHeaderBack" />
-      <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);">
+      <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);" @focusin="handleFocusIn">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
@@ -806,6 +806,16 @@ function scrollToTop() {
   const mainEl = document.querySelector('main')
   if (mainEl) mainEl.scrollTop = 0
 }
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
+}
+
 
 // ===== 자동채움: Step 3 (고객 정보와 동일) =====
 // 자동채움 매핑 타입: customer 필드 키 + 분할 처리를 위한 특수 키
