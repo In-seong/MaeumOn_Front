@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-white flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-white">
+  <div class="h-screen bg-white flex justify-center overflow-hidden">
+    <div class="w-full max-w-[402px] h-screen relative bg-white flex flex-col">
       <BackHeader :title="hospital?.hospital_name || '병원 상세'" fallback-route="hospital-list" />
 
-      <main class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
+      <main class="px-5 flex-1 overflow-y-auto overscroll-none pb-28">
         <!-- 로딩 -->
         <div v-if="loading" class="py-12 text-center">
           <p class="text-[14px] text-[#999]">정보를 불러오는 중...</p>

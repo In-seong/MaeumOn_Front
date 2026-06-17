@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-40">
+  <header class="sticky top-0 z-40 bg-white">
     <div class="relative flex items-center h-[56px] px-4">
       <button @click="goBack" class="relative z-10 w-10 h-10 flex items-center justify-center -ml-2">
         <BackArrowIcon />
