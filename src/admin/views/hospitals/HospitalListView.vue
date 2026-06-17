@@ -117,7 +117,7 @@
           </div>
           <div>
             <label class="text-[13px] font-medium text-[#555] mb-1 block">영업시간</label>
-            <textarea v-model="formData.business_hours" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none" placeholder="예:&#10;평일 09:00-18:00&#10;토요일 09:00-13:00&#10;일요일/공휴일 휴진"></textarea>
+            <textarea v-model="formData.business_hours" rows="2" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none" placeholder="예:&#10;평일 09:00-18:00&#10;토요일 09:00-13:00&#10;일요일/공휴일 휴진"></textarea>
           </div>
           <div>
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
