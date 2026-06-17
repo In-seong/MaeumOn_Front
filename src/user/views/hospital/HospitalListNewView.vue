@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-white flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-white">
+  <div class="h-screen bg-white flex justify-center overflow-hidden">
+    <div class="w-full max-w-[402px] h-screen relative bg-white flex flex-col">
       <BackHeader title="병원 예약" />
 
-      <main class="relative" style="height: calc(100vh - 56px - 72px);">
+      <main class="relative flex-1 overflow-hidden">
         <!-- 지도 모드 -->
         <template v-if="viewMode === 'map'">
           <!-- 검색바 (지도 위 오버레이) -->
