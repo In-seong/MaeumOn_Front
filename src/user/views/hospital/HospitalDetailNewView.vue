@@ -196,11 +196,19 @@ const timeSlots = ref<TimeSlotItem[]>([])
 const slotsLoading = ref(false)
 const reserveLoading = ref(false)
 
+function todayStr() {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 const reserveForm = ref({
   patient_name: '',
   patient_phone: '',
   visit_type: 'treatment' as 'treatment' | 'checkup',
-  reservation_date: '',
+  reservation_date: todayStr(),
   reservation_time: '',
   memo: '',
 })
@@ -221,6 +229,7 @@ onMounted(async () => {
     hospital.value = res.data.data
     const imgs = (res.data.data as unknown as { images?: HospitalImageData[] }).images
     hospitalImages.value = imgs?.filter(i => i.image_url) ?? []
+    loadSlots(reserveForm.value.reservation_date)
   } catch {
     alert('병원 정보를 불러오지 못했습니다.')
     router.back()
@@ -257,9 +266,7 @@ function formatPhone(value: string) {
   }
 }
 
-async function onDateSelect(date: string) {
-  reserveForm.value.reservation_date = date
-  reserveForm.value.reservation_time = ''
+async function loadSlots(date: string) {
   slotsLoading.value = true
   try {
     const res = await fetchHospitalSlots(hospitalId, date)
@@ -269,6 +276,12 @@ async function onDateSelect(date: string) {
   } finally {
     slotsLoading.value = false
   }
+}
+
+async function onDateSelect(date: string) {
+  reserveForm.value.reservation_date = date
+  reserveForm.value.reservation_time = ''
+  await loadSlots(date)
 }
 
 function getSlotClass(slot: TimeSlotItem): string {
