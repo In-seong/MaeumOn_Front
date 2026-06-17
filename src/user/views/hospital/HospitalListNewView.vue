@@ -27,8 +27,8 @@
 
           <!-- 내 위치 버튼 -->
           <button
-            class="absolute bottom-4 right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-            :style="selectedHospital ? 'bottom: 140px' : ''"
+            class="absolute right-4 z-20 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+            :style="{ bottom: selectedHospital ? '180px' : '16px' }"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -120,9 +120,9 @@
 
         <!-- 보기 전환 버튼 -->
         <button
+          v-show="!(selectedHospital && viewMode === 'map')"
           class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
           :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-4' : 'bg-[#03C75A] text-white bottom-4'"
-          :style="selectedHospital && viewMode === 'map' ? 'bottom: 130px' : ''"
           @click="toggleView"
         >
           <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">
