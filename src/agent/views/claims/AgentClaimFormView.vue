@@ -79,6 +79,20 @@
                   </div>
                 </div>
               </CardSection>
+
+              <!-- Step 1에 배치된 체크박스/기타 필드 (동의 카테고리 checkbox 등) -->
+              <CardSection v-if="currentStepFields.length > 0" class="mb-4">
+                <div class="flex flex-col gap-4">
+                  <template v-for="field in currentStepFields" :key="field.form_field_id">
+                    <ClaimFieldInput
+                      :field="field"
+                      :model-value="claimStore.fieldValues[field.form_field_id] || ''"
+                      @update:model-value="setFieldValueWithSync(field, $event)"
+                      @format-input="formatFieldInput"
+                    />
+                  </template>
+                </div>
+              </CardSection>
             </div>
 
             <!-- ===== Step 4: 피보험자/수익자 ===== -->
@@ -748,7 +762,13 @@ function isFieldValid(field: FormField): boolean {
 }
 
 const isCurrentStepValid = computed(() => {
-  if (currentStep.value === 1) return allConsentsAgreed.value
+  if (currentStep.value === 1) {
+    const consentsOk = allConsentsAgreed.value
+    const step1FieldsOk = currentStepFields.value
+      .filter(f => f.is_required)
+      .every(f => isFieldValid(f))
+    return consentsOk && step1FieldsOk
+  }
   return currentStepFields.value
     .filter(f => f.is_required)
     .every(f => isFieldValid(f))
