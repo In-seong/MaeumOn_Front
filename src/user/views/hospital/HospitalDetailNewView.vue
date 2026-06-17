@@ -39,7 +39,7 @@
           <div v-if="hospitalImages.length > 0" class="mb-5 rounded-[16px] overflow-hidden relative" @touchstart="onImgTouchStart" @touchend="onImgTouchEnd">
             <div class="flex transition-transform duration-300 ease-out" :style="{ transform: `translateX(-${currentImg * 100}%)` }">
               <div v-for="img in hospitalImages" :key="img.image_id" class="w-full flex-shrink-0">
-                <img :src="img.image_url" :alt="hospital.hospital_name" class="w-full h-[280px] object-contain bg-[#F8F8F8]" />
+                <img :src="img.image_url" :alt="hospital.hospital_name" class="w-full aspect-[720/400] object-cover" />
               </div>
             </div>
             <div v-if="hospitalImages.length > 1" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
