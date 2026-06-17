@@ -51,7 +51,7 @@
             </svg>
           </div>
           <!-- 텍스트 영역 -->
-          <div class="relative z-10">
+          <div class="relative z-10 pr-[100px]">
             <p class="text-[13px] text-[#666]">놓치고 있는</p>
             <p class="text-[18px] font-bold text-[#222] mt-0.5">보험금이 있을 수 있어요</p>
             <p class="text-[13px] text-[#888] mt-1">지금 확인하고 간편하게 청구하세요!</p>
