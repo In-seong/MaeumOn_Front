@@ -25,9 +25,9 @@
           <div class="flex items-center">
             <!-- 텍스트 영역 -->
             <div class="flex-1 min-w-0">
-              <p class="text-[13px] text-[#666]">놓치고 있는</p>
-              <p class="text-[18px] font-bold text-[#222] mt-0.5">보험금이 있을 수 있어요</p>
-              <p class="text-[13px] text-[#888] mt-1">지금 확인하고 간편하게 청구하세요!</p>
+              <p class="text-[13px] text-[#666] whitespace-nowrap">놓치고 있는</p>
+              <p class="text-[18px] font-bold text-[#222] mt-0.5 whitespace-nowrap">보험금이 있을 수 있어요</p>
+              <p class="text-[13px] text-[#888] mt-1 whitespace-nowrap">지금 확인하고 간편하게 청구하세요!</p>
               <button
                 class="mt-4 bg-[#03C75A] text-white text-[13px] font-bold px-4 py-2.5 rounded-full"
                 @click="$router.push('/claim-request')"
