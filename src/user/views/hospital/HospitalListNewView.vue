@@ -7,7 +7,7 @@
         <!-- 지도 모드 -->
         <template v-if="viewMode === 'map'">
           <!-- 검색바 (지도 위 오버레이) -->
-          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3">
+          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3" @touchmove.stop>
             <div class="relative">
               <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
