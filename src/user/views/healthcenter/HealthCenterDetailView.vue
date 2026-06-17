@@ -1,9 +1,11 @@
 <template>
-  <div class="min-h-screen bg-white flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-white">
-      <BackHeader :title="center?.center_name || '센터 상세'" fallback-route="health-center-list" />
+  <div class="fixed inset-0 bg-white flex justify-center overflow-hidden overscroll-none">
+    <div class="w-full max-w-[402px] relative bg-white flex flex-col h-full">
+      <div @touchmove.prevent>
+        <BackHeader :title="center?.center_name || '센터 상세'" fallback-route="health-center-list" />
+      </div>
 
-      <main class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
+      <main class="px-5 flex-1 overflow-y-auto overscroll-none pb-28">
         <div v-if="loading" class="py-12 text-center">
           <p class="text-[14px] text-[#999]">정보를 불러오는 중...</p>
         </div>
@@ -37,7 +39,7 @@
           <div v-if="centerImages.length > 0" class="mb-5 rounded-[16px] overflow-hidden relative" @touchstart="onImgTouchStart" @touchend="onImgTouchEnd">
             <div class="flex transition-transform duration-300 ease-out" :style="{ transform: `translateX(-${currentImg * 100}%)` }">
               <div v-for="img in centerImages" :key="img.image_id" class="w-full flex-shrink-0">
-                <img :src="img.image_url" :alt="center.center_name" class="w-full h-[280px] object-cover" />
+                <img :src="img.image_url" :alt="center.center_name" class="w-full aspect-[720/400] object-cover" />
               </div>
             </div>
             <div v-if="centerImages.length > 1" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
@@ -167,10 +169,18 @@ const timeSlots = ref<TimeSlotItem[]>([])
 const slotsLoading = ref(false)
 const reserveLoading = ref(false)
 
+function todayStr() {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 const reserveForm = ref({
   patient_name: '',
   patient_phone: '',
-  reservation_date: '',
+  reservation_date: todayStr(),
   reservation_time: '',
   memo: '',
 })
@@ -191,6 +201,7 @@ onMounted(async () => {
     center.value = res.data.data
     const imgs = (res.data.data as unknown as { images?: CenterImageData[] }).images
     centerImages.value = imgs?.filter(i => i.image_url) ?? []
+    loadSlots(reserveForm.value.reservation_date)
   } catch {
     alert('센터 정보를 불러오지 못했습니다.')
     router.back()
@@ -227,9 +238,7 @@ function formatPhone(value: string) {
   }
 }
 
-async function onDateSelect(date: string) {
-  reserveForm.value.reservation_date = date
-  reserveForm.value.reservation_time = ''
+async function loadSlots(date: string) {
   slotsLoading.value = true
   try {
     const res = await fetchHealthCenterSlots(centerId, date)
@@ -239,6 +248,12 @@ async function onDateSelect(date: string) {
   } finally {
     slotsLoading.value = false
   }
+}
+
+async function onDateSelect(date: string) {
+  reserveForm.value.reservation_date = date
+  reserveForm.value.reservation_time = ''
+  await loadSlots(date)
 }
 
 function getSlotClass(slot: TimeSlotItem): string {

@@ -1,13 +1,15 @@
 <template>
-  <div class="min-h-screen bg-white flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-white">
-      <BackHeader title="건강검진 센터 예약" />
+  <div class="fixed inset-0 bg-white flex justify-center overflow-hidden overscroll-none">
+    <div class="w-full max-w-[402px] relative bg-white flex flex-col h-full">
+      <div @touchmove.prevent>
+        <BackHeader title="건강검진 센터 예약" />
+      </div>
 
-      <main class="relative" style="height: calc(100vh - 56px - 72px);">
+      <main class="relative flex-1 overflow-hidden">
         <!-- 지도 모드 -->
         <template v-if="viewMode === 'map'">
           <!-- 검색바 (지도 위 오버레이) -->
-          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3">
+          <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3" @touchmove.prevent>
             <div class="relative">
               <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
@@ -25,8 +27,8 @@
 
           <!-- 내 위치 버튼 -->
           <button
-            class="absolute bottom-4 right-4 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-            :style="selectedCenter ? 'bottom: 140px' : ''"
+            class="absolute right-4 z-20 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
+            :style="{ bottom: selectedCenter ? '180px' : '16px' }"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -114,9 +116,9 @@
 
         <!-- 보기 전환 버튼 -->
         <button
+          v-show="!(selectedCenter && viewMode === 'map')"
           class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
           :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-4' : 'bg-[#03C75A] text-white bottom-4'"
-          :style="selectedCenter && viewMode === 'map' ? 'bottom: 130px' : ''"
           @click="toggleView"
         >
           <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -131,13 +133,15 @@
         </button>
       </main>
 
+      <!-- fixed 네비바 높이만큼 공간 확보 -->
+      <div class="flex-shrink-0 h-[72px]" style="padding-bottom: env(safe-area-inset-bottom, 0px);"></div>
       <SeniorBottomNav />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import NaverMap from '@user/components/NaverMap.vue'
@@ -154,7 +158,10 @@ const viewMode = ref<'map' | 'list'>('map')
 const selectedCenter = ref<HealthCenterItem | null>(null)
 const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
-const mapHeight = computed(() => window.innerHeight - 56 - 72)
+const viewportHeight = ref(window.innerHeight)
+const mapHeight = computed(() => viewportHeight.value - 56 - 72)
+
+function onResize() { viewportHeight.value = window.innerHeight }
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -170,7 +177,12 @@ const mapMarkers = computed(() =>
 )
 
 onMounted(() => {
+  window.addEventListener('resize', onResize)
   loadCenters()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize)
 })
 
 async function loadCenters() {
