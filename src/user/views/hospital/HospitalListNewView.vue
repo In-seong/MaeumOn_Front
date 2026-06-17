@@ -135,6 +135,8 @@
         </button>
       </main>
 
+      <!-- fixed 네비바 높이만큼 공간 확보 -->
+      <div class="flex-shrink-0 h-[72px]" style="padding-bottom: env(safe-area-inset-bottom, 0px);"></div>
       <SeniorBottomNav />
     </div>
   </div>
