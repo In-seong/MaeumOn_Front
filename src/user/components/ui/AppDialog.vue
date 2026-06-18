@@ -17,8 +17,8 @@
                 <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <!-- 안내 -->
-              <svg v-else-if="type === 'info'" class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none">
-                <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg v-else-if="type === 'info'" class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none">
+                <path d="M12 7v5m0 4h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <!-- 확인 -->
               <svg v-else class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none">
@@ -81,9 +81,9 @@ const iconBgClass = computed(() => {
   switch (type.value) {
     case 'success': return 'bg-[#03C75A]'
     case 'error': return 'bg-[#FF4B4B]'
-    case 'info': return 'bg-[#3B82F6]'
+    case 'info': return 'bg-[#03C75A]'
     case 'confirm': return 'bg-[#F59E0B]'
-    default: return 'bg-[#3B82F6]'
+    default: return 'bg-[#03C75A]'
   }
 })
 
