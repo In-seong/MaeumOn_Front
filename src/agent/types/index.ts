@@ -276,6 +276,21 @@ export interface DbDistribution {
   customer?: { customer_id: string; name: string; phone: string }
 }
 
+// ===== ClaimAssignment (청구 배정) =====
+export interface ClaimAssignment {
+  request_id: number
+  name: string
+  phone: string
+  memo?: string
+  hospital_id?: number
+  status: string
+  assigned_agent_id: string
+  linked_claim_id?: number
+  created_at: string
+  updated_at: string
+  hospital?: { hospital_id: number; name: string }
+}
+
 // ===== Dashboard Summary =====
 export interface DashboardSummary {
   total_customers: number

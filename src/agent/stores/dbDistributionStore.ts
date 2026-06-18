@@ -1,10 +1,11 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { DbDistribution } from '../types'
-import { fetchDbDistributions, processDbDistribution } from '../services/agentApi'
+import type { DbDistribution, ClaimAssignment } from '../types'
+import { fetchDbDistributions, fetchClaimAssignments, processDbDistribution } from '../services/agentApi'
 
 export const useDbDistributionStore = defineStore('dbDistribution', () => {
   const distributions = ref<DbDistribution[]>([])
+  const claimAssignments = ref<ClaimAssignment[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
   const currentPage = ref(1)
@@ -19,12 +20,16 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
         page: currentPage.value,
         ...params,
       }
-      const res = await fetchDbDistributions(queryParams)
-      const paginated = res.data.data
+      const [distRes, claimRes] = await Promise.all([
+        fetchDbDistributions(queryParams),
+        fetchClaimAssignments(),
+      ])
+      const paginated = distRes.data.data
       distributions.value = paginated.data
       currentPage.value = paginated.current_page
       lastPage.value = paginated.last_page
       total.value = paginated.total
+      claimAssignments.value = claimRes.data.data
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
       error.value = msg || 'DB배분 목록을 불러오는데 실패했습니다.'
@@ -55,6 +60,7 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
 
   return {
     distributions,
+    claimAssignments,
     loading,
     error,
     currentPage,

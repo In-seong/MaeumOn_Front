@@ -7,7 +7,7 @@
         <!-- Summary -->
         <div class="mb-4">
           <p class="text-[13px] text-[#888]">
-            총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>건
+            총 <span class="font-semibold text-[#FF7B22]">{{ store.total + store.claimAssignments.length }}</span>건
           </p>
         </div>
 
@@ -16,8 +16,15 @@
           <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
         </div>
 
-        <!-- Distribution List -->
         <div v-else class="flex flex-col gap-3">
+          <!-- Claim Assignments -->
+          <ClaimAssignmentItem
+            v-for="item in store.claimAssignments"
+            :key="'claim-' + item.request_id"
+            :assignment="item"
+          />
+
+          <!-- Distribution List -->
           <DbDistributionItem
             v-for="item in store.distributions"
             :key="item.assignment_id"
@@ -26,7 +33,7 @@
           />
         </div>
 
-        <div v-if="!store.loading && store.distributions.length === 0" class="text-center py-12">
+        <div v-if="!store.loading && store.distributions.length === 0 && store.claimAssignments.length === 0" class="text-center py-12">
           <p class="text-[14px] text-[#BBB]">배분 내역이 없습니다</p>
         </div>
 
@@ -72,6 +79,7 @@ import { useDbDistributionStore } from '../../stores/dbDistributionStore'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import DbDistributionItem from '../../components/ui/DbDistributionItem.vue'
+import ClaimAssignmentItem from '../../components/ui/ClaimAssignmentItem.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 

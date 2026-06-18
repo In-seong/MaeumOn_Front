@@ -1,7 +1,7 @@
 import api from '@shared/api'
 import type {
   Agent, Customer, Consultation, AgentClaim, CalendarEvent,
-  Performance, DbDistribution, DisclosureObligation, Message,
+  Performance, DbDistribution, ClaimAssignment, DisclosureObligation, Message,
   SatisfactionSurvey, AgentNotification, DashboardSummary,
   DashboardTask,
   Memo, StatisticsTrend, MessageTemplate,
@@ -209,6 +209,9 @@ export const fetchDbDistribution = (id: number) =>
 
 export const processDbDistribution = (id: number, data: { notes?: string }) =>
   api.put<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}/process`, data)
+
+export const fetchClaimAssignments = () =>
+  api.get<ApiResponse<ClaimAssignment[]>>(`${BASE}/claim-assignments`)
 
 // ===== Messages =====
 export const sendMessage = (data: {
