@@ -98,6 +98,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDialog } from '@user/composables/useDialog'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import BottomNav from '@user/components/layout/BottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
@@ -108,6 +109,7 @@ import { useAuthStore } from '@user/stores/authStore'
 import { createConsultation } from '@user/services/consultationApi'
 
 const router = useRouter()
+const dialog = useDialog()
 const authStore = useAuthStore()
 
 const consultTypes = [
@@ -145,11 +147,11 @@ async function submit() {
       consultation_type: consultTypes[selectedType.value]?.label ?? '기타 문의',
       consultation_content: composed,
     })
-    alert('상담 요청이 접수되었습니다. 곧 연락드리겠습니다.')
+    await dialog.success('상담 요청이 접수되었습니다. 곧 연락드리겠습니다.')
     router.back()
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-    alert(msg || '상담 요청에 실패했습니다.')
+    await dialog.error(msg || '상담 요청에 실패했습니다.')
   } finally {
     submitting.value = false
   }

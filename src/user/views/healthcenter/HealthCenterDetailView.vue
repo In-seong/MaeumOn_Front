@@ -141,6 +141,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useDialog } from '@user/composables/useDialog'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import NaverMap from '@user/components/NaverMap.vue'
@@ -153,6 +154,7 @@ import type { HealthCenterItem, TimeSlotItem } from '@user/services/publicApi'
 
 const route = useRoute()
 const router = useRouter()
+const dialog = useDialog()
 const centerId = Number(route.params.id)
 
 interface CenterImageData {
@@ -203,7 +205,7 @@ onMounted(async () => {
     centerImages.value = imgs?.filter(i => i.image_url) ?? []
     loadSlots(reserveForm.value.reservation_date)
   } catch {
-    alert('센터 정보를 불러오지 못했습니다.')
+    await dialog.error('센터 정보를 불러오지 못했습니다.')
     router.back()
   } finally {
     loading.value = false
@@ -277,11 +279,11 @@ async function submitReservation() {
       memo: reserveForm.value.memo || undefined,
     })
     localStorage.setItem('reservationPhone', reserveForm.value.patient_phone)
-    alert('예약이 접수되었습니다!')
+    await dialog.success('예약이 접수되었습니다!')
     router.push('/my-reservations')
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-    alert(msg || '예약에 실패했습니다. 다시 시도해주세요.')
+    await dialog.error(msg || '예약에 실패했습니다. 다시 시도해주세요.')
   } finally {
     reserveLoading.value = false
   }

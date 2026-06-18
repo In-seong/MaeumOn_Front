@@ -324,6 +324,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useDialog } from '@user/composables/useDialog'
 import { useClaimStore } from '../../stores/claimStore'
 import { useAuthStore } from '../../stores/authStore'
 import type { FormPage, FormField, Customer } from '@shared/types'
@@ -338,6 +339,7 @@ import type { ConsentTemplate } from '@shared/services/insuranceApi'
 
 const router = useRouter()
 const route = useRoute()
+const dialog = useDialog()
 const claimStore = useClaimStore()
 const authStore = useAuthStore()
 
@@ -937,7 +939,7 @@ async function handleFileSelect(event: Event) {
     const compressed = await compressImages(files)
     for (const file of compressed) {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name}은(는) 압축 후에도 10MB를 초과합니다.`)
+        dialog.info(`${file.name}은(는) 압축 후에도 10MB를 초과합니다.`)
         continue
       }
       attachedFiles.value.push(file)
@@ -978,7 +980,7 @@ async function handleSubmit() {
         }
       }
       if (failedFiles.length > 0) {
-        alert(`다음 파일 업로드에 실패했습니다:\n${failedFiles.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
+        await dialog.error(`다음 파일 업로드에 실패했습니다:\n${failedFiles.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
       }
       router.push(`/claims/${claim.claim_id}`)
     }

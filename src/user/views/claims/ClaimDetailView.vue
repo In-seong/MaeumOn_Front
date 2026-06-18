@@ -243,6 +243,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useDialog } from '@user/composables/useDialog'
 import { useClaimStore } from '../../stores/claimStore'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
@@ -253,6 +254,7 @@ import StatusBadge from '@user/components/ui/StatusBadge.vue'
 
 const router = useRouter()
 const route = useRoute()
+const dialog = useDialog()
 const claimStore = useClaimStore()
 
 const claimId = computed(() => Number(route.params.id))
@@ -353,7 +355,7 @@ function goToEdit() {
 
 async function handleSendFax() {
   if (!faxNumber.value.trim()) {
-    alert('팩스번호를 입력해주세요.')
+    dialog.info('팩스번호를 입력해주세요.')
     return
   }
 
@@ -362,7 +364,7 @@ async function handleSendFax() {
     const success = await claimStore.sendFax(claimId.value, faxNumber.value)
     if (success) {
       showFaxModal.value = false
-      alert('팩스 발송이 요청되었습니다.')
+      await dialog.success('팩스 발송이 요청되었습니다.')
     }
   } finally {
     sendingFax.value = false

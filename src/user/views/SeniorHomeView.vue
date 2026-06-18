@@ -184,10 +184,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SeniorBottomNav from '@user/components/SeniorBottomNav.vue'
+import { useDialog } from '@user/composables/useDialog'
 import { fetchBanners } from '@user/services/publicApi'
 import type { BannerData } from '@user/services/publicApi'
 
 const router = useRouter()
+const dialog = useDialog()
 const banners = ref<BannerData[]>([])
 const currentBanner = ref(0)
 let touchStartX = 0
@@ -254,7 +256,7 @@ const menuItems: MenuItem[] = [
 
 function handleMenuClick(item: MenuItem): void {
   if (item.comingSoon) {
-    alert('준비 중입니다. 빠른 시일 내에 제공해드리겠습니다.')
+    dialog.info('준비 중입니다. 빠른 시일 내에 제공해드리겠습니다.')
     return
   }
   if (item.path) {

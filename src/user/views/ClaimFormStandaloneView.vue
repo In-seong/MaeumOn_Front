@@ -148,12 +148,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useDialog } from '@user/composables/useDialog'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import FileUploadSimple from '@user/components/FileUploadSimple.vue'
 import { submitClaimRequest, fetchHospitals } from '@user/services/publicApi'
 import type { PartnerHospital } from '@user/services/publicApi'
 
+const dialog = useDialog()
 const step = ref<'landing' | 'form' | 'done'>('landing')
 
 const form = ref({
@@ -238,7 +240,7 @@ async function submitRequest() {
     step.value = 'done'
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-    alert(msg || '신청에 실패했습니다. 다시 시도해주세요.')
+    await dialog.error(msg || '신청에 실패했습니다. 다시 시도해주세요.')
   } finally {
     loading.value = false
   }

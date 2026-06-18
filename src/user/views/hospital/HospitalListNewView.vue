@@ -147,6 +147,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDialog } from '@user/composables/useDialog'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import NaverMap from '@user/components/NaverMap.vue'
 import HospitalCard from '@user/components/HospitalCard.vue'
@@ -155,6 +156,7 @@ import { fetchHospitals } from '@user/services/publicApi'
 import type { PartnerHospital } from '@user/services/publicApi'
 
 const router = useRouter()
+const dialog = useDialog()
 const hospitals = ref<PartnerHospital[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
@@ -229,7 +231,7 @@ function goToMyLocation() {
       mapRef.value?.moveToLocation(pos.coords.latitude, pos.coords.longitude)
     },
     () => {
-      alert('위치 정보를 가져올 수 없습니다.')
+      dialog.error('위치 정보를 가져올 수 없습니다.')
     },
     { enableHighAccuracy: true, timeout: 5000 }
   )

@@ -124,6 +124,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useDialog } from '@user/composables/useDialog'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
@@ -132,6 +133,7 @@ import SeniorBottomNav from '@user/components/SeniorBottomNav.vue'
 import { submitClaimRequest, fetchHospitals } from '@user/services/publicApi'
 import type { PartnerHospital } from '@user/services/publicApi'
 
+const dialog = useDialog()
 const form = ref({
   name: '',
   phone: '',
@@ -215,7 +217,7 @@ async function submitRequest() {
     submitted.value = true
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-    alert(msg || '신청에 실패했습니다. 다시 시도해주세요.')
+    await dialog.error(msg || '신청에 실패했습니다. 다시 시도해주세요.')
   } finally {
     loading.value = false
   }

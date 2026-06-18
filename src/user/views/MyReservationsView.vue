@@ -104,11 +104,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useDialog } from '@user/composables/useDialog'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import SeniorBottomNav from '@user/components/SeniorBottomNav.vue'
 import { fetchMyReservations, cancelReservation } from '@user/services/publicApi'
 import type { MyReservation } from '@user/services/publicApi'
 
+const dialog = useDialog()
 const phoneInput = ref('')
 const savedPhone = ref('')
 const phoneVerified = ref(false)
@@ -153,12 +155,13 @@ function resetPhone() {
 }
 
 async function handleCancel(id: number) {
-  if (!confirm('이 예약을 취소하시겠습니까?')) return
+  const confirmed = await dialog.confirm('이 예약을 취소하시겠습니까?')
+  if (!confirmed) return
   try {
     await cancelReservation(id, savedPhone.value)
     await loadReservations()
   } catch {
-    alert('취소에 실패했습니다.')
+    await dialog.error('취소에 실패했습니다.')
   }
 }
 
