@@ -52,11 +52,7 @@ function initMap() {
   map = new naver.maps.Map(mapContainer.value, {
     center,
     zoom: props.zoom,
-    zoomControl: true,
-    zoomControlOptions: {
-      position: naver.maps.Position.TOP_RIGHT,
-      style: naver.maps.ZoomControlStyle.SMALL,
-    },
+    zoomControl: false,
   })
 
   updateMarkers()

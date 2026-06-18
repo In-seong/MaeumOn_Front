@@ -11,7 +11,7 @@
           <!-- 검색바 (지도 위 오버레이) -->
           <div class="absolute top-0 left-0 right-0 z-10 px-4 pt-3" @touchmove.prevent>
             <div class="relative">
-              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="8" stroke="#999" stroke-width="2"/>
                 <path d="M21 21L16.65 16.65" stroke="#999" stroke-width="2" stroke-linecap="round"/>
               </svg>
@@ -19,7 +19,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="병원명, 진료과목 검색"
-                class="w-full bg-white/95 backdrop-blur-sm rounded-[14px] pl-10 pr-4 py-3.5 text-[16px] border border-[#E0E0E0] outline-none focus:border-[#03C75A] transition-colors text-[#333] shadow-lg"
+                class="w-full bg-white/95 backdrop-blur-sm rounded-[14px] pl-9 pr-4 py-3.5 text-[16px] border border-[#E0E0E0] outline-none focus:border-[#03C75A] transition-colors text-[#333] shadow-lg"
                 @input="debouncedSearch"
               />
             </div>
