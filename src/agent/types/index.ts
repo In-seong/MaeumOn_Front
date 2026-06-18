@@ -288,7 +288,7 @@ export interface ClaimAssignment {
   linked_claim_id?: number
   created_at: string
   updated_at: string
-  hospital?: { hospital_id: number; name: string }
+  hospital?: { hospital_id: number; hospital_name: string }
 }
 
 // ===== Dashboard Summary =====

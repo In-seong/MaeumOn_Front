@@ -10,14 +10,14 @@
       </span>
     </div>
 
-    <div v-if="assignment.hospital?.name" class="flex items-center gap-2 text-[12px] text-[#999] mt-2">
+    <div v-if="assignment.hospital?.hospital_name" class="flex items-center gap-2 text-[12px] text-[#999] mt-2">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 21h18" />
         <path d="M5 21V7l8-4v18" />
         <path d="M19 21V11l-6-4" />
         <path d="M9 9h1" /><path d="M9 13h1" /><path d="M9 17h1" />
       </svg>
-      <span>{{ assignment.hospital.name }}</span>
+      <span>{{ assignment.hospital.hospital_name }}</span>
     </div>
 
     <div class="flex items-center gap-2 text-[12px] text-[#999] mt-2">
