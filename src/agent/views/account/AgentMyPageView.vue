@@ -217,7 +217,7 @@
                 </div>
                 <div class="flex items-center justify-between py-2">
                   <span class="text-[13px] text-[#888]">문의</span>
-                  <span class="text-[13px] text-[#333] font-medium">support@podo-life.co.kr</span>
+                  <span class="text-[13px] text-[#333] font-medium"></span>
                 </div>
               </div>
             </div>
