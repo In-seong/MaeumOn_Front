@@ -28,7 +28,7 @@
           <!-- 내 위치 버튼 -->
           <button
             class="absolute right-4 z-20 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-            :style="{ bottom: selectedHospital ? '230px' : '64px' }"
+            :style="{ bottom: selectedHospital ? '280px' : '80px' }"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -51,7 +51,7 @@
           />
 
           <!-- 선택된 병원 카드 (하단 오버레이) -->
-          <div v-if="selectedHospital" class="absolute bottom-14 left-4 right-4 z-10">
+          <div v-if="selectedHospital" class="absolute bottom-[72px] left-4 right-4 z-10">
             <div class="relative">
               <button
                 class="absolute -top-2 -right-2 z-10 w-7 h-7 bg-white border border-[#E0E0E0] rounded-full flex items-center justify-center shadow-sm"
@@ -122,7 +122,7 @@
         <button
           v-show="!(selectedHospital && viewMode === 'map')"
           class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
-          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-16' : 'bg-[#03C75A] text-white bottom-4'"
+          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-[72px]' : 'bg-[#03C75A] text-white bottom-4'"
           @click="toggleView"
         >
           <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">
