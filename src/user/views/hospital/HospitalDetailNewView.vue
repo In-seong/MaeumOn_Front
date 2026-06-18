@@ -25,13 +25,13 @@
                   <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#888" stroke-width="2"/></svg>
                   <a :href="'tel:' + hospital.contact_phone" class="text-[14px] text-[#03C75A] font-medium">{{ hospital.contact_phone }}</a>
                 </div>
-                <div v-if="hospital.specialties" class="flex items-start gap-2">
-                  <svg class="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#888" stroke-width="2"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#888" stroke-width="2"/></svg>
-                  <p class="text-[14px] text-[#555]">{{ hospital.specialties }}</p>
-                </div>
                 <div v-if="hospital.business_hours" class="flex items-start gap-2">
                   <svg class="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#888" stroke-width="2" stroke-linecap="round"/></svg>
                   <p class="text-[14px] text-[#555]">{{ hospital.business_hours }}</p>
+                </div>
+                <div v-if="hospital.specialties" class="flex items-start gap-2">
+                  <svg class="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#888" stroke-width="2"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#888" stroke-width="2"/></svg>
+                  <p class="text-[14px] text-[#555] truncate">{{ hospital.specialties }}</p>
                 </div>
               </div>
             </CardSection>
