@@ -142,10 +142,11 @@
         <!-- Bulk download -->
         <button
           v-if="assignment.files.length > 1"
-          class="w-full py-2.5 bg-[#FFF3ED] text-[#FF7B22] text-[13px] font-medium rounded-[10px] active:bg-[#FFE8D9] transition-colors"
+          class="w-full py-2.5 bg-[#FFF3ED] text-[#FF7B22] text-[13px] font-medium rounded-[10px] active:bg-[#FFE8D9] transition-colors disabled:opacity-50"
+          :disabled="downloading"
           @click="downloadAll"
         >
-          전체 다운로드 ({{ assignment.files.length }}개)
+          {{ downloading ? '다운로드 중...' : `전체 다운로드 (${assignment.files.length}개)` }}
         </button>
       </div>
     </div>
@@ -174,6 +175,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import api from '@shared/api'
 import type { ClaimAssignment, ClaimRequestFile } from '../../types'
 import { createCustomer, createMemo } from '../../services/agentApi'
 
@@ -241,21 +243,39 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
-function downloadFile(file: ClaimRequestFile | undefined) {
-  if (!file?.file_download_url) return
-  window.open(file.file_download_url, '_blank')
+const downloading = ref(false)
+
+async function downloadFile(file: ClaimRequestFile | undefined) {
+  if (!file) return
+  try {
+    const res = await api.get(`/agent/claim-request-files/${file.file_id}/download`, {
+      responseType: 'blob',
+    })
+    const blob = new Blob([res.data as BlobPart])
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.file_name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch {
+    if (file.file_download_url) {
+      window.open(file.file_download_url, '_blank')
+    }
+  }
 }
 
-function downloadAll() {
+async function downloadAll() {
   const files = props.assignment.files
-  if (!files) return
-  files.forEach((file, i) => {
-    setTimeout(() => {
-      if (file.file_download_url) {
-        window.open(file.file_download_url, '_blank')
-      }
-    }, i * 300)
-  })
+  if (!files || downloading.value) return
+  downloading.value = true
+  for (const file of files) {
+    await downloadFile(file)
+    await new Promise(r => setTimeout(r, 300))
+  }
+  downloading.value = false
 }
 
 function buildMemoContent(): string {
