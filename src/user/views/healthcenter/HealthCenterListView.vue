@@ -28,7 +28,7 @@
           <!-- 내 위치 버튼 -->
           <button
             class="absolute right-4 z-20 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all"
-            :style="{ bottom: selectedCenter ? '250px' : '90px' }"
+            :style="{ bottom: selectedCenter ? '240px' : '90px' }"
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
