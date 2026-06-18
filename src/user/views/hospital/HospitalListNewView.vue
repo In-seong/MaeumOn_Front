@@ -236,6 +236,7 @@ function goToMyLocation() {
 }
 
 function getHospitalImageUrl(h: PartnerHospital): string | undefined {
+  if (h.thumbnail_url) return h.thumbnail_url
   if (h.image_url) return h.image_url
   const firstImg = h.images?.[0]
   return firstImg?.image_url ?? undefined

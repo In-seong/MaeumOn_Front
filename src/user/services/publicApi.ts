@@ -22,6 +22,7 @@ export interface PartnerHospital {
   introduction?: string
   specialties?: string
   image_url?: string | null
+  thumbnail_url?: string | null
   images?: HospitalImage[]
   is_active: boolean
   created_at?: string

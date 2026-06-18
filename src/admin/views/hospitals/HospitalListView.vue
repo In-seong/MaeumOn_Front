@@ -123,6 +123,25 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
             <textarea v-model="formData.introduction" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none"></textarea>
           </div>
+          <!-- 목록 썸네일 (정방형 1:1) -->
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-2 block">목록 썸네일 <span class="text-[11px] text-[#999] font-normal">정방형(1:1), 사용자 앱 목록에 표시</span></label>
+            <div class="flex items-start gap-3">
+              <div v-if="thumbnailPreviewUrl || currentThumbnailUrl" class="relative group">
+                <img :src="thumbnailPreviewUrl || currentThumbnailUrl || ''" class="w-[72px] h-[72px] object-cover rounded-[10px] border border-[#E8E8E8]" />
+                <button
+                  v-if="editingId && currentThumbnailUrl"
+                  type="button"
+                  class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click="removeThumbnail"
+                >&times;</button>
+              </div>
+              <label class="inline-flex items-center gap-1.5 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] text-[#555] cursor-pointer hover:bg-[#F0F0F0]">
+                <span>{{ thumbnailUploading ? '업로드 중...' : (currentThumbnailUrl || thumbnailPreviewUrl ? '변경' : '+ 썸네일 추가') }}</span>
+                <input type="file" accept="image/*" class="hidden" :disabled="thumbnailUploading" @change="onThumbnailChange" />
+              </label>
+            </div>
+          </div>
           <!-- 병원 이미지 (다중) -->
           <div>
             <label class="text-[13px] font-medium text-[#555] mb-2 block">병원 이미지 <span class="text-[11px] text-[#999] font-normal">여러 장 가능, 720x400 비율 크롭</span></label>
@@ -182,8 +201,8 @@
     <!-- 크롭 모달 -->
     <div v-if="showCropper" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
       <div class="bg-white rounded-2xl w-full max-w-2xl mx-4 p-5">
-        <h3 class="text-base font-bold mb-2">이미지 크롭</h3>
-        <p class="text-xs text-gray-400 mb-3">원하는 영역을 선택하세요 (720x400 비율 고정)</p>
+        <h3 class="text-base font-bold mb-2">{{ cropMode === 'thumbnail' ? '썸네일 크롭' : '이미지 크롭' }}</h3>
+        <p class="text-xs text-gray-400 mb-3">원하는 영역을 선택하세요 ({{ cropMode === 'thumbnail' ? '1:1 정방형' : '720x400 비율 고정' }})</p>
         <div class="bg-gray-100 rounded-lg overflow-hidden" style="max-height:400px;">
           <img ref="cropImgRef" :src="rawImageUrl" class="block max-w-full" />
         </div>
@@ -200,7 +219,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
-import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, forceDeleteAdminHospital, addHospitalImage, deleteHospitalImage } from '../../services/adminApi'
+import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, forceDeleteAdminHospital, addHospitalImage, deleteHospitalImage, uploadHospitalThumbnail, deleteHospitalThumbnail } from '../../services/adminApi'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -222,6 +241,12 @@ const showCropper = ref(false)
 const cropImgRef = ref<HTMLImageElement>()
 const rawImageUrl = ref('')
 let cropperInstance: Cropper | null = null
+const cropMode = ref<'image' | 'thumbnail'>('image')
+
+const thumbnailFile = ref<File | null>(null)
+const thumbnailPreviewUrl = ref<string | null>(null)
+const currentThumbnailUrl = ref<string | null>(null)
+const thumbnailUploading = ref(false)
 
 interface HospitalImageItem {
   image_id: number
@@ -281,29 +306,31 @@ function openForm(hospital?: AdminHospital) {
     })
     existingAccount.value = hospital.accounts?.[0]?.username || ''
     hospitalImages.value = ((hospital as unknown as { images?: HospitalImageItem[] }).images ?? [])
+    currentThumbnailUrl.value = (hospital as unknown as { thumbnail_url?: string | null }).thumbnail_url ?? null
   } else {
     editingId.value = null
     Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '', image_url: null })
     hospitalImages.value = []
     existingAccount.value = ''
+    currentThumbnailUrl.value = null
   }
   imageFile.value = null
   imagePreviewUrl.value = null
+  thumbnailFile.value = null
+  thumbnailPreviewUrl.value = null
   scheduleOpen.value = false
   formOpen.value = true
 }
 
-function onImageChange(e: Event) {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
+function openCropper(file: File, mode: 'image' | 'thumbnail') {
+  cropMode.value = mode
   rawImageUrl.value = URL.createObjectURL(file)
   showCropper.value = true
   nextTick(() => {
     if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null }
     if (cropImgRef.value) {
       cropperInstance = new Cropper(cropImgRef.value, {
-        aspectRatio: 720 / 400,
+        aspectRatio: mode === 'thumbnail' ? 1 : 720 / 400,
         viewMode: 1,
         dragMode: 'move',
         autoCropArea: 1,
@@ -312,38 +339,86 @@ function onImageChange(e: Event) {
   })
 }
 
+function onImageChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  openCropper(file, 'image')
+  target.value = ''
+}
+
+function onThumbnailChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  openCropper(file, 'thumbnail')
+  target.value = ''
+}
+
 function applyCrop() {
   if (!cropperInstance) return
-  const canvas = cropperInstance.getCroppedCanvas({ width: 720, height: 400, imageSmoothingQuality: 'high' })
+  const isThumbnail = cropMode.value === 'thumbnail'
+  const size = isThumbnail ? { width: 400, height: 400 } : { width: 720, height: 400 }
+  const canvas = cropperInstance.getCroppedCanvas({ ...size, imageSmoothingQuality: 'high' })
   canvas.toBlob(async (blob: Blob | null) => {
     if (!blob) return
-    const file = new File([blob], 'hospital.jpg', { type: 'image/jpeg' })
+    const file = new File([blob], isThumbnail ? 'thumbnail.jpg' : 'hospital.jpg', { type: 'image/jpeg' })
 
-    // 편집 중이면 바로 업로드
-    if (editingId.value) {
-      imageUploading.value = true
-      try {
-        const fd = new FormData()
-        fd.append('image', file)
-        await addHospitalImage(editingId.value, fd)
-        // 목록 새로고침
-        const res = await fetchAdminHospitals({ search: undefined, page: 1, per_page: 100 })
-        const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
-          (h: unknown) => (h as { hospital_id: number }).hospital_id === editingId.value
-        ) as unknown as { images?: HospitalImageItem[] } | undefined
-        hospitalImages.value = found?.images ?? []
-      } catch {
-        alert('이미지 업로드에 실패했습니다.')
-      } finally {
-        imageUploading.value = false
+    if (isThumbnail) {
+      if (editingId.value) {
+        thumbnailUploading.value = true
+        try {
+          const fd = new FormData()
+          fd.append('thumbnail', file)
+          await uploadHospitalThumbnail(editingId.value, fd)
+          const res = await fetchAdminHospitals({ search: undefined, page: 1, per_page: 100 })
+          const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
+            (h: unknown) => (h as { hospital_id: number }).hospital_id === editingId.value
+          ) as unknown as { thumbnail_url?: string | null } | undefined
+          currentThumbnailUrl.value = found?.thumbnail_url ?? null
+        } catch {
+          alert('썸네일 업로드에 실패했습니다.')
+        } finally {
+          thumbnailUploading.value = false
+        }
+      } else {
+        thumbnailFile.value = file
+        thumbnailPreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
       }
     } else {
-      // 신규 등록 시 파일만 저장
-      imageFile.value = file
-      imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+      if (editingId.value) {
+        imageUploading.value = true
+        try {
+          const fd = new FormData()
+          fd.append('image', file)
+          await addHospitalImage(editingId.value, fd)
+          const res = await fetchAdminHospitals({ search: undefined, page: 1, per_page: 100 })
+          const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
+            (h: unknown) => (h as { hospital_id: number }).hospital_id === editingId.value
+          ) as unknown as { images?: HospitalImageItem[] } | undefined
+          hospitalImages.value = found?.images ?? []
+        } catch {
+          alert('이미지 업로드에 실패했습니다.')
+        } finally {
+          imageUploading.value = false
+        }
+      } else {
+        imageFile.value = file
+        imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+      }
     }
     closeCropper()
   }, 'image/jpeg', 0.9)
+}
+
+async function removeThumbnail() {
+  if (!editingId.value || !confirm('썸네일을 삭제하시겠습니까?')) return
+  try {
+    await deleteHospitalThumbnail(editingId.value)
+    currentThumbnailUrl.value = null
+  } catch {
+    alert('삭제에 실패했습니다.')
+  }
 }
 
 async function removeImage(imageId: number) {
@@ -375,6 +450,11 @@ async function submitForm() {
     } else {
       const res = await createAdminHospital(payload)
       hospitalId = (res.data.data as unknown as { hospital_id: number }).hospital_id
+    }
+    if (thumbnailFile.value) {
+      const fd = new FormData()
+      fd.append('thumbnail', thumbnailFile.value)
+      await uploadHospitalThumbnail(hospitalId, fd)
     }
     if (imageFile.value) {
       const fd = new FormData()
