@@ -29,9 +29,10 @@
                   <svg class="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#888" stroke-width="2" stroke-linecap="round"/></svg>
                   <p class="text-[14px] text-[#555]">{{ hospital.business_hours }}</p>
                 </div>
-                <div v-if="hospital.specialties" class="flex items-start gap-2">
+                <div v-if="hospital.specialties" class="flex items-start gap-2 cursor-pointer" @click="specialtiesExpanded = !specialtiesExpanded">
                   <svg class="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#888" stroke-width="2"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#888" stroke-width="2"/></svg>
-                  <p class="text-[14px] text-[#555] truncate">{{ hospital.specialties }}</p>
+                  <p class="text-[14px] text-[#555] flex-1 min-w-0" :class="specialtiesExpanded ? '' : 'truncate'">{{ hospital.specialties }}</p>
+                  <svg class="w-4 h-4 mt-0.5 flex-shrink-0 transition-transform" :class="specialtiesExpanded ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
               </div>
             </CardSection>
@@ -191,6 +192,7 @@ const hospital = ref<PartnerHospital | null>(null)
 const loading = ref(false)
 const hospitalImages = ref<HospitalImageData[]>([])
 const currentImg = ref(0)
+const specialtiesExpanded = ref(false)
 let imgTouchStartX = 0
 const timeSlots = ref<TimeSlotItem[]>([])
 const slotsLoading = ref(false)

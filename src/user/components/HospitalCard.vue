@@ -6,9 +6,9 @@
     <div class="flex items-start gap-3">
       <div class="flex-1 min-w-0">
         <h3 class="text-[15px] font-semibold text-[#222] truncate">{{ name }}</h3>
-        <p v-if="specialties" class="text-[12px] text-[#03C75A] mt-1">{{ specialties }}</p>
         <p class="text-[12px] text-[#888] mt-1 truncate">{{ address }}</p>
         <p v-if="phone" class="text-[12px] text-[#888] mt-0.5">{{ phone }}</p>
+        <p v-if="specialties" class="text-[12px] text-[#03C75A] mt-1 truncate">{{ specialties }}</p>
       </div>
       <div v-if="imageUrl" class="flex-shrink-0">
         <img
