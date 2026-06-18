@@ -175,7 +175,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { ClaimAssignment, ClaimRequestFile } from '../../types'
-import { createCustomer } from '../../services/agentApi'
+import { createCustomer, createMemo } from '../../services/agentApi'
 
 const props = defineProps<{
   assignment: ClaimAssignment
@@ -258,14 +258,48 @@ function downloadAll() {
   })
 }
 
+function buildMemoContent(): string {
+  const a = props.assignment
+  const date = a.created_at.split('T')[0] ?? a.created_at.slice(0, 10)
+  const parts: string[] = []
+
+  parts.push(`[청구 배정 DB배분]`)
+  parts.push(`- 배정일: ${date}`)
+
+  if (a.hospital?.hospital_name) {
+    parts.push(`- 병원: ${a.hospital.hospital_name}`)
+  }
+
+  if (a.memo) {
+    parts.push(`- 고객 메모: ${a.memo}`)
+  }
+
+  const fileCount = a.files?.length ?? 0
+  if (fileCount > 0) {
+    const names = a.files?.map(f => f.file_name).join(', ') ?? ''
+    parts.push(`- 첨부파일: ${fileCount}장 (${names})`)
+  }
+
+  return parts.join('\n')
+}
+
 async function registerCustomer() {
   registering.value = true
   try {
-    await createCustomer({
+    const res = await createCustomer({
       name: props.assignment.name,
       phone: props.assignment.phone,
       acquisition_channel: '청구배정',
     })
+    const customerId = res.data.data.customer_id
+
+    const today = new Date().toISOString().split('T')[0] ?? ''
+    await createMemo(customerId, {
+      title: '청구 배정 DB배분 내역',
+      content: buildMemoContent(),
+      memo_date: today,
+    })
+
     registered.value = true
     emit('customerRegistered', props.assignment.request_id)
   } catch {
