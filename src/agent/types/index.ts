@@ -300,6 +300,7 @@ export interface ClaimAssignment {
   updated_at: string
   hospital?: { hospital_id: number; hospital_name: string }
   files?: ClaimRequestFile[]
+  is_registered?: boolean
 }
 
 // ===== Dashboard Summary =====

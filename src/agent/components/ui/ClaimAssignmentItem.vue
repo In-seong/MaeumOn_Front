@@ -197,7 +197,7 @@ const nonImageFiles = computed(() => props.assignment.files?.filter(f => !isImag
 
 const filesOpen = ref(false)
 const currentSlide = ref(0)
-const registered = ref(false)
+const registered = ref(props.assignment.is_registered ?? false)
 const registering = ref(false)
 
 // Touch swipe
