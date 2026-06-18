@@ -277,6 +277,16 @@ export interface DbDistribution {
 }
 
 // ===== ClaimAssignment (청구 배정) =====
+export interface ClaimRequestFile {
+  file_id: number
+  request_id: number
+  file_url: string
+  file_name: string
+  file_size: number
+  created_at: string
+  file_download_url: string | null
+}
+
 export interface ClaimAssignment {
   request_id: number
   name: string
@@ -289,6 +299,7 @@ export interface ClaimAssignment {
   created_at: string
   updated_at: string
   hospital?: { hospital_id: number; hospital_name: string }
+  files?: ClaimRequestFile[]
 }
 
 // ===== Dashboard Summary =====
