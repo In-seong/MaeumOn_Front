@@ -245,21 +245,46 @@ function formatFileSize(bytes: number): string {
 
 const downloading = ref(false)
 
+function getMimeType(fileName: string): string {
+  const ext = fileName.split('.').pop()?.toLowerCase() ?? ''
+  const types: Record<string, string> = {
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+    gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp',
+    svg: 'image/svg+xml', pdf: 'application/pdf',
+  }
+  return types[ext] ?? 'application/octet-stream'
+}
+
+async function fetchAsFile(file: ClaimRequestFile): Promise<File> {
+  const res = await api.get(`/agent/claim-request-files/${file.file_id}/download`, {
+    responseType: 'blob',
+  })
+  const blob = new Blob([res.data as BlobPart], { type: getMimeType(file.file_name) })
+  return new File([blob], file.file_name, { type: blob.type })
+}
+
+async function shareFiles(files: File[]) {
+  if (navigator.canShare && navigator.canShare({ files })) {
+    await navigator.share({ files })
+  } else {
+    for (const f of files) {
+      const url = URL.createObjectURL(f)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = f.name
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    }
+  }
+}
+
 async function downloadFile(file: ClaimRequestFile | undefined) {
   if (!file) return
   try {
-    const res = await api.get(`/agent/claim-request-files/${file.file_id}/download`, {
-      responseType: 'blob',
-    })
-    const blob = new Blob([res.data as BlobPart])
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = file.file_name
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    const f = await fetchAsFile(file)
+    await shareFiles([f])
   } catch {
     if (file.file_download_url) {
       window.open(file.file_download_url, '_blank')
@@ -271,11 +296,14 @@ async function downloadAll() {
   const files = props.assignment.files
   if (!files || downloading.value) return
   downloading.value = true
-  for (const file of files) {
-    await downloadFile(file)
-    await new Promise(r => setTimeout(r, 300))
+  try {
+    const fetched = await Promise.all(files.map(f => fetchAsFile(f)))
+    await shareFiles(fetched)
+  } catch {
+    // 개별 폴백
+  } finally {
+    downloading.value = false
   }
-  downloading.value = false
 }
 
 function buildMemoContent(): string {
