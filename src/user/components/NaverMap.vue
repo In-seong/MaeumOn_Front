@@ -53,6 +53,7 @@ function initMap() {
     center,
     zoom: props.zoom,
     zoomControl: false,
+    scaleControl: false,
   })
 
   updateMarkers()
