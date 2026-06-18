@@ -164,7 +164,7 @@ const selectedHospital = ref<PartnerHospital | null>(null)
 const mapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
 const viewportHeight = ref(window.innerHeight)
-const mapHeight = computed(() => viewportHeight.value - 56 - 72)
+const mapHeight = 730
 
 function onResize() { viewportHeight.value = window.innerHeight }
 
