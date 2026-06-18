@@ -118,7 +118,7 @@
         <button
           v-show="!(selectedCenter && viewMode === 'map')"
           class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
-          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-[87px]' : 'bg-[#03C75A] text-white bottom-4'"
+          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-[87px]' : 'bg-[#03C75A] text-white bottom-[60px]'"
           @click="toggleView"
         >
           <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">
