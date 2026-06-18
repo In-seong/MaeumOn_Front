@@ -551,7 +551,7 @@
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
                     <p v-if="memo.title" class="text-[14px] font-semibold text-[#333] mb-1">{{ memo.title }}</p>
-                    <p class="text-[13px] text-[#333] leading-[1.6]">{{ memo.content }}</p>
+                    <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-line">{{ memo.content }}</p>
                     <p class="text-[11px] text-[#AAAAAA] mt-2">{{ formatDate(memo.memo_date) }}</p>
                   </div>
                   <div class="flex items-center gap-1 flex-shrink-0 ml-2">
