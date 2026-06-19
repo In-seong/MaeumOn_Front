@@ -173,6 +173,9 @@ export const deleteAdminHospital = (id: number) =>
 export const forceDeleteAdminHospital = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/hospitals/${id}/force`)
 
+export const activateAdminHospital = (id: number) =>
+  api.put<ApiResponse<null>>(`${BASE}/hospitals/${id}/activate`)
+
 // ===== Health Centers (건강검진 센터 관리) =====
 export const fetchAdminHealthCenters = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminHealthCenter>>>(`${BASE}/health-centers`, { params })
