@@ -151,30 +151,43 @@
       </div>
     </div>
 
-    <!-- Register as Customer -->
-    <button
-      v-if="!registered"
-      class="mt-3 w-full py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
-      :class="registering ? 'bg-[#FFB380] text-white' : 'bg-[#FF7B22] text-white'"
-      :disabled="registering"
-      @click="registerCustomer"
-    >
-      {{ registering ? '등록 중...' : '내 고객으로 등록하기' }}
-    </button>
-    <div
-      v-else
-      class="mt-3 w-full py-2.5 bg-[#F0F7F0] text-[#2E7D32] text-[13px] font-semibold rounded-[12px] text-center flex items-center justify-center gap-1.5"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      고객 등록 완료
+    <!-- Action buttons -->
+    <div class="mt-3 flex flex-col gap-2">
+      <!-- Register as Customer -->
+      <button
+        v-if="!registered"
+        class="w-full py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+        :class="registering ? 'bg-[#FFB380] text-white' : 'bg-[#FF7B22] text-white'"
+        :disabled="registering"
+        @click="registerCustomer"
+      >
+        {{ registering ? '등록 중...' : '내 고객으로 등록하기' }}
+      </button>
+      <div
+        v-else
+        class="w-full py-2.5 bg-[#F0F7F0] text-[#2E7D32] text-[13px] font-semibold rounded-[12px] text-center flex items-center justify-center gap-1.5"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        고객 등록 완료
+      </div>
+
+      <!-- Direct claim button -->
+      <button
+        class="w-full py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform border-2 border-[#FF7B22] text-[#FF7B22] bg-white disabled:opacity-50"
+        :disabled="claimNavigating"
+        @click="goToClaim"
+      >
+        {{ claimNavigating ? '이동 중...' : '바로 보험 청구 하기' }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@shared/api'
 import type { ClaimAssignment, ClaimRequestFile } from '../../types'
 import { createCustomer, createMemo } from '../../services/agentApi'
@@ -186,6 +199,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   customerRegistered: [requestId: number]
 }>()
+
+const router = useRouter()
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']
 
@@ -200,7 +215,9 @@ const nonImageFiles = computed(() => props.assignment.files?.filter(f => !isImag
 const filesOpen = ref(false)
 const currentSlide = ref(0)
 const registered = ref(props.assignment.is_registered ?? false)
+const registeredCustomerId = ref(props.assignment.registered_customer_id ?? '')
 const registering = ref(false)
+const claimNavigating = ref(false)
 
 // Touch swipe
 const touchStartX = ref(0)
@@ -348,11 +365,44 @@ async function registerCustomer() {
     })
 
     registered.value = true
+    registeredCustomerId.value = customerId
     emit('customerRegistered', props.assignment.request_id)
   } catch {
     // 에러 시 등록 버튼 다시 활성화
   } finally {
     registering.value = false
+  }
+}
+
+async function goToClaim() {
+  if (claimNavigating.value) return
+  claimNavigating.value = true
+  try {
+    let customerId = registeredCustomerId.value
+    if (!customerId) {
+      const res = await createCustomer({
+        name: props.assignment.name,
+        phone: props.assignment.phone,
+        acquisition_channel: '청구배정',
+      })
+      customerId = res.data.data.customer_id
+
+      const today = new Date().toISOString().split('T')[0] ?? ''
+      await createMemo(customerId, {
+        title: '청구 배정 DB배분 내역',
+        content: buildMemoContent(),
+        memo_date: today,
+      })
+
+      registered.value = true
+      registeredCustomerId.value = customerId
+      emit('customerRegistered', props.assignment.request_id)
+    }
+    router.push({ name: 'agent-claim-select', query: { customerId } })
+  } catch {
+    // 에러 처리
+  } finally {
+    claimNavigating.value = false
   }
 }
 </script>
