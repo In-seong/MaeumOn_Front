@@ -324,8 +324,7 @@ function buildMemoContent(): string {
 
   const fileCount = a.files?.length ?? 0
   if (fileCount > 0) {
-    const names = a.files?.map(f => f.file_name).join(', ') ?? ''
-    parts.push(`- 첨부파일: ${fileCount}장 (${names})`)
+    parts.push(`- 첨부파일: ${fileCount}장`)
   }
 
   return parts.join('\n')
