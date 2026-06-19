@@ -10,19 +10,36 @@
       </router-link>
     </div>
 
+    <!-- 탭 -->
+    <div class="flex gap-1 mb-4 bg-[#F5F5F5] rounded-[12px] p-1">
+      <button
+        v-for="tab in tabs"
+        :key="tab.key"
+        :class="[
+          'flex-1 py-2 text-[13px] font-medium rounded-[10px] transition-colors',
+          activeTab === tab.key
+            ? 'bg-white text-[#FF7B22] shadow-sm'
+            : 'text-[#888] hover:text-[#555]',
+        ]"
+        @click="switchTab(tab.key)"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+
     <!-- 검색 -->
     <div class="mb-4">
       <input
         v-model="searchQuery"
         type="text"
-        placeholder="고객 이름으로 검색"
+        :placeholder="activeTab === 'db' ? '고객 이름으로 검색' : '이름으로 검색'"
         class="w-full sm:max-w-[400px] px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
         @input="debouncedSearch"
       />
     </div>
 
     <!-- 로딩 상태 -->
-    <div v-if="store.loading" class="text-center py-10">
+    <div v-if="isLoading" class="text-center py-10">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
       <p class="mt-2 text-[14px] text-[#999]">로딩 중...</p>
     </div>
@@ -32,8 +49,8 @@
       {{ store.error }}
     </div>
 
-    <!-- 테이블 -->
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+    <!-- DB 배분 테이블 -->
+    <div v-else-if="activeTab === 'db'" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
@@ -102,16 +119,98 @@
         </div>
       </div>
     </div>
+
+    <!-- 청구 배정 테이블 -->
+    <div v-else-if="activeTab === 'claim'" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+      <table class="min-w-full divide-y divide-[#E8E8E8]">
+        <thead class="bg-[#FAFAFA]">
+          <tr>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배정 설계사</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">병원</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">첨부</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배정일</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-[#F0F0F0]">
+          <tr
+            v-for="item in store.claimAssignments"
+            :key="item.request_id"
+            class="hover:bg-[#FAFAFA] transition-colors"
+          >
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">
+              {{ item.name }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
+              {{ formatPhone(item.phone) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#333]">
+              {{ item.assigned_agent?.name || '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">
+              {{ (item as any).hospital?.hospital_name || '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span :class="statusClass(item.status)" class="px-2 py-1 text-[12px] font-medium rounded-full">
+                {{ statusLabel(item.status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
+              {{ item.files?.length || 0 }}개
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
+              {{ formatDate(item.updated_at) }}
+            </td>
+          </tr>
+          <tr v-if="store.claimAssignments.length === 0">
+            <td colspan="7" class="px-6 py-10 text-center text-[#999]">
+              청구 배정 이력이 없습니다.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 페이지네이션 -->
+      <div v-if="store.claimPagination && store.claimPagination.last_page > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
+        <div class="flex justify-center gap-2">
+          <button
+            v-for="page in store.claimPagination.last_page"
+            :key="page"
+            @click="goToPage(page)"
+            :class="[
+              'px-3 py-1 rounded-[8px] text-[14px]',
+              page === store.claimPagination.current_page
+                ? 'bg-[#FF7B22] text-white'
+                : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
+            ]"
+          >
+            {{ page }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAssignmentStore } from '../../stores/assignmentStore'
 import type { Assignment } from '../../types'
 
 const store = useAssignmentStore()
 const searchQuery = ref('')
+const activeTab = ref<'db' | 'claim'>('db')
+
+const tabs = [
+  { key: 'db' as const, label: 'DB 배분' },
+  { key: 'claim' as const, label: '청구 배정' },
+]
+
+const isLoading = computed(() =>
+  activeTab.value === 'db' ? store.loading : store.claimLoading
+)
 
 let searchTimeout: ReturnType<typeof setTimeout>
 
@@ -122,11 +221,24 @@ function debouncedSearch() {
   }, 300)
 }
 
+function switchTab(tab: 'db' | 'claim') {
+  activeTab.value = tab
+  searchQuery.value = ''
+  fetchData()
+}
+
 async function fetchData(page = 1) {
-  await store.loadAssignments({
-    search: searchQuery.value || undefined,
-    page,
-  })
+  if (activeTab.value === 'db') {
+    await store.loadAssignments({
+      search: searchQuery.value || undefined,
+      page,
+    })
+  } else {
+    await store.loadClaimAssignments({
+      search: searchQuery.value || undefined,
+      page,
+    })
+  }
 }
 
 function goToPage(page: number) {
@@ -152,6 +264,26 @@ function formatDate(dateStr?: string): string {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
+}
+
+function statusLabel(status: string): string {
+  const map: Record<string, string> = {
+    pending: '대기',
+    assigned: '배정완료',
+    completed: '처리완료',
+    cancelled: '취소',
+  }
+  return map[status] || status
+}
+
+function statusClass(status: string): string {
+  const map: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    assigned: 'bg-blue-100 text-blue-800',
+    completed: 'bg-green-100 text-green-800',
+    cancelled: 'bg-gray-100 text-gray-800',
+  }
+  return map[status] || 'bg-gray-100 text-gray-800'
 }
 
 async function handleDelete(assignment: Assignment) {

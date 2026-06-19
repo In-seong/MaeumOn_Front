@@ -1,20 +1,24 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Assignment, AdminCustomer, AdminAgent, LaravelPagination } from '../types'
+import type { Assignment, AdminCustomer, AdminAgent, AdminClaimRequest, LaravelPagination } from '../types'
 import {
   fetchAssignments as apiFetchAssignments,
   createAssignment as apiCreateAssignment,
   bulkAssignment as apiBulkAssignment,
   deleteAssignment as apiDeleteAssignment,
+  fetchClaimAssignments as apiFetchClaimAssignments,
   fetchCustomers as apiFetchCustomers,
   fetchAgents as apiFetchAgents,
 } from '../services/adminApi'
 
 export const useAssignmentStore = defineStore('assignment', () => {
   const assignments = ref<Assignment[]>([])
+  const claimAssignments = ref<AdminClaimRequest[]>([])
   const loading = ref(false)
+  const claimLoading = ref(false)
   const error = ref<string | null>(null)
   const pagination = ref<Omit<LaravelPagination<Assignment>, 'data'> | null>(null)
+  const claimPagination = ref<Omit<LaravelPagination<AdminClaimRequest>, 'data'> | null>(null)
   const unassignedCustomers = ref<AdminCustomer[]>([])
   const agentOptions = ref<AdminAgent[]>([])
 
@@ -35,6 +39,26 @@ export const useAssignmentStore = defineStore('assignment', () => {
       error.value = e.response?.data?.message || '배분 이력을 불러오는데 실패했습니다.'
     } finally {
       loading.value = false
+    }
+  }
+
+  async function loadClaimAssignments(params?: {
+    search?: string
+    page?: number
+    per_page?: number
+  }) {
+    claimLoading.value = true
+    error.value = null
+
+    try {
+      const response = await apiFetchClaimAssignments(params as Record<string, unknown>)
+      const { data, ...paginationData } = response.data.data
+      claimAssignments.value = data
+      claimPagination.value = paginationData
+    } catch (e: any) {
+      error.value = e.response?.data?.message || '청구 배정 이력을 불러오는데 실패했습니다.'
+    } finally {
+      claimLoading.value = false
     }
   }
 
@@ -122,12 +146,16 @@ export const useAssignmentStore = defineStore('assignment', () => {
 
   return {
     assignments,
+    claimAssignments,
     loading,
+    claimLoading,
     error,
     pagination,
+    claimPagination,
     unassignedCustomers,
     agentOptions,
     loadAssignments,
+    loadClaimAssignments,
     createAssignment,
     bulkAssignment,
     deleteAssignment,
