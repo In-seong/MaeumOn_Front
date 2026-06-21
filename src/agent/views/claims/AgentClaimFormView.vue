@@ -77,13 +77,31 @@
                       </svg>
                     </span>
                   </div>
+
+                  <!-- Step 1 체크박스 필드를 동의 항목으로 통합 -->
+                  <div
+                    v-for="field in step1CheckboxFields"
+                    :key="field.form_field_id"
+                    class="flex items-center gap-3 p-3 bg-white border rounded-[12px] cursor-pointer transition-colors"
+                    :class="isStep1CheckboxChecked(field) ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+                    @click="toggleStep1Checkbox(field)"
+                  >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="shrink-0">
+                      <circle cx="12" cy="12" r="10" :fill="isStep1CheckboxChecked(field) ? '#FF7B22' : 'none'" :stroke="isStep1CheckboxChecked(field) ? '#FF7B22' : '#D0D0D0'" stroke-width="2"/>
+                      <path v-if="isStep1CheckboxChecked(field)" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="flex-1 text-[14px] text-[#333]">
+                      <span v-if="field.is_required" class="text-[#FF0000] font-medium">[필수]</span>
+                      {{ field.field_label }}
+                    </span>
+                  </div>
                 </div>
               </CardSection>
 
-              <!-- Step 1에 배치된 체크박스/기타 필드 (동의 카테고리 checkbox 등) -->
-              <CardSection v-if="currentStepFields.length > 0" class="mb-4">
+              <!-- Step 1에 배치된 비-체크박스 필드 -->
+              <CardSection v-if="step1NonCheckboxFields.length > 0" class="mb-4">
                 <div class="flex flex-col gap-4">
-                  <template v-for="field in currentStepFields" :key="field.form_field_id">
+                  <template v-for="field in step1NonCheckboxFields" :key="field.form_field_id">
                     <ClaimFieldInput
                       :field="field"
                       :model-value="claimStore.fieldValues[field.form_field_id] || ''"
@@ -663,6 +681,20 @@ const currentStepFields = computed(() =>
   wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === currentStep.value)
 )
 
+// Step 1 체크박스 필드 (동의 리스트에 통합 표시)
+const step1CheckboxFields = computed(() =>
+  wizardDisplayFields.value.filter(f =>
+    getFieldWizardStep(f) === 1 && f.field_type === 'checkbox'
+  )
+)
+
+// Step 1 비-체크박스 필드
+const step1NonCheckboxFields = computed(() =>
+  wizardDisplayFields.value.filter(f =>
+    getFieldWizardStep(f) === 1 && f.field_type !== 'checkbox'
+  )
+)
+
 // Step 4 서브섹션 분리
 const insuredStepFields = computed(() =>
   currentStepFields.value.filter(f => f.field_name.toLowerCase().startsWith('insured_'))
@@ -682,10 +714,30 @@ const otherStep4Fields = computed(() =>
 // 계약자 필드 유무 판단 (Step 3 활성 여부)
 const hasContractorStep = computed(() => activeSteps.value.includes(3))
 
+// ===== Step 1 체크박스 헬퍼 =====
+function isStep1CheckboxChecked(field: FormField): boolean {
+  const val = claimStore.fieldValues[field.form_field_id]
+  return !!val && val !== '[]'
+}
+
+function toggleStep1Checkbox(field: FormField) {
+  if (isStep1CheckboxChecked(field)) {
+    claimStore.setFieldValue(field.form_field_id, '')
+  } else {
+    const firstChoice = field.field_options?.choices?.[0]
+    const val = firstChoice?.value || firstChoice?.label
+    if (val) {
+      claimStore.setFieldValue(field.form_field_id, JSON.stringify([val]))
+    }
+  }
+}
+
 // ===== 동의 -> 템플릿 consent 필드 값 동기화 =====
-const allConsentsAgreed = computed(() =>
-  CONSENT_ITEMS.value.length > 0 && CONSENT_ITEMS.value.every(item => consentAgreed.value[item.id])
-)
+const allConsentsAgreed = computed(() => {
+  const consentsOk = CONSENT_ITEMS.value.length > 0 && CONSENT_ITEMS.value.every(item => consentAgreed.value[item.id])
+  const checkboxesOk = step1CheckboxFields.value.every(f => isStep1CheckboxChecked(f))
+  return consentsOk && checkboxesOk
+})
 
 // 동의 상태 변경 시 -> 카테고리별로 consent 필드 동기화
 watch(consentAgreed, (agreed) => {
