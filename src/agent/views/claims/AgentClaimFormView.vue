@@ -807,7 +807,7 @@ const nextButtonText = computed(() => {
 
 const submitButtonText = computed(() => {
   if (isEditMode.value) return '청구서 수정'
-  return STEP_NEXT_TEXT[currentStep.value] || '청구서 생성'
+  return '완료'
 })
 
 function goNextStep() {
