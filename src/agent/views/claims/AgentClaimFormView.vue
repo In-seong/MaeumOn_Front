@@ -496,13 +496,13 @@ const cameraInput = ref<HTMLInputElement | null>(null)
 const currentStep = ref(1)
 const STEP_LABELS = ['약관 동의', '청구 내용', '계약자', '피보험자', '계좌 정보']
 
-const STEP_TITLES: Record<number, string> = {
-  1: '보험금 청구를 위해 약관 동의를 해주세요',
-  2: '청구하실 내용을 입력해주세요',
-  3: '계약자 정보를 입력해 주세요',
-  4: '피보험자 정보를 확인해주세요',
-  5: '보험금을 지급받을 계좌 정보를 입력해주세요',
-}
+// const STEP_TITLES: Record<number, string> = {
+//   1: '보험금 청구를 위해 약관 동의를 해주세요',
+//   2: '청구하실 내용을 입력해주세요',
+//   3: '계약자 정보를 입력해 주세요',
+//   4: '피보험자 정보를 확인해주세요',
+//   5: '보험금을 지급받을 계좌 정보를 입력해주세요',
+// }
 
 const STEP_NEXT_TEXT: Record<number, string> = {
   1: '다음',
