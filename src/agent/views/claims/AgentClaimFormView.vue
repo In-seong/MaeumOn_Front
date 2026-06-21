@@ -35,9 +35,9 @@
           </div>
 
           <!-- 스텝 제목 -->
-          <p class="text-[16px] font-bold text-[#222] mb-4 px-1">
+          <!-- <p class="text-[16px] font-bold text-[#222] mb-4 px-1">
             {{ STEP_TITLES[currentStep] || '' }}
-          </p>
+          </p> -->
 
           <form @submit.prevent="handleSubmit">
             <!-- ===== Step 1: 약관 동의 ===== -->
