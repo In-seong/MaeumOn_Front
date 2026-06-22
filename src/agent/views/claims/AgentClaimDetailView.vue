@@ -357,10 +357,17 @@
     </div>
 
     <!-- 청구서 이미지 확대 뷰어 -->
-    <div v-if="viewerOpen" class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center" @click.self="viewerOpen = false">
-      <button @click="viewerOpen = false" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 text-white text-[24px] flex items-center justify-center z-10">&times;</button>
+    <div v-if="viewerOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
+      <!-- 상단 바 -->
+      <div class="flex items-center justify-between px-4 py-3 bg-black/50">
+        <span class="text-white text-[14px] font-medium">청구서 미리보기</span>
+        <button @click="viewerOpen = false" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">
+          닫기
+        </button>
+      </div>
+      <!-- 이미지 영역 -->
       <div
-        class="w-full h-full overflow-auto flex items-start justify-center"
+        class="flex-1 overflow-auto flex items-start justify-center"
         @touchstart="onViewerTouchStart"
         @touchmove="onViewerTouchMove"
         @touchend="onViewerTouchEnd"
@@ -372,10 +379,11 @@
           :style="{ transform: `scale(${viewerScale})`, transformOrigin: 'top center' }"
         />
       </div>
-      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/50 rounded-full px-4 py-2">
-        <button @click="viewerScale = Math.max(0.5, viewerScale - 0.25)" class="w-8 h-8 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center">−</button>
+      <!-- 하단 줌 컨트롤 -->
+      <div class="flex items-center justify-center gap-3 py-3 bg-black/50">
+        <button @click="viewerScale = Math.max(0.5, viewerScale - 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center active:bg-white/30">−</button>
         <span class="text-white text-[13px] min-w-[50px] text-center">{{ Math.round(viewerScale * 100) }}%</span>
-        <button @click="viewerScale = Math.min(3, viewerScale + 0.25)" class="w-8 h-8 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center">+</button>
+        <button @click="viewerScale = Math.min(3, viewerScale + 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center active:bg-white/30">+</button>
       </div>
     </div>
   </div>
