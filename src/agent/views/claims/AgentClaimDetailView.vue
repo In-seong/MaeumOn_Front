@@ -360,14 +360,15 @@
     <div v-if="viewerOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
       <!-- 상단 바 -->
       <div class="flex items-center justify-between px-4 py-3 bg-black/50">
-        <span class="text-white text-[14px] font-medium">청구서 미리보기</span>
+        <span class="text-white text-[14px] font-medium">
+          {{ claimImageUrls && claimImageUrls.length > 1 ? `${viewerIndex + 1} / ${claimImageUrls.length}` : '청구서 미리보기' }}
+        </span>
         <button @click="viewerOpen = false" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">
           닫기
         </button>
       </div>
       <!-- 이미지 영역 -->
-      <div
-        class="flex-1 overflow-auto flex items-start justify-center"
+      <div class="flex-1 relative overflow-auto flex items-start justify-center"
         @touchstart="onViewerTouchStart"
         @touchmove="onViewerTouchMove"
         @touchend="onViewerTouchEnd"
@@ -378,6 +379,15 @@
           class="max-w-none"
           :style="{ transform: `scale(${viewerScale})`, transformOrigin: 'top center' }"
         />
+        <!-- 좌우 화살표 -->
+        <button v-if="viewerIndex > 0" @click="viewerGo(-1)"
+          class="fixed left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center active:bg-black/60 z-10">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button v-if="claimImageUrls && viewerIndex < claimImageUrls.length - 1" @click="viewerGo(1)"
+          class="fixed right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center active:bg-black/60 z-10">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       <!-- 하단 줌 컨트롤 -->
       <div class="flex items-center justify-center gap-3 py-3 bg-black/50">
@@ -419,12 +429,27 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 const viewerOpen = ref(false)
 const viewerImageUrl = ref('')
 const viewerScale = ref(1)
+const viewerIndex = ref(0)
 let lastPinchDist = 0
 
 function openImageViewer(url: string) {
+  const idx = claimImageUrls.value?.findIndex(img => img.url === url) ?? 0
+  viewerIndex.value = Math.max(0, idx)
   viewerImageUrl.value = url
   viewerScale.value = 1
   viewerOpen.value = true
+}
+
+function viewerGo(delta: number) {
+  const images = claimImageUrls.value
+  if (!images) return
+  const next = viewerIndex.value + delta
+  if (next < 0 || next >= images.length) return
+  const img = images[next]
+  if (!img) return
+  viewerIndex.value = next
+  viewerImageUrl.value = img.url
+  viewerScale.value = 1
 }
 
 function onViewerTouchStart(e: TouchEvent) {
