@@ -381,7 +381,7 @@
       </div>
       <!-- 하단 줌 컨트롤 -->
       <div class="flex items-center justify-center gap-3 py-3 bg-black/50">
-        <button @click="viewerScale = Math.max(0.5, viewerScale - 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center active:bg-white/30">−</button>
+        <button @click="viewerScale = Math.max(0.25, viewerScale - 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center active:bg-white/30">−</button>
         <span class="text-white text-[13px] min-w-[50px] text-center">{{ Math.round(viewerScale * 100) }}%</span>
         <button @click="viewerScale = Math.min(3, viewerScale + 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center active:bg-white/30">+</button>
       </div>
@@ -445,7 +445,7 @@ function onViewerTouchMove(e: TouchEvent) {
       const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY)
       if (lastPinchDist > 0) {
         const delta = dist / lastPinchDist
-        viewerScale.value = Math.min(3, Math.max(0.5, viewerScale.value * delta))
+        viewerScale.value = Math.min(3, Math.max(0.25, viewerScale.value * delta))
       }
       lastPinchDist = dist
     }
