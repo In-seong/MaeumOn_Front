@@ -104,7 +104,8 @@
                   <img
                     :src="img.url"
                     :alt="'청구서 ' + img.page_number + '페이지'"
-                    class="w-full rounded-[8px] border border-[#E8E8E8]"
+                    class="w-full rounded-[8px] border border-[#E8E8E8] cursor-pointer active:opacity-80"
+                    @click="openImageViewer(img.url)"
                   />
                 </div>
               </div>
@@ -354,6 +355,29 @@
         </div>
       </Transition>
     </div>
+
+    <!-- 청구서 이미지 확대 뷰어 -->
+    <div v-if="viewerOpen" class="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center" @click.self="viewerOpen = false">
+      <button @click="viewerOpen = false" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 text-white text-[24px] flex items-center justify-center z-10">&times;</button>
+      <div
+        class="w-full h-full overflow-auto flex items-start justify-center"
+        @touchstart="onViewerTouchStart"
+        @touchmove="onViewerTouchMove"
+        @touchend="onViewerTouchEnd"
+      >
+        <img
+          :src="viewerImageUrl"
+          alt="청구서 확대"
+          class="max-w-none"
+          :style="{ transform: `scale(${viewerScale})`, transformOrigin: 'top center' }"
+        />
+      </div>
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/50 rounded-full px-4 py-2">
+        <button @click="viewerScale = Math.max(0.5, viewerScale - 0.25)" class="w-8 h-8 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center">−</button>
+        <span class="text-white text-[13px] min-w-[50px] text-center">{{ Math.round(viewerScale * 100) }}%</span>
+        <button @click="viewerScale = Math.min(3, viewerScale + 0.25)" class="w-8 h-8 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center">+</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -382,6 +406,47 @@ const faxNumber = ref('')
 const sendingFax = ref(false)
 const refreshingFax = ref(false)
 let pollTimer: ReturnType<typeof setInterval> | null = null
+
+// ===== 청구서 이미지 확대 뷰어 =====
+const viewerOpen = ref(false)
+const viewerImageUrl = ref('')
+const viewerScale = ref(1)
+let lastPinchDist = 0
+
+function openImageViewer(url: string) {
+  viewerImageUrl.value = url
+  viewerScale.value = 1
+  viewerOpen.value = true
+}
+
+function onViewerTouchStart(e: TouchEvent) {
+  if (e.touches.length === 2) {
+    const t0 = e.touches[0]
+    const t1 = e.touches[1]
+    if (t0 && t1) {
+      lastPinchDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY)
+    }
+  }
+}
+
+function onViewerTouchMove(e: TouchEvent) {
+  if (e.touches.length === 2) {
+    const t0 = e.touches[0]
+    const t1 = e.touches[1]
+    if (t0 && t1) {
+      const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY)
+      if (lastPinchDist > 0) {
+        const delta = dist / lastPinchDist
+        viewerScale.value = Math.min(3, Math.max(0.5, viewerScale.value * delta))
+      }
+      lastPinchDist = dist
+    }
+  }
+}
+
+function onViewerTouchEnd() {
+  lastPinchDist = 0
+}
 
 // Agent 타입에는 generated_image_urls, field_values, documents가 없으므로
 // shared InsuranceClaim으로 캐스팅하여 접근
