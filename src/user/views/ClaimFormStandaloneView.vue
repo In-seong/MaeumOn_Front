@@ -95,7 +95,7 @@
         </div>
         <h2 class="text-[20px] font-bold text-[#222] mb-3">접수되었습니다</h2>
         <p class="text-[15px] text-[#666] leading-relaxed text-center">
-          설계사가 확인 후<br />연락드리겠습니다.
+          담당자가 확인 후<br />연락드리겠습니다.
         </p>
         <button
           class="mt-8 w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98] transition-transform"

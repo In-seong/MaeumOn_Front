@@ -67,7 +67,7 @@
                   class="px-2.5 py-1 text-[12px] font-medium rounded-full flex-shrink-0"
                   :class="statusClass(r.status)"
                 >
-                  {{ statusLabel(r.status) }}
+                  현재 상태: {{ statusLabel(r.status) }}
                 </span>
               </div>
 
