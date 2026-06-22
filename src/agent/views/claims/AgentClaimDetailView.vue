@@ -432,11 +432,13 @@ const viewerScale = ref(1)
 const viewerIndex = ref(0)
 let lastPinchDist = 0
 
+const VIEWER_DEFAULT_SCALE = 0.25
+
 function openImageViewer(url: string) {
   const idx = claimImageUrls.value?.findIndex(img => img.url === url) ?? 0
   viewerIndex.value = Math.max(0, idx)
   viewerImageUrl.value = url
-  viewerScale.value = 1
+  viewerScale.value = VIEWER_DEFAULT_SCALE
   viewerOpen.value = true
 }
 
@@ -449,7 +451,7 @@ function viewerGo(delta: number) {
   if (!img) return
   viewerIndex.value = next
   viewerImageUrl.value = img.url
-  viewerScale.value = 1
+  viewerScale.value = VIEWER_DEFAULT_SCALE
 }
 
 function onViewerTouchStart(e: TouchEvent) {
