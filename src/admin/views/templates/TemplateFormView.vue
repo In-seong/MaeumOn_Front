@@ -20,18 +20,28 @@
         <div class="space-y-5">
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
-              보험사 <span class="text-red-500">*</span>
+              보험사명 <span class="text-red-500">*</span>
             </label>
-            <select
-              v-model="form.company_id"
+            <input
+              v-model="form.company_name"
+              type="text"
               required
-              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-            >
-              <option value="">선택해주세요</option>
-              <option v-for="company in insuranceStore.companies" :key="company.company_id" :value="company.company_id">
-                {{ company.company_name }}
-              </option>
-            </select>
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+              placeholder="예: 삼성생명"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
+              팩스번호 <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.fax_number"
+              type="text"
+              required
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+              placeholder="예: 02-1234-5678"
+            />
           </div>
 
           <div>
@@ -179,12 +189,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
-import { useInsuranceStore } from '../../stores/insuranceStore'
 
 const route = useRoute()
 const router = useRouter()
 const store = useTemplateStore()
-const insuranceStore = useInsuranceStore()
 
 const isEdit = computed(() => !!route.params.id)
 const loading = ref(false)
@@ -192,7 +200,8 @@ const submitting = ref(false)
 const uploading = ref(false)
 
 const form = ref({
-  company_id: '' as string | number,
+  company_name: '',
+  fax_number: '',
   form_name: '',
   form_description: '',
   is_active: true,
@@ -230,8 +239,6 @@ function removeImage(index: number) {
 }
 
 async function loadData() {
-  await insuranceStore.fetchCompanies({ per_page: 100 })
-
   if (!isEdit.value) return
 
   loading.value = true
@@ -239,7 +246,8 @@ async function loadData() {
     const template = await store.fetchTemplate(Number(route.params.id))
     if (template) {
       form.value = {
-        company_id: template.company_id,
+        company_name: template.insurance_company?.company_name || '',
+        fax_number: template.insurance_company?.fax_number || '',
         form_name: template.form_name,
         form_description: template.form_description || '',
         is_active: template.is_active,
@@ -254,18 +262,14 @@ async function handleSubmit() {
   submitting.value = true
   try {
     if (isEdit.value) {
-      // 수정 모드: 기존 방식 유지
-      const data = {
-        ...form.value,
-        company_id: Number(form.value.company_id),
-      }
-      await store.updateTemplate(Number(route.params.id), data)
+      await store.updateTemplate(Number(route.params.id), { ...form.value })
       alert('수정되었습니다.')
       router.push('/templates')
     } else {
       // 생성 모드: FormData로 이미지 포함 전송
       const formData = new FormData()
-      formData.append('company_id', String(form.value.company_id))
+      formData.append('company_name', form.value.company_name)
+      formData.append('fax_number', form.value.fax_number)
       formData.append('form_name', form.value.form_name)
       formData.append('form_description', form.value.form_description || '')
       formData.append('is_active', form.value.is_active ? '1' : '0')

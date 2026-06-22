@@ -20,16 +20,6 @@
         @input="debouncedSearch"
       />
       <select
-        v-model="companyFilter"
-        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-        @change="fetchData()"
-      >
-        <option value="">전체 보험사</option>
-        <option v-for="company in insuranceStore.companies" :key="company.company_id" :value="company.company_id">
-          {{ company.company_name }}
-        </option>
-      </select>
-      <select
         v-model="activeFilter"
         class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
@@ -81,9 +71,13 @@
             </span>
           </div>
 
-          <p class="text-[13px] text-[#999] mb-2">
+          <p class="text-[13px] text-[#999] mb-1">
             {{ template.insurance_company?.company_name || '-' }}
           </p>
+          <p v-if="template.insurance_company?.fax_number" class="text-[12px] text-[#BBB] mb-2">
+            팩스: {{ template.insurance_company.fax_number }}
+          </p>
+          <p v-else class="mb-2"></p>
 
           <p class="text-[13px] text-[#555] line-clamp-2 mb-3">
             {{ template.form_description || '설명 없음' }}
@@ -149,14 +143,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useTemplateStore } from '../../stores/templateStore'
-import { useInsuranceStore } from '../../stores/insuranceStore'
 import type { ClaimForm } from '@shared/types'
 
 const store = useTemplateStore()
-const insuranceStore = useInsuranceStore()
 
 const searchQuery = ref('')
-const companyFilter = ref('')
 const activeFilter = ref('')
 
 let searchTimeout: ReturnType<typeof setTimeout>
@@ -171,7 +162,6 @@ function debouncedSearch() {
 async function fetchData(page = 1) {
   await store.fetchTemplates({
     search: searchQuery.value || undefined,
-    company_id: companyFilter.value ? Number(companyFilter.value) : undefined,
     is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
     page,
   })
@@ -199,7 +189,6 @@ async function handleDelete(template: ClaimForm) {
 }
 
 onMounted(async () => {
-  await insuranceStore.fetchCompanies({ per_page: 100 })
   await fetchData()
 })
 </script>

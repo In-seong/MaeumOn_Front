@@ -130,26 +130,7 @@ const router = createRouter({
       component: () => import('../views/notifications/NotificationHistoryView.vue'),
       meta: { requiresAuth: true },
     },
-    // 보험사 관리 (기존)
-    {
-      path: '/insurance-companies',
-      name: 'insurance-companies',
-      component: () => import('../views/insurance-companies/InsuranceCompanyListView.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/insurance-companies/create',
-      name: 'insurance-company-create',
-      component: () => import('../views/insurance-companies/InsuranceCompanyFormView.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/insurance-companies/:id/edit',
-      name: 'insurance-company-edit',
-      component: () => import('../views/insurance-companies/InsuranceCompanyFormView.vue'),
-      meta: { requiresAuth: true },
-    },
-    // 양식 템플릿 관리 (기존)
+    // 양식 템플릿 관리
     {
       path: '/templates',
       name: 'templates',
