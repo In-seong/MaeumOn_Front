@@ -48,7 +48,7 @@
         </div>
 
         <div class="mt-4 space-y-1.5 text-[12px] text-[#999] leading-relaxed">
-          <p>※ 보험회사에서 사고 내용, 특칙, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
+          <p>※ 보험회사에서 사고 내용, 특성, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
           <p>※ 피보험자가 미성년자인 경우에는 위임장 없이 친권자(부모) 계좌로 수령 가능합니다. (가족관계 증명서 필요)</p>
         </div>
 
@@ -81,15 +81,6 @@
 
       <!-- 입력 폼 -->
       <main v-else class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
-        <!-- 뒤로가기 → 가이드로 -->
-        <div class="pt-2 pb-1">
-          <button class="flex items-center text-[13px] text-[#888]" @click="showGuide = true">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="mr-0.5">
-              <path d="M15 18L9 12L15 6" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            서류 안내 다시 보기
-          </button>
-        </div>
         <div class="py-5 space-y-5">
           <FormInput
             label="이름"
@@ -180,7 +171,7 @@
                   <li>진단서</li>
                 </ol>
               </div>
-              <p class="text-[11px] text-[#999] leading-relaxed">※ 보험회사에서 사고 내용, 특칙, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
+              <p class="text-[11px] text-[#999] leading-relaxed">※ 보험회사에서 사고 내용, 특성, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
             </div>
           </div>
         </div>
