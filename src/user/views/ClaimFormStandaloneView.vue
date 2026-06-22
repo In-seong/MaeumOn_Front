@@ -10,17 +10,85 @@
         </p>
         <button
           class="w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[17px] font-semibold active:scale-[0.98] transition-transform"
-          @click="step = 'form'"
+          @click="step = 'guide'"
         >
           청구 신청하기
         </button>
       </main>
 
-      <!-- 2) 청구 폼 -->
+      <!-- 2) 서류 안내 가이드 -->
+      <main v-else-if="step === 'guide'" class="px-5 overflow-y-auto pb-10" style="min-height: 100vh;">
+        <div class="sticky top-0 bg-white pt-3 pb-2 z-10 flex items-center justify-between">
+          <button class="flex items-center text-[14px] text-[#666]" @click="step = 'landing'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="mr-1">
+              <path d="M15 18L9 12L15 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            뒤로
+          </button>
+          <h2 class="text-[16px] font-bold text-[#222]">청구 서류 안내</h2>
+          <div class="w-12"></div>
+        </div>
+
+        <div class="pt-6 pb-4 flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-[#E8F5E9] flex items-center justify-center mb-3">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17L4 12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="text-[17px] font-bold text-[#222]">준비해야 할 서류</h3>
+        </div>
+
+        <div class="bg-[#F9FAFB] border border-[#E8E8E8] rounded-[16px] p-5 space-y-5">
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">실손 의료비 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>진료비 영수증</li>
+              <li>진료비 세부내역서</li>
+              <li>약제비 영수증 (카드영수증 제외)</li>
+            </ol>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">입원 치료 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>입·퇴원 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
+              <li>진단서</li>
+              <li>진료비 세부 내역서</li>
+            </ol>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">수술 치료 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>수술 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
+              <li>진단서</li>
+              <li>진료비 세부 내역서</li>
+            </ol>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">골절, 화상 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>진단서</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="mt-4 space-y-1.5 text-[12px] text-[#999] leading-relaxed">
+          <p>※ 보험회사에서 사고 내용, 특칙, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
+          <p>※ 피보험자가 미성년자인 경우에는 위임장 없이 친권자(부모) 계좌로 수령 가능합니다. (가족관계 증명서 필요)</p>
+        </div>
+
+        <button
+          class="w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98] transition-transform mt-6 mb-8"
+          @click="step = 'form'"
+        >
+          시작하기
+        </button>
+      </main>
+
+      <!-- 3) 청구 폼 -->
       <main v-else-if="step === 'form'" class="px-5 overflow-y-auto pb-10" style="min-height: 100vh;">
         <!-- 뒤로 버튼 -->
         <div class="sticky top-0 bg-white pt-3 pb-2 z-10">
-          <button class="flex items-center text-[14px] text-[#666]" @click="step = 'landing'">
+          <button class="flex items-center text-[14px] text-[#666]" @click="step = 'guide'">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="mr-1">
               <path d="M15 18L9 12L15 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -156,7 +224,7 @@ import { submitClaimRequest, fetchHospitals } from '@user/services/publicApi'
 import type { PartnerHospital } from '@user/services/publicApi'
 
 const dialog = useDialog()
-const step = ref<'landing' | 'form' | 'done'>('landing')
+const step = ref<'landing' | 'guide' | 'form' | 'done'>('landing')
 
 const form = ref({
   name: '',

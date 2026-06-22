@@ -1,10 +1,67 @@
 <template>
   <div class="min-h-screen bg-white flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-white">
-      <BackHeader title="보험금 청구 신청" />
+      <BackHeader :title="showGuide ? '청구 서류 안내' : '보험금 청구 신청'" />
+
+      <!-- 서류 안내 가이드 -->
+      <main v-if="showGuide" class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
+        <div class="pt-8 pb-4 flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-[#E8F5E9] flex items-center justify-center mb-3">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17L4 12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="text-[17px] font-bold text-[#222]">준비해야 할 서류</h2>
+        </div>
+
+        <div class="bg-[#F9FAFB] border border-[#E8E8E8] rounded-[16px] p-5 space-y-5">
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">실손 의료비 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>진료비 영수증</li>
+              <li>진료비 세부내역서</li>
+              <li>약제비 영수증 (카드영수증 제외)</li>
+            </ol>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">입원 치료 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>입·퇴원 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
+              <li>진단서</li>
+              <li>진료비 세부 내역서</li>
+            </ol>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">수술 치료 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>수술 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
+              <li>진단서</li>
+              <li>진료비 세부 내역서</li>
+            </ol>
+          </div>
+          <div>
+            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">골절, 화상 청구 서류</p>
+            <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
+              <li>진단서</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="mt-4 space-y-1.5 text-[12px] text-[#999] leading-relaxed">
+          <p>※ 보험회사에서 사고 내용, 특칙, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
+          <p>※ 피보험자가 미성년자인 경우에는 위임장 없이 친권자(부모) 계좌로 수령 가능합니다. (가족관계 증명서 필요)</p>
+        </div>
+
+        <button
+          class="w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98] transition-transform mt-6"
+          @click="showGuide = false"
+        >
+          시작하기
+        </button>
+      </main>
 
       <!-- 완료 화면 -->
-      <main v-if="submitted" class="px-5 pt-12 text-center">
+      <main v-else-if="submitted" class="px-5 pt-12 text-center">
         <div class="w-20 h-20 mx-auto rounded-full bg-[#E8F5E9] flex items-center justify-center mb-6">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
             <path d="M20 6L9 17L4 12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -24,6 +81,15 @@
 
       <!-- 입력 폼 -->
       <main v-else class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
+        <!-- 뒤로가기 → 가이드로 -->
+        <div class="pt-2 pb-1">
+          <button class="flex items-center text-[13px] text-[#888]" @click="showGuide = true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="mr-0.5">
+              <path d="M15 18L9 12L15 6" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            서류 안내 다시 보기
+          </button>
+        </div>
         <div class="py-5 space-y-5">
           <FormInput
             label="이름"
@@ -117,7 +183,7 @@
         <p class="text-[15px] font-medium text-[#555]">접수 중입니다...</p>
       </div>
 
-      <SeniorBottomNav v-if="!submitted" />
+      <SeniorBottomNav v-if="!submitted && !showGuide" />
     </div>
   </div>
 </template>
@@ -134,6 +200,7 @@ import { submitClaimRequest, fetchHospitals } from '@user/services/publicApi'
 import type { PartnerHospital } from '@user/services/publicApi'
 
 const dialog = useDialog()
+const showGuide = ref(true)
 const form = ref({
   name: '',
   phone: '',
