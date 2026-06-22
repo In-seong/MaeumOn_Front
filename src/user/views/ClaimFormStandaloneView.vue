@@ -142,55 +142,6 @@
             <FileUploadSimple @update:files="onFilesChange" />
           </div>
 
-          <!-- 청구 서류 안내 아코디언 -->
-          <div class="border border-[#E8E8E8] rounded-[12px] overflow-hidden">
-            <button
-              type="button"
-              class="w-full flex items-center justify-between px-4 py-3 bg-[#F9FAFB] text-left"
-              @click="docGuideOpen = !docGuideOpen"
-            >
-              <span class="text-[13px] font-medium text-[#555]">청구 서류 안내</span>
-              <svg
-                :class="['w-4 h-4 text-[#999] transition-transform duration-200', docGuideOpen ? 'rotate-180' : '']"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <div v-if="docGuideOpen" class="px-4 pb-4 pt-2 space-y-4 bg-white">
-              <div>
-                <p class="text-[13px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-1.5">실손 의료비 청구 서류</p>
-                <ol class="text-[12px] text-[#333] space-y-0.5 list-decimal list-inside">
-                  <li>진료비 영수증</li>
-                  <li>진료비 세부내역서</li>
-                  <li>약제비 영수증 (카드영수증 제외)</li>
-                </ol>
-              </div>
-              <div>
-                <p class="text-[13px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-1.5">입원 치료 청구 서류</p>
-                <ol class="text-[12px] text-[#333] space-y-0.5 list-decimal list-inside">
-                  <li>입·퇴원 확인서 및 진료 확인서 <span class="text-[#888]">(진단명 및 진단코드 기재)</span></li>
-                  <li>진단서</li>
-                  <li>진료비 세부 내역서</li>
-                </ol>
-              </div>
-              <div>
-                <p class="text-[13px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-1.5">수술 치료 청구 서류</p>
-                <ol class="text-[12px] text-[#333] space-y-0.5 list-decimal list-inside">
-                  <li>수술 확인서 및 진료 확인서 <span class="text-[#888]">(진단명 및 진단코드 기재)</span></li>
-                  <li>진단서</li>
-                  <li>진료비 세부 내역서</li>
-                </ol>
-              </div>
-              <div>
-                <p class="text-[13px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-1.5">골절, 화상 청구 서류</p>
-                <ol class="text-[12px] text-[#333] space-y-0.5 list-decimal list-inside">
-                  <li>진단서</li>
-                </ol>
-              </div>
-              <p class="text-[11px] text-[#999] leading-relaxed">※ 보험회사에서 사고 내용, 특성, 상품(보장 내역)에 따라 추가 서류를 요구할 수 있습니다.</p>
-            </div>
-          </div>
         </div>
 
         <!-- 신청 버튼 -->
@@ -275,8 +226,6 @@ import type { PartnerHospital } from '@user/services/publicApi'
 
 const dialog = useDialog()
 const step = ref<'landing' | 'guide' | 'form' | 'done'>('landing')
-const docGuideOpen = ref(false)
-
 const form = ref({
   name: '',
   phone: '',
