@@ -49,7 +49,8 @@
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden md:table-cell">{{ item.assigned_agent?.name || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999] hidden sm:table-cell">{{ formatDate(item.created_at ?? '') }}</td>
             <td class="px-4 lg:px-6 py-4 text-right" @click.stop>
-              <button @click="openDetail(item)" class="px-3 py-1.5 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#E66A1A]">
+              <button @click="openDetail(item)" class="px-3 py-1.5 text-white rounded-[8px] text-[13px] font-medium"
+                :class="item.status === 'pending' ? 'bg-[#FF7B22] hover:bg-[#E66A1A]' : 'bg-[#888] hover:bg-[#666]'">
                 {{ item.status === 'pending' ? '배정' : '보기' }}
               </button>
             </td>
@@ -165,9 +166,14 @@
             </div>
           </div>
 
-          <!-- 설계사 배정 -->
-          <div v-if="activeItem.status === 'pending'" class="border-t border-[#F0F0F0] pt-4">
-            <h3 class="text-[15px] font-semibold text-[#222] mb-3">설계사 배정</h3>
+          <!-- 설계사 배정/변경 -->
+          <div v-if="activeItem.status === 'pending' || activeItem.status === 'assigned'" class="border-t border-[#F0F0F0] pt-4">
+            <h3 class="text-[15px] font-semibold text-[#222] mb-3">
+              {{ activeItem.status === 'assigned' ? '담당 설계사 변경' : '설계사 배정' }}
+            </h3>
+            <p v-if="activeItem.assigned_agent?.name" class="text-[13px] text-[#666] mb-2">
+              현재: <span class="font-medium text-[#333]">{{ activeItem.assigned_agent.name }} ({{ activeItem.assigned_agent_id }})</span>
+            </p>
             <div class="flex gap-2">
               <select v-model="selectedAgentId" class="flex-1 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]">
                 <option value="">설계사 선택</option>
@@ -175,7 +181,7 @@
               </select>
               <button @click="submitAssign" :disabled="!selectedAgentId || submitting"
                 class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:opacity-50 hover:bg-[#E66A1A]">
-                {{ submitting ? '처리 중...' : '배정' }}
+                {{ submitting ? '처리 중...' : activeItem.status === 'assigned' ? '변경' : '배정' }}
               </button>
             </div>
           </div>
@@ -341,8 +347,9 @@ async function submitAssign() {
   if (!activeItem.value || !selectedAgentId.value || submitting.value) return
   submitting.value = true
   try {
+    const isReassign = activeItem.value.status === 'assigned'
     await assignClaimRequest(activeItem.value.request_id, selectedAgentId.value)
-    alert('설계사가 배정되었습니다.')
+    alert(isReassign ? '담당 설계사가 변경되었습니다.' : '설계사가 배정되었습니다.')
     modalOpen.value = false
     fetchData(pagination.value?.current_page ?? 1)
   } catch (e: unknown) {
