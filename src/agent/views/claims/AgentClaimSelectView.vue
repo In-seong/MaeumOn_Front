@@ -300,7 +300,7 @@
               v-for="company in filteredCompanies"
               :key="company.company_id"
               type="button"
-              class="flex flex-col items-center justify-center rounded-[12px] py-3 px-2 transition-all active:scale-[0.98]"
+              class="flex flex-col items-center justify-center rounded-[12px] p-1.5 transition-all active:scale-[0.98]"
               :class="
                 selectedCompanyId === company.company_id
                   ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
@@ -308,12 +308,12 @@
               "
               @click="selectCompany(company.company_id)"
             >
-              <div class="w-[70px] h-[70px] flex items-center justify-center">
+              <div class="w-full h-[80px] flex items-center justify-center overflow-hidden">
                 <img
                   v-if="company.logo_url"
                   :src="company.logo_url"
                   :alt="company.company_name"
-                  class="max-w-full max-h-full object-contain"
+                  class="w-[90px] h-[90px] object-contain"
                 />
                 <div v-else class="w-full h-full rounded-full bg-[#F0F0F0] flex items-center justify-center">
                   <span class="text-[16px] font-bold text-[#999]">{{ company.company_name.charAt(0) }}</span>
