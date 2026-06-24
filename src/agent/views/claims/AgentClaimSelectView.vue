@@ -319,7 +319,6 @@
                   <span class="text-[16px] font-bold text-[#999]">{{ company.company_name.charAt(0) }}</span>
                 </div>
               </div>
-              <span class="text-[11px] text-[#666] mt-1 leading-tight text-center truncate w-full">{{ company.company_name }}</span>
             </button>
           </div>
 
