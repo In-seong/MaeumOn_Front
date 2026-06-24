@@ -275,16 +275,32 @@
             </span>
           </div>
 
+          <!-- 카테고리 탭 -->
+          <div class="flex gap-1.5 mb-3 bg-[#F5F5F5] rounded-[10px] p-1">
+            <button
+              v-for="tab in categoryTabs"
+              :key="tab.value"
+              type="button"
+              class="flex-1 py-2 rounded-[8px] text-[13px] font-semibold transition-all"
+              :class="
+                activeCategory === tab.value
+                  ? 'bg-white text-[#FF7B22] shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
+                  : 'text-[#999]'
+              "
+              @click="activeCategory = tab.value"
+            >{{ tab.label }}</button>
+          </div>
+
           <div v-if="claimStore.loadingCompanies" class="flex items-center justify-center py-6">
             <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
           </div>
 
-          <div v-else class="grid grid-cols-2 gap-2">
+          <div v-else class="grid grid-cols-3 gap-2">
             <button
-              v-for="company in claimStore.insuranceCompanies"
+              v-for="company in filteredCompanies"
               :key="company.company_id"
               type="button"
-              class="rounded-[12px] px-3 py-3 text-left transition-all active:scale-[0.98]"
+              class="flex flex-col items-center justify-center rounded-[12px] py-3 px-2 transition-all active:scale-[0.98]"
               :class="
                 selectedCompanyId === company.company_id
                   ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
@@ -292,12 +308,23 @@
               "
               @click="selectCompany(company.company_id)"
             >
-              <p class="text-[13px] font-semibold text-[#222]">{{ company.company_name }}</p>
+              <div class="w-[48px] h-[48px] mb-1.5 flex items-center justify-center">
+                <img
+                  v-if="company.logo_url"
+                  :src="company.logo_url"
+                  :alt="company.company_name"
+                  class="max-w-full max-h-full object-contain"
+                />
+                <div v-else class="w-full h-full rounded-full bg-[#F0F0F0] flex items-center justify-center">
+                  <span class="text-[16px] font-bold text-[#999]">{{ company.company_name.charAt(0) }}</span>
+                </div>
+              </div>
+              <p class="text-[11px] font-medium text-[#444] text-center leading-tight line-clamp-2">{{ company.company_name }}</p>
             </button>
           </div>
 
           <div
-            v-if="claimStore.insuranceCompanies.length === 0 && !claimStore.loadingCompanies"
+            v-if="filteredCompanies.length === 0 && !claimStore.loadingCompanies"
             class="text-center py-6"
           >
             <p class="text-[13px] text-[#999]">등록된 보험사가 없습니다.</p>
@@ -386,6 +413,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import type { AgentClaim, BatchClaim } from '../../types'
+import type { InsuranceCategory } from '@shared/types'
 import { useRouter, useRoute } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import { useCustomerStore } from '../../stores/customerStore'
@@ -404,6 +432,17 @@ const customerSearch = ref('')
 const selectedCustomerId = ref<string | null>(null)
 const selectedCompanyId = ref<number | null>(null)
 const selectedFormId = ref<number | null>(null)
+const activeCategory = ref<InsuranceCategory>('life')
+
+const categoryTabs: { value: InsuranceCategory; label: string }[] = [
+  { value: 'life', label: '생명보험' },
+  { value: 'non-life', label: '손해보험' },
+  { value: 'cooperative', label: '공제조합' },
+]
+
+const filteredCompanies = computed(() =>
+  claimStore.insuranceCompanies.filter(c => c.category === activeCategory.value)
+)
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 

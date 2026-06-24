@@ -55,9 +55,12 @@ export interface LoginResponse {
 }
 
 // 보험사 타입
+export type InsuranceCategory = 'life' | 'non-life' | 'cooperative'
+
 export interface InsuranceCompany {
   company_id: number
   company_name: string
+  category: InsuranceCategory
   company_code: string
   business_number?: string
   representative_name?: string
@@ -65,6 +68,7 @@ export interface InsuranceCompany {
   contact_phone?: string
   fax_number?: string
   logo_path?: string
+  logo_url?: string
   website_url?: string
   is_active: boolean
   claim_forms_count?: number
