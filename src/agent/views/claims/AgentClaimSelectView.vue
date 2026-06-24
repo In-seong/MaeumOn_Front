@@ -308,7 +308,7 @@
               "
               @click="selectCompany(company.company_id)"
             >
-              <div class="w-[48px] h-[48px] mb-1.5 flex items-center justify-center">
+              <div class="w-[52px] h-[52px] flex items-center justify-center">
                 <img
                   v-if="company.logo_url"
                   :src="company.logo_url"
@@ -319,7 +319,6 @@
                   <span class="text-[16px] font-bold text-[#999]">{{ company.company_name.charAt(0) }}</span>
                 </div>
               </div>
-              <p class="text-[11px] font-medium text-[#444] text-center leading-tight line-clamp-2">{{ company.company_name }}</p>
             </button>
           </div>
 
