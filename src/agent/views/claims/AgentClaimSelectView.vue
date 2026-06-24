@@ -308,7 +308,7 @@
               "
               @click="selectCompany(company.company_id)"
             >
-              <div class="w-[52px] h-[52px] flex items-center justify-center">
+              <div class="w-[70px] h-[70px] flex items-center justify-center">
                 <img
                   v-if="company.logo_url"
                   :src="company.logo_url"
