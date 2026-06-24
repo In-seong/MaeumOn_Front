@@ -431,11 +431,11 @@ const customerSearch = ref('')
 const selectedCustomerId = ref<string | null>(null)
 const selectedCompanyId = ref<number | null>(null)
 const selectedFormId = ref<number | null>(null)
-const activeCategory = ref<InsuranceCategory>('life')
+const activeCategory = ref<InsuranceCategory>('non-life')
 
 const categoryTabs: { value: InsuranceCategory; label: string }[] = [
-  { value: 'life', label: '생명보험' },
   { value: 'non-life', label: '손해보험' },
+  { value: 'life', label: '생명보험' },
   { value: 'cooperative', label: '공제조합' },
 ]
 
