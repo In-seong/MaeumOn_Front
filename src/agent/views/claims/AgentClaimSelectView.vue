@@ -308,17 +308,18 @@
               "
               @click="selectCompany(company.company_id)"
             >
-              <div class="w-full h-[80px] flex items-center justify-center overflow-hidden">
+              <div class="w-full h-[60px] flex items-center justify-center overflow-hidden">
                 <img
                   v-if="company.logo_url"
                   :src="company.logo_url"
                   :alt="company.company_name"
-                  class="w-[90px] h-[90px] object-contain"
+                  class="w-[80px] h-[80px] object-contain"
                 />
-                <div v-else class="w-full h-full rounded-full bg-[#F0F0F0] flex items-center justify-center">
+                <div v-else class="w-[48px] h-[48px] rounded-full bg-[#F0F0F0] flex items-center justify-center">
                   <span class="text-[16px] font-bold text-[#999]">{{ company.company_name.charAt(0) }}</span>
                 </div>
               </div>
+              <span class="text-[11px] text-[#666] mt-1 leading-tight text-center truncate w-full">{{ company.company_name }}</span>
             </button>
           </div>
 
