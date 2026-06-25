@@ -203,6 +203,17 @@ export const deleteHealthCenterImage = (centerId: number, imageId: number) =>
 export const deleteAdminHealthCenter = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/health-centers/${id}`)
 
+export const forceDeleteAdminHealthCenter = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/health-centers/${id}/force`)
+
+export const uploadHealthCenterThumbnail = (id: number, formData: FormData) =>
+  api.post(`${BASE}/health-centers/${id}/thumbnail`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deleteHealthCenterThumbnail = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/health-centers/${id}/thumbnail`)
+
 // ===== Claim Requests (간편 청구 신청 관리) =====
 export const fetchAdminClaimRequests = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminClaimRequest>>>(`${BASE}/claim-requests`, { params })

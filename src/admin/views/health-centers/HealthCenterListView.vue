@@ -43,6 +43,8 @@
             <td class="px-4 lg:px-6 py-4 text-right space-x-2">
               <button @click="openForm(c)" class="px-3 py-1.5 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#E66A1A]">수정</button>
               <button v-if="c.is_active" @click="deactivate(c.center_id)" class="px-3 py-1.5 bg-red-500 text-white rounded-[8px] text-[13px] font-medium hover:bg-red-600">비활성</button>
+              <button v-else @click="activate(c.center_id)" class="px-3 py-1.5 bg-green-600 text-white rounded-[8px] text-[13px] font-medium hover:bg-green-700">활성화</button>
+              <button @click="forceDelete(c.center_id)" class="px-3 py-1.5 bg-gray-700 text-white rounded-[8px] text-[13px] font-medium hover:bg-gray-800">삭제</button>
             </td>
           </tr>
           <tr v-if="centers.length === 0">
@@ -83,7 +85,7 @@
           </div>
           <div>
             <label class="text-[13px] font-medium text-[#555] mb-1 block">영업시간</label>
-            <input v-model="formData.business_hours" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
+            <textarea v-model="formData.business_hours" rows="2" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none" placeholder="예:&#10;평일 09:00-18:00&#10;토요일 09:00-13:00&#10;일요일/공휴일 휴진"></textarea>
           </div>
           <div>
             <label class="text-[13px] font-medium text-[#555] mb-2 block">위치 선택</label>
@@ -109,9 +111,28 @@
             <label class="text-[13px] font-medium text-[#555] mb-1 block">소개</label>
             <textarea v-model="formData.introduction" rows="3" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] resize-none"></textarea>
           </div>
+          <!-- 목록 썸네일 (정방형 1:1) -->
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-2 block">목록 썸네일 <span class="text-[11px] text-[#999] font-normal">정방형(1:1), 사용자 앱 목록에 표시</span></label>
+            <div class="flex items-start gap-3">
+              <div v-if="thumbnailPreviewUrl || currentThumbnailUrl" class="relative group">
+                <img :src="thumbnailPreviewUrl || currentThumbnailUrl || ''" class="w-[72px] h-[72px] object-cover rounded-[10px] border border-[#E8E8E8]" />
+                <button
+                  v-if="editingId && currentThumbnailUrl"
+                  type="button"
+                  class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click="removeThumbnail"
+                >&times;</button>
+              </div>
+              <label class="inline-flex items-center gap-1.5 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] text-[#555] cursor-pointer hover:bg-[#F0F0F0]">
+                <span>{{ thumbnailUploading ? '업로드 중...' : (currentThumbnailUrl || thumbnailPreviewUrl ? '변경' : '+ 썸네일 추가') }}</span>
+                <input type="file" accept="image/*" class="hidden" :disabled="thumbnailUploading" @change="onThumbnailChange" />
+              </label>
+            </div>
+          </div>
           <!-- 센터 이미지 (다중) -->
           <div>
-            <label class="text-[13px] font-medium text-[#555] mb-2 block">센터 이미지 <span class="text-[11px] text-[#999] font-normal">여러 장 가능</span></label>
+            <label class="text-[13px] font-medium text-[#555] mb-2 block">센터 이미지 <span class="text-[11px] text-[#999] font-normal">여러 장 가능, 720x400 비율 크롭</span></label>
             <div v-if="centerImages.length > 0" class="flex gap-2 flex-wrap mb-3">
               <div v-for="img in centerImages" :key="img.image_id" class="relative group">
                 <img :src="img.image_url || ''" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
@@ -121,6 +142,10 @@
                   @click="removeImage(img.image_id)"
                 >&times;</button>
               </div>
+            </div>
+            <!-- 신규 등록 시 미리보기 -->
+            <div v-if="!editingId && imagePreviewUrl" class="mb-3">
+              <img :src="imagePreviewUrl" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
             </div>
             <label class="inline-flex items-center gap-1.5 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] text-[#555] cursor-pointer hover:bg-[#F0F0F0]">
               <span>{{ imageUploading ? '업로드 중...' : '+ 이미지 추가' }}</span>
@@ -141,16 +166,36 @@
               현재 계정: <span class="font-semibold text-[#333]">{{ existingAccount }}</span>
             </div>
             <div class="grid grid-cols-2 gap-4">
-              <input v-model="formData.portal_username" :placeholder="editingId && existingAccount ? '변경 시 입력' : '아이디'" class="px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
-              <input v-model="formData.portal_password" type="password" :placeholder="editingId && existingAccount ? '새 비밀번호' : '비밀번호'" class="px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" />
+              <div>
+                <label class="text-[12px] text-[#888] mb-1 block">아이디</label>
+                <input v-model="formData.portal_username" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" :placeholder="editingId && existingAccount ? '변경 시 입력' : ''" />
+              </div>
+              <div>
+                <label class="text-[12px] text-[#888] mb-1 block">{{ editingId && existingAccount ? '새 비밀번호' : '비밀번호' }}</label>
+                <input v-model="formData.portal_password" type="password" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]" :placeholder="editingId && existingAccount ? '변경 시 입력' : ''" />
+              </div>
             </div>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-[#F0F0F0] flex justify-end gap-3">
-          <button @click="formOpen = false" class="px-4 py-2 text-[#555] text-[14px]">취소</button>
+          <button @click="formOpen = false" class="px-4 py-2 text-[#555] hover:text-[#333] text-[14px]">취소</button>
           <button @click="submitForm" :disabled="submitting" class="px-5 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:opacity-50 hover:bg-[#E66A1A]">
             {{ submitting ? '처리 중...' : (editingId ? '수정' : '등록') }}
           </button>
+        </div>
+      </div>
+    </div>
+    <!-- 크롭 모달 -->
+    <div v-if="showCropper" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
+      <div class="bg-white rounded-2xl w-full max-w-2xl mx-4 p-5">
+        <h3 class="text-base font-bold mb-2">{{ cropMode === 'thumbnail' ? '썸네일 크롭' : '이미지 크롭' }}</h3>
+        <p class="text-xs text-gray-400 mb-3">원하는 영역을 선택하세요 ({{ cropMode === 'thumbnail' ? '1:1 정방형' : '720x400 비율 고정' }})</p>
+        <div class="bg-gray-100 rounded-lg overflow-hidden" style="max-height:400px;">
+          <img ref="cropImgRef" :src="rawImageUrl" class="block max-w-full" />
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button class="px-4 py-2 text-sm text-gray-500" @click="closeCropper">취소</button>
+          <button class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-sm font-medium" @click="applyCrop">크롭 적용</button>
         </div>
       </div>
     </div>
@@ -158,8 +203,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter, addHealthCenterImage, deleteHealthCenterImage } from '../../services/adminApi'
+import { ref, reactive, onMounted, nextTick } from 'vue'
+import Cropper from 'cropperjs'
+import 'cropperjs/dist/cropper.css'
+import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter, forceDeleteAdminHealthCenter, addHealthCenterImage, deleteHealthCenterImage, uploadHealthCenterThumbnail, deleteHealthCenterThumbnail } from '../../services/adminApi'
 import type { AdminHealthCenter, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -175,6 +222,18 @@ const editingId = ref<number | null>(null)
 const submitting = ref(false)
 const scheduleOpen = ref(false)
 const existingAccount = ref('')
+const imageFile = ref<File | null>(null)
+const imagePreviewUrl = ref<string | null>(null)
+const showCropper = ref(false)
+const cropImgRef = ref<HTMLImageElement>()
+const rawImageUrl = ref('')
+let cropperInstance: Cropper | null = null
+const cropMode = ref<'image' | 'thumbnail'>('image')
+
+const thumbnailFile = ref<File | null>(null)
+const thumbnailPreviewUrl = ref<string | null>(null)
+const currentThumbnailUrl = ref<string | null>(null)
+const thumbnailUploading = ref(false)
 
 interface CenterImageItem {
   image_id: number
@@ -202,37 +261,132 @@ async function fetchData(page = 1) {
 function openForm(center?: AdminHealthCenter) {
   if (center) {
     editingId.value = center.center_id
-    Object.assign(formData, { center_name: center.center_name, address: center.address, contact_phone: center.contact_phone || '', latitude: center.latitude || '', longitude: center.longitude || '', business_hours: center.business_hours || '', introduction: center.introduction || '', schedule_config: center.schedule_config ? JSON.parse(JSON.stringify(center.schedule_config)) : null, portal_username: center.accounts?.[0]?.username || '', portal_password: '' })
+    Object.assign(formData, {
+      center_name: center.center_name,
+      address: center.address,
+      contact_phone: center.contact_phone || '',
+      latitude: center.latitude || '',
+      longitude: center.longitude || '',
+      business_hours: center.business_hours || '',
+      introduction: center.introduction || '',
+      schedule_config: center.schedule_config ? JSON.parse(JSON.stringify(center.schedule_config)) : null,
+      portal_username: center.accounts?.[0]?.username || '',
+      portal_password: '',
+    })
     existingAccount.value = center.accounts?.[0]?.username || ''
+    centerImages.value = ((center as unknown as { images?: CenterImageItem[] }).images ?? [])
+    currentThumbnailUrl.value = (center as unknown as { thumbnail_url?: string | null }).thumbnail_url ?? null
   } else {
     editingId.value = null
     Object.assign(formData, { center_name: '', address: '', contact_phone: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '' })
+    centerImages.value = []
     existingAccount.value = ''
+    currentThumbnailUrl.value = null
   }
-  centerImages.value = center ? ((center as unknown as { images?: CenterImageItem[] }).images ?? []) : []
+  imageFile.value = null
+  imagePreviewUrl.value = null
+  thumbnailFile.value = null
+  thumbnailPreviewUrl.value = null
   scheduleOpen.value = false
   formOpen.value = true
 }
 
-async function onImageChange(e: Event) {
+function openCropper(file: File, mode: 'image' | 'thumbnail') {
+  cropMode.value = mode
+  rawImageUrl.value = URL.createObjectURL(file)
+  showCropper.value = true
+  nextTick(() => {
+    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null }
+    if (cropImgRef.value) {
+      cropperInstance = new Cropper(cropImgRef.value, {
+        aspectRatio: mode === 'thumbnail' ? 1 : 720 / 400,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+      })
+    }
+  })
+}
+
+function onImageChange(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
-  if (!file || !editingId.value) return
-  imageUploading.value = true
+  if (!file) return
+  openCropper(file, 'image')
+  target.value = ''
+}
+
+function onThumbnailChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  openCropper(file, 'thumbnail')
+  target.value = ''
+}
+
+function applyCrop() {
+  if (!cropperInstance) return
+  const isThumbnail = cropMode.value === 'thumbnail'
+  const size = isThumbnail ? { width: 400, height: 400 } : { width: 720, height: 400 }
+  const canvas = cropperInstance.getCroppedCanvas({ ...size, imageSmoothingQuality: 'high' })
+  canvas.toBlob(async (blob: Blob | null) => {
+    if (!blob) return
+    const file = new File([blob], isThumbnail ? 'thumbnail.jpg' : 'center.jpg', { type: 'image/jpeg' })
+
+    if (isThumbnail) {
+      if (editingId.value) {
+        thumbnailUploading.value = true
+        try {
+          const fd = new FormData()
+          fd.append('thumbnail', file)
+          await uploadHealthCenterThumbnail(editingId.value, fd)
+          const res = await fetchAdminHealthCenters({ search: undefined, page: 1, per_page: 100 })
+          const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
+            (h: unknown) => (h as { center_id: number }).center_id === editingId.value
+          ) as unknown as { thumbnail_url?: string | null } | undefined
+          currentThumbnailUrl.value = found?.thumbnail_url ?? null
+        } catch {
+          alert('썸네일 업로드에 실패했습니다.')
+        } finally {
+          thumbnailUploading.value = false
+        }
+      } else {
+        thumbnailFile.value = file
+        thumbnailPreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+      }
+    } else {
+      if (editingId.value) {
+        imageUploading.value = true
+        try {
+          const fd = new FormData()
+          fd.append('image', file)
+          await addHealthCenterImage(editingId.value, fd)
+          const res = await fetchAdminHealthCenters({ search: undefined, page: 1, per_page: 100 })
+          const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
+            (h: unknown) => (h as { center_id: number }).center_id === editingId.value
+          ) as unknown as { images?: CenterImageItem[] } | undefined
+          centerImages.value = found?.images ?? []
+        } catch {
+          alert('이미지 업로드에 실패했습니다.')
+        } finally {
+          imageUploading.value = false
+        }
+      } else {
+        imageFile.value = file
+        imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+      }
+    }
+    closeCropper()
+  }, 'image/jpeg', 0.9)
+}
+
+async function removeThumbnail() {
+  if (!editingId.value || !confirm('썸네일을 삭제하시겠습니까?')) return
   try {
-    const fd = new FormData()
-    fd.append('image', file)
-    await addHealthCenterImage(editingId.value, fd)
-    // 목록 새로고침
-    const res = await fetchAdminHealthCenters({ per_page: 100 })
-    const found = (res.data.data as unknown as { data: Array<unknown> }).data.find(
-      (h: unknown) => (h as { center_id: number }).center_id === editingId.value
-    ) as unknown as { images?: CenterImageItem[] } | undefined
-    centerImages.value = found?.images ?? []
+    await deleteHealthCenterThumbnail(editingId.value)
+    currentThumbnailUrl.value = null
   } catch {
-    alert('이미지 업로드에 실패했습니다.')
-  } finally {
-    imageUploading.value = false
+    alert('삭제에 실패했습니다.')
   }
 }
 
@@ -246,17 +400,35 @@ async function removeImage(imageId: number) {
   }
 }
 
+function closeCropper() {
+  if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null }
+  showCropper.value = false
+  if (rawImageUrl.value) { URL.revokeObjectURL(rawImageUrl.value); rawImageUrl.value = '' }
+}
+
 async function submitForm() {
   if (!formData.center_name || !formData.address) { alert('센터명과 주소는 필수입니다.'); return }
   submitting.value = true
   try {
+    let centerId: number
     if (editingId.value) {
       await updateAdminHealthCenter(editingId.value, { ...formData })
-      alert('센터 정보가 수정되었습니다.')
+      centerId = editingId.value
     } else {
-      await createAdminHealthCenter({ ...formData })
-      alert('센터가 등록되었습니다.')
+      const res = await createAdminHealthCenter({ ...formData })
+      centerId = (res.data.data as unknown as { center_id: number }).center_id
     }
+    if (thumbnailFile.value) {
+      const fd = new FormData()
+      fd.append('thumbnail', thumbnailFile.value)
+      await uploadHealthCenterThumbnail(centerId, fd)
+    }
+    if (imageFile.value) {
+      const fd = new FormData()
+      fd.append('image', imageFile.value)
+      await addHealthCenterImage(centerId, fd)
+    }
+    alert(editingId.value ? '센터 정보가 수정되었습니다.' : '센터가 등록되었습니다.')
     formOpen.value = false
     fetchData()
   } catch (e: unknown) {
@@ -268,6 +440,16 @@ async function submitForm() {
 async function deactivate(id: number) {
   if (!confirm('이 센터를 비활성화하시겠습니까?')) return
   try { await deleteAdminHealthCenter(id); fetchData(pagination.value?.current_page ?? 1) } catch { alert('비활성화에 실패했습니다.') }
+}
+
+async function activate(id: number) {
+  if (!confirm('이 센터를 다시 활성화하시겠습니까?')) return
+  try { await updateAdminHealthCenter(id, { is_active: true }); fetchData(pagination.value?.current_page ?? 1) } catch { alert('활성화에 실패했습니다.') }
+}
+
+async function forceDelete(id: number) {
+  if (!confirm('정말 삭제하시겠습니까?\n삭제된 센터는 목록에서 완전히 사라지며 복구할 수 없습니다.')) return
+  try { await forceDeleteAdminHealthCenter(id); fetchData(pagination.value?.current_page ?? 1) } catch { alert('삭제에 실패했습니다.') }
 }
 
 onMounted(() => fetchData())
