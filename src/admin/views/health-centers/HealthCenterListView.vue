@@ -154,6 +154,17 @@
           </div>
           <!-- 예약 시간 설정 -->
           <div class="border-t border-[#F0F0F0] pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-[13px] font-medium text-[#555]">예약 기능</label>
+              <button type="button" @click="formData.reservation_enabled = !formData.reservation_enabled"
+                class="relative w-11 h-6 rounded-full transition-colors"
+                :class="formData.reservation_enabled ? 'bg-[#03C75A]' : 'bg-gray-300'"
+              >
+                <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                  :class="formData.reservation_enabled ? 'translate-x-5' : ''"
+                ></span>
+              </button>
+            </div>
             <button type="button" @click="scheduleOpen = !scheduleOpen" class="flex items-center gap-2 text-[13px] font-medium text-[#555] mb-2 hover:text-[#FF7B22]">
               <span>{{ scheduleOpen ? '▼' : '▶' }}</span>
               <span>예약 시간 설정</span>
@@ -243,7 +254,7 @@ interface CenterImageItem {
 const centerImages = ref<CenterImageItem[]>([])
 const imageUploading = ref(false)
 const formData = reactive({
-  center_name: '', address: '', contact_phone: '', latitude: '' as string | number, longitude: '' as string | number, business_hours: '', introduction: '', schedule_config: null as ScheduleConfig | null, portal_username: '', portal_password: '',
+  center_name: '', address: '', contact_phone: '', latitude: '' as string | number, longitude: '' as string | number, business_hours: '', introduction: '', schedule_config: null as ScheduleConfig | null, reservation_enabled: true, portal_username: '', portal_password: '',
 })
 
 function debouncedSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => fetchData(), 300) }
@@ -270,6 +281,7 @@ function openForm(center?: AdminHealthCenter) {
       business_hours: center.business_hours || '',
       introduction: center.introduction || '',
       schedule_config: center.schedule_config ? JSON.parse(JSON.stringify(center.schedule_config)) : null,
+      reservation_enabled: center.reservation_enabled !== false,
       portal_username: center.accounts?.[0]?.username || '',
       portal_password: '',
     })
@@ -278,7 +290,7 @@ function openForm(center?: AdminHealthCenter) {
     currentThumbnailUrl.value = (center as unknown as { thumbnail_url?: string | null }).thumbnail_url ?? null
   } else {
     editingId.value = null
-    Object.assign(formData, { center_name: '', address: '', contact_phone: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '' })
+    Object.assign(formData, { center_name: '', address: '', contact_phone: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, reservation_enabled: true, portal_username: '', portal_password: '' })
     centerImages.value = []
     existingAccount.value = ''
     currentThumbnailUrl.value = null

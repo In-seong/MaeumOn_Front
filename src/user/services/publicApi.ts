@@ -24,6 +24,7 @@ export interface PartnerHospital {
   image_url?: string | null
   thumbnail_url?: string | null
   images?: HospitalImage[]
+  reservation_enabled: boolean
   is_active: boolean
   created_at?: string
   updated_at?: string
@@ -40,6 +41,7 @@ export interface HealthCenterItem {
   business_hours?: string
   introduction?: string
   thumbnail_url?: string | null
+  reservation_enabled: boolean
   is_active: boolean
   created_at?: string
   updated_at?: string

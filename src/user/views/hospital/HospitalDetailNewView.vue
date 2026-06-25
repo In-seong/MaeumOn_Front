@@ -78,7 +78,7 @@
           </div>
 
           <!-- 예약 섹션 -->
-          <div class="mb-5">
+          <div v-if="hospital.reservation_enabled !== false" class="mb-5">
             <CardSection>
               <h3 class="text-[16px] font-bold text-[#222] mb-4">예약하기</h3>
 

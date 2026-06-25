@@ -168,6 +168,17 @@
           </div>
           <!-- 예약 시간 설정 -->
           <div class="border-t border-[#F0F0F0] pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-[13px] font-medium text-[#555]">예약 기능</label>
+              <button type="button" @click="formData.reservation_enabled = !formData.reservation_enabled"
+                class="relative w-11 h-6 rounded-full transition-colors"
+                :class="formData.reservation_enabled ? 'bg-[#03C75A]' : 'bg-gray-300'"
+              >
+                <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                  :class="formData.reservation_enabled ? 'translate-x-5' : ''"
+                ></span>
+              </button>
+            </div>
             <button type="button" @click="scheduleOpen = !scheduleOpen" class="flex items-center gap-2 text-[13px] font-medium text-[#555] mb-2 hover:text-[#FF7B22]">
               <span>{{ scheduleOpen ? '▼' : '▶' }}</span>
               <span>예약 시간 설정</span>
@@ -266,6 +277,7 @@ const formData = reactive({
   business_hours: '',
   introduction: '',
   schedule_config: null as ScheduleConfig | null,
+  reservation_enabled: true,
   portal_username: '',
   portal_password: '',
   image_url: '' as string | null,
@@ -301,6 +313,7 @@ function openForm(hospital?: AdminHospital) {
       business_hours: hospital.business_hours || '',
       introduction: hospital.introduction || '',
       schedule_config: hospital.schedule_config ? JSON.parse(JSON.stringify(hospital.schedule_config)) : null,
+      reservation_enabled: hospital.reservation_enabled !== false,
       portal_username: hospital.accounts?.[0]?.username || '',
       portal_password: '',
       image_url: (hospital as unknown as { image_url?: string | null }).image_url ?? null,
@@ -310,7 +323,7 @@ function openForm(hospital?: AdminHospital) {
     currentThumbnailUrl.value = (hospital as unknown as { thumbnail_url?: string | null }).thumbnail_url ?? null
   } else {
     editingId.value = null
-    Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, portal_username: '', portal_password: '', image_url: null })
+    Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, reservation_enabled: true, portal_username: '', portal_password: '', image_url: null })
     hospitalImages.value = []
     existingAccount.value = ''
     currentThumbnailUrl.value = null

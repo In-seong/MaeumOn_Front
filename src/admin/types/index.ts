@@ -236,6 +236,7 @@ export interface AdminHospital {
   introduction?: string
   specialties?: string
   schedule_config?: ScheduleConfig | null
+  reservation_enabled: boolean
   is_active: boolean
   accounts?: AdminHospitalAccount[]
   created_at?: string
@@ -254,6 +255,7 @@ export interface AdminHealthCenter {
   business_hours?: string
   introduction?: string
   schedule_config?: ScheduleConfig | null
+  reservation_enabled: boolean
   is_active: boolean
   accounts?: AdminHospitalAccount[]
   created_at?: string
