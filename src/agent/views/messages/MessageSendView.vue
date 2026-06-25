@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="메시지 발송" />
 
-      <main class="px-6 py-3 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
+      <main class="px-6 py-3 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
         <!-- 업데이트 진행중 안내 -->
         <div class="flex flex-col items-center justify-center py-20">
           <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#FFF0E5] flex items-center justify-center">

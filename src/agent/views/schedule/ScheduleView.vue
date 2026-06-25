@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <AgentAppHeader />
 
-      <main class="px-6 py-3 pb-20 overflow-y-auto" style="height: calc(100vh - 66px - 60px);">
+      <main class="px-6 py-3 pb-20 overflow-y-auto" style="height: calc(100dvh - 66px - 60px);">
         <!-- Calendar -->
         <section class="mb-4">
           <ScheduleCalendar

@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="고객 등록" />
 
-      <main class="px-5 overflow-y-auto pb-20" style="height: calc(100vh - 56px);">
+      <main class="px-5 overflow-y-auto pb-20" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
         <form class="mt-3 flex flex-col gap-4" @submit.prevent="handleSubmit">
           <!-- Required Fields Section -->
           <CardSection>
@@ -220,6 +220,15 @@ const form = reactive<CustomerForm>({
   telecom: '',
   acquisition_channel: '',
 })
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
+}
 
 // 전화번호 자동 하이픈: 숫자만 입력 → 010-1234-5678 형태
 function formatPhone(value: string): string {

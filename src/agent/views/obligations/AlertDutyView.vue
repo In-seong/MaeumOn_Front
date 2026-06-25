@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="알릴의무 관리" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
         <!-- Urgency Filter Tabs -->
         <div class="flex gap-2 mb-5 overflow-x-auto scrollbar-hide -mx-6 px-6">
           <button

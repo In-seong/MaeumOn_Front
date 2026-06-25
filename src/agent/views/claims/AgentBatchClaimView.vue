@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '다중 청구 이어쓰기' : '다중 보험 청구'" :custom-back="true" @back="handleHeaderBack" />
 
-      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100vh - 56px);">
+      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
 
         <!-- 로딩 -->
         <div v-if="batchStore.loading && !initialLoaded" class="flex items-center justify-center py-20">
@@ -1446,6 +1446,15 @@ function getFilledCount(entryIdx: number): number {
 
 function getTotalFieldCount(entryIdx: number): number {
   return getUniqueFieldsForEntry(entryIdx).length
+}
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
 }
 
 function formatFieldInput(fieldId: number, fieldType: string, event: Event): void {

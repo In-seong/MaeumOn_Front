@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="상담요청 목록" />
 
-      <main class="px-5 py-3 pb-20 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
+      <main class="px-5 py-3 pb-20 overflow-y-auto" style="height: calc(100dvh - 56px - 60px);">
         <!-- Status Filter Tabs -->
         <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide" role="tablist" aria-label="상담 상태 필터">
           <button

@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보험금 청구" />
 
-      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100vh - 56px);">
+      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
 
         <!-- 배치 임시저장 목록 -->
         <section v-if="!claimMode && batchClaimStore.batchDrafts.length > 0" class="mt-2 mb-5">
@@ -516,6 +516,15 @@ watch(claimMode, () => {
   selectedCompanyId.value = null
   selectedFormId.value = null
 })
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
+}
 
 // ===== 핸들러 =====
 function handleCustomerSearch(): void {

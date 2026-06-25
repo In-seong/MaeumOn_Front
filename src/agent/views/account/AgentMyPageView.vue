@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="마이페이지" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100vh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);" @focusin="handleFocusIn">
         <!-- Profile Card -->
         <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)]">
           <div class="w-[60px] h-[60px] bg-[#FF7B22] rounded-full flex items-center justify-center flex-shrink-0">
@@ -277,6 +277,15 @@ const editForm = ref({
   email: '',
   office_location: '',
 })
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
+}
 
 function startEdit(): void {
   editForm.value = {

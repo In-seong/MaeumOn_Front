@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '청구서 이어쓰기' : (isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성'))" :custom-back="true" @back="handleHeaderBack" />
-      <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100vh - 56px);" @focusin="handleFocusIn">
+      <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>

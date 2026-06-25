@@ -6,8 +6,9 @@
       <main
         ref="scrollContainer"
         class="px-5 overflow-y-auto pb-20"
-        style="height: calc(100vh - 56px - 60px);"
+        style="height: calc(100dvh - 56px - 60px);"
         @scroll="handleScroll"
+        @focusin="handleFocusIn"
       >
         <!-- Search -->
         <div class="relative mb-3 mt-2">
@@ -117,6 +118,15 @@ onMounted(() => {
 onUnmounted(() => {
   if (searchTimeout) clearTimeout(searchTimeout)
 })
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
+}
 
 function handleSearch(): void {
   if (searchTimeout) clearTimeout(searchTimeout)

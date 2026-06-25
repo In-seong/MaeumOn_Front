@@ -4,7 +4,7 @@
       <AgentAppHeader />
 
       <!-- 업데이트 진행중 안내 -->
-      <main class="px-6 pb-20 overflow-y-auto flex flex-col items-center justify-center" style="height: calc(100vh - 66px - 60px);">
+      <main class="px-6 pb-20 overflow-y-auto flex flex-col items-center justify-center" style="height: calc(100dvh - 66px - 60px);">
         <div class="text-center">
           <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#FFF0E5] flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

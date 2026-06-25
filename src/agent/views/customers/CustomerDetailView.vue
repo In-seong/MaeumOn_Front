@@ -38,8 +38,9 @@
       <main
         v-if="customer"
         class="px-5 overflow-y-auto pb-20"
-        style="height: calc(100vh - 56px);"
+        style="height: calc(100dvh - 56px);"
         @click="showMenu = false"
+        @focusin="handleFocusIn"
       >
         <!-- Profile Card -->
         <CardSection class="mt-3">
@@ -612,12 +613,12 @@
       <div
         v-if="!customer && !store.loading"
         class="flex items-center justify-center"
-        style="height: calc(100vh - 56px);"
+        style="height: calc(100dvh - 56px);"
       >
         <p class="text-[14px] text-[#AAAAAA]">고객 정보를 찾을 수 없습니다</p>
       </div>
 
-      <div v-if="store.loading" class="flex items-center justify-center" style="height: calc(100vh - 56px);">
+      <div v-if="store.loading" class="flex items-center justify-center" style="height: calc(100dvh - 56px);">
         <p class="text-[13px] text-[#BBB]">불러오는 중...</p>
       </div>
 
@@ -699,6 +700,15 @@ const contractStatusOptions = [
   { value: 'expired', label: '만기' },
   { value: 'cancelled', label: '해지' },
 ] as const
+
+function handleFocusIn(e: FocusEvent) {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 300)
+  }
+}
 
 function resetContractForm(): void {
   contractForm.value = {
