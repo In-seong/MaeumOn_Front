@@ -39,6 +39,7 @@ export interface HealthCenterItem {
   contact_phone?: string
   business_hours?: string
   introduction?: string
+  thumbnail_url?: string | null
   is_active: boolean
   created_at?: string
   updated_at?: string

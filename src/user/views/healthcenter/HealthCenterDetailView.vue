@@ -36,12 +36,25 @@
           </div>
 
           <!-- 이미지 캐러셀 또는 지도 -->
-          <div v-if="centerImages.length > 0" class="mb-5 rounded-[16px] overflow-hidden relative" @touchstart="onImgTouchStart" @touchend="onImgTouchEnd">
+          <div v-if="centerImages.length > 0" class="mb-5 rounded-[16px] overflow-hidden relative select-none" @touchstart="onImgTouchStart" @touchend="onImgTouchEnd" @mousedown="onImgMouseDown" @mouseup="onImgMouseUp">
             <div class="flex transition-transform duration-300 ease-out" :style="{ transform: `translateX(-${currentImg * 100}%)` }">
               <div v-for="img in centerImages" :key="img.image_id" class="w-full flex-shrink-0">
-                <img :src="img.image_url" :alt="center.center_name" class="w-full aspect-[720/400] object-cover" />
+                <img :src="img.image_url" :alt="center.center_name" class="w-full aspect-[720/400] object-cover pointer-events-none" />
               </div>
             </div>
+            <!-- 좌우 화살표 (PC용, 2장 이상일 때) -->
+            <button v-if="centerImages.length > 1 && currentImg > 0"
+              class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center transition-colors"
+              @click="currentImg--"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button v-if="centerImages.length > 1 && currentImg < centerImages.length - 1"
+              class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center transition-colors"
+              @click="currentImg++"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
             <div v-if="centerImages.length > 1" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
               <span
                 v-for="(_, i) in centerImages"
@@ -104,7 +117,7 @@
                       :key="slot.time"
                       class="px-3.5 py-2.5 rounded-[10px] text-[14px] font-medium border transition-colors"
                       :class="getSlotClass(slot)"
-                      :disabled="!slot.available"
+                      :disabled="!slot.available || isSlotPast(slot.time)"
                       @click="reserveForm.reservation_time = slot.time"
                     >
                       {{ slot.time }}
@@ -167,6 +180,7 @@ const loading = ref(false)
 const centerImages = ref<CenterImageData[]>([])
 const currentImg = ref(0)
 let imgTouchStartX = 0
+let imgMouseStartX = 0
 const timeSlots = ref<TimeSlotItem[]>([])
 const slotsLoading = ref(false)
 const reserveLoading = ref(false)
@@ -229,6 +243,20 @@ function onImgTouchEnd(e: TouchEvent) {
   }
 }
 
+function onImgMouseDown(e: MouseEvent) {
+  imgMouseStartX = e.clientX
+}
+
+function onImgMouseUp(e: MouseEvent) {
+  const diff = imgMouseStartX - e.clientX
+  if (Math.abs(diff) < 50) return
+  if (diff > 0 && currentImg.value < centerImages.value.length - 1) {
+    currentImg.value++
+  } else if (diff < 0 && currentImg.value > 0) {
+    currentImg.value--
+  }
+}
+
 function formatPhone(value: string) {
   const numbers = value.replace(/[^0-9]/g, '')
   if (numbers.length <= 3) {
@@ -258,8 +286,16 @@ async function onDateSelect(date: string) {
   await loadSlots(date)
 }
 
+function isSlotPast(time: string): boolean {
+  if (reserveForm.value.reservation_date !== todayStr()) return false
+  const now = new Date()
+  const [h, m] = time.split(':').map(Number)
+  if (h === undefined || m === undefined) return false
+  return h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())
+}
+
 function getSlotClass(slot: TimeSlotItem): string {
-  if (!slot.available) return 'bg-[#F5F5F5] text-[#D0D0D0] border-[#F0F0F0] cursor-not-allowed'
+  if (!slot.available || isSlotPast(slot.time)) return 'bg-[#F5F5F5] text-[#D0D0D0] border-[#F0F0F0] cursor-not-allowed'
   if (slot.time === reserveForm.value.reservation_time) return 'bg-[#03C75A] text-white border-[#03C75A]'
   return 'bg-white text-[#555] border-[#E0E0E0] hover:border-[#03C75A]'
 }

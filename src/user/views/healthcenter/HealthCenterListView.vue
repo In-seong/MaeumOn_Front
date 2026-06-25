@@ -65,6 +65,7 @@
                 :name="selectedCenter.center_name"
                 :address="selectedCenter.address"
                 :phone="selectedCenter.contact_phone"
+                :image-url="selectedCenter.thumbnail_url"
                 @click="goToDetail(selectedCenter!.center_id)"
               />
             </div>
@@ -105,6 +106,7 @@
                 :name="center.center_name"
                 :address="center.address"
                 :phone="center.contact_phone"
+                :image-url="center.thumbnail_url"
                 @click="goToDetail(center.center_id)"
               />
               <p v-if="centers.length === 0" class="text-center text-[15px] text-[#999] py-8">
