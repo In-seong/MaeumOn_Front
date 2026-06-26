@@ -1,8 +1,8 @@
 <template>
   <CardSection>
     <div class="flex items-center justify-between mb-3">
-      <h3 class="text-[15px] font-semibold text-[#333]">오늘의 할일</h3>
-      <span v-if="items.length > 0" class="text-[12px] text-[#999]">{{ completed }}/{{ items.length }}</span>
+      <h3 class="text-[15px] font-semibold text-[#333]">DB배분 고객</h3>
+      <span v-if="items.length > 0" class="text-[12px] text-[#999]">{{ items.length }}명</span>
     </div>
 
     <!-- 빈 상태 -->
@@ -11,8 +11,8 @@
         <circle cx="32" cy="32" r="28" fill="#FFF3ED" stroke="#FFD4B8" stroke-width="1.5"/>
         <path d="M22 32L28 38L42 24" stroke="#FF7B22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <p class="mt-3 text-[14px] font-medium text-[#999]">오늘 할일을 모두 완료했어요!</p>
-      <p class="text-[12px] text-[#BBB] mt-1">새로운 할일이 생기면 여기에 표시됩니다</p>
+      <p class="mt-3 text-[14px] font-medium text-[#999]">배분된 고객이 없습니다</p>
+      <p class="text-[12px] text-[#BBB] mt-1">DB배분이 되면 여기에 표시됩니다</p>
     </div>
 
     <!-- 할일 목록 -->
