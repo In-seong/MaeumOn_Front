@@ -56,7 +56,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 
 interface TodoItem {
@@ -81,8 +80,6 @@ defineEmits<{
   toggle: [id: string]
   navigate: [route: string]
 }>()
-
-const completed = computed(() => props.items.filter(i => i.done).length)
 
 const typeIcon: Record<string, string> = {
   consultation: '💬',
