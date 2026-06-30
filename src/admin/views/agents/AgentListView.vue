@@ -46,6 +46,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[60px]">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">사번</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
@@ -57,11 +58,12 @@
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
           <tr
-            v-for="agent in store.agents"
+            v-for="(agent, index) in store.agents"
             :key="agent.agent_id"
             class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
             @click="goToDetail(agent.agent_id)"
           >
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#333] hidden md:table-cell">{{ agent.employee_number || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.name }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(agent.phone) }}</td>
@@ -97,7 +99,7 @@
             </td>
           </tr>
           <tr v-if="store.agents.length === 0">
-            <td colspan="7" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="8" class="px-6 py-10 text-center text-[#999]">
               등록된 설계사가 없습니다.
             </td>
           </tr>
@@ -161,6 +163,11 @@ function goToPage(page: number) {
 
 function goToDetail(agentId: string) {
   router.push(`/agents/${agentId}`)
+}
+
+function rowNum(index: number): number {
+  const p = store.pagination
+  return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
 }
 
 function formatPhone(phone?: string): string {

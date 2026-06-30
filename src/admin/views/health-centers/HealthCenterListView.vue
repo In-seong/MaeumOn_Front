@@ -21,7 +21,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">ID</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">센터명</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">주소</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">전화번호</th>
@@ -30,8 +30,8 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="c in centers" :key="c.center_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#FF7B22]">{{ c.center_id }}</td>
+          <tr v-for="(c, index) in centers" :key="c.center_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ c.center_name }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden md:table-cell max-w-[200px] truncate">{{ c.address }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden sm:table-cell">{{ c.contact_phone || '-' }}</td>
@@ -256,6 +256,11 @@ const imageUploading = ref(false)
 const formData = reactive({
   center_name: '', address: '', contact_phone: '', latitude: '' as string | number, longitude: '' as string | number, business_hours: '', introduction: '', schedule_config: null as ScheduleConfig | null, reservation_enabled: true, portal_username: '', portal_password: '',
 })
+
+function rowNum(index: number): number {
+  const p = pagination.value
+  return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
+}
 
 function debouncedSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => fetchData(), 300) }
 

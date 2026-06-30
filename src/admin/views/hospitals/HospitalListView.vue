@@ -26,7 +26,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">ID</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">병원명</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">주소</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">전화번호</th>
@@ -36,8 +36,8 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="h in hospitals" :key="h.hospital_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#FF7B22]">{{ h.hospital_id }}</td>
+          <tr v-for="(h, index) in hospitals" :key="h.hospital_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ h.hospital_name }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden md:table-cell max-w-[200px] truncate">{{ h.address }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden sm:table-cell">{{ h.contact_phone || '-' }}</td>
@@ -282,6 +282,11 @@ const formData = reactive({
   portal_password: '',
   image_url: '' as string | null,
 })
+
+function rowNum(index: number): number {
+  const p = pagination.value
+  return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
+}
 
 function debouncedSearch() {
   clearTimeout(searchTimeout)

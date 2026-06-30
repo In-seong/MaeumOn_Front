@@ -35,7 +35,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">ID</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">설계사</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
@@ -46,9 +46,9 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="item in batchClaims" :key="item.batch_claim_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#FF7B22]">
-              {{ item.batch_claim_id }}
+          <tr v-for="(item, index) in batchClaims" :key="item.batch_claim_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
+              {{ rowNum(index) }}
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <div class="text-[14px] font-medium text-[#333]">{{ item.customer?.name || '-' }}</div>
@@ -121,6 +121,11 @@ const filters = reactive({
 })
 
 let searchTimeout: ReturnType<typeof setTimeout>
+
+function rowNum(index: number): number {
+  const p = pagination.value
+  return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
+}
 
 function debouncedSearch() {
   clearTimeout(searchTimeout)

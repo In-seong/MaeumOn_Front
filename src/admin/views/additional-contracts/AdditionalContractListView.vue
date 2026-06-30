@@ -38,6 +38,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[60px]">No.</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객명</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">담당 설계사</th>
@@ -47,10 +48,11 @@
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
           <tr
-            v-for="item in store.results"
+            v-for="(item, index) in store.results"
             :key="item.customer_id"
             class="hover:bg-[#FAFAFA] transition-colors"
           >
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ item.name }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(item.phone) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ item.agent_name || '-' }}</td>
@@ -69,7 +71,7 @@
             </td>
           </tr>
           <tr v-if="store.results.length === 0">
-            <td colspan="5" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="6" class="px-6 py-10 text-center text-[#999]">
               해당 조건의 고객이 없습니다.
             </td>
           </tr>
@@ -110,6 +112,11 @@ const tabs = [
   { label: '보장부족', value: 'undercovered' },
   { label: '검진이상', value: 'abnormal' },
 ]
+
+function rowNum(index: number): number {
+  const p = store.pagination
+  return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
+}
 
 function changeTab(type: string) {
   store.activeType = type

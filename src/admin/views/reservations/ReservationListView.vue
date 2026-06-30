@@ -41,7 +41,7 @@
       <table v-else class="w-full text-[14px]">
         <thead class="bg-[#F9F9F9] border-b border-[#E8E8E8]">
           <tr>
-            <th class="px-4 py-3 text-left font-medium text-[#666]">ID</th>
+            <th class="px-4 py-3 text-left font-medium text-[#666]">No.</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">유형</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">병원/센터</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">환자명</th>
@@ -56,8 +56,8 @@
           <tr v-if="reservations.length === 0">
             <td colspan="9" class="px-4 py-12 text-center text-[#999]">예약 데이터가 없습니다</td>
           </tr>
-          <tr v-for="r in reservations" :key="r.reservation_id" class="hover:bg-[#FAFAFA]">
-            <td class="px-4 py-3 text-[#999]">{{ r.reservation_id }}</td>
+          <tr v-for="(r, index) in reservations" :key="r.reservation_id" class="hover:bg-[#FAFAFA]">
+            <td class="px-4 py-3 text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-4 py-3">
               <span class="px-2 py-0.5 rounded text-[12px] font-medium" :class="r.reservation_type === 'hospital' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'">
                 {{ r.reservation_type === 'hospital' ? '병원' : '검진센터' }}
@@ -114,6 +114,7 @@ const reservations = ref<AdminReservation[]>([])
 const loading = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
+const perPage = ref(20)
 
 const filters = reactive({
   status: '',
@@ -140,11 +141,16 @@ async function loadReservations(page = 1) {
     reservations.value = data.data
     currentPage.value = data.current_page
     totalPages.value = data.last_page
+    perPage.value = data.per_page ?? 20
   } catch {
     reservations.value = []
   } finally {
     loading.value = false
   }
+}
+
+function rowNum(index: number): number {
+  return (currentPage.value - 1) * perPage.value + index + 1
 }
 
 function debouncedSearch() {

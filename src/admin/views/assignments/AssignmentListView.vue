@@ -54,6 +54,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[60px]">No.</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객명</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객 전화번호</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배분 설계사</th>
@@ -64,10 +65,11 @@
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
           <tr
-            v-for="assignment in store.assignments"
+            v-for="(assignment, index) in store.assignments"
             :key="assignment.assignment_id"
             class="hover:bg-[#FAFAFA] transition-colors"
           >
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index, store.pagination) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">
               {{ assignment.customer?.name || '-' }}
             </td>
@@ -93,7 +95,7 @@
             </td>
           </tr>
           <tr v-if="store.assignments.length === 0">
-            <td colspan="6" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="7" class="px-6 py-10 text-center text-[#999]">
               배분 이력이 없습니다.
             </td>
           </tr>
@@ -125,6 +127,7 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[60px]">No.</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배정 설계사</th>
@@ -136,10 +139,11 @@
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
           <tr
-            v-for="item in store.claimAssignments"
+            v-for="(item, index) in store.claimAssignments"
             :key="item.request_id"
             class="hover:bg-[#FAFAFA] transition-colors"
           >
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index, store.claimPagination) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">
               {{ item.name }}
             </td>
@@ -165,7 +169,7 @@
             </td>
           </tr>
           <tr v-if="store.claimAssignments.length === 0">
-            <td colspan="7" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="8" class="px-6 py-10 text-center text-[#999]">
               청구 배정 이력이 없습니다.
             </td>
           </tr>
@@ -243,6 +247,10 @@ async function fetchData(page = 1) {
 
 function goToPage(page: number) {
   fetchData(page)
+}
+
+function rowNum(index: number, pag?: { current_page: number; per_page: number } | null): number {
+  return ((pag?.current_page ?? 1) - 1) * (pag?.per_page ?? 15) + index + 1
 }
 
 function formatPhone(phone?: string): string {
