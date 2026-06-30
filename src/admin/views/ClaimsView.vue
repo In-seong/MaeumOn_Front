@@ -49,10 +49,10 @@
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사 / 양식</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
-            <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">승인금액</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleSort('claim_status')">상태 {{ sortIcon('claim_status') }}</th>
+            <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('approved_amount')">승인금액 {{ sortIcon('approved_amount') }}</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">팩스</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">생성일</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('created_at')">생성일 {{ sortIcon('created_at') }}</th>
             <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
           </tr>
         </thead>
@@ -187,6 +187,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { claimApi } from '@shared/services/insuranceApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
+import { useSortable } from '../composables/useSortable'
 import type { InsuranceClaim, PaginatedResponse } from '@shared/types'
 
 const claims = ref<InsuranceClaim[]>([])
@@ -194,6 +195,7 @@ const pagination = ref<Omit<PaginatedResponse<InsuranceClaim>, 'data'> | null>(n
 const loading = ref(false)
 
 const statusOptions = CLAIM_STATUS_OPTIONS
+const { toggleSort, sortParams, sortIcon } = useSortable()
 
 const filters = reactive({
   search: '',
@@ -228,6 +230,7 @@ async function fetchData(page = 1) {
       date_from: filters.date_from || undefined,
       date_to: filters.date_to || undefined,
       page,
+      ...sortParams(),
     })
     const { data, ...paginationData } = response.data.data
     claims.value = data
@@ -235,6 +238,11 @@ async function fetchData(page = 1) {
   } finally {
     loading.value = false
   }
+}
+
+function handleSort(field: string) {
+  toggleSort(field)
+  fetchData()
 }
 
 function goToPage(page: number) {

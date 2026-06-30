@@ -26,6 +26,8 @@ export const useAssignmentStore = defineStore('assignment', () => {
     search?: string
     page?: number
     per_page?: number
+    sort_by?: string
+    sort_direction?: string
   }) {
     loading.value = true
     error.value = null
@@ -46,6 +48,8 @@ export const useAssignmentStore = defineStore('assignment', () => {
     search?: string
     page?: number
     per_page?: number
+    sort_by?: string
+    sort_direction?: string
   }) {
     claimLoading.value = true
     error.value = null

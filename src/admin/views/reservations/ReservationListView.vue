@@ -46,9 +46,9 @@
             <th class="px-4 py-3 text-left font-medium text-[#666]">병원/센터</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">환자명</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">전화번호</th>
-            <th class="px-4 py-3 text-left font-medium text-[#666]">예약일</th>
+            <th class="px-4 py-3 text-left font-medium text-[#666] cursor-pointer select-none hover:text-[#333]" @click="handleSort('reservation_date')">예약일 {{ sortIcon('reservation_date') }}</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">시간</th>
-            <th class="px-4 py-3 text-left font-medium text-[#666]">상태</th>
+            <th class="px-4 py-3 text-left font-medium text-[#666] cursor-pointer select-none hover:text-[#333]" @click="handleSort('status')">상태 {{ sortIcon('status') }}</th>
             <th class="px-4 py-3 text-left font-medium text-[#666]">관리</th>
           </tr>
         </thead>
@@ -108,6 +108,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { fetchAdminReservations, updateAdminReservationStatus } from '@admin/services/adminApi'
+import { useSortable } from '../../composables/useSortable'
 import type { AdminReservation } from '@admin/types'
 
 const reservations = ref<AdminReservation[]>([])
@@ -115,6 +116,7 @@ const loading = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
 const perPage = ref(20)
+const { toggleSort, sortParams, sortIcon } = useSortable()
 
 const filters = reactive({
   status: '',
@@ -127,10 +129,15 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => loadReservations())
 
+function handleSort(field: string) {
+  toggleSort(field)
+  loadReservations()
+}
+
 async function loadReservations(page = 1) {
   loading.value = true
   try {
-    const params: Record<string, unknown> = { page }
+    const params: Record<string, unknown> = { page, ...sortParams() }
     if (filters.status) params.status = filters.status
     if (filters.reservation_type) params.reservation_type = filters.reservation_type
     if (filters.date) params.date = filters.date

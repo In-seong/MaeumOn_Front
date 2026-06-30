@@ -58,7 +58,7 @@
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객명</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객 전화번호</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배분 설계사</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배분일</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleSort('assignment_date')">배분일 {{ sortIcon('assignment_date') }}</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">비고</th>
             <th class="px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
           </tr>
@@ -201,11 +201,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAssignmentStore } from '../../stores/assignmentStore'
+import { useSortable } from '../../composables/useSortable'
 import type { Assignment } from '../../types'
 
 const store = useAssignmentStore()
 const searchQuery = ref('')
 const activeTab = ref<'db' | 'claim'>('db')
+const { toggleSort, sortParams, sortIcon } = useSortable()
 
 const tabs = [
   { key: 'db' as const, label: 'DB 배분' },
@@ -236,13 +238,20 @@ async function fetchData(page = 1) {
     await store.loadAssignments({
       search: searchQuery.value || undefined,
       page,
+      ...sortParams(),
     })
   } else {
     await store.loadClaimAssignments({
       search: searchQuery.value || undefined,
       page,
+      ...sortParams(),
     })
   }
+}
+
+function handleSort(field: string) {
+  toggleSort(field)
+  fetchData()
 }
 
 function goToPage(page: number) {

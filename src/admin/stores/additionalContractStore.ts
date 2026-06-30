@@ -14,6 +14,8 @@ export const useAdditionalContractStore = defineStore('additionalContract', () =
     type?: string
     page?: number
     per_page?: number
+    sort_by?: string
+    sort_direction?: string
   }) {
     loading.value = true
     error.value = null

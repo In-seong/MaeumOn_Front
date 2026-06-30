@@ -22,10 +22,10 @@
         <thead class="bg-[#FAFAFA]">
           <tr>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">센터명</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase cursor-pointer select-none hover:text-[#333]" @click="handleSort('center_name')">센터명 {{ sortIcon('center_name') }}</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">주소</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">전화번호</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">상태</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase cursor-pointer select-none hover:text-[#333]" @click="handleSort('is_active')">상태 {{ sortIcon('is_active') }}</th>
             <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase">관리</th>
           </tr>
         </thead>
@@ -218,6 +218,7 @@ import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
 import { fetchAdminHealthCenters, createAdminHealthCenter, updateAdminHealthCenter, deleteAdminHealthCenter, forceDeleteAdminHealthCenter, addHealthCenterImage, deleteHealthCenterImage, uploadHealthCenterThumbnail, deleteHealthCenterThumbnail } from '../../services/adminApi'
+import { useSortable } from '../../composables/useSortable'
 import type { AdminHealthCenter, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -226,6 +227,7 @@ const centers = ref<AdminHealthCenter[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminHealthCenter>, 'data'> | null>(null)
 const loading = ref(false)
 const searchQuery = ref('')
+const { toggleSort, sortParams, sortIcon } = useSortable()
 let searchTimeout: ReturnType<typeof setTimeout>
 
 const formOpen = ref(false)
@@ -267,11 +269,16 @@ function debouncedSearch() { clearTimeout(searchTimeout); searchTimeout = setTim
 async function fetchData(page = 1) {
   loading.value = true
   try {
-    const res = await fetchAdminHealthCenters({ search: searchQuery.value || undefined, page })
+    const res = await fetchAdminHealthCenters({ search: searchQuery.value || undefined, page, ...sortParams() })
     const { data, ...pag } = res.data.data
     centers.value = data
     pagination.value = pag
   } finally { loading.value = false }
+}
+
+function handleSort(field: string) {
+  toggleSort(field)
+  fetchData()
 }
 
 function openForm(center?: AdminHealthCenter) {

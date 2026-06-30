@@ -27,11 +27,11 @@
         <thead class="bg-[#FAFAFA]">
           <tr>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">병원명</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase cursor-pointer select-none hover:text-[#333]" @click="handleSort('hospital_name')">병원명 {{ sortIcon('hospital_name') }}</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">주소</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">전화번호</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden lg:table-cell">진료과목</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">상태</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase cursor-pointer select-none hover:text-[#333]" @click="handleSort('is_active')">상태 {{ sortIcon('is_active') }}</th>
             <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase">관리</th>
           </tr>
         </thead>
@@ -232,6 +232,7 @@ import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
 import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, forceDeleteAdminHospital, activateAdminHospital, addHospitalImage, deleteHospitalImage, uploadHospitalThumbnail, deleteHospitalThumbnail } from '../../services/adminApi'
+import { useSortable } from '../../composables/useSortable'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
@@ -240,6 +241,7 @@ const hospitals = ref<AdminHospital[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminHospital>, 'data'> | null>(null)
 const loading = ref(false)
 const searchQuery = ref('')
+const { toggleSort, sortParams, sortIcon } = useSortable()
 let searchTimeout: ReturnType<typeof setTimeout>
 
 const formOpen = ref(false)
@@ -296,13 +298,18 @@ function debouncedSearch() {
 async function fetchData(page = 1) {
   loading.value = true
   try {
-    const res = await fetchAdminHospitals({ search: searchQuery.value || undefined, page })
+    const res = await fetchAdminHospitals({ search: searchQuery.value || undefined, page, ...sortParams() })
     const { data, ...pag } = res.data.data
     hospitals.value = data
     pagination.value = pag
   } finally {
     loading.value = false
   }
+}
+
+function handleSort(field: string) {
+  toggleSort(field)
+  fetchData()
 }
 
 function openForm(hospital?: AdminHospital) {

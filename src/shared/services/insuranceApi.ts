@@ -232,7 +232,7 @@ export const claimApi = {
     api.delete<ApiResponse<null>>(`/claims/${claimId}/documents/${docId}`),
 
   // 관리자: 전체 청구 목록
-  getAdminList: (params?: { search?: string; claim_status?: string; company_id?: number; date_from?: string; date_to?: string; per_page?: number; page?: number }) =>
+  getAdminList: (params?: { search?: string; claim_status?: string; company_id?: number; date_from?: string; date_to?: string; per_page?: number; page?: number; sort_by?: string; sort_direction?: string }) =>
     api.get<ApiResponse<PaginatedResponse<InsuranceClaim>>>('/admin/claims', { params }),
 
   // 관리자: 청구 상세

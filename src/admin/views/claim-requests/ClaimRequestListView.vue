@@ -28,9 +28,9 @@
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">전화번호</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">메모</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">첨부파일</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">상태</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase cursor-pointer select-none hover:text-[#333]" @click="handleSort('status')">상태 {{ sortIcon('status') }}</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">담당 설계사</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">접수일</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('created_at')">접수일 {{ sortIcon('created_at') }}</th>
             <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase">처리</th>
           </tr>
         </thead>
@@ -217,12 +217,14 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { fetchAdminClaimRequests, assignClaimRequest, fetchAgents } from '../../services/adminApi'
+import { useSortable } from '../../composables/useSortable'
 import type { AdminClaimRequest, AdminClaimRequestFile, AdminAgent, LaravelPagination } from '../../types'
 
 const requests = ref<AdminClaimRequest[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminClaimRequest>, 'data'> | null>(null)
 const loading = ref(false)
 const filters = reactive({ search: '', status: '' })
+const { toggleSort, sortParams, sortIcon } = useSortable()
 let searchTimeout: ReturnType<typeof setTimeout>
 
 const modalOpen = ref(false)
@@ -267,11 +269,16 @@ function debouncedSearch() { clearTimeout(searchTimeout); searchTimeout = setTim
 async function fetchData(page = 1) {
   loading.value = true
   try {
-    const res = await fetchAdminClaimRequests({ search: filters.search || undefined, status: filters.status || undefined, page })
+    const res = await fetchAdminClaimRequests({ search: filters.search || undefined, status: filters.status || undefined, page, ...sortParams() })
     const { data, ...pag } = res.data.data
     requests.value = data
     pagination.value = pag
   } finally { loading.value = false }
+}
+
+function handleSort(field: string) {
+  toggleSort(field)
+  fetchData()
 }
 
 function formatDate(d: string) { return d ? new Date(d).toLocaleDateString('ko-KR') : '-' }

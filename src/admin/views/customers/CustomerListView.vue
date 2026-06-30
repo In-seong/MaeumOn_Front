@@ -47,7 +47,7 @@
         <thead class="bg-[#FAFAFA]">
           <tr>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleSort('name')">이름 {{ sortIcon('name') }}</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">이메일</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">담당 설계사</th>
@@ -130,6 +130,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { useSortable } from '../../composables/useSortable'
 import type { AdminCustomer } from '../../types'
 
 const router = useRouter()
@@ -137,6 +138,7 @@ const store = useCustomerStore()
 
 const searchQuery = ref('')
 const activeFilter = ref('')
+const { toggleSort, sortParams, sortIcon } = useSortable()
 
 let searchTimeout: ReturnType<typeof setTimeout>
 
@@ -152,7 +154,13 @@ async function fetchData(page = 1) {
     search: searchQuery.value || undefined,
     is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
     page,
+    ...sortParams(),
   })
+}
+
+function handleSort(field: string) {
+  toggleSort(field)
+  fetchData()
 }
 
 function goToPage(page: number) {
