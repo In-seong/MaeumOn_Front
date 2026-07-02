@@ -2,73 +2,75 @@
   <div class="p-6">
     <h1 class="text-[20px] font-bold text-[#333] mb-6">대시보드</h1>
 
-    <!-- 알림 배너 -->
-    <div v-if="pendingConsultations > 0 || upcomingObligations > 0" class="flex gap-4 mb-6">
-      <div
-        v-if="pendingConsultations > 0"
-        class="flex-1 bg-[#FFF8E1] border border-[#FFE082] rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:bg-[#FFF3CD] transition-colors"
-        @click="router.push('/consultations')"
+    <!-- 퀵메뉴 2행 3열 -->
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <router-link
+        v-for="item in quickMenuItems"
+        :key="item.path"
+        :to="item.path"
+        class="bg-white rounded-xl border border-[#E8E8E8] p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
       >
-        <span class="material-symbols-outlined text-[24px] text-[#F9A825]">forum</span>
+        <div class="w-[52px] h-[52px] rounded-[14px] bg-[#FFF3ED] flex items-center justify-center shrink-0">
+          <!-- 고객관리 -->
+          <svg v-if="item.icon === 'customers'" width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <circle cx="16" cy="13" r="6" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <circle cx="16" cy="12" r="3.5" fill="white"/>
+            <circle cx="16" cy="11" r="2.5" fill="#FFD5B8"/>
+            <path d="M6 34C6 27 10.5 23 16 23C21.5 23 26 27 26 34" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <path d="M6 34C6 27.5 10.5 24 16 24C21.5 24 26 27.5 26 34" fill="#FF7B22" opacity="0.2"/>
+            <circle cx="28" cy="15" r="4.5" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <circle cx="28" cy="14" r="2.5" fill="white"/>
+            <circle cx="28" cy="13.5" r="1.8" fill="#FFD5B8"/>
+            <path d="M24 34C24 29 26.5 26 29 25" stroke="#FF7B22" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <!-- 청구관리 -->
+          <svg v-else-if="item.icon === 'claims'" width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect x="8" y="8" width="24" height="28" rx="3" fill="white" stroke="#FF7B22" stroke-width="1.5"/>
+            <rect x="14" y="4" width="12" height="7" rx="2" fill="#FF7B22"/>
+            <circle cx="20" cy="7.5" r="1.5" fill="white"/>
+            <rect x="13" y="16" width="14" height="2" rx="1" fill="#FFD5B8"/>
+            <rect x="13" y="21" width="10" height="2" rx="1" fill="#FFD5B8"/>
+            <rect x="13" y="26" width="12" height="2" rx="1" fill="#FFD5B8"/>
+            <circle cx="29" cy="29" r="6" fill="#FF7B22"/>
+            <path d="M26 29L28.5 31.5L33 27" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <!-- 새 청구 -->
+          <svg v-else-if="item.icon === 'newClaim'" width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect x="8" y="4" width="20" height="28" rx="3" fill="#FF7B22" opacity="0.15"/>
+            <rect x="10" y="6" width="20" height="28" rx="3" fill="white" stroke="#FF7B22" stroke-width="1.5"/>
+            <rect x="14" y="12" width="12" height="1.5" rx="0.75" fill="#FFD5B8"/>
+            <rect x="14" y="16" width="9" height="1.5" rx="0.75" fill="#FFD5B8"/>
+            <rect x="14" y="20" width="11" height="1.5" rx="0.75" fill="#FFD5B8"/>
+            <circle cx="27" cy="28" r="7" fill="#FF7B22"/>
+            <path d="M27 24.5V31.5M23.5 28H30.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <!-- 메시지 -->
+          <svg v-else-if="item.icon === 'message'" width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect x="5" y="10" width="30" height="22" rx="3" fill="white" stroke="#FF7B22" stroke-width="1.5"/>
+            <path d="M5 13L20 24L35 13" stroke="#FF7B22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="5" y="10" width="30" height="8" rx="3" fill="#FF7B22" opacity="0.15"/>
+            <circle cx="32" cy="10" r="5" fill="#FF7B22"/>
+            <text x="32" y="13.5" text-anchor="middle" font-size="8" font-weight="bold" fill="white">N</text>
+          </svg>
+          <!-- DB배분 -->
+          <svg v-else-if="item.icon === 'db'" width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <ellipse cx="20" cy="10" rx="13" ry="5" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <path d="M7 10V30C7 32.76 12.8 35 20 35C27.2 35 33 32.76 33 30V10" stroke="#FF7B22" stroke-width="1.5"/>
+            <path d="M7 17C7 19.76 12.8 22 20 22C27.2 22 33 19.76 33 17" stroke="#FF7B22" stroke-width="1.5"/>
+            <path d="M7 24C7 26.76 12.8 29 20 29C27.2 29 33 26.76 33 24" stroke="#FF7B22" stroke-width="1.5"/>
+            <ellipse cx="20" cy="10" rx="9" ry="3" fill="#FF7B22" opacity="0.2"/>
+          </svg>
+          <!-- 만족도 -->
+          <svg v-else-if="item.icon === 'satisfaction'" width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <polygon points="20,4 24.5,14 35,15.5 27.5,23 29.5,33.5 20,28.5 10.5,33.5 12.5,23 5,15.5 15.5,14" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <polygon points="20,8 23.2,15 30,15.8 25,20.8 26.4,27.5 20,24.2 13.6,27.5 15,20.8 10,15.8 16.8,15" fill="#FF7B22" opacity="0.25"/>
+            <polygon points="20,11 22.2,16 28,16.6 24,20.4 25,26 20,23.2 15,26 16,20.4 12,16.6 17.8,16" fill="#FF7B22" opacity="0.4"/>
+          </svg>
+        </div>
         <div>
-          <p class="text-[14px] font-semibold text-[#333]">미처리 상담요청 {{ pendingConsultations }}건</p>
-          <p class="text-[12px] text-[#999]">빠른 응답이 필요합니다</p>
+          <p class="text-[14px] font-semibold text-[#333]">{{ item.label }}</p>
+          <p class="text-[12px] text-[#999]">{{ item.sub }}</p>
         </div>
-      </div>
-      <div
-        v-if="upcomingObligations > 0"
-        class="flex-1 bg-[#FFEBEE] border border-[#EF9A9A] rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:bg-[#FFCDD2] transition-colors"
-        @click="router.push('/alert-duty')"
-      >
-        <span class="material-symbols-outlined text-[24px] text-[#E53935]">security</span>
-        <div>
-          <p class="text-[14px] font-semibold text-[#333]">알릴의무 만기 임박 {{ upcomingObligations }}건</p>
-          <p class="text-[12px] text-[#999]">30일 이내 처리 필요</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 요약 카드 그리드 -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
-      <router-link
-        to="/customers"
-        class="bg-white rounded-xl border border-[#E8E8E8] p-5 hover:shadow-md transition-shadow"
-      >
-        <div class="flex items-center gap-3 mb-2">
-          <span class="material-symbols-outlined text-[22px] text-[#FF7B22]">people</span>
-          <span class="text-[13px] text-[#999]">고객관리</span>
-        </div>
-        <p class="text-[13px] text-[#555]">고객 목록 관리</p>
-      </router-link>
-      <router-link
-        to="/claims"
-        class="bg-white rounded-xl border border-[#E8E8E8] p-5 hover:shadow-md transition-shadow"
-      >
-        <div class="flex items-center gap-3 mb-2">
-          <span class="material-symbols-outlined text-[22px] text-[#FF7B22]">receipt_long</span>
-          <span class="text-[13px] text-[#999]">청구관리</span>
-        </div>
-        <p class="text-[13px] text-[#555]">청구 현황 보기</p>
-      </router-link>
-      <router-link
-        to="/claims/new"
-        class="bg-white rounded-xl border border-[#E8E8E8] p-5 hover:shadow-md transition-shadow"
-      >
-        <div class="flex items-center gap-3 mb-2">
-          <span class="material-symbols-outlined text-[22px] text-[#FF7B22]">add_circle</span>
-          <span class="text-[13px] text-[#999]">새 청구</span>
-        </div>
-        <p class="text-[13px] text-[#555]">보험금 청구하기</p>
-      </router-link>
-      <router-link
-        to="/schedule"
-        class="bg-white rounded-xl border border-[#E8E8E8] p-5 hover:shadow-md transition-shadow"
-      >
-        <div class="flex items-center gap-3 mb-2">
-          <span class="material-symbols-outlined text-[22px] text-[#FF7B22]">event</span>
-          <span class="text-[13px] text-[#999]">일정관리</span>
-        </div>
-        <p class="text-[13px] text-[#555]">오늘 일정 {{ todayScheduleCount }}건</p>
       </router-link>
     </div>
 
@@ -141,21 +143,24 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useScheduleStore } from '../stores/scheduleStore'
-import { useConsultationStore } from '../stores/consultationStore'
 import { useNotificationStore } from '../stores/notificationStore'
-import { fetchDashboard, fetchTodayTasks, toggleScheduleComplete } from '../services/agentApi'
+import { fetchTodayTasks, toggleScheduleComplete } from '../services/agentApi'
 import type { CalendarEvent, DashboardTask } from '../types'
 
 const router = useRouter()
 const scheduleStore = useScheduleStore()
-const consultationStore = useConsultationStore()
 const notificationStore = useNotificationStore()
-const upcomingObligations = ref(0)
-const dashboardPendingConsultations = ref(0)
 
-const todayScheduleCount = computed(() => scheduleStore.schedulesForDate.length)
-const pendingConsultations = computed(() => dashboardPendingConsultations.value)
 const upcomingEvents = computed(() => scheduleStore.upcomingEvents)
+
+const quickMenuItems = [
+  { icon: 'customers', label: '고객관리', sub: '고객 목록 관리', path: '/customers' },
+  { icon: 'claims', label: '청구관리', sub: '청구 현황 보기', path: '/claims' },
+  { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new' },
+  { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send' },
+  { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution' },
+  { icon: 'satisfaction', label: '만족도', sub: '고객 만족 조회', path: '/satisfaction' },
+]
 
 const eventTypeIcon: Record<string, string> = {
   birthday: '🎂',
@@ -212,14 +217,9 @@ async function toggleTodo(id: string) {
 
 onMounted(async () => {
   await Promise.all([
-    consultationStore.loadConsultations(),
     scheduleStore.loadMonth(),
     scheduleStore.loadUpcoming(30),
     notificationStore.refreshUnreadCount(),
-    fetchDashboard().then(res => {
-      upcomingObligations.value = res.data?.data?.upcoming_obligations ?? 0
-      dashboardPendingConsultations.value = res.data?.data?.pending_consultations ?? 0
-    }).catch(() => {}),
     fetchTodayTasks().then(res => {
       todayTasks.value = res.data?.data ?? []
     }).catch(() => {}),
