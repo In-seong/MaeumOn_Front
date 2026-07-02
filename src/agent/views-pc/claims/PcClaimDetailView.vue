@@ -1,0 +1,679 @@
+<template>
+  <div class="p-6">
+    <!-- 헤더 -->
+    <div class="flex items-center gap-3 mb-6">
+      <button
+        class="text-[14px] text-[#888] hover:text-[#FF7B22] transition-colors"
+        @click="goBack"
+      >
+        &larr; 목록으로
+      </button>
+      <h1 class="text-[20px] font-bold text-[#333]">청구 상세</h1>
+    </div>
+
+    <!-- 로딩 -->
+    <div v-if="store.loading" class="flex items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22]"></div>
+    </div>
+
+    <!-- 청구 상세 -->
+    <div v-else-if="claim" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 좌측 2컬럼: 기본 정보 + 청구 정보 + 팩스 -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- 기본 정보 -->
+        <CardSection class="!rounded-xl !border-[#E8E8E8]">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <span class="text-[13px] text-[#888]">
+                {{ claim.claim_form?.insurance_company?.company_name ?? '-' }}
+              </span>
+              <p class="text-[18px] font-bold text-[#222] mt-0.5">
+                {{ claim.claim_form?.form_name ?? '-' }}
+              </p>
+            </div>
+            <StatusBadge
+              :label="getStatusLabel(claim.claim_status)"
+              :variant="getStatusVariant(claim.claim_status)"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-[13px] text-[#888]">청구번호</span>
+              <span class="text-[14px] font-bold text-[#FF7B22]">#{{ claim.claim_id }}</span>
+            </div>
+            <div v-if="claim.customer" class="flex items-center gap-2">
+              <span class="text-[13px] text-[#888]">고객명</span>
+              <span class="text-[14px] font-medium text-[#333]">{{ claim.customer.name }}</span>
+            </div>
+          </div>
+        </CardSection>
+
+        <!-- 보험금 정보 (승인/지급 완료 시 표시) -->
+        <div
+          v-if="claim.claim_status === 'approved' || claim.claim_status === 'paid'"
+        >
+          <p class="text-[15px] font-semibold text-[#222] mb-2">보험금 정보</p>
+          <CardSection class="!bg-[#F0FFF4] !border-[#BBF7D0] !rounded-xl">
+            <div class="flex items-center gap-2 mb-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="text-[15px] font-bold text-[#22C55E]">
+                {{ claim.claim_status === 'paid' ? '보험금 지급 완료' : '보험금 승인' }}
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <InfoRow
+                v-if="claim.approved_amount"
+                label="승인 금액"
+                :value="Number(claim.approved_amount).toLocaleString() + '원'"
+                class="font-semibold"
+              />
+              <InfoRow
+                v-if="claim.approval_date"
+                label="승인일"
+                :value="formatDate(claim.approval_date)"
+              />
+              <InfoRow
+                v-if="claim.paid_amount"
+                label="지급 금액"
+                :value="Number(claim.paid_amount).toLocaleString() + '원'"
+                class="font-semibold"
+              />
+              <InfoRow
+                v-if="claim.paid_date"
+                label="지급일"
+                :value="formatDate(claim.paid_date)"
+              />
+            </div>
+          </CardSection>
+        </div>
+
+        <!-- 청구 정보 -->
+        <div>
+          <p class="text-[15px] font-semibold text-[#222] mb-2">청구 정보</p>
+          <CardSection class="!rounded-xl !border-[#E8E8E8]">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+              <InfoRow label="청구일" :value="formatDate(claim.created_at ?? '')" />
+              <InfoRow label="팩스 상태" :value="getFaxStatusLabel(claim.fax_status)" />
+              <InfoRow
+                v-if="claim.fax_sent_at"
+                label="팩스 발송일"
+                :value="formatDate(claim.fax_sent_at)"
+              />
+            </div>
+          </CardSection>
+        </div>
+
+        <!-- 생성된 청구서 (페이지 이미지) -->
+        <div>
+          <p class="text-[15px] font-semibold text-[#222] mb-2">생성된 청구서</p>
+          <CardSection class="!rounded-xl !border-[#E8E8E8]">
+            <div v-if="claimImageUrls && claimImageUrls.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-for="img in claimImageUrls" :key="img.page_number">
+                <p v-if="claimImageUrls.length > 1" class="text-[12px] text-[#999] mb-1">
+                  {{ img.page_number }}페이지
+                </p>
+                <img
+                  :src="img.url"
+                  :alt="'청구서 ' + img.page_number + '페이지'"
+                  class="w-full rounded-[8px] border border-[#E8E8E8] cursor-pointer hover:opacity-90 transition-opacity"
+                  @click="openImageViewer(img.url)"
+                />
+              </div>
+            </div>
+            <p v-else class="text-[13px] text-[#999] text-center py-6">
+              생성된 청구서가 없습니다.
+            </p>
+          </CardSection>
+        </div>
+
+        <!-- 첨부파일 -->
+        <div v-if="claimDocuments && claimDocuments.length > 0">
+          <p class="text-[15px] font-semibold text-[#222] mb-2">첨부파일</p>
+          <CardSection class="!rounded-xl !border-[#E8E8E8]">
+            <div
+              v-for="doc in claimDocuments"
+              :key="doc.claim_document_id"
+              class="flex items-center gap-3 py-2.5 border-b border-[#F0F0F0] last:border-0"
+            >
+              <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] text-[#333] truncate">{{ doc.document_file_name }}</p>
+                <p v-if="doc.document_file_size" class="text-[11px] text-[#999]">{{ formatFileSize(doc.document_file_size) }}</p>
+              </div>
+              <a
+                v-if="doc.document_url"
+                :href="doc.document_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0 hover:underline"
+              >
+                보기
+              </a>
+            </div>
+          </CardSection>
+        </div>
+
+        <!-- 비고 -->
+        <CardSection v-if="claim.notes" class="!bg-[#FFF9F0] !rounded-xl">
+          <div class="flex items-start gap-2">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#F3940E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+              <p class="text-[13px] font-semibold text-[#F3940E] mb-0.5">비고</p>
+              <p class="text-[12px] text-[#888] leading-relaxed">{{ claim.notes }}</p>
+            </div>
+          </div>
+        </CardSection>
+      </div>
+
+      <!-- 우측 1컬럼: 팩스 발송 + 액션 버튼 -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- 팩스 발송 섹션 -->
+        <div>
+          <p class="text-[15px] font-semibold text-[#222] mb-2">팩스 발송</p>
+          <CardSection class="!rounded-xl !border-[#E8E8E8]">
+            <!-- 발송완료 상태 -->
+            <div v-if="claim.fax_status === 'sent'" class="flex items-center gap-2 py-2">
+              <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="text-[14px] font-medium text-[#22C55E]">팩스 발송 완료</span>
+            </div>
+
+            <!-- 발송대기/발송중 상태 -->
+            <div
+              v-else-if="claim.fax_status === 'pending' || claim.fax_status === 'sending'"
+              class="py-2"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+                <span class="text-[14px] font-medium text-[#FF7B22]">
+                  {{ claim.fax_status === 'pending' ? '발송 대기중...' : '팩스 발송중...' }}
+                </span>
+              </div>
+              <button
+                :disabled="refreshingFax"
+                class="w-full border border-[#E0E0E0] text-[#555] rounded-[10px] py-2.5 text-[13px] font-medium hover:bg-[#F5F5F5] transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                @click="handleRefreshFaxStatus"
+              >
+                <svg
+                  width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  :class="{ 'animate-spin': refreshingFax }"
+                >
+                  <path d="M23 4v6h-6M1 20v-6h6"/>
+                  <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                </svg>
+                {{ refreshingFax ? '확인 중...' : '상태 새로고침' }}
+              </button>
+            </div>
+
+            <!-- 실패 상태 -->
+            <div v-else-if="claim.fax_status === 'failed'" class="space-y-3">
+              <div class="flex items-center gap-2 py-2">
+                <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="text-[14px] font-medium text-[#EF4444]">팩스 발송 실패</span>
+              </div>
+              <div>
+                <label class="block text-[13px] font-medium text-[#888] mb-2">팩스 번호</label>
+                <input
+                  v-model="faxNumber"
+                  type="tel"
+                  placeholder="02-1234-5678"
+                  class="w-full px-4 py-2.5 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                />
+              </div>
+              <button
+                :disabled="sendingFax"
+                class="w-full bg-[#EF4444] text-white rounded-[12px] py-2.5 text-[14px] font-semibold hover:bg-[#DC2626] transition-colors disabled:opacity-50"
+                @click="handleSendFax"
+              >
+                {{ sendingFax ? '발송 중...' : '팩스 재발송' }}
+              </button>
+            </div>
+
+            <!-- 미발송 상태: 팩스 번호 입력 + 발송 버튼 -->
+            <div v-else class="space-y-3">
+              <div>
+                <label class="block text-[13px] font-medium text-[#888] mb-2">팩스 번호</label>
+                <input
+                  v-model="faxNumber"
+                  type="tel"
+                  placeholder="02-1234-5678"
+                  class="w-full px-4 py-2.5 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                />
+                <p class="mt-1.5 text-[11px] text-[#999]">
+                  보험사 기본 팩스번호가 입력되어 있습니다. 변경 가능합니다.
+                </p>
+              </div>
+              <button
+                :disabled="sendingFax"
+                class="w-full bg-[#FF7B22] text-white rounded-[12px] py-2.5 text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+                @click="handleSendFax"
+              >
+                {{ sendingFax ? '발송 중...' : '팩스 발송' }}
+              </button>
+            </div>
+
+            <!-- 에러 메시지 -->
+            <div v-if="store.error" class="mt-3 p-3 bg-[#FFE5E5] rounded-[8px] text-[13px] text-[#FF0000]">
+              {{ store.error }}
+            </div>
+          </CardSection>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="space-y-3">
+          <!-- 수익자 변경 버튼 (pending/processing 상태) -->
+          <button
+            v-if="claim.claim_status === 'pending' || claim.claim_status === 'processing'"
+            class="w-full bg-white border border-[#6366F1] text-[#6366F1] rounded-[12px] py-3 text-[14px] font-semibold hover:bg-[#EEF2FF] transition-colors flex items-center justify-center gap-1.5"
+            @click="showBeneficiaryModal = true"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19 8v6M22 11h-6" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            수익자 변경
+          </button>
+
+          <!-- 수정 버튼 (pending 상태이고 팩스 미발송일 때) -->
+          <button
+            v-if="claim.claim_status === 'pending' && !claim.fax_status"
+            class="w-full bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] py-3 text-[14px] font-semibold hover:bg-[#FFF3ED] transition-colors flex items-center justify-center gap-1.5"
+            @click="goToEdit"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            청구서 수정
+          </button>
+
+          <!-- PDF 다운로드 -->
+          <button
+            v-if="claim.generated_pdf_url"
+            class="w-full bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3 text-[14px] font-semibold hover:bg-[#F5F5F5] transition-colors flex items-center justify-center gap-1.5"
+            @click="downloadPdf"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            PDF 다운로드
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 청구 없음 -->
+    <div v-if="!store.loading && !claim" class="text-center py-20">
+      <p class="text-[15px] text-[#888]">청구 정보를 찾을 수 없습니다.</p>
+      <button
+        class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors"
+        @click="goBack"
+      >
+        목록으로 돌아가기
+      </button>
+    </div>
+
+    <!-- 수익자 변경 모달 (PC: 중앙 모달) -->
+    <Transition name="fade">
+      <div v-if="showBeneficiaryModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showBeneficiaryModal = false">
+        <div class="w-full max-w-lg bg-white rounded-xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-5">
+            <p class="text-[16px] font-bold text-[#222]">수익자 정보 변경</p>
+            <button @click="showBeneficiaryModal = false" class="text-[#999] hover:text-[#666] text-[20px] transition-colors">&times;</button>
+          </div>
+
+          <div class="space-y-4 mb-6">
+            <div v-for="field in beneficiaryFields" :key="field.form_field_id">
+              <label class="block text-[13px] font-medium text-[#888] mb-1">{{ field.label }}</label>
+              <input
+                v-model="beneficiaryFormValues[field.form_field_id]"
+                type="text"
+                class="w-full px-4 py-2.5 bg-[#F8F8F8] rounded-[10px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#6366F1] transition-colors"
+              />
+            </div>
+            <p v-if="beneficiaryFields.length === 0" class="text-[13px] text-[#999] text-center py-4">
+              이 청구서에는 수익자 필드가 없습니다.
+            </p>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              class="px-5 py-2.5 border border-[#E0E0E0] text-[#666] rounded-[10px] text-[14px] font-medium hover:bg-[#F5F5F5] transition-colors"
+              @click="showBeneficiaryModal = false"
+            >
+              취소
+            </button>
+            <button
+              v-if="beneficiaryFields.length > 0"
+              :disabled="savingBeneficiary"
+              class="px-5 py-2.5 bg-[#6366F1] text-white rounded-[10px] text-[14px] font-semibold hover:bg-[#4F46E5] transition-colors disabled:opacity-50"
+              @click="handleUpdateBeneficiary"
+            >
+              {{ savingBeneficiary ? '변경 중...' : '수익자 변경' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Toast -->
+    <Transition name="fade">
+      <div
+        v-if="toast.visible.value"
+        class="fixed bottom-6 right-6 text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap"
+        :class="toast.variant.value === 'error' ? 'bg-[#FF4444]' : 'bg-[#333]'"
+      >
+        {{ toast.message.value }}
+      </div>
+    </Transition>
+
+    <!-- 청구서 이미지 확대 뷰어 (PC: 마우스 이벤트) -->
+    <div v-if="viewerOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
+      <!-- 상단 바 -->
+      <div class="flex items-center justify-between px-6 py-3 bg-black/50">
+        <span class="text-white text-[14px] font-medium">
+          {{ claimImageUrls && claimImageUrls.length > 1 ? `${viewerIndex + 1} / ${claimImageUrls.length}` : '청구서 미리보기' }}
+        </span>
+        <button @click="viewerOpen = false" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium hover:bg-white/30 transition-colors">
+          닫기
+        </button>
+      </div>
+      <!-- 이미지 영역 -->
+      <div
+        class="flex-1 relative overflow-auto flex items-start justify-center"
+        @wheel="onViewerWheel"
+      >
+        <img
+          :src="viewerImageUrl"
+          alt="청구서 확대"
+          class="max-w-none"
+          :style="{ transform: `scale(${viewerScale})`, transformOrigin: 'top center' }"
+        />
+        <!-- 좌우 화살표 -->
+        <button v-if="viewerIndex > 0" @click="viewerGo(-1)"
+          class="fixed left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center hover:bg-black/60 transition-colors z-10">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button v-if="claimImageUrls && viewerIndex < claimImageUrls.length - 1" @click="viewerGo(1)"
+          class="fixed right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center hover:bg-black/60 transition-colors z-10">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <!-- 하단 줌 컨트롤 -->
+      <div class="flex items-center justify-center gap-3 py-3 bg-black/50">
+        <button @click="viewerScale = Math.max(0.25, viewerScale - 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center hover:bg-white/30 transition-colors">&minus;</button>
+        <span class="text-white text-[13px] min-w-[50px] text-center">{{ Math.round(viewerScale * 100) }}%</span>
+        <button @click="viewerScale = Math.min(3, viewerScale + 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center hover:bg-white/30 transition-colors">+</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAgentClaimStore } from '../../stores/agentClaimStore'
+import { updateBeneficiary } from '../../services/agentApi'
+import { CLAIM_STATUS_OPTIONS } from '@shared/types'
+import type { InsuranceClaim as SharedInsuranceClaim } from '@shared/types'
+import CardSection from '@user/components/ui/CardSection.vue'
+import InfoRow from '@user/components/ui/InfoRow.vue'
+import StatusBadge from '@user/components/ui/StatusBadge.vue'
+import { useToast } from '../../composables/useToast'
+
+const toast = useToast()
+
+const router = useRouter()
+const route = useRoute()
+const store = useAgentClaimStore()
+
+const claimId = computed(() => Number(route.params.id))
+const faxNumber = ref('')
+const sendingFax = ref(false)
+const refreshingFax = ref(false)
+let pollTimer: ReturnType<typeof setInterval> | null = null
+
+// ===== 청구서 이미지 확대 뷰어 =====
+const viewerOpen = ref(false)
+const viewerImageUrl = ref('')
+const viewerScale = ref(1)
+const viewerIndex = ref(0)
+
+const VIEWER_DEFAULT_SCALE = 0.25
+
+function openImageViewer(url: string) {
+  const idx = claimImageUrls.value?.findIndex(img => img.url === url) ?? 0
+  viewerIndex.value = Math.max(0, idx)
+  viewerImageUrl.value = url
+  viewerScale.value = VIEWER_DEFAULT_SCALE
+  viewerOpen.value = true
+}
+
+function viewerGo(delta: number) {
+  const images = claimImageUrls.value
+  if (!images) return
+  const next = viewerIndex.value + delta
+  if (next < 0 || next >= images.length) return
+  const img = images[next]
+  if (!img) return
+  viewerIndex.value = next
+  viewerImageUrl.value = img.url
+  viewerScale.value = VIEWER_DEFAULT_SCALE
+}
+
+function onViewerWheel(e: WheelEvent) {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault()
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+    viewerScale.value = Math.min(3, Math.max(0.25, viewerScale.value + delta))
+  }
+}
+
+// Agent 타입에는 generated_image_urls, field_values, documents가 없으므로
+// shared InsuranceClaim으로 캐스팅하여 접근
+const claim = computed(() => store.selectedClaim)
+
+const claimImageUrls = computed(() => {
+  const raw = claim.value as unknown as SharedInsuranceClaim | null
+  return raw?.generated_image_urls ?? null
+})
+
+const claimDocuments = computed(() => {
+  const raw = claim.value as unknown as SharedInsuranceClaim | null
+  return raw?.documents ?? null
+})
+
+onMounted(async () => {
+  await store.loadClaim(claimId.value)
+
+  // 보험사 팩스번호 기본값 설정
+  const companyFax = claim.value?.claim_form?.insurance_company
+  if (companyFax) {
+    const faxObj = companyFax as unknown as { fax_number?: string }
+    if (faxObj.fax_number) {
+      faxNumber.value = faxObj.fax_number
+    }
+  }
+
+  startPollingIfNeeded()
+})
+
+onUnmounted(() => {
+  stopPolling()
+})
+
+// pending/sending 상태 변화 감시
+watch(() => claim.value?.fax_status, (newStatus) => {
+  if (newStatus === 'pending' || newStatus === 'sending') {
+    startPollingIfNeeded()
+  } else {
+    stopPolling()
+  }
+})
+
+function startPollingIfNeeded(): void {
+  const status = claim.value?.fax_status
+  if ((status === 'pending' || status === 'sending') && !pollTimer) {
+    pollTimer = setInterval(async () => {
+      await store.loadClaim(claimId.value)
+      const updatedStatus = claim.value?.fax_status
+      if (updatedStatus !== 'pending' && updatedStatus !== 'sending') {
+        stopPolling()
+      }
+    }, 10000)
+  }
+}
+
+function stopPolling(): void {
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
+}
+
+function getStatusVariant(status: string): 'success' | 'warning' | 'danger' | 'primary' | 'info' | 'default' {
+  switch (status) {
+    case 'pending': return 'warning'
+    case 'processing': return 'info'
+    case 'approved': return 'success'
+    case 'rejected': return 'danger'
+    case 'paid': return 'primary'
+    default: return 'default'
+  }
+}
+
+function getStatusLabel(status: string): string {
+  const option = CLAIM_STATUS_OPTIONS.find(o => o.value === status)
+  return option?.label ?? status
+}
+
+function getFaxStatusLabel(status?: string): string {
+  switch (status) {
+    case 'sent': return '발송완료'
+    case 'failed': return '발송실패'
+    case 'pending': return '발송대기'
+    case 'sending': return '발송중'
+    default: return '미발송'
+  }
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleString('ko-KR')
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + 'B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
+}
+
+function downloadPdf(): void {
+  if (claim.value?.generated_pdf_url) {
+    window.open(claim.value.generated_pdf_url, '_blank')
+  }
+}
+
+function goToEdit(): void {
+  if (claim.value) {
+    router.push(`/claims/${claim.value.claim_id}/edit`)
+  }
+}
+
+async function handleSendFax(): Promise<void> {
+  if (!faxNumber.value.trim()) {
+    toast.showToast('팩스번호를 입력해주세요.', 'error')
+    return
+  }
+
+  sendingFax.value = true
+  try {
+    const success = await store.sendFax(claimId.value, faxNumber.value)
+    if (success) {
+      toast.showToast('팩스 발송이 요청되었습니다.')
+    }
+  } finally {
+    sendingFax.value = false
+  }
+}
+
+// ===== 수익자 변경 =====
+const showBeneficiaryModal = ref(false)
+const savingBeneficiary = ref(false)
+const beneficiaryFormValues = ref<Record<number, string>>({})
+
+const BENEFICIARY_CODES = ['BENEFICIARY_NAME', 'BENEFICIARY_RRN_FRONT', 'BENEFICIARY_RRN_BACK', 'BENEFICIARY_PHONE', 'BENEFICIARY_RELATION']
+
+const beneficiaryFields = computed(() => {
+  const raw = claim.value as unknown as SharedInsuranceClaim | null
+  const fieldValues = raw?.field_values ?? []
+  return fieldValues
+    .filter(fv => fv.form_field?.standard_field_code && BENEFICIARY_CODES.includes(fv.form_field.standard_field_code))
+    .map(fv => ({
+      form_field_id: fv.form_field_id ?? fv.form_field?.form_field_id ?? 0,
+      label: fv.form_field?.field_label ?? '',
+      value: fv.field_value ?? '',
+    }))
+})
+
+watch(showBeneficiaryModal, (visible) => {
+  if (visible) {
+    beneficiaryFormValues.value = {}
+    for (const field of beneficiaryFields.value) {
+      beneficiaryFormValues.value[field.form_field_id] = field.value
+    }
+  }
+})
+
+async function handleUpdateBeneficiary(): Promise<void> {
+  savingBeneficiary.value = true
+  try {
+    const fields = Object.entries(beneficiaryFormValues.value).map(([id, value]) => ({
+      form_field_id: Number(id),
+      field_value: value,
+    }))
+    await updateBeneficiary(claimId.value, { fields })
+    await store.loadClaim(claimId.value)
+    showBeneficiaryModal.value = false
+    toast.showToast('수익자 정보가 변경되었습니다.')
+  } catch {
+    toast.showToast('수익자 변경에 실패했습니다.', 'error')
+  } finally {
+    savingBeneficiary.value = false
+  }
+}
+
+async function handleRefreshFaxStatus(): Promise<void> {
+  refreshingFax.value = true
+  try {
+    const { refreshFaxStatus } = await import('../../services/agentApi')
+    const res = await refreshFaxStatus(claimId.value)
+    const data = res.data.data
+    if (data.updated) {
+      await store.loadClaim(claimId.value)
+      toast.showToast(data.result_message)
+    } else {
+      toast.showToast(data.result_message)
+    }
+  } catch {
+    toast.showToast('상태 확인에 실패했습니다.', 'error')
+  } finally {
+    refreshingFax.value = false
+  }
+}
+
+function goBack(): void {
+  router.push('/claims')
+}
+</script>
