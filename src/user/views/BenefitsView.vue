@@ -39,7 +39,7 @@ const banners: Banner[] = [
     tag: '보험 혜택',
     title: '놓치고 있는 보험금\n지금 확인해보세요',
     description: '간편하게 보험금을 청구하고 돌려받으세요.',
-    bgClass: 'bg-gradient-to-r from-[#03C75A] to-[#05D662]',
+    bgClass: 'bg-gradient-to-r from-[#FF7B22] to-[#05D662]',
   },
   {
     id: 2,

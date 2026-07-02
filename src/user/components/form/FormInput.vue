@@ -9,7 +9,7 @@
         :placeholder="placeholder"
         :readonly="readonly"
         :maxlength="maxlength"
-        class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#03C75A] transition-colors no-spinner"
+        class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors no-spinner"
         :class="[
           readonly ? 'text-[#999] cursor-default' : 'text-[#333]',
           showToggle ? 'pr-12' : '',

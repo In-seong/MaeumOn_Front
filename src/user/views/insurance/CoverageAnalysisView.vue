@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보장 분석" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-          <svg class="animate-spin h-8 w-8 text-[#03C75A] mb-3" viewBox="0 0 24 24">
+          <svg class="animate-spin h-8 w-8 text-[#FF7B22] mb-3" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
@@ -70,7 +70,7 @@
                 <div class="bg-[#F8F8F8] rounded-[10px] px-3 py-2.5">
                   <div class="flex items-center justify-between">
                     <span class="text-[12px] text-[#888]">동일그룹 가입률</span>
-                    <span class="text-[14px] font-bold text-[#03C75A]">
+                    <span class="text-[14px] font-bold text-[#FF7B22]">
                       {{ stat.avg_group_reg_rate || '-' }}
                     </span>
                   </div>
@@ -101,7 +101,7 @@
 
           <!-- CTA -->
           <button
-            class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform mb-6"
+            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform mb-6"
             @click="router.push('/consultation')"
           >
             전문가 상담 받기

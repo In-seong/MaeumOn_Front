@@ -133,7 +133,7 @@
 
         <!-- 확인 버튼 -->
         <button
-          class="w-full mt-5 bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full mt-5 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="store.loading || !isInputValid"
           @click="onConfirm"
         >

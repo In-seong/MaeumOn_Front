@@ -47,7 +47,7 @@
                 {{ dialog.state.value.cancelText }}
               </button>
               <button
-                class="flex-1 h-[44px] rounded-xl text-[14px] font-semibold bg-[#03C75A] text-white active:bg-[#02b350] transition-colors"
+                class="flex-1 h-[44px] rounded-xl text-[14px] font-semibold bg-[#FF7B22] text-white active:bg-[#02b350] transition-colors"
                 @click="dialog.close(true)"
               >
                 {{ dialog.state.value.confirmText }}
@@ -79,19 +79,19 @@ const type = computed(() => dialog.state.value.type)
 
 const iconBgClass = computed(() => {
   switch (type.value) {
-    case 'success': return 'bg-[#03C75A]'
+    case 'success': return 'bg-[#FF7B22]'
     case 'error': return 'bg-[#FF4B4B]'
-    case 'info': return 'bg-[#03C75A]'
+    case 'info': return 'bg-[#FF7B22]'
     case 'confirm': return 'bg-[#F59E0B]'
-    default: return 'bg-[#03C75A]'
+    default: return 'bg-[#FF7B22]'
   }
 })
 
 const buttonClass = computed(() => {
   switch (type.value) {
-    case 'success': return 'bg-[#03C75A] active:bg-[#02b350]'
+    case 'success': return 'bg-[#FF7B22] active:bg-[#02b350]'
     case 'error': return 'bg-[#FF4B4B] active:bg-[#e04444]'
-    default: return 'bg-[#03C75A] active:bg-[#02b350]'
+    default: return 'bg-[#FF7B22] active:bg-[#02b350]'
   }
 })
 

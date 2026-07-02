@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="내 청구 내역" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <!-- 필터 -->
@@ -9,7 +9,7 @@
           <select
             v-model="statusFilter"
             @change="handleFilterChange"
-            class="text-[12px] text-[#03C75A] font-medium bg-transparent outline-none cursor-pointer"
+            class="text-[12px] text-[#FF7B22] font-medium bg-transparent outline-none cursor-pointer"
           >
             <option value="">전체</option>
             <option v-for="opt in CLAIM_STATUS_OPTIONS" :key="opt.value" :value="opt.value">
@@ -20,7 +20,7 @@
 
         <!-- 로딩 -->
         <div v-if="claimStore.loadingClaims" class="flex items-center justify-center py-20">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03C75A]"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
         </div>
 
         <!-- 청구 목록 -->
@@ -49,8 +49,8 @@
                   <span>{{ formatDate(claim.created_at ?? '') }}</span>
                   <span v-if="claim.fax_status === 'sent'" class="text-[#1FBD53]">팩스 발송완료</span>
                   <span v-else-if="claim.fax_status === 'failed'" class="text-[#FF0000]">팩스 발송실패</span>
-                  <span v-else-if="claim.fax_status === 'pending'" class="text-[#03C75A]">팩스 발송대기</span>
-                  <span v-else-if="claim.fax_status === 'sending'" class="text-[#03C75A]">팩스 발송중</span>
+                  <span v-else-if="claim.fax_status === 'pending'" class="text-[#FF7B22]">팩스 발송대기</span>
+                  <span v-else-if="claim.fax_status === 'sending'" class="text-[#FF7B22]">팩스 발송중</span>
                 </div>
               </CardSection>
             </div>
@@ -77,7 +77,7 @@
               class="w-8 h-8 rounded-full text-[13px] font-medium transition-colors"
               :class="
                 page === claimStore.claimsPagination.current_page
-                  ? 'bg-[#03C75A] text-white'
+                  ? 'bg-[#FF7B22] text-white'
                   : 'bg-white text-[#888] border border-[#E8E8E8]'
               "
             >
@@ -89,7 +89,7 @@
         <!-- 새 청구서 작성 버튼 -->
         <button
           @click="createNewClaim"
-          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
         >
           새 청구서 작성
         </button>

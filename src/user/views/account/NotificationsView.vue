@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-white flex flex-col">
       <BackHeader title="알림" />
       <main class="flex-1 px-6 py-4 pb-20 overflow-y-auto">
@@ -9,7 +9,7 @@
         <div v-else class="space-y-3">
           <div v-for="noti in notifications" :key="noti.id"
             class="p-4 rounded-xl transition-colors"
-            :class="noti.is_read ? 'bg-[#F8F8F8]' : 'bg-[#E8F7EE] border border-[#FFD5B5]'"
+            :class="noti.is_read ? 'bg-[#F8F8F8]' : 'bg-[#FFF3ED] border border-[#FFD5B5]'"
             @click="markAsRead(noti)">
             <div class="flex items-start justify-between mb-1">
               <StatusBadge :label="noti.typeLabel" :variant="noti.typeVariant" />

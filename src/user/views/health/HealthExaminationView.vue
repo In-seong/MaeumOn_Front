@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="검진대상 여부" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <div v-if="loading" class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#03C75A] border-t-transparent"></div>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#FF7B22] border-t-transparent"></div>
         </div>
 
         <template v-else>
@@ -24,7 +24,7 @@
               </div>
 
               <button
-                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="!canSubmit"
                 @click="onFetch"
               >
@@ -57,7 +57,7 @@
             </CardSection>
 
             <button
-              class="w-full bg-[#03C75A] text-white rounded-[10px] py-2.5 text-[14px] font-semibold disabled:opacity-50"
+              class="w-full bg-[#FF7B22] text-white rounded-[10px] py-2.5 text-[14px] font-semibold disabled:opacity-50"
               :disabled="busy"
               @click="onFetch"
             >
@@ -78,7 +78,7 @@
               <h3 class="text-[16px] font-bold text-[#222] mb-3">추가인증이 필요합니다</h3>
               <p class="text-[13px] text-[#666] mb-4">간편인증 앱에서 인증을 완료하고 아래 버튼을 누르세요.</p>
               <button
-                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="busy"
                 @click="onConfirm"
               >

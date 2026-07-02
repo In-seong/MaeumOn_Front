@@ -5,7 +5,7 @@
       :value="modelValue"
       :placeholder="placeholder"
       :rows="rows"
-      class="bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#03C75A] transition-colors text-[#333] resize-none"
+      class="bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] resize-none"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
     />
   </div>

@@ -6,9 +6,9 @@
       <!-- 서류 안내 가이드 -->
       <main v-if="showGuide" class="px-5 overflow-y-auto pb-28" style="height: calc(100vh - 56px);">
         <div class="pt-8 pb-4 flex flex-col items-center">
-          <div class="w-16 h-16 rounded-full bg-[#E8F5E9] flex items-center justify-center mb-3">
+          <div class="w-16 h-16 rounded-full bg-[#FFF3ED] flex items-center justify-center mb-3">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17L4 12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 6L9 17L4 12" stroke="#FF7B22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <h2 class="text-[17px] font-bold text-[#222]">준비해야 할 서류</h2>
@@ -16,7 +16,7 @@
 
         <div class="bg-[#F9FAFB] border border-[#E8E8E8] rounded-[16px] p-5 space-y-5">
           <div>
-            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">실손 의료비 청구 서류</p>
+            <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">실손 의료비 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
               <li>진료비 영수증</li>
               <li>진료비 세부내역서</li>
@@ -24,7 +24,7 @@
             </ol>
           </div>
           <div>
-            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">입원 치료 청구 서류</p>
+            <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">입원 치료 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
               <li>입·퇴원 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
               <li>진단서</li>
@@ -32,7 +32,7 @@
             </ol>
           </div>
           <div>
-            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">수술 치료 청구 서류</p>
+            <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">수술 치료 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
               <li>수술 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
               <li>진단서</li>
@@ -40,7 +40,7 @@
             </ol>
           </div>
           <div>
-            <p class="text-[14px] font-bold text-[#03C75A] border-b border-[#03C75A] pb-1 mb-2">골절, 화상 청구 서류</p>
+            <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">골절, 화상 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
               <li>진단서</li>
             </ol>
@@ -53,7 +53,7 @@
         </div>
 
         <button
-          class="w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98] transition-transform mt-6"
+          class="w-full py-4 bg-[#FF7B22] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98] transition-transform mt-6"
           @click="showGuide = false"
         >
           시작하기
@@ -62,9 +62,9 @@
 
       <!-- 완료 화면 -->
       <main v-else-if="submitted" class="px-5 pt-12 text-center">
-        <div class="w-20 h-20 mx-auto rounded-full bg-[#E8F5E9] flex items-center justify-center mb-6">
+        <div class="w-20 h-20 mx-auto rounded-full bg-[#FFF3ED] flex items-center justify-center mb-6">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M20 6L9 17L4 12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 6L9 17L4 12" stroke="#FF7B22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <h2 class="text-[20px] font-bold text-[#222] mb-3">접수되었습니다</h2>
@@ -72,7 +72,7 @@
           담당자가 확인 후<br />연락드리겠습니다.
         </p>
         <button
-          class="mt-8 w-full py-4 bg-[#03C75A] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98]"
+          class="mt-8 w-full py-4 bg-[#FF7B22] text-white rounded-[12px] text-[16px] font-semibold active:scale-[0.98]"
           @click="$router.push('/')"
         >
           홈으로 돌아가기
@@ -104,7 +104,7 @@
             <div class="relative">
               <button
                 type="button"
-                class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-left text-[15px] focus:outline-none focus:border-[#03C75A]"
+                class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-left text-[15px] focus:outline-none focus:border-[#FF7B22]"
                 :class="selectedHospital ? 'text-[#222]' : 'text-[#999]'"
                 @click="hospitalPickerOpen = true"
               >
@@ -130,7 +130,7 @@
         <!-- 신청 버튼 -->
         <button
           class="w-full py-4 rounded-[12px] text-[16px] font-semibold transition-all active:scale-[0.98] mt-4"
-          :class="isValid ? 'bg-[#03C75A] text-white' : 'bg-[#E0E0E0] text-[#999] cursor-not-allowed'"
+          :class="isValid ? 'bg-[#FF7B22] text-white' : 'bg-[#E0E0E0] text-[#999] cursor-not-allowed'"
           :disabled="!isValid || loading"
           @click="submitRequest"
         >
@@ -150,7 +150,7 @@
               v-model="hospitalSearch"
               type="text"
               placeholder="병원명 검색"
-              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] focus:outline-none focus:border-[#03C75A]"
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] focus:outline-none focus:border-[#FF7B22]"
             />
           </div>
           <div class="flex-1 overflow-y-auto px-5 pb-5">
@@ -158,7 +158,7 @@
               v-for="h in filteredHospitals"
               :key="h.hospital_id"
               class="w-full text-left px-4 py-3 rounded-[10px] text-[14px] mb-1 transition-colors"
-              :class="form.hospital_id === h.hospital_id ? 'bg-[#E8F7EE] text-[#03C75A] font-semibold' : 'text-[#333] hover:bg-[#F8F8F8]'"
+              :class="form.hospital_id === h.hospital_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-semibold' : 'text-[#333] hover:bg-[#F8F8F8]'"
               @click="selectHospital(h)"
             >
               <p class="font-medium">{{ h.hospital_name }}</p>
@@ -171,7 +171,7 @@
 
       <!-- 접수 중 오버레이 -->
       <div v-if="loading" class="fixed inset-0 z-[70] bg-white/70 flex flex-col items-center justify-center">
-        <div class="w-12 h-12 border-4 border-[#E0E0E0] border-t-[#03C75A] rounded-full animate-spin mb-4"></div>
+        <div class="w-12 h-12 border-4 border-[#E0E0E0] border-t-[#FF7B22] rounded-full animate-spin mb-4"></div>
         <p class="text-[15px] font-medium text-[#555]">접수 중입니다...</p>
       </div>
 

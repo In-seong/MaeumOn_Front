@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="병원 찾기" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- Location Bar -->
@@ -14,8 +14,8 @@
           </div>
           <button class="w-[44px] h-[44px] bg-white rounded-[12px] border border-[#E8E8E8] flex items-center justify-center">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#03C75A" stroke-width="2"/>
-              <circle cx="12" cy="10" r="3" stroke="#03C75A" stroke-width="2"/>
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#FF7B22" stroke-width="2"/>
+              <circle cx="12" cy="10" r="3" stroke="#FF7B22" stroke-width="2"/>
             </svg>
           </button>
         </div>
@@ -23,8 +23,8 @@
         <!-- Location Info -->
         <div class="flex items-center gap-1.5 mb-4">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#03C75A" stroke-width="2"/>
-            <circle cx="12" cy="10" r="3" stroke="#03C75A" stroke-width="2"/>
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#FF7B22" stroke-width="2"/>
+            <circle cx="12" cy="10" r="3" stroke="#FF7B22" stroke-width="2"/>
           </svg>
           <span class="text-[12px] text-[#888]">서울특별시 강남구 역삼동 기준</span>
           <StatusBadge label="현재위치" variant="primary" />
@@ -60,9 +60,9 @@
                 <span>{{ hospital.address }}</span>
               </div>
               <div class="flex items-center gap-1.5 mt-2">
-                <span class="text-[12px] font-medium text-[#03C75A]">{{ hospital.rating }}</span>
+                <span class="text-[12px] font-medium text-[#FF7B22]">{{ hospital.rating }}</span>
                 <div class="flex">
-                  <svg v-for="s in 5" :key="s" width="12" height="12" viewBox="0 0 24 24" :fill="s <= Math.round(hospital.ratingNum) ? '#03C75A' : '#E0E0E0'">
+                  <svg v-for="s in 5" :key="s" width="12" height="12" viewBox="0 0 24 24" :fill="s <= Math.round(hospital.ratingNum) ? '#FF7B22' : '#E0E0E0'">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
                 </div>

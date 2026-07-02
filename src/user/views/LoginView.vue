@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex flex-col">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex flex-col">
       <!-- Logo Section -->
       <div class="flex-1 flex flex-col items-center justify-center pt-16 pb-8">
         <img src="/icons/LogoIcon.svg" alt="보험청구ON" class="w-[72px] h-[72px] mb-5" />
-        <h1 class="text-[28px] font-bold text-[#03C75A] mb-1">보험청구ON</h1>
+        <h1 class="text-[28px] font-bold text-[#FF7B22] mb-1">보험청구ON</h1>
         <p class="text-[14px] text-[#888]">내 보험을 한눈에</p>
       </div>
 
@@ -25,7 +25,7 @@
               maxlength="6"
               inputmode="numeric"
               :disabled="!otpSent"
-              class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#03C75A] transition-colors text-[#333] disabled:opacity-50"
+              class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] disabled:opacity-50"
             />
           </div>
           <button
@@ -49,7 +49,7 @@
         </div>
 
         <button
-          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold mt-2 active:scale-[0.98] transition-transform disabled:opacity-50"
+          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold mt-2 active:scale-[0.98] transition-transform disabled:opacity-50"
           :disabled="!otpSent || authCode.length !== 6 || authStore.loading"
           @click="handleVerifyOtp"
         >

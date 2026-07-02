@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex flex-col">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex flex-col">
       <!-- Header -->
       <div class="pt-16 pb-4 text-center">
         <h1 class="text-[22px] font-bold text-[#333]">{{ headerTitle }}</h1>
@@ -12,11 +12,11 @@
         <input
           v-model="userName"
           placeholder="이름을 입력해주세요"
-          class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#03C75A] transition-colors text-[#333] text-center"
+          class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] text-center"
           @keydown.enter="confirmName"
         />
         <button
-          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold mt-3 active:scale-[0.98] transition-transform disabled:opacity-50"
+          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold mt-3 active:scale-[0.98] transition-transform disabled:opacity-50"
           :disabled="!userName.trim()"
           @click="confirmName"
         >
@@ -28,7 +28,7 @@
       <template v-if="authStore.pinMode !== 'register' || nameConfirmed">
         <!-- PIN 확인 단계 표시 -->
         <div v-if="isSettingPin" class="text-center mb-2">
-          <p class="text-[13px] text-[#03C75A] font-medium">
+          <p class="text-[13px] text-[#FF7B22] font-medium">
             {{ confirmStep ? 'PIN을 한 번 더 입력해주세요' : 'PIN 6자리를 설정해주세요' }}
           </p>
         </div>
@@ -37,7 +37,7 @@
         <div class="flex justify-center gap-4 mb-8">
           <div v-for="i in 6" :key="i"
             class="w-[14px] h-[14px] rounded-full transition-all duration-200"
-            :class="pin.length >= i ? 'bg-[#03C75A] scale-110' : 'bg-[#E0E0E0]'" />
+            :class="pin.length >= i ? 'bg-[#FF7B22] scale-110' : 'bg-[#E0E0E0]'" />
         </div>
 
         <!-- Error Message -->

@@ -1,13 +1,13 @@
 <template>
   <div>
     <label
-      class="block border-2 border-dashed border-[#E0E0E0] rounded-[16px] p-6 text-center cursor-pointer hover:border-[#03C75A] transition-colors active:scale-[0.98]"
+      class="block border-2 border-dashed border-[#E0E0E0] rounded-[16px] p-6 text-center cursor-pointer hover:border-[#FF7B22] transition-colors active:scale-[0.98]"
       @click="triggerFileInput"
     >
-      <div class="w-14 h-14 mx-auto rounded-full bg-[#E5F6EB] flex items-center justify-center mb-3">
+      <div class="w-14 h-14 mx-auto rounded-full bg-[#FFF3ED] flex items-center justify-center mb-3">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="13" r="4" stroke="#03C75A" stroke-width="2"/>
+          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="13" r="4" stroke="#FF7B22" stroke-width="2"/>
         </svg>
       </div>
       <p class="text-[16px] font-semibold text-[#555]">사진/서류 첨부</p>
@@ -44,7 +44,7 @@
       </div>
     </div>
     <!-- 압축 중 표시 -->
-    <p v-if="compressing" class="mt-2 text-[12px] text-[#03C75A] text-center">이미지 최적화 중...</p>
+    <p v-if="compressing" class="mt-2 text-[12px] text-[#FF7B22] text-center">이미지 최적화 중...</p>
   </div>
 </template>
 

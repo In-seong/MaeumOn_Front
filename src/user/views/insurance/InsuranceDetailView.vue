@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보험 상세" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 로딩 -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-          <svg class="animate-spin h-8 w-8 text-[#03C75A] mb-3" viewBox="0 0 24 24">
+          <svg class="animate-spin h-8 w-8 text-[#FF7B22] mb-3" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
@@ -16,7 +16,7 @@
         <div v-else-if="errorMsg" class="flex flex-col items-center justify-center py-16">
           <p class="text-[14px] text-[#999] mb-4">{{ errorMsg }}</p>
           <button
-            class="text-[14px] text-[#03C75A] font-medium underline"
+            class="text-[14px] text-[#FF7B22] font-medium underline"
             @click="router.back()"
           >
             뒤로 가기
@@ -42,7 +42,7 @@
               />
             </div>
             <div class="flex items-center gap-2">
-              <span v-if="contract.premium_amount" class="text-[20px] font-bold text-[#03C75A]">
+              <span v-if="contract.premium_amount" class="text-[20px] font-bold text-[#FF7B22]">
                 월 {{ formatAmount(contract.premium_amount) }}
               </span>
               <span class="text-[12px] text-[#B0B0B0]">
@@ -118,7 +118,7 @@
           <!-- Action Buttons -->
           <div class="flex gap-3 mb-6">
             <button
-              class="flex-1 bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+              class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
               @click="router.push('/claims/new')"
             >
               보험금 청구

@@ -8,7 +8,7 @@
         <h3 class="text-[15px] font-semibold text-[#222] truncate">{{ name }}</h3>
         <p class="text-[12px] text-[#888] mt-1 truncate">{{ address }}</p>
         <p v-if="phone" class="text-[12px] text-[#888] mt-0.5">{{ phone }}</p>
-        <p v-if="specialties" class="text-[12px] text-[#03C75A] mt-1 truncate">{{ specialties }}</p>
+        <p v-if="specialties" class="text-[12px] text-[#FF7B22] mt-1 truncate">{{ specialties }}</p>
       </div>
       <div v-if="imageUrl" class="flex-shrink-0">
         <img
@@ -18,9 +18,9 @@
         />
       </div>
       <div v-else class="ml-1 flex-shrink-0">
-        <div class="w-8 h-8 rounded-full bg-[#E5F6EB] flex items-center justify-center">
+        <div class="w-8 h-8 rounded-full bg-[#FFF3ED] flex items-center justify-center">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M9 5L16 12L9 19" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 5L16 12L9 19" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
       </div>

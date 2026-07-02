@@ -19,7 +19,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="센터명, 주소 검색"
-                class="w-full bg-white/95 backdrop-blur-sm rounded-[14px] pl-8 pr-4 py-3.5 text-[16px] border border-[#E0E0E0] outline-none focus:border-[#03C75A] transition-colors text-[#333] shadow-lg"
+                class="w-full bg-white/95 backdrop-blur-sm rounded-[14px] pl-8 pr-4 py-3.5 text-[16px] border border-[#E0E0E0] outline-none focus:border-[#FF7B22] transition-colors text-[#333] shadow-lg"
                 @input="debouncedSearch"
               />
             </div>
@@ -32,12 +32,12 @@
             @click="goToMyLocation"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="3" fill="#03C75A"/>
-              <circle cx="12" cy="12" r="8" stroke="#03C75A" stroke-width="2" fill="none"/>
-              <line x1="12" y1="2" x2="12" y2="5" stroke="#03C75A" stroke-width="2" stroke-linecap="round"/>
-              <line x1="12" y1="19" x2="12" y2="22" stroke="#03C75A" stroke-width="2" stroke-linecap="round"/>
-              <line x1="2" y1="12" x2="5" y2="12" stroke="#03C75A" stroke-width="2" stroke-linecap="round"/>
-              <line x1="19" y1="12" x2="22" y2="12" stroke="#03C75A" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="3" fill="#FF7B22"/>
+              <circle cx="12" cy="12" r="8" stroke="#FF7B22" stroke-width="2" fill="none"/>
+              <line x1="12" y1="2" x2="12" y2="5" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+              <line x1="12" y1="19" x2="12" y2="22" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+              <line x1="2" y1="12" x2="5" y2="12" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+              <line x1="19" y1="12" x2="22" y2="12" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
 
@@ -86,7 +86,7 @@
                   v-model="searchQuery"
                   type="text"
                   placeholder="센터명, 주소 검색"
-                  class="w-full bg-[#F8F8F8] rounded-[14px] pl-10 pr-4 py-3.5 text-[16px] border border-[#E8E8E8] outline-none focus:border-[#03C75A] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[14px] pl-10 pr-4 py-3.5 text-[16px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
                   @input="debouncedSearch"
                 />
               </div>
@@ -120,7 +120,7 @@
         <button
           v-show="!(selectedCenter && viewMode === 'map')"
           class="absolute z-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-full shadow-lg text-[15px] font-semibold transition-all active:scale-95"
-          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-[87px]' : 'bg-[#03C75A] text-white bottom-[35px]'"
+          :class="viewMode === 'map' ? 'bg-white text-[#333] bottom-[87px]' : 'bg-[#FF7B22] text-white bottom-[35px]'"
           @click="toggleView"
         >
           <svg v-if="viewMode === 'map'" width="18" height="18" viewBox="0 0 24 24" fill="none">

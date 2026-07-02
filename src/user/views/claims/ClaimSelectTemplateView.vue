@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보험 청구서 작성" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 보험사 선택 -->
@@ -8,7 +8,7 @@
           <p class="text-[13px] font-medium text-[#888] mb-2">보험사</p>
 
           <div v-if="claimStore.loadingCompanies" class="flex items-center justify-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03C75A]"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           </div>
 
           <div v-else class="grid grid-cols-2 gap-2">
@@ -19,7 +19,7 @@
               class="rounded-[10px] px-3 py-2.5 text-left transition-all active:scale-[0.98]"
               :class="
                 selectedCompanyId === company.company_id
-                  ? 'bg-[#E5F6EB] border-[1.5px] border-[#03C75A]'
+                  ? 'bg-[#FFF3ED] border-[1.5px] border-[#FF7B22]'
                   : 'bg-[#F8F8F8] border-[1.5px] border-transparent'
               "
             >
@@ -36,7 +36,7 @@
         <div v-if="selectedCompanyId" class="mb-5">
 
           <div v-if="claimStore.loadingClaimForms" class="flex items-center justify-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03C75A]"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           </div>
 
           <div v-else class="flex flex-col gap-3">
@@ -58,7 +58,7 @@
                 <p v-if="template.form_description" class="text-[12px] text-[#999] mt-1">
                   {{ template.form_description }}
                 </p>
-                <p v-if="template.form_fields_count" class="text-[11px] text-[#03C75A] mt-2">
+                <p v-if="template.form_fields_count" class="text-[11px] text-[#FF7B22] mt-2">
                   입력 필드 {{ template.form_fields_count }}개
                 </p>
               </CardSection>

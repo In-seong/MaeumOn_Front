@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="상담 요청" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
@@ -8,10 +8,10 @@
         <CardSection class="mb-4">
           <p class="text-[13px] text-[#555] leading-relaxed">
             <template v-if="hasAssignedAgent">
-              요청 접수 시 <span class="font-semibold text-[#03C75A]">담당 설계사</span>가 곧 연락드립니다.
+              요청 접수 시 <span class="font-semibold text-[#FF7B22]">담당 설계사</span>가 곧 연락드립니다.
             </template>
             <template v-else>
-              담당 설계사 미배정 상태입니다. <span class="font-semibold text-[#03C75A]">관리자</span>가 배정 후 연락드립니다.
+              담당 설계사 미배정 상태입니다. <span class="font-semibold text-[#FF7B22]">관리자</span>가 배정 후 연락드립니다.
             </template>
           </p>
         </CardSection>
@@ -24,17 +24,17 @@
               v-for="(type, idx) in consultTypes"
               :key="type.label"
               class="flex items-start gap-3 p-3 rounded-[12px] border cursor-pointer transition-colors"
-              :class="selectedType === idx ? 'border-[#03C75A] bg-[#FFF7F0]' : 'border-[#E8E8E8] bg-white'"
+              :class="selectedType === idx ? 'border-[#FF7B22] bg-[#FFF7F0]' : 'border-[#E8E8E8] bg-white'"
             >
               <input
                 type="radio"
                 name="consultType"
                 :value="idx"
                 v-model="selectedType"
-                class="mt-1 accent-[#03C75A]"
+                class="mt-1 accent-[#FF7B22]"
               />
               <div>
-                <p class="text-[14px] font-medium" :class="selectedType === idx ? 'text-[#03C75A]' : 'text-[#333]'">{{ type.label }}</p>
+                <p class="text-[14px] font-medium" :class="selectedType === idx ? 'text-[#FF7B22]' : 'text-[#333]'">{{ type.label }}</p>
                 <p class="text-[11px] text-[#999]">{{ type.desc }}</p>
               </div>
             </label>
@@ -65,7 +65,7 @@
               v-for="time in timeSlots"
               :key="time"
               class="px-3 py-2 rounded-[10px] text-[13px] font-medium border transition-colors"
-              :class="selectedTime === time ? 'bg-[#03C75A] text-white border-[#03C75A]' : 'bg-white text-[#555] border-[#E0E0E0]'"
+              :class="selectedTime === time ? 'bg-[#FF7B22] text-white border-[#FF7B22]' : 'bg-white text-[#555] border-[#E0E0E0]'"
               @click="selectedTime = time"
             >
               {{ time }}
@@ -75,13 +75,13 @@
 
         <!-- Consent -->
         <div class="flex items-start gap-2.5 mb-5 px-1">
-          <input type="checkbox" v-model="consent" class="mt-1 accent-[#03C75A] w-4 h-4" />
+          <input type="checkbox" v-model="consent" class="mt-1 accent-[#FF7B22] w-4 h-4" />
           <p class="text-[12px] text-[#888] leading-relaxed">상담 요청을 위해 개인정보(이름, 연락처, 생년월일)를 담당 설계사에게 제공하는 것에 동의합니다.</p>
         </div>
 
         <!-- Submit Button -->
         <button
-          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
           :class="!canSubmit ? 'opacity-50 cursor-not-allowed' : ''"
           :disabled="!canSubmit"
           @click="submit"

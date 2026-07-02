@@ -23,7 +23,7 @@
                 </div>
                 <div v-if="hospital.contact_phone" class="flex items-center gap-2">
                   <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#888" stroke-width="2"/></svg>
-                  <a :href="'tel:' + hospital.contact_phone" class="text-[14px] text-[#03C75A] font-medium">{{ hospital.contact_phone }}</a>
+                  <a :href="'tel:' + hospital.contact_phone" class="text-[14px] text-[#FF7B22] font-medium">{{ hospital.contact_phone }}</a>
                 </div>
                 <div v-if="hospital.business_hours" class="flex items-start gap-2">
                   <svg class="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#888" stroke-width="2" stroke-linecap="round"/></svg>
@@ -105,7 +105,7 @@
                     <button
                       type="button"
                       class="flex-1 py-3 rounded-[10px] text-[14px] font-medium border transition-colors"
-                      :class="reserveForm.visit_type === 'treatment' ? 'bg-[#03C75A] text-white border-[#03C75A]' : 'bg-white text-[#555] border-[#E0E0E0]'"
+                      :class="reserveForm.visit_type === 'treatment' ? 'bg-[#FF7B22] text-white border-[#FF7B22]' : 'bg-white text-[#555] border-[#E0E0E0]'"
                       @click="reserveForm.visit_type = 'treatment'"
                     >
                       치료
@@ -113,7 +113,7 @@
                     <button
                       type="button"
                       class="flex-1 py-3 rounded-[10px] text-[14px] font-medium border transition-colors"
-                      :class="reserveForm.visit_type === 'checkup' ? 'bg-[#03C75A] text-white border-[#03C75A]' : 'bg-white text-[#555] border-[#E0E0E0]'"
+                      :class="reserveForm.visit_type === 'checkup' ? 'bg-[#FF7B22] text-white border-[#FF7B22]' : 'bg-white text-[#555] border-[#E0E0E0]'"
                       @click="reserveForm.visit_type = 'checkup'"
                     >
                       검진
@@ -163,7 +163,7 @@
 
               <button
                 class="w-full py-4 rounded-[12px] text-[16px] font-semibold transition-all active:scale-[0.98] mt-5"
-                :class="isReservationValid ? 'bg-[#03C75A] text-white' : 'bg-[#E0E0E0] text-[#999] cursor-not-allowed'"
+                :class="isReservationValid ? 'bg-[#FF7B22] text-white' : 'bg-[#E0E0E0] text-[#999] cursor-not-allowed'"
                 :disabled="!isReservationValid || reserveLoading"
                 @click="submitReservation"
               >
@@ -318,8 +318,8 @@ async function onDateSelect(date: string) {
 
 function getSlotClass(slot: TimeSlotItem): string {
   if (!slot.available) return 'bg-[#F5F5F5] text-[#D0D0D0] border-[#F0F0F0] cursor-not-allowed'
-  if (slot.time === reserveForm.value.reservation_time) return 'bg-[#03C75A] text-white border-[#03C75A]'
-  return 'bg-white text-[#555] border-[#E0E0E0] hover:border-[#03C75A]'
+  if (slot.time === reserveForm.value.reservation_time) return 'bg-[#FF7B22] text-white border-[#FF7B22]'
+  return 'bg-white text-[#555] border-[#E0E0E0] hover:border-[#FF7B22]'
 }
 
 async function submitReservation() {

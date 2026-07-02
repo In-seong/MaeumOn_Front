@@ -26,7 +26,7 @@ const barColor = computed(() => {
     success: 'bg-[#1FBD53]',
     warning: 'bg-[#F3940E]',
     danger: 'bg-[#FF0000]',
-    primary: 'bg-[#03C75A]'
+    primary: 'bg-[#FF7B22]'
   }
   return map[props.variant] || map.primary
 })

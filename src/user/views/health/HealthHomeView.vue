@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="내 건강 정보" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <div v-if="loading" class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#03C75A] border-t-transparent"></div>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#FF7B22] border-t-transparent"></div>
           <p class="text-[13px] text-[#888] mt-3">불러오는 중...</p>
         </div>
 
@@ -168,7 +168,7 @@ const heroCircleClass = computed(() => {
   const overall = summary.value?.checkup?.risk_summary?.overall
   if (overall === 'danger') return 'bg-red-500'
   if (overall === 'caution') return 'bg-orange-500'
-  if (overall === 'normal') return 'bg-green-500'
+  if (overall === 'normal') return 'bg-[#FFF3ED]0'
   return 'bg-gray-400'
 })
 
@@ -189,7 +189,7 @@ function getGradeClass(type: PredictionType): string {
   if (grade >= 5) return 'bg-red-100 text-red-700'
   if (grade >= 4) return 'bg-orange-100 text-orange-700'
   if (grade >= 3) return 'bg-yellow-100 text-yellow-700'
-  if (grade >= 1) return 'bg-green-100 text-green-700'
+  if (grade >= 1) return 'bg-[#FFF3ED] text-[#E56D1E]'
   return 'bg-gray-100 text-gray-500'
 }
 

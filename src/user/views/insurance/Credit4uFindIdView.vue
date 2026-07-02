@@ -1,27 +1,27 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="아이디 찾기" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 결과 화면 -->
         <template v-if="store.foundLoginId">
           <CardSection class="mb-5">
             <div class="text-center py-4">
-              <div class="w-[56px] h-[56px] mx-auto mb-3 bg-[#E8F5E9] rounded-full flex items-center justify-center">
+              <div class="w-[56px] h-[56px] mx-auto mb-3 bg-[#FFF3ED] rounded-full flex items-center justify-center">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 6L9 17l-5-5" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20 6L9 17l-5-5" stroke="#FF7B22" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <p class="text-[15px] font-semibold text-[#222] mb-2">아이디를 찾았습니다</p>
               <div class="bg-[#F8F8F8] rounded-[12px] px-5 py-4 mt-3">
                 <p class="text-[12px] text-[#999] mb-1">내보험다보여 아이디</p>
-                <p class="text-[20px] font-bold text-[#03C75A]">{{ store.foundLoginId }}</p>
+                <p class="text-[20px] font-bold text-[#FF7B22]">{{ store.foundLoginId }}</p>
               </div>
             </div>
           </CardSection>
 
           <button
-            class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform"
             @click="router.push('/insurance/credit4u/login')"
           >
             로그인하러 가기
@@ -56,7 +56,7 @@
                   :key="t.value"
                   class="rounded-[10px] py-2.5 text-[13px] font-medium border transition-colors"
                   :class="form.telecom === t.value
-                    ? 'border-[#03C75A] bg-[#E5F6EB] text-[#03C75A]'
+                    ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]'
                     : 'border-[#E8E8E8] bg-[#F8F8F8] text-[#888]'"
                   @click="form.telecom = t.value"
                 >
@@ -79,7 +79,7 @@
 
           <!-- 찾기 버튼 -->
           <button
-            class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+            class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
             :disabled="!isFormValid || store.loading"
             @click="onFindId"
           >

@@ -1,15 +1,15 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="내보험다보여 로그인" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px);">
         <!-- 안내 -->
         <CardSection class="mb-5">
           <div class="text-center py-2">
-            <div class="w-[56px] h-[56px] mx-auto mb-3 bg-[#E5F6EB] rounded-full flex items-center justify-center">
+            <div class="w-[56px] h-[56px] mx-auto mb-3 bg-[#FFF3ED] rounded-full flex items-center justify-center">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="12" cy="7" r="4" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="7" r="4" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <p class="text-[15px] font-semibold text-[#222] mb-1">내보험다보여 계정으로 로그인</p>
@@ -39,7 +39,7 @@
 
         <!-- 로그인 버튼 -->
         <button
-          class="w-full bg-[#03C75A] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+          class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed mb-4"
           :disabled="!isFormValid || store.loading"
           @click="onLogin"
         >

@@ -14,13 +14,13 @@
                 v-model="phoneInput"
                 type="tel"
                 placeholder="010-0000-0000"
-                class="flex-1 px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[15px] focus:outline-none focus:border-[#03C75A]"
+                class="flex-1 px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[15px] focus:outline-none focus:border-[#FF7B22]"
                 @keyup.enter="lookupReservations"
               />
               <button
                 @click="lookupReservations"
                 :disabled="!phoneInput.trim()"
-                class="px-5 py-3 bg-[#03C75A] text-white rounded-[12px] text-[15px] font-semibold disabled:opacity-40 hover:bg-[#02A94D] transition-colors"
+                class="px-5 py-3 bg-[#FF7B22] text-white rounded-[12px] text-[15px] font-semibold disabled:opacity-40 hover:bg-[#02A94D] transition-colors"
               >
                 조회
               </button>
@@ -35,11 +35,11 @@
               <p class="text-[13px] text-[#888]">{{ savedPhone }}</p>
               <p class="text-[12px] text-[#BBB]">총 {{ reservations.length }}건</p>
             </div>
-            <button @click="resetPhone" class="text-[13px] text-[#03C75A] font-medium">다른 번호로 조회</button>
+            <button @click="resetPhone" class="text-[13px] text-[#FF7B22] font-medium">다른 번호로 조회</button>
           </div>
 
           <div v-if="loading" class="text-center py-10">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03C75A] mx-auto"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
           </div>
 
           <div v-else-if="reservations.length === 0" class="text-center py-16">
@@ -183,7 +183,7 @@ function statusLabel(s: string): string {
 function statusClass(s: string): string {
   const m: Record<string, string> = {
     pending: 'bg-yellow-50 text-yellow-700',
-    confirmed: 'bg-green-50 text-green-700',
+    confirmed: 'bg-[#FFF3ED] text-[#E56D1E]',
     cancelled: 'bg-red-50 text-red-500',
     completed: 'bg-blue-50 text-blue-700',
   }

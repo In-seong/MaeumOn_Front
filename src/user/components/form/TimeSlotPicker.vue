@@ -69,8 +69,8 @@ const afternoonSlots: TimeSlot[] = [
 
 function getSlotClass(slot: TimeSlot): string {
   if (slot.disabled) return 'bg-[#F5F5F5] text-[#D0D0D0] border-[#F0F0F0] cursor-default'
-  if (slot.time === selected.value) return 'bg-[#03C75A] text-white border-[#03C75A]'
-  return 'bg-white text-[#555] border-[#E0E0E0] hover:border-[#03C75A]'
+  if (slot.time === selected.value) return 'bg-[#FF7B22] text-white border-[#FF7B22]'
+  return 'bg-white text-[#555] border-[#E0E0E0] hover:border-[#FF7B22]'
 }
 
 function selectSlot(time: string): void {

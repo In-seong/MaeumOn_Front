@@ -2,7 +2,7 @@
   <div class="flex gap-[14px] w-full" style="height: 192px;">
     <div class="flex-1 flex flex-col justify-between bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 cursor-pointer" @click="router.push('/insurance')">
       <div>
-        <h3 class="text-[15px] font-medium text-[#03C75A] mb-3">내 보험 현황</h3>
+        <h3 class="text-[15px] font-medium text-[#FF7B22] mb-3">내 보험 현황</h3>
         <template v-if="hasContracts">
           <p class="text-[13px] font-semibold text-[#555555] mb-0.5">월 납입료</p>
           <p class="text-[17px] font-semibold text-black">{{ formattedTotalPremium }}</p>
@@ -14,24 +14,24 @@
       <div class="flex justify-end">
         <span
           v-if="hasContracts"
-          class="text-[28px] font-bold text-[#03C75A]"
-          style="text-decoration: underline; text-decoration-color: #03C75A; text-underline-offset: 6px; text-decoration-thickness: 2px;"
+          class="text-[28px] font-bold text-[#FF7B22]"
+          style="text-decoration: underline; text-decoration-color: #FF7B22; text-underline-offset: 6px; text-decoration-thickness: 2px;"
         >{{ contractCount }}건</span>
         <span
           v-else
-          class="text-[17px] font-bold text-[#03C75A]"
-          style="text-decoration: underline; text-decoration-color: #03C75A; text-underline-offset: 6px; text-decoration-thickness: 2px;"
+          class="text-[17px] font-bold text-[#FF7B22]"
+          style="text-decoration: underline; text-decoration-color: #FF7B22; text-underline-offset: 6px; text-decoration-thickness: 2px;"
         >조회하기</span>
       </div>
     </div>
     <div class="flex-1 flex flex-col justify-between bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 cursor-pointer" @click="showModal = true">
       <div>
-        <h3 class="text-[15px] font-medium text-[#03C75A] mb-3">보험금 청구</h3>
+        <h3 class="text-[15px] font-medium text-[#FF7B22] mb-3">보험금 청구</h3>
         <p class="text-[13px] font-normal text-[#555555] leading-[1.6]">간편하게<br>보험금 청구하세요</p>
       </div>
       <div class="flex justify-end">
         <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1L7 7L1 13" stroke="#03C75A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1 1L7 7L1 13" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
     </div>
@@ -45,13 +45,13 @@
         <p class="text-[16px] font-bold text-[#222] text-center mb-5">청구 방식 선택</p>
         <div class="flex flex-col gap-3">
           <button
-            class="w-full py-3.5 bg-[#03C75A] text-white rounded-[12px] text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            class="w-full py-3.5 bg-[#FF7B22] text-white rounded-[12px] text-[15px] font-semibold active:scale-[0.98] transition-transform"
             @click="handleClaim('direct')"
           >
             직접 청구하기
           </button>
           <button
-            class="w-full py-3.5 bg-white border border-[#03C75A] text-[#03C75A] rounded-[12px] text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            class="w-full py-3.5 bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] text-[15px] font-semibold active:scale-[0.98] transition-transform"
             @click="handleClaim('agent')"
           >
             대리 청구 요청하기

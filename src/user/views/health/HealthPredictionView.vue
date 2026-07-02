@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#E8F7EE] to-[#FFFFFF]">
+  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="typeLabel" />
 
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100vh - 56px - 60px);">
         <div v-if="loading" class="text-center py-20">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#03C75A] border-t-transparent"></div>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#FF7B22] border-t-transparent"></div>
         </div>
 
         <template v-else>
@@ -24,7 +24,7 @@
               </div>
 
               <button
-                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="!canSubmit"
                 @click="onFetch"
               >
@@ -57,7 +57,7 @@
                 >
                   <p class="text-[13px] font-medium text-[#333]">{{ d.resType || d.resRiskFactor || '-' }}</p>
                   <p v-if="d.resState" class="text-[12px] text-[#666] mt-0.5">상태: {{ d.resState }}</p>
-                  <p v-if="d.resRecommendValue" class="text-[12px] text-[#03C75A]">권장: {{ d.resRecommendValue }}</p>
+                  <p v-if="d.resRecommendValue" class="text-[12px] text-[#FF7B22]">권장: {{ d.resRecommendValue }}</p>
                 </div>
               </div>
             </CardSection>
@@ -76,7 +76,7 @@
             </CardSection>
 
             <button
-              class="w-full bg-[#03C75A] text-white rounded-[10px] py-2.5 text-[14px] font-semibold disabled:opacity-50"
+              class="w-full bg-[#FF7B22] text-white rounded-[10px] py-2.5 text-[14px] font-semibold disabled:opacity-50"
               :disabled="busy"
               @click="onFetch"
             >
@@ -96,7 +96,7 @@
             <div class="w-full max-w-[402px] bg-white rounded-t-[20px] sm:rounded-[20px] p-6 pb-8">
               <h3 class="text-[16px] font-bold text-[#222] mb-3">추가인증이 필요합니다</h3>
               <button
-                class="w-full bg-[#03C75A] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
+                class="w-full bg-[#FF7B22] text-white rounded-[10px] py-3 text-[14px] font-semibold disabled:opacity-50"
                 :disabled="busy"
                 @click="onConfirm"
               >
@@ -161,7 +161,7 @@ const heroCircleClass = computed(() => {
   if (grade >= 5) return 'bg-red-500'
   if (grade >= 4) return 'bg-orange-500'
   if (grade >= 3) return 'bg-yellow-500'
-  if (grade >= 1) return 'bg-green-500'
+  if (grade >= 1) return 'bg-[#FFF3ED]0'
   return 'bg-gray-400'
 })
 
