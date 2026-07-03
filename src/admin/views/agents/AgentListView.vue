@@ -106,24 +106,12 @@
         </tbody>
       </table>
 
-      <!-- 페이지네이션 -->
-      <div v-if="store.pagination && store.pagination.last_page > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
-        <div class="flex justify-center gap-2">
-          <button
-            v-for="page in store.pagination.last_page"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'px-3 py-1 rounded-[8px] text-[14px]',
-              page === store.pagination.current_page
-                ? 'bg-[#FF7B22] text-white'
-                : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
-            ]"
-          >
-            {{ page }}
-          </button>
-        </div>
-      </div>
+      <Pagination
+        v-if="store.pagination"
+        :current-page="store.pagination.current_page"
+        :last-page="store.pagination.last_page"
+        @change="goToPage"
+      />
     </div>
   </div>
 </template>
@@ -134,6 +122,7 @@ import { useRouter } from 'vue-router'
 import { useAgentStore } from '../../stores/agentStore'
 import { useSortable } from '../../composables/useSortable'
 import type { AdminAgent } from '../../types'
+import Pagination from '../../components/Pagination.vue'
 
 const router = useRouter()
 const store = useAgentStore()

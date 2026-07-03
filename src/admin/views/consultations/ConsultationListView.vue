@@ -102,24 +102,12 @@
         </tbody>
       </table>
 
-      <!-- 페이지네이션 -->
-      <div v-if="pagination && pagination.last_page > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
-        <div class="flex justify-center gap-2">
-          <button
-            v-for="page in pagination.last_page"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'px-3 py-1 rounded-[8px] text-[14px]',
-              page === pagination.current_page
-                ? 'bg-[#FF7B22] text-white'
-                : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
-            ]"
-          >
-            {{ page }}
-          </button>
-        </div>
-      </div>
+      <Pagination
+        v-if="pagination"
+        :current-page="pagination.current_page"
+        :last-page="pagination.last_page"
+        @change="goToPage"
+      />
     </div>
 
     <!-- 상세/처리 모달 -->
@@ -255,6 +243,7 @@ import {
   fetchAgents,
 } from '../../services/adminApi'
 import type { AdminConsultation, AdminAgent, LaravelPagination } from '../../types'
+import Pagination from '../../components/Pagination.vue'
 
 const consultations = ref<AdminConsultation[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminConsultation>, 'data'> | null>(null)

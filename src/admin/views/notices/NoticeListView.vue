@@ -123,24 +123,11 @@
         </tbody>
       </table>
 
-      <!-- 페이지네이션 -->
-      <div v-if="store.pagination.lastPage > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
-        <div class="flex justify-center gap-2">
-          <button
-            v-for="page in store.pagination.lastPage"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'px-3 py-1 rounded-[8px] text-[14px]',
-              page === store.pagination.currentPage
-                ? 'bg-[#FF7B22] text-white'
-                : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
-            ]"
-          >
-            {{ page }}
-          </button>
-        </div>
-      </div>
+      <Pagination
+        :current-page="store.pagination.currentPage"
+        :last-page="store.pagination.lastPage"
+        @change="goToPage"
+      />
     </div>
   </div>
 </template>
@@ -150,6 +137,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNoticeStore } from '../../stores/noticeStore'
 import type { AdminNotice } from '../../types'
+import Pagination from '../../components/Pagination.vue'
 
 const router = useRouter()
 const store = useNoticeStore()

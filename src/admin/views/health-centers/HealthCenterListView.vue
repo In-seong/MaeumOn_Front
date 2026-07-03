@@ -53,14 +53,12 @@
         </tbody>
       </table>
 
-      <div v-if="pagination && pagination.last_page > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
-        <div class="flex justify-center gap-2">
-          <button v-for="page in pagination.last_page" :key="page" @click="fetchData(page)"
-            :class="['px-3 py-1 rounded-[8px] text-[14px]', page === pagination.current_page ? 'bg-[#FF7B22] text-white' : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED]']">
-            {{ page }}
-          </button>
-        </div>
-      </div>
+      <Pagination
+        v-if="pagination"
+        :current-page="pagination.current_page"
+        :last-page="pagination.last_page"
+        @change="fetchData"
+      />
     </div>
 
     <!-- 등록/수정 모달 -->
@@ -222,6 +220,7 @@ import { useSortable } from '../../composables/useSortable'
 import type { AdminHealthCenter, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
 import MapLocationPicker from '../../components/MapLocationPicker.vue'
+import Pagination from '../../components/Pagination.vue'
 
 const centers = ref<AdminHealthCenter[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminHealthCenter>, 'data'> | null>(null)

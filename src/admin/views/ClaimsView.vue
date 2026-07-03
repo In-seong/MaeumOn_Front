@@ -122,24 +122,7 @@
         </tbody>
       </table>
 
-      <!-- 페이지네이션 -->
-      <div v-if="pagination && pagination.last_page > 1" class="px-6 py-4 border-t border-[#F0F0F0]">
-        <div class="flex justify-center gap-2">
-          <button
-            v-for="page in pagination.last_page"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'px-3 py-1 rounded-[8px] text-[14px]',
-              page === pagination.current_page
-                ? 'bg-[#FF7B22] text-white'
-                : 'bg-[#F8F8F8] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]'
-            ]"
-          >
-            {{ page }}
-          </button>
-        </div>
-      </div>
+      <Pagination v-if="pagination" :current-page="pagination.current_page" :last-page="pagination.last_page" @change="goToPage" />
     </div>
 
     <!-- 승인 금액 입력 모달 -->
@@ -188,6 +171,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { claimApi } from '@shared/services/insuranceApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import { useSortable } from '../composables/useSortable'
+import Pagination from '../components/Pagination.vue'
 import type { InsuranceClaim, PaginatedResponse } from '@shared/types'
 
 const claims = ref<InsuranceClaim[]>([])
