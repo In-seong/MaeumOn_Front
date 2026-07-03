@@ -79,15 +79,16 @@
             <div class="flex items-center gap-1 mb-1">
               <p class="text-[12px] text-[#999]">주민등록번호</p>
               <button
-                v-if="customer.resident_number"
-                @click="showFullRrn = !showFullRrn"
+                v-if="customer.resident_number_masked"
+                @click="toggleRrn"
+                :disabled="rrnLoading"
                 class="text-[#999] hover:text-[#555] transition-colors"
                 :title="showFullRrn ? '주민번호 숨기기' : '주민번호 보기'"
               >
                 <span class="material-symbols-outlined text-[13px]">{{ showFullRrn ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
-            <p class="text-[14px] text-[#333]">{{ showFullRrn ? formatResidentNumberFull(customer.resident_number) : formatResidentNumber(customer.resident_number) }}</p>
+            <p class="text-[14px] text-[#333]">{{ showFullRrn && fullRrn ? formatResidentNumberFull(fullRrn) : (customer.resident_number_masked || '-') }}</p>
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">생년월일</p>
@@ -323,6 +324,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { unmaskResidentNumber } from '../../services/adminApi'
 import type { Memo } from '../../types'
 
 const route = useRoute()
@@ -333,6 +335,8 @@ const activeTab = ref('info')
 const memoSubmitting = ref(false)
 const editingMemoId = ref<number | null>(null)
 const showFullRrn = ref(false)
+const fullRrn = ref<string | null>(null)
+const rrnLoading = ref(false)
 
 const tabs = [
   { key: 'info', label: '기본정보' },
@@ -373,6 +377,28 @@ function formatPhone(phone?: string): string {
     return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
   }
   return phone
+}
+
+async function toggleRrn() {
+  if (showFullRrn.value) {
+    showFullRrn.value = false
+    return
+  }
+  if (fullRrn.value) {
+    showFullRrn.value = true
+    return
+  }
+  const customerId = route.params.id as string
+  rrnLoading.value = true
+  try {
+    const res = await unmaskResidentNumber(customerId)
+    fullRrn.value = res.data.data.resident_number
+    showFullRrn.value = true
+  } catch {
+    alert('주민번호 조회에 실패했습니다.')
+  } finally {
+    rrnLoading.value = false
+  }
 }
 
 function formatResidentNumber(rn?: string): string {

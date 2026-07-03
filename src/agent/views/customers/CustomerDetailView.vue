@@ -247,12 +247,13 @@
             <div class="flex items-center justify-between py-2 border-b border-[#F5F5F5] last:border-0">
               <span class="text-[13px] text-[#888]">주민등록번호</span>
               <div class="flex items-center gap-1.5">
-                <span class="text-[13px] text-[#333]">{{ showRrn ? fullRrn : maskedRrn }}</span>
+                <span class="text-[13px] text-[#333]">{{ showRrn && fullRrnData ? fullRrn : maskedRrn }}</span>
                 <button
-                  v-if="customer.resident_number"
+                  v-if="customer.resident_number_masked"
                   type="button"
                   class="p-1 text-[#AAAAAA] active:text-[#FF7B22]"
-                  @click="showRrn = !showRrn"
+                  :disabled="rrnLoading"
+                  @click="toggleRrn"
                 >
                   <svg v-if="!showRrn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 01-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -647,7 +648,7 @@ import ActionButton from '@user/components/ui/ActionButton.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useToast } from '../../composables/useToast'
-import { fetchInsuranceCompanies } from '../../services/agentApi'
+import { fetchInsuranceCompanies, unmaskResidentNumber } from '../../services/agentApi'
 import type { Memo, Contract } from '../../types'
 import type { InsuranceCompany } from '@shared/types'
 
@@ -666,6 +667,8 @@ const toast = useToast()
 const activeTab = ref<TabKey>('info')
 const showMenu = ref(false)
 const showRrn = ref(false)
+const fullRrnData = ref<string | null>(null)
+const rrnLoading = ref(false)
 const memoSortOrder = ref<'desc' | 'asc'>('desc')
 
 // ===== 메모 추가 =====
@@ -831,17 +834,12 @@ const customerId = computed(() => String(route.params.id))
 const customer = computed(() => store.selectedCustomer)
 
 const maskedRrn = computed(() => {
-  const rrn = customer.value?.resident_number
-  if (!rrn) return '-'
-  const raw = rrn.replace(/-/g, '')
-  if (raw.length <= 6) return raw
-  return `${raw.slice(0, 6)}-${raw.charAt(6)}******`
+  return customer.value?.resident_number_masked ?? '-'
 })
 
 const fullRrn = computed(() => {
-  const rrn = customer.value?.resident_number
-  if (!rrn) return '-'
-  const raw = rrn.replace(/-/g, '')
+  if (!fullRrnData.value) return '-'
+  const raw = fullRrnData.value.replace(/-/g, '')
   if (raw.length <= 6) return raw
   return `${raw.slice(0, 6)}-${raw.slice(6)}`
 })
@@ -857,6 +855,21 @@ const sortedMemos = computed(() => {
   })
   return list
 })
+
+async function toggleRrn(): Promise<void> {
+  if (showRrn.value) { showRrn.value = false; return }
+  if (fullRrnData.value) { showRrn.value = true; return }
+  rrnLoading.value = true
+  try {
+    const res = await unmaskResidentNumber(customerId.value)
+    fullRrnData.value = res.data.data.resident_number
+    showRrn.value = true
+  } catch {
+    toast.showToast('주민번호 조회에 실패했습니다.', 'error')
+  } finally {
+    rrnLoading.value = false
+  }
+}
 
 function toggleMemoSort(): void {
   memoSortOrder.value = memoSortOrder.value === 'desc' ? 'asc' : 'desc'
@@ -876,6 +889,7 @@ watch(() => route.params.id, async (newId) => {
   if (newId) {
     activeTab.value = 'info'
     showRrn.value = false
+    fullRrnData.value = null
     isEditing.value = false
     editingMemoId.value = null
     await store.loadCustomer(String(newId))

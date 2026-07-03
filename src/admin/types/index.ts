@@ -27,6 +27,7 @@ export interface AdminCustomer extends Customer {
     name: string
     phone?: string
   }
+  resident_number_masked?: string
   contracts_count?: number
   claims_count?: number
   memos_count?: number

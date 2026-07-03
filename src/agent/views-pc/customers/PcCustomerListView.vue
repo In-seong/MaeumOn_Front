@@ -55,7 +55,7 @@
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
-            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">이메일</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">만나이</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">성별</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">등록일</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
@@ -71,7 +71,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ customer.name }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666]">{{ formatPhone(customer.phone) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ customer.email || '-' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ calcAge(customer.birth_date) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden lg:table-cell">{{ genderLabel(customer.gender) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden lg:table-cell">{{ formatDate(customer.created_at) }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -186,6 +186,17 @@ const visiblePages = computed(() => {
   for (let i = start; i <= end; i++) pages.push(i)
   return pages
 })
+
+function calcAge(bd?: string): string {
+  if (!bd) return '-'
+  const birth = new Date(bd)
+  if (isNaN(birth.getTime())) return '-'
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return `${age}세`
+}
 
 function formatPhone(phone?: string): string {
   if (!phone) return '-'

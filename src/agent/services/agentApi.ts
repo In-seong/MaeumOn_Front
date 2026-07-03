@@ -49,6 +49,9 @@ export const updateCustomer = (id: string, data: Partial<Customer>) =>
 export const deleteCustomer = (id: string) =>
   api.delete<ApiResponse<Customer>>(`${BASE}/customers/${id}`)
 
+export const unmaskResidentNumber = (id: string) =>
+  api.get<ApiResponse<{ resident_number: string }>>(`${BASE}/customers/${id}/resident-number`)
+
 // ===== Customer Contracts =====
 export const fetchCustomerContracts = (customerId: string) =>
   api.get<ApiResponse<LaravelPagination<import('../types').Contract>>>(`${BASE}/customers/${customerId}/contracts`)

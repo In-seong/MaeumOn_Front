@@ -31,6 +31,7 @@ export interface Customer {
   agent_id?: number
   name: string
   resident_number?: string
+  resident_number_masked?: string
   gender?: string
   birth_date?: string
   phone?: string

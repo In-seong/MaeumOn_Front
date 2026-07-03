@@ -20,6 +20,9 @@
         </div>
         <p class="text-[13px] text-[#888] mb-0.5">{{ customer.phone }}</p>
         <div class="flex items-center gap-3 text-[11px] text-[#AAAAAA]">
+          <span v-if="calcAge(customer.birth_date)" class="text-[#999]">
+            {{ calcAge(customer.birth_date) }}
+          </span>
           <span v-if="customer.job" class="text-[#999]">
             {{ customer.job }}
           </span>
@@ -46,4 +49,15 @@ defineProps<Props>()
 defineEmits<{
   click: [customer: Customer]
 }>()
+
+function calcAge(bd?: string): string {
+  if (!bd) return ''
+  const birth = new Date(bd)
+  if (isNaN(birth.getTime())) return ''
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return `${age}세`
+}
 </script>

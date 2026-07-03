@@ -32,6 +32,9 @@ export const updateCustomer = (id: string, data: Record<string, unknown>) =>
 export const deleteCustomer = (id: string) =>
   api.delete<ApiResponse<AdminCustomer>>(`${BASE}/customers/${id}`)
 
+export const unmaskResidentNumber = (id: string) =>
+  api.get<ApiResponse<{ resident_number: string }>>(`${BASE}/customers/${id}/resident-number`)
+
 // ===== Customer Memos (SFR-038) =====
 export const fetchMemos = (customerId: string, params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<Memo>>>(`${BASE}/customers/${customerId}/memos`, { params })
