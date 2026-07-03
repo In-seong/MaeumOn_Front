@@ -77,11 +77,24 @@
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">주민등록번호</p>
-            <p class="text-[14px] text-[#333]">{{ formatResidentNumber(customer.resident_number) }}</p>
+            <div class="flex items-center gap-1.5">
+              <p class="text-[14px] text-[#333]">{{ showFullRrn ? formatResidentNumberFull(customer.resident_number) : formatResidentNumber(customer.resident_number) }}</p>
+              <button
+                v-if="customer.resident_number"
+                @click="showFullRrn = !showFullRrn"
+                class="text-[#999] hover:text-[#555] transition-colors p-0.5"
+                :title="showFullRrn ? '주민번호 숨기기' : '주민번호 보기'"
+              >
+                <span class="material-symbols-outlined text-[18px]">{{ showFullRrn ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">생년월일</p>
-            <p class="text-[14px] text-[#333]">{{ customer.birth_date || '-' }}</p>
+            <p class="text-[14px] text-[#333]">
+              {{ formatBirthDate(customer.birth_date) }}
+              <span v-if="customer.birth_date" class="text-[13px] text-[#999] ml-1">(만 {{ calcKoreanAge(customer.birth_date) }}세)</span>
+            </p>
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">성별</p>
@@ -319,6 +332,7 @@ const loading = ref(false)
 const activeTab = ref('info')
 const memoSubmitting = ref(false)
 const editingMemoId = ref<number | null>(null)
+const showFullRrn = ref(false)
 
 const tabs = [
   { key: 'info', label: '기본정보' },
@@ -364,10 +378,41 @@ function formatPhone(phone?: string): string {
 function formatResidentNumber(rn?: string): string {
   if (!rn) return '-'
   const cleaned = rn.replace(/\D/g, '')
-  if (cleaned.length === 13) {
+  if (cleaned.length >= 7) {
     return `${cleaned.slice(0, 6)}-${cleaned.slice(6, 7)}******`
   }
+  if (cleaned.length === 6) {
+    return cleaned
+  }
   return rn
+}
+
+function formatResidentNumberFull(rn?: string): string {
+  if (!rn) return '-'
+  const cleaned = rn.replace(/\D/g, '')
+  if (cleaned.length === 13) {
+    return `${cleaned.slice(0, 6)}-${cleaned.slice(6)}`
+  }
+  return cleaned || rn
+}
+
+function formatBirthDate(bd?: string): string {
+  if (!bd) return '-'
+  const d = new Date(bd)
+  if (isNaN(d.getTime())) return bd
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function calcKoreanAge(bd?: string): number {
+  if (!bd) return 0
+  const birth = new Date(bd)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age
 }
 
 function formatGender(gender?: string): string {
