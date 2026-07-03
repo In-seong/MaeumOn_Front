@@ -76,18 +76,18 @@
             <p class="text-[14px] text-[#333]">{{ customer.email || '-' }}</p>
           </div>
           <div>
-            <p class="text-[12px] text-[#999] mb-1">주민등록번호</p>
-            <div class="flex items-center gap-1.5">
-              <p class="text-[14px] text-[#333]">{{ showFullRrn ? formatResidentNumberFull(customer.resident_number) : formatResidentNumber(customer.resident_number) }}</p>
+            <div class="flex items-center gap-1 mb-1">
+              <p class="text-[12px] text-[#999]">주민등록번호</p>
               <button
                 v-if="customer.resident_number"
                 @click="showFullRrn = !showFullRrn"
-                class="text-[#999] hover:text-[#555] transition-colors p-0.5"
+                class="text-[#999] hover:text-[#555] transition-colors"
                 :title="showFullRrn ? '주민번호 숨기기' : '주민번호 보기'"
               >
-                <span class="material-symbols-outlined text-[18px]">{{ showFullRrn ? 'visibility_off' : 'visibility' }}</span>
+                <span class="material-symbols-outlined text-[13px]">{{ showFullRrn ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
+            <p class="text-[14px] text-[#333]">{{ showFullRrn ? formatResidentNumberFull(customer.resident_number) : formatResidentNumber(customer.resident_number) }}</p>
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">생년월일</p>
