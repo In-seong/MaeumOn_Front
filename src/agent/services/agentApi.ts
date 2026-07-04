@@ -6,10 +6,12 @@ import type {
   DashboardTask,
   Memo, StatisticsTrend, MessageTemplate,
   BatchClaim,
+  MedicalRecordFull, HealthCheckupRecord, HealthAgeRecord,
   ApiResponse, LaravelPagination,
 } from '../types'
 import type {
   InsuranceCompany, ClaimForm, InsuranceClaim, ClaimDocument,
+  InsuranceContract,
 } from '@shared/types'
 
 const BASE = '/agent'
@@ -329,6 +331,49 @@ export const sendBatchFax = (id: number, claimIds?: number[]) =>
     claimIds ? { claim_ids: claimIds } : {},
     { timeout: 120000 },
   )
+
+// ===== CODEF 보험·건강 조회 =====
+export const fetchCodefCustomers = (params?: { search?: string }) =>
+  api.get<ApiResponse<Array<Customer & { insurance_synced_at?: string | null; medical_synced_at?: string | null; checkup_synced_at?: string | null; health_age_synced_at?: string | null }>>>(`${BASE}/codef/customers`, { params })
+
+export const getInsuranceContracts = (customerId: string) =>
+  api.get<ApiResponse<InsuranceContract[]>>(`${BASE}/codef/${customerId}/insurance`)
+
+export const getInsuranceDetail = (customerId: string, insuranceId: number) =>
+  api.get<ApiResponse<InsuranceContract>>(`${BASE}/codef/${customerId}/insurance/${insuranceId}`)
+
+export const fetchInsurance = (customerId: string, data: { id: string; password: string }) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/insurance/fetch`, data)
+
+export const confirmInsurance = (customerId: string, data: Record<string, string>) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/insurance/confirm`, data)
+
+export const getMedicalRecords = (customerId: string) =>
+  api.get<ApiResponse<MedicalRecordFull[]>>(`${BASE}/codef/${customerId}/medical`)
+
+export const fetchMedical = (customerId: string, data: { loginTypeLevel: string; telecom: string }) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/medical/fetch`, data)
+
+export const confirmMedical = (customerId: string, data: Record<string, string>) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/medical/confirm`, data)
+
+export const getCheckups = (customerId: string) =>
+  api.get<ApiResponse<HealthCheckupRecord[]>>(`${BASE}/codef/${customerId}/checkup`)
+
+export const fetchCheckup = (customerId: string, data: { loginTypeLevel: string; telecom: string }) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/checkup/fetch`, data)
+
+export const confirmCheckup = (customerId: string, data: Record<string, string>) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/checkup/confirm`, data)
+
+export const getHealthAge = (customerId: string) =>
+  api.get<ApiResponse<HealthAgeRecord | null>>(`${BASE}/codef/${customerId}/health-age`)
+
+export const fetchHealthAgeApi = (customerId: string, data: { loginTypeLevel: string; telecom: string }) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/fetch`, data)
+
+export const confirmHealthAge = (customerId: string, data: Record<string, string>) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/confirm`, data)
 
 // ===== FCM Token =====
 export const registerFcmToken = (data: { fcm_token: string; device_info?: string }) =>

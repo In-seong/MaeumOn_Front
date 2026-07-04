@@ -51,6 +51,7 @@ export interface Customer {
   phone: string
   email?: string
   resident_number?: string
+  resident_number_masked?: string
   gender?: 'M' | 'F' | 'OTHER'
   birth_date?: string
   address?: string
@@ -386,6 +387,84 @@ export interface StatisticsTrend {
   contracts_count: number
   contracts_amount: number
   conversion_rate: number
+}
+
+// ===== CODEF 진료내역 (상세) =====
+export interface MedicalRecordFull {
+  record_id: number
+  customer_id: string
+  treatment_date: string
+  hospital_name?: string
+  department?: string
+  diagnosis_code?: string
+  diagnosis_name?: string
+  treatment_type?: string
+  medical_cost?: number
+  visit_days?: number
+  total_amount?: number
+  public_charge?: number
+  deductible_amt?: number
+  detail_treat_list_json?: string
+  prescribe_drug_list_json?: string
+  codef_synced?: boolean
+  synced_at?: string
+  source?: string
+}
+
+// ===== CODEF 건강검진 =====
+export interface HealthCheckupRecord {
+  checkup_id: number
+  customer_id: string
+  checkup_date: string
+  checkup_type?: string
+  checkup_place?: string
+  height?: number
+  weight?: number
+  bmi?: number
+  waist?: number
+  blood_pressure_high?: number
+  blood_pressure_low?: number
+  hemoglobin?: number
+  fasting_blood_sugar?: number
+  total_cholesterol?: number
+  hdl?: number
+  ldl?: number
+  triglyceride?: number
+  gfr?: number
+  creatinine?: number
+  ast?: number
+  alt?: number
+  gtp?: number
+  overall_opinion?: string
+  judgment_result?: string
+  codef_synced?: boolean
+  synced_at?: string
+  [key: string]: unknown
+}
+
+// ===== CODEF 건강나이 =====
+export interface HealthAgeRecord {
+  prediction_id: number
+  customer_id: string
+  prediction_type: string
+  health_age?: number
+  actual_age?: number
+  risk_level?: string
+  raw_data?: Record<string, unknown>
+  created_at: string
+  [key: string]: unknown
+}
+
+// ===== CODEF 고객 동기화 상태 =====
+export interface CodefCustomerSync {
+  customer_id: string
+  name: string
+  phone: string
+  birth_date?: string
+  insurance_synced_at?: string | null
+  medical_synced_at?: string | null
+  checkup_synced_at?: string | null
+  health_age_synced_at?: string | null
 }
 
 // ===== MessageTemplate (카카오 알림톡 템플릿) - Backend 미구현, 로컬 유지 =====

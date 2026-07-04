@@ -56,7 +56,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: '일정 관리', icon: 'event', to: '/schedule' },
       { label: '알릴의무', icon: 'security', to: '/alert-duty' },
-      { label: '만족도 조사', icon: 'star', to: '/satisfaction' },
+      { label: '보험·건강 조회', icon: 'health_and_safety', to: '/codef' },
     ],
   },
   {

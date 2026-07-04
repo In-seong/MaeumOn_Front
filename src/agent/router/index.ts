@@ -183,11 +183,20 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/satisfaction',
-      name: 'satisfaction',
+      path: '/codef',
+      name: 'codef',
       component: adaptiveView(
-        () => import('../views/satisfaction/SatisfactionSurveyView.vue'),
-        () => import('../views-pc/satisfaction/PcSatisfactionSurveyView.vue')
+        () => import('../views/codef/CodefCustomerListView.vue'),
+        () => import('../views-pc/codef/PcCodefCustomerListView.vue')
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/codef/:customerId',
+      name: 'codef-dashboard',
+      component: adaptiveView(
+        () => import('../views/codef/CodefDashboardView.vue'),
+        () => import('../views-pc/codef/PcCodefDashboardView.vue')
       ),
       meta: { requiresAuth: true },
     },

@@ -61,11 +61,11 @@
             <ellipse cx="20" cy="17" rx="8" ry="2.5" fill="#C8E6C9" opacity="0.5"/>
             <ellipse cx="20" cy="24" rx="8" ry="2.5" fill="#C8E6C9" opacity="0.35"/>
           </svg>
-          <!-- 만족도: 올 주황 원복 -->
-          <svg v-else-if="item.icon === 'satisfaction'" width="45" height="45" viewBox="0 0 40 40" fill="none">
-            <polygon points="20,4 24.5,14 35,15.5 27.5,23 29.5,33.5 20,28.5 10.5,33.5 12.5,23 5,15.5 15.5,14" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
-            <polygon points="20,8 23.2,15 30,15.8 25,20.8 26.4,27.5 20,24.2 13.6,27.5 15,20.8 10,15.8 16.8,15" fill="#FF7B22" opacity="0.25"/>
-            <polygon points="20,11 22.2,16 28,16.6 24,20.4 25,26 20,23.2 15,26 16,20.4 12,16.6 17.8,16" fill="#FF7B22" opacity="0.4"/>
+          <!-- 보험·건강: 하트+방패 -->
+          <svg v-else-if="item.icon === 'codef'" width="45" height="45" viewBox="0 0 40 40" fill="none">
+            <path d="M20 6L8 12V20C8 28 13 33 20 36C27 33 32 28 32 20V12L20 6Z" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <path d="M20 10L12 14V20C12 26 15.5 30 20 32C24.5 30 28 26 28 20V14L20 10Z" fill="#FF7B22" opacity="0.2"/>
+            <path d="M20 18C18.5 16 16 16 15 17.5C14 19 14.5 21 20 25C25.5 21 26 19 25 17.5C24 16 21.5 16 20 18Z" fill="#FF7B22" opacity="0.6"/>
           </svg>
         </div>
         <span class="text-[13px] font-bold text-[#333]">{{ item.label }}</span>
@@ -86,6 +86,6 @@ const menuItems = [
   { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new', bgClass: 'bg-[#FFF3ED]' },
   { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', bgClass: 'bg-[#FFF3ED]' },
   { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]' },
-  { icon: 'satisfaction', label: '만족도', sub: '고객 만족 조회', path: '/satisfaction', bgClass: 'bg-[#FFF3ED]' },
+  { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]' },
 ]
 </script>
