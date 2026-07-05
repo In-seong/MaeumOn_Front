@@ -9,6 +9,10 @@
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#BBB]">search</span>
         <input v-model="searchName" type="text" placeholder="설계사 이름 검색" class="pl-9 pr-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] w-[200px]" />
       </div>
+      <button v-if="filteredSummary.length > 0" @click="printInvoiceBatch" class="ml-auto flex items-center gap-1.5 px-4 py-2.5 bg-[#333] text-white text-[13px] font-medium rounded-[12px] hover:bg-[#555] transition-colors">
+        <span class="material-symbols-outlined text-[18px]">print</span>
+        월별 청구서 일괄 발행 ({{ filteredSummary.length }}명)
+      </button>
     </div>
 
     <div v-if="loading" class="text-center py-10">
@@ -62,14 +66,8 @@
           </tr>
         </tbody>
       </table>
-      <div v-if="filteredSummary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] flex items-center justify-between">
-        <button @click="printInvoiceBatch" class="flex items-center gap-1.5 px-4 py-2 bg-[#333] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#555] transition-colors">
-          <span class="material-symbols-outlined text-[18px]">print</span>
-          월별 청구서 일괄 발행 ({{ filteredSummary.length }}명)
-        </button>
-        <span class="text-[14px] text-[#999]">
-          전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * 100).toLocaleString() }}원</span>
-        </span>
+      <div v-if="filteredSummary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] text-right text-[14px] text-[#999]">
+        전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * 100).toLocaleString() }}원</span>
       </div>
     </div>
 
