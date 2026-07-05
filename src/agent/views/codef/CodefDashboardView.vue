@@ -44,14 +44,14 @@
             class="bg-white rounded-[14px] border border-[#E8E8E8] p-4 active:bg-[#FAFAFA] transition-colors cursor-pointer"
             @click="selectedInsurance = ins"
           >
-            <div class="flex items-start justify-between mb-2">
-              <div>
+            <div class="flex items-start gap-2 mb-2">
+              <div class="min-w-0 flex-1">
                 <p class="text-[14px] font-semibold text-[#222]">{{ ins.product_name || '보험상품' }}</p>
                 <p class="text-[12px] text-[#999] mt-0.5">{{ ins.insurance_company?.company_name || '-' }}</p>
               </div>
               <span
                 :class="ins.contract_status === '정상' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-[#999]'"
-                class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                class="px-2 py-0.5 rounded-full text-[11px] font-medium shrink-0 whitespace-nowrap"
               >{{ ins.contract_status || '-' }}</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-[12px]">
