@@ -2,9 +2,13 @@
   <div class="p-4 lg:p-6">
     <h1 class="text-[22px] font-bold text-[#333] mb-6">CODEF API 사용 로그</h1>
 
-    <!-- 월 필터 -->
-    <div class="mb-4">
+    <!-- 필터 -->
+    <div class="mb-4 flex flex-wrap items-center gap-3">
       <input v-model="month" type="month" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchSummary" />
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#BBB]">search</span>
+        <input v-model="searchName" type="text" placeholder="설계사 이름 검색" class="pl-9 pr-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] w-[200px]" />
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-10">
@@ -28,7 +32,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="(agent, index) in summary" :key="agent.agent_id" class="hover:bg-[#FFF8F3] transition-colors cursor-pointer" @click="openDetail(agent)">
+          <tr v-for="(agent, index) in filteredSummary" :key="agent.agent_id" class="hover:bg-[#FFF8F3] transition-colors cursor-pointer" @click="openDetail(agent)">
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ index + 1 }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ agent.agent_name }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center">
@@ -53,13 +57,13 @@
             </td>
             <td class="px-4 lg:px-6 py-4 text-[15px] text-center font-bold text-[#333]">{{ agent.total_count }}건</td>
           </tr>
-          <tr v-if="summary.length === 0">
+          <tr v-if="filteredSummary.length === 0">
             <td colspan="9" class="px-4 lg:px-6 py-10 text-center text-[#999]">해당 월에 API 사용 기록이 없습니다.</td>
           </tr>
         </tbody>
       </table>
-      <div v-if="summary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] text-right text-[14px] text-[#999]">
-        전체 합계: <span class="font-bold text-[#333]">{{ totalAll }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (totalAll * 100).toLocaleString() }}원</span>
+      <div v-if="filteredSummary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] text-right text-[14px] text-[#999]">
+        전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * 100).toLocaleString() }}원</span>
       </div>
     </div>
 
@@ -149,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api from '@shared/api'
 import Pagination from '../../components/Pagination.vue'
 
@@ -182,6 +186,15 @@ const loading = ref(false)
 const detailLoading = ref(false)
 const summary = ref<AgentSummary[]>([])
 const totalAll = ref(0)
+const searchName = ref('')
+
+const filteredSummary = computed(() => {
+  if (!searchName.value.trim()) return summary.value
+  const keyword = searchName.value.trim().toLowerCase()
+  return summary.value.filter(a => a.agent_name.toLowerCase().includes(keyword))
+})
+
+const filteredTotal = computed(() => filteredSummary.value.reduce((sum, a) => sum + a.total_count, 0))
 const selectedAgent = ref<AgentSummary | null>(null)
 const detailLogs = ref<LogItem[]>([])
 const detailPagination = ref<{ current_page: number; last_page: number; per_page: number; total: number } | null>(null)
