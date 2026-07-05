@@ -255,7 +255,19 @@
 
         <!-- 인증 요청 전 -->
         <div v-else>
-          <div class="space-y-3 mb-2">
+          <div class="space-y-3 mb-3">
+            <div>
+              <label class="text-[12px] text-[#999] mb-1 block">이름</label>
+              <input v-model="authUserName" type="text" class="w-full px-3 py-2.5 bg-[#F8F8F8] rounded-[10px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22]" />
+            </div>
+            <div>
+              <label class="text-[12px] text-[#999] mb-1 block">전화번호</label>
+              <input v-model="authPhoneNo" type="tel" class="w-full px-3 py-2.5 bg-[#F8F8F8] rounded-[10px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22]" />
+            </div>
+            <div>
+              <label class="text-[12px] text-[#999] mb-1 block">주민등록번호</label>
+              <input v-model="authIdentity" type="text" class="w-full px-3 py-2.5 bg-[#F8F8F8] rounded-[10px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22]" placeholder="숫자 13자리" />
+            </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">통신사</label>
               <AppSelect
@@ -272,7 +284,6 @@
               />
             </div>
           </div>
-          <p class="text-[11px] text-[#BBB] mb-4">고객 본인의 이름·주민번호·전화번호를 기반으로 인증합니다</p>
           <div class="flex gap-2">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px]" @click="showAuthModal = false">취소</button>
             <button
@@ -496,6 +507,9 @@ const showAuthModal = ref(false)
 const authTarget = ref<'medical' | 'checkup' | 'healthAge'>('medical')
 const authTelecom = ref('')
 const authLevel = ref('1')
+const authUserName = ref('')
+const authPhoneNo = ref('')
+const authIdentity = ref('')
 
 const telecomOptions = [
   { value: '0', label: 'SKT' },
@@ -620,9 +634,21 @@ async function doConfirmInsurance() {
   }
 }
 
-function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
+async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
   authTarget.value = target
   twoWayPending.value = false
+  try {
+    const res = await api.fetchCustomer(customerId.value)
+    const c = res.data.data
+    authUserName.value = c.name || ''
+    authPhoneNo.value = c.phone || ''
+    authIdentity.value = c.resident_number_masked || ''
+    authTelecom.value = c.telecom || ''
+    if (c.resident_number_masked) {
+      const unmasked = await api.unmaskResidentNumber(customerId.value)
+      authIdentity.value = unmasked.data.data.resident_number || ''
+    }
+  } catch { /* 실패해도 모달은 열림 */ }
   showAuthModal.value = true
 }
 
@@ -632,7 +658,13 @@ async function doFetchAuth() {
     const fetchFn = authTarget.value === 'medical' ? api.fetchMedical
       : authTarget.value === 'checkup' ? api.fetchCheckup
       : api.fetchHealthAgeApi
-    const res = await fetchFn(customerId.value, { loginTypeLevel: authLevel.value, telecom: authTelecom.value })
+    const res = await fetchFn(customerId.value, {
+      loginTypeLevel: authLevel.value,
+      telecom: authTelecom.value,
+      userName: authUserName.value || undefined,
+      phoneNo: authPhoneNo.value || undefined,
+      identity: authIdentity.value || undefined,
+    } as any)
     const data = res.data as { success: boolean; two_way?: boolean; message?: string }
     if (data.two_way) {
       twoWayPending.value = true
