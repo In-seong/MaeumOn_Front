@@ -417,26 +417,27 @@ export interface HealthCheckupRecord {
   customer_id: string
   checkup_date: string
   checkup_type?: string
-  checkup_place?: string
+  checkup_year?: string
+  hospital_name?: string
+  organization_name?: string
   height?: number
   weight?: number
   bmi?: number
   waist?: number
-  blood_pressure_high?: number
-  blood_pressure_low?: number
+  blood_pressure?: string
   hemoglobin?: number
   fasting_blood_sugar?: number
   total_cholesterol?: number
-  hdl?: number
-  ldl?: number
+  hdl_cholesterol?: number
+  ldl_cholesterol?: number
   triglyceride?: number
   gfr?: number
-  creatinine?: number
+  serum_creatinine?: number
   ast?: number
   alt?: number
-  gtp?: number
-  overall_opinion?: string
-  judgment_result?: string
+  y_gtp?: number
+  opinion?: string
+  judgement?: string
   codef_synced?: boolean
   synced_at?: string
   [key: string]: unknown

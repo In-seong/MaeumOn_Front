@@ -151,20 +151,20 @@
             <div class="flex items-start justify-between mb-2">
               <p class="text-[14px] font-semibold text-[#222]">{{ formatDate(chk.checkup_date) }} 검진</p>
               <span
-                :class="chk.judgment_result === '정상' ? 'bg-green-50 text-green-600' : chk.judgment_result ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-[#999]'"
+                :class="chk.judgement === '정상' ? 'bg-green-50 text-green-600' : chk.judgement ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-[#999]'"
                 class="px-2 py-0.5 rounded-full text-[11px] font-medium"
-              >{{ chk.judgment_result || '-' }}</span>
+              >{{ chk.judgement || '-' }}</span>
             </div>
-            <p v-if="chk.checkup_place" class="text-[12px] text-[#999] mb-2">{{ chk.checkup_place }}</p>
+            <p v-if="chk.hospital_name" class="text-[12px] text-[#999] mb-2">{{ chk.hospital_name }}</p>
             <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[12px]">
               <div v-if="chk.height"><span class="text-[#999]">키</span> <span class="text-[#333] ml-1">{{ chk.height }}cm</span></div>
               <div v-if="chk.weight"><span class="text-[#999]">체중</span> <span class="text-[#333] ml-1">{{ chk.weight }}kg</span></div>
               <div v-if="chk.bmi"><span class="text-[#999]">BMI</span> <span class="text-[#333] ml-1">{{ chk.bmi }}</span></div>
-              <div v-if="chk.blood_pressure_high"><span class="text-[#999]">혈압</span> <span class="text-[#333] ml-1">{{ chk.blood_pressure_high }}/{{ chk.blood_pressure_low }}</span></div>
+              <div v-if="chk.blood_pressure"><span class="text-[#999]">혈압</span> <span class="text-[#333] ml-1">{{ chk.blood_pressure }}</span></div>
               <div v-if="chk.fasting_blood_sugar"><span class="text-[#999]">공복혈당</span> <span class="text-[#333] ml-1">{{ chk.fasting_blood_sugar }}</span></div>
               <div v-if="chk.total_cholesterol"><span class="text-[#999]">콜레스테롤</span> <span class="text-[#333] ml-1">{{ chk.total_cholesterol }}</span></div>
             </div>
-            <p v-if="chk.overall_opinion" class="mt-2 pt-2 border-t border-[#F0F0F0] text-[12px] text-[#666]">{{ chk.overall_opinion }}</p>
+            <p v-if="chk.opinion" class="mt-2 pt-2 border-t border-[#F0F0F0] text-[12px] text-[#666]">{{ chk.opinion }}</p>
           </div>
         </div>
       </div>
@@ -412,11 +412,11 @@
                 <p v-if="selectedCheckup.checkup_type" class="text-[13px] text-[#999] mt-0.5">{{ selectedCheckup.checkup_type }}</p>
               </div>
               <span
-                :class="selectedCheckup.judgment_result === '정상' ? 'bg-green-50 text-green-600' : selectedCheckup.judgment_result ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-[#999]'"
+                :class="selectedCheckup.judgement === '정상' ? 'bg-green-50 text-green-600' : selectedCheckup.judgement ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-[#999]'"
                 class="px-2 py-0.5 rounded-full text-[11px] font-medium"
-              >{{ selectedCheckup.judgment_result || '-' }}</span>
+              >{{ selectedCheckup.judgement || '-' }}</span>
             </div>
-            <p v-if="selectedCheckup.checkup_place" class="text-[12px] text-[#999] mb-3">{{ selectedCheckup.checkup_place }}</p>
+            <p v-if="selectedCheckup.hospital_name" class="text-[12px] text-[#999] mb-3">{{ selectedCheckup.hospital_name }}</p>
           </div>
 
           <div>
@@ -432,7 +432,7 @@
           <div>
             <p class="text-[13px] font-semibold text-[#222] mb-2">혈액·혈압</p>
             <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 space-y-2 text-[13px]">
-              <div v-if="selectedCheckup.blood_pressure_high" class="flex justify-between"><span class="text-[#999]">혈압</span><span class="text-[#333]">{{ selectedCheckup.blood_pressure_high }}/{{ selectedCheckup.blood_pressure_low }}</span></div>
+              <div v-if="selectedCheckup.blood_pressure" class="flex justify-between"><span class="text-[#999]">혈압</span><span class="text-[#333]">{{ selectedCheckup.blood_pressure }}</span></div>
               <div v-if="selectedCheckup.hemoglobin" class="flex justify-between"><span class="text-[#999]">혈색소</span><span class="text-[#333]">{{ selectedCheckup.hemoglobin }} g/dL</span></div>
               <div v-if="selectedCheckup.fasting_blood_sugar" class="flex justify-between"><span class="text-[#999]">공복혈당</span><span class="text-[#333]">{{ selectedCheckup.fasting_blood_sugar }} mg/dL</span></div>
             </div>
@@ -442,8 +442,8 @@
             <p class="text-[13px] font-semibold text-[#222] mb-2">지질검사</p>
             <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 space-y-2 text-[13px]">
               <div v-if="selectedCheckup.total_cholesterol" class="flex justify-between"><span class="text-[#999]">총콜레스테롤</span><span class="text-[#333]">{{ selectedCheckup.total_cholesterol }}</span></div>
-              <div v-if="selectedCheckup.hdl" class="flex justify-between"><span class="text-[#999]">HDL</span><span class="text-[#333]">{{ selectedCheckup.hdl }}</span></div>
-              <div v-if="selectedCheckup.ldl" class="flex justify-between"><span class="text-[#999]">LDL</span><span class="text-[#333]">{{ selectedCheckup.ldl }}</span></div>
+              <div v-if="selectedCheckup.hdl_cholesterol" class="flex justify-between"><span class="text-[#999]">HDL</span><span class="text-[#333]">{{ selectedCheckup.hdl_cholesterol }}</span></div>
+              <div v-if="selectedCheckup.ldl_cholesterol" class="flex justify-between"><span class="text-[#999]">LDL</span><span class="text-[#333]">{{ selectedCheckup.ldl_cholesterol }}</span></div>
               <div v-if="selectedCheckup.triglyceride" class="flex justify-between"><span class="text-[#999]">중성지방</span><span class="text-[#333]">{{ selectedCheckup.triglyceride }}</span></div>
             </div>
           </div>
@@ -453,15 +453,15 @@
             <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 space-y-2 text-[13px]">
               <div v-if="selectedCheckup.ast" class="flex justify-between"><span class="text-[#999]">AST (SGOT)</span><span class="text-[#333]">{{ selectedCheckup.ast }}</span></div>
               <div v-if="selectedCheckup.alt" class="flex justify-between"><span class="text-[#999]">ALT (SGPT)</span><span class="text-[#333]">{{ selectedCheckup.alt }}</span></div>
-              <div v-if="selectedCheckup.gtp" class="flex justify-between"><span class="text-[#999]">γ-GTP</span><span class="text-[#333]">{{ selectedCheckup.gtp }}</span></div>
-              <div v-if="selectedCheckup.creatinine" class="flex justify-between"><span class="text-[#999]">혈청크레아티닌</span><span class="text-[#333]">{{ selectedCheckup.creatinine }}</span></div>
+              <div v-if="selectedCheckup.y_gtp" class="flex justify-between"><span class="text-[#999]">γ-GTP</span><span class="text-[#333]">{{ selectedCheckup.y_gtp }}</span></div>
+              <div v-if="selectedCheckup.serum_creatinine" class="flex justify-between"><span class="text-[#999]">혈청크레아티닌</span><span class="text-[#333]">{{ selectedCheckup.serum_creatinine }}</span></div>
               <div v-if="selectedCheckup.gfr" class="flex justify-between"><span class="text-[#999]">신사구체여과율 (GFR)</span><span class="text-[#333]">{{ selectedCheckup.gfr }}</span></div>
             </div>
           </div>
 
-          <div v-if="selectedCheckup.overall_opinion">
+          <div v-if="selectedCheckup.opinion">
             <p class="text-[13px] font-semibold text-[#222] mb-2">종합소견</p>
-            <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 text-[13px] text-[#333] leading-relaxed whitespace-pre-line">{{ selectedCheckup.overall_opinion }}</div>
+            <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 text-[13px] text-[#333] leading-relaxed whitespace-pre-line">{{ selectedCheckup.opinion }}</div>
           </div>
         </div>
       </div>
