@@ -312,8 +312,10 @@
     </div>
 
     <!-- 진료 상세 모달 -->
-    <div v-if="selectedMedical" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" @click.self="selectedMedical = null">
-      <div class="bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
+    <Transition name="sheet">
+    <div v-if="selectedMedical" class="fixed inset-0 z-50 flex items-end justify-center" @click.self="selectedMedical = null">
+      <div class="fixed inset-0 bg-black/40" @click="selectedMedical = null" />
+      <div class="relative bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
         <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#F0F0F0] shrink-0">
           <h3 class="text-[16px] font-bold text-[#222]">진료 상세</h3>
           <button class="text-[#999] p-1" @click="selectedMedical = null">
@@ -377,10 +379,13 @@
         </div>
       </div>
     </div>
+    </Transition>
 
     <!-- 보험 상세 모달 -->
-    <div v-if="selectedInsurance" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" @click.self="selectedInsurance = null">
-      <div class="bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
+    <Transition name="sheet">
+    <div v-if="selectedInsurance" class="fixed inset-0 z-50 flex items-end justify-center" @click.self="selectedInsurance = null">
+      <div class="fixed inset-0 bg-black/40" @click="selectedInsurance = null" />
+      <div class="relative bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
         <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#F0F0F0] shrink-0">
           <h3 class="text-[16px] font-bold text-[#222]">보험 상세</h3>
           <button class="text-[#999] p-1" @click="selectedInsurance = null">
@@ -448,6 +453,7 @@
         </div>
       </div>
     </div>
+    </Transition>
   </div>
 </template>
 
@@ -683,3 +689,24 @@ function formatCurrency(amount?: number | string | null): string {
   return n.toLocaleString('ko-KR') + '원'
 }
 </script>
+
+<style scoped>
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: opacity 0.25s ease;
+}
+.sheet-enter-active > div:last-child,
+.sheet-leave-active > div:last-child {
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sheet-enter-from,
+.sheet-leave-to {
+  opacity: 0;
+}
+.sheet-enter-from > div:last-child {
+  transform: translateY(100%);
+}
+.sheet-leave-to > div:last-child {
+  transform: translateY(100%);
+}
+</style>
