@@ -1,40 +1,18 @@
 <template>
   <div class="p-4 lg:p-6">
-    <div class="flex items-center gap-3 mb-6">
-      <button v-if="selectedAgent" @click="selectedAgent = null" class="text-[#999] hover:text-[#333] transition-colors">
-        <span class="material-symbols-outlined text-[22px]">arrow_back</span>
-      </button>
-      <h1 class="text-[22px] font-bold text-[#333]">
-        {{ selectedAgent ? `${selectedAgent.agent_name} — API 사용 상세` : 'CODEF API 사용 로그' }}
-      </h1>
-    </div>
+    <h1 class="text-[22px] font-bold text-[#333] mb-6">CODEF API 사용 로그</h1>
 
     <!-- 월 필터 -->
-    <div class="mb-4 flex flex-wrap gap-3">
-      <input v-model="month" type="month" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="onMonthChange" />
-      <template v-if="selectedAgent">
-        <select v-model="detailFilters.api_type" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchDetail()">
-          <option value="">전체 API</option>
-          <option value="insurance">보험</option>
-          <option value="medical">진료</option>
-          <option value="checkup">검진</option>
-          <option value="health_age">건강나이</option>
-        </select>
-        <select v-model="detailFilters.status" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchDetail()">
-          <option value="">전체 상태</option>
-          <option value="success">성공</option>
-          <option value="failed">실패</option>
-          <option value="two_way">2-Way 대기</option>
-        </select>
-      </template>
+    <div class="mb-4">
+      <input v-model="month" type="month" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchSummary" />
     </div>
 
     <div v-if="loading" class="text-center py-10">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
     </div>
 
-    <!-- ===== 1단계: 설계사별 요약 ===== -->
-    <div v-else-if="!selectedAgent" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+    <!-- 설계사별 요약 테이블 -->
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
@@ -85,44 +63,88 @@
       </div>
     </div>
 
-    <!-- ===== 2단계: 설계사 상세 로그 ===== -->
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
-      <table class="min-w-full divide-y divide-[#E8E8E8]">
-        <thead class="bg-[#FAFAFA]">
-          <tr>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">API 종류</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">액션</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">상태</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">결과</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden lg:table-cell">에러</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">일시</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="(log, index) in detailLogs" :key="log.log_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ detailRowNum(index) }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555]">{{ log.customer?.name || '-' }}</td>
-            <td class="px-4 lg:px-6 py-4">
-              <span :class="typeClass(log.api_type)" class="px-2 py-0.5 text-[12px] font-medium rounded-full">{{ typeLabel(log.api_type) }}</span>
-            </td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555]">{{ actionLabel(log.api_action) }}</td>
-            <td class="px-4 lg:px-6 py-4">
-              <span :class="statusClass(log.status)" class="px-2 py-0.5 text-[12px] font-medium rounded-full">{{ statusLabel(log.status) }}</span>
-            </td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden md:table-cell">{{ log.result_count ?? 0 }}건</td>
-            <td class="px-4 lg:px-6 py-4 text-[13px] text-[#999] hidden lg:table-cell max-w-[200px] truncate">{{ log.error_message || '-' }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[13px] text-[#999] whitespace-nowrap">{{ formatDateTime(log.created_at) }}</td>
-          </tr>
-          <tr v-if="detailLogs.length === 0">
-            <td colspan="8" class="px-4 lg:px-6 py-10 text-center text-[#999]">로그가 없습니다.</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- ===== 상세 모달 ===== -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="selectedAgent" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/40" @click="selectedAgent = null"></div>
+          <div class="relative bg-white rounded-[20px] shadow-2xl w-full max-w-[1100px] max-h-[85vh] flex flex-col">
+            <!-- 모달 헤더 -->
+            <div class="flex items-center justify-between px-6 py-5 border-b border-[#F0F0F0]">
+              <div>
+                <h2 class="text-[18px] font-bold text-[#333]">{{ selectedAgent.agent_name }} — API 사용 상세</h2>
+                <p class="text-[13px] text-[#999] mt-0.5">{{ month || '전체 기간' }} · 총 {{ detailPagination?.total ?? 0 }}건</p>
+              </div>
+              <button @click="selectedAgent = null" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors">
+                <span class="material-symbols-outlined text-[22px] text-[#999]">close</span>
+              </button>
+            </div>
 
-      <Pagination v-if="detailPagination && detailPagination.last_page > 1" :current-page="detailPagination.current_page" :last-page="detailPagination.last_page" @change="fetchDetail" />
-    </div>
+            <!-- 모달 필터 -->
+            <div class="px-6 py-3 border-b border-[#F5F5F5] flex flex-wrap gap-3">
+              <select v-model="detailFilters.api_type" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]" @change="fetchDetail()">
+                <option value="">전체 API</option>
+                <option value="insurance">보험</option>
+                <option value="medical">진료</option>
+                <option value="checkup">검진</option>
+                <option value="health_age">건강나이</option>
+              </select>
+              <select v-model="detailFilters.status" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]" @change="fetchDetail()">
+                <option value="">전체 상태</option>
+                <option value="success">성공</option>
+                <option value="failed">실패</option>
+                <option value="two_way">2-Way 대기</option>
+              </select>
+            </div>
+
+            <!-- 모달 테이블 -->
+            <div class="flex-1 overflow-auto">
+              <div v-if="detailLoading" class="text-center py-10">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+              </div>
+              <table v-else class="min-w-full divide-y divide-[#E8E8E8]">
+                <thead class="bg-[#FAFAFA] sticky top-0">
+                  <tr>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">API 종류</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">액션</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">상태</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">결과</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">에러</th>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">일시</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#F0F0F0]">
+                  <tr v-for="(log, index) in detailLogs" :key="log.log_id" class="hover:bg-[#FAFAFA] transition-colors">
+                    <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ detailRowNum(index) }}</td>
+                    <td class="px-5 py-3.5 text-[13px] text-[#555]">{{ log.customer?.name || '-' }}</td>
+                    <td class="px-5 py-3.5">
+                      <span :class="typeClass(log.api_type)" class="px-2 py-0.5 text-[11px] font-medium rounded-full">{{ typeLabel(log.api_type) }}</span>
+                    </td>
+                    <td class="px-5 py-3.5 text-[13px] text-[#555]">{{ actionLabel(log.api_action) }}</td>
+                    <td class="px-5 py-3.5">
+                      <span :class="statusClass(log.status)" class="px-2 py-0.5 text-[11px] font-medium rounded-full">{{ statusLabel(log.status) }}</span>
+                    </td>
+                    <td class="px-5 py-3.5 text-[13px] text-[#555]">{{ log.result_count ?? 0 }}건</td>
+                    <td class="px-5 py-3.5 text-[12px] text-[#999] max-w-[180px] truncate">{{ log.error_message || '-' }}</td>
+                    <td class="px-5 py-3.5 text-[12px] text-[#999] whitespace-nowrap">{{ formatDateTime(log.created_at) }}</td>
+                  </tr>
+                  <tr v-if="detailLogs.length === 0">
+                    <td colspan="8" class="px-5 py-10 text-center text-[#999]">로그가 없습니다.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 모달 페이지네이션 -->
+            <div v-if="detailPagination && detailPagination.last_page > 1" class="border-t border-[#F0F0F0]">
+              <Pagination :current-page="detailPagination.current_page" :last-page="detailPagination.last_page" @change="fetchDetail" />
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -157,6 +179,7 @@ interface LogItem {
 }
 
 const loading = ref(false)
+const detailLoading = ref(false)
 const summary = ref<AgentSummary[]>([])
 const totalAll = ref(0)
 const selectedAgent = ref<AgentSummary | null>(null)
@@ -237,7 +260,7 @@ function openDetail(agent: AgentSummary) {
 
 async function fetchDetail(page = 1) {
   if (!selectedAgent.value) return
-  loading.value = true
+  detailLoading.value = true
   try {
     const params: Record<string, string | number> = {
       agent_id: selectedAgent.value.agent_id,
@@ -260,15 +283,7 @@ async function fetchDetail(page = 1) {
   } catch {
     detailLogs.value = []
   } finally {
-    loading.value = false
-  }
-}
-
-function onMonthChange() {
-  if (selectedAgent.value) {
-    fetchDetail()
-  } else {
-    fetchSummary()
+    detailLoading.value = false
   }
 }
 
@@ -276,3 +291,24 @@ onMounted(() => {
   fetchSummary()
 })
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-enter-active > div:last-child,
+.modal-leave-active > div:last-child {
+  transition: transform 0.2s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from > div:last-child {
+  transform: scale(0.95);
+}
+.modal-leave-to > div:last-child {
+  transform: scale(0.95);
+}
+</style>
