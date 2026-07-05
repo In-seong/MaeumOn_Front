@@ -16,7 +16,7 @@
         <span v-if="page === '...'" class="px-2 py-1 text-[14px] text-[#999]">…</span>
         <button
           v-else
-          @click="$emit('change', page)"
+          @click="$emit('change', page as number)"
           :class="[
             'min-w-[32px] px-2 py-1 rounded-[8px] text-[14px]',
             page === currentPage

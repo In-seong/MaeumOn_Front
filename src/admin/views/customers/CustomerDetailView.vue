@@ -401,18 +401,6 @@ async function toggleRrn() {
   }
 }
 
-function formatResidentNumber(rn?: string): string {
-  if (!rn) return '-'
-  const cleaned = rn.replace(/\D/g, '')
-  if (cleaned.length >= 7) {
-    return `${cleaned.slice(0, 6)}-${cleaned.slice(6, 7)}******`
-  }
-  if (cleaned.length === 6) {
-    return cleaned
-  }
-  return rn
-}
-
 function formatResidentNumberFull(rn?: string): string {
   if (!rn) return '-'
   const cleaned = rn.replace(/\D/g, '')

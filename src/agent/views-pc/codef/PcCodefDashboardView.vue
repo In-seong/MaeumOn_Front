@@ -80,25 +80,46 @@
 
     <!-- 진료 내역 탭 -->
     <div v-else-if="activeTab === 'medical'">
-      <div class="flex justify-end mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <!-- 병원/약국 서브탭 -->
+        <div class="flex bg-[#F0F0F0] rounded-[10px] p-1">
+          <button
+            :class="[
+              'px-4 py-1.5 rounded-[8px] text-[13px] font-medium transition-colors',
+              medicalSubTab === 'hospital' ? 'bg-white text-[#FF7B22] shadow-sm' : 'text-[#888] hover:text-[#555]'
+            ]"
+            @click="medicalSubTab = 'hospital'"
+          >
+            병원
+          </button>
+          <button
+            :class="[
+              'px-4 py-1.5 rounded-[8px] text-[13px] font-medium transition-colors',
+              medicalSubTab === 'pharmacy' ? 'bg-white text-[#FF7B22] shadow-sm' : 'text-[#888] hover:text-[#555]'
+            ]"
+            @click="medicalSubTab = 'pharmacy'"
+          >
+            약국
+          </button>
+        </div>
         <button class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('medical')">진료 조회</button>
       </div>
-      <div v-if="store.medicalRecords.length === 0" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-16 text-center">
-        <p class="text-[14px] text-[#999]">조회된 진료 내역이 없습니다</p>
+      <div v-if="filteredMedicalRecords.length === 0" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-16 text-center">
+        <p class="text-[14px] text-[#999]">{{ medicalSubTab === 'hospital' ? '조회된 병원 진료 내역이 없습니다' : '조회된 약국 내역이 없습니다' }}</p>
       </div>
       <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
         <table class="min-w-full divide-y divide-[#E8E8E8]">
           <thead class="bg-[#FAFAFA]">
             <tr>
               <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999]">진료일</th>
-              <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999]">병원</th>
+              <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999]">{{ medicalSubTab === 'hospital' ? '병원' : '약국' }}</th>
               <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999]">진료과</th>
               <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999]">진단명</th>
               <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999]">진료비</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[#F0F0F0]">
-            <tr v-for="rec in store.medicalRecords" :key="rec.record_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <tr v-for="rec in filteredMedicalRecords" :key="rec.record_id" class="hover:bg-[#FAFAFA] transition-colors">
               <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ formatDate(rec.treatment_date) }}</td>
               <td class="px-5 py-3.5 text-[13px] font-medium text-[#333]">{{ rec.hospital_name || '-' }}</td>
               <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ rec.department || '-' }}</td>
@@ -232,26 +253,18 @@
           <div class="space-y-3 mb-3">
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">통신사</label>
-              <select v-model="authTelecom" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]">
-                <option value="">선택</option>
-                <option value="0">SKT</option>
-                <option value="1">KT</option>
-                <option value="2">LG U+</option>
-                <option value="3">SKT 알뜰폰</option>
-                <option value="4">KT 알뜰폰</option>
-                <option value="5">LG U+ 알뜰폰</option>
-              </select>
+              <AppSelect
+                v-model="authTelecom"
+                placeholder="통신사 선택"
+                :options="telecomOptions"
+              />
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">인증 방법</label>
-              <select v-model="authLevel" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]">
-                <option value="1">카카오톡</option>
-                <option value="2">페이코</option>
-                <option value="3">통신사(PASS)</option>
-                <option value="4">KB국민은행</option>
-                <option value="5">삼성패스</option>
-                <option value="6">네이버</option>
-              </select>
+              <AppSelect
+                v-model="authLevel"
+                :options="authLevelOptions"
+              />
             </div>
           </div>
           <p class="text-[12px] text-[#BBB] mb-5">고객 본인의 이름·주민번호·전화번호를 기반으로 인증합니다</p>
@@ -285,9 +298,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import AppSelect from '../../components/ui/AppSelect.vue'
 import { useCodefStore } from '../../stores/codefStore'
 import { useToast } from '../../composables/useToast'
 import * as api from '../../services/agentApi'
+import type { MedicalRecordFull } from '../../types'
 
 const route = useRoute()
 const router = useRouter()
@@ -317,9 +332,34 @@ const showAuthModal = ref(false)
 const authTarget = ref<'medical' | 'checkup' | 'healthAge'>('medical')
 const authTelecom = ref('')
 const authLevel = ref('1')
+
+const telecomOptions = [
+  { value: '0', label: 'SKT' },
+  { value: '1', label: 'KT' },
+  { value: '2', label: 'LG U+' },
+  { value: '3', label: 'SKT 알뜰폰' },
+  { value: '4', label: 'KT 알뜰폰' },
+  { value: '5', label: 'LG U+ 알뜰폰' },
+]
+const authLevelOptions = [
+  { value: '1', label: '카카오톡' },
+  { value: '5', label: '통신사(PASS)' },
+  { value: '3', label: '삼성패스' },
+  { value: '4', label: 'KB모바일' },
+  { value: '6', label: '네이버' },
+  { value: '8', label: '토스' },
+]
+const medicalSubTab = ref<'hospital' | 'pharmacy'>('hospital')
 const twoWayPending = ref(false)
 
 const fetchLoading = ref(false)
+
+const filteredMedicalRecords = computed(() => {
+  const isPharmacy = (rec: MedicalRecordFull) =>
+    rec.hospital_name?.includes('약국') || rec.treatment_type === '약국'
+  if (medicalSubTab.value === 'pharmacy') return store.medicalRecords.filter(isPharmacy)
+  return store.medicalRecords.filter(r => !isPharmacy(r))
+})
 
 const authTargetLabel = computed(() => {
   const m: Record<string, string> = { medical: '진료내역', checkup: '건강검진', healthAge: '건강나이' }
@@ -431,8 +471,9 @@ async function doFetchAuth() {
     } else {
       toast.showToast(data.message || '조회에 실패했습니다', 'error')
     }
-  } catch {
-    toast.showToast('조회 요청 중 오류가 발생했습니다', 'error')
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || '조회 요청 중 오류가 발생했습니다'
+    toast.showToast(msg, 'error')
   } finally {
     fetchLoading.value = false
   }

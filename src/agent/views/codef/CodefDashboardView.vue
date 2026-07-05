@@ -73,7 +73,28 @@
 
       <!-- 진료 내역 탭 -->
       <div v-else-if="activeTab === 'medical'">
-        <div class="flex justify-end mb-3">
+        <div class="flex items-center justify-between mb-3">
+          <!-- 병원/약국 서브탭 -->
+          <div class="flex bg-white rounded-[10px] border border-[#E8E8E8] p-0.5">
+            <button
+              :class="[
+                'px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors',
+                medicalSubTab === 'hospital' ? 'bg-[#FF7B22] text-white' : 'text-[#888]'
+              ]"
+              @click="medicalSubTab = 'hospital'"
+            >
+              병원
+            </button>
+            <button
+              :class="[
+                'px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors',
+                medicalSubTab === 'pharmacy' ? 'bg-[#FF7B22] text-white' : 'text-[#888]'
+              ]"
+              @click="medicalSubTab = 'pharmacy'"
+            >
+              약국
+            </button>
+          </div>
           <button
             class="px-3 py-1.5 bg-[#FF7B22] text-white text-[12px] font-medium rounded-[8px] active:scale-95 transition-transform"
             @click="startSimpleAuth('medical')"
@@ -81,13 +102,13 @@
             진료 조회
           </button>
         </div>
-        <div v-if="store.medicalRecords.length === 0" class="text-center py-12">
-          <p class="text-[14px] text-[#999]">조회된 진료 내역이 없습니다</p>
+        <div v-if="filteredMedicalRecords.length === 0" class="text-center py-12">
+          <p class="text-[14px] text-[#999]">{{ medicalSubTab === 'hospital' ? '조회된 병원 진료 내역이 없습니다' : '조회된 약국 내역이 없습니다' }}</p>
           <p class="text-[12px] text-[#BBB] mt-1">간편인증 후 조회할 수 있습니다</p>
         </div>
         <div v-else class="space-y-2">
           <div
-            v-for="rec in store.medicalRecords"
+            v-for="rec in filteredMedicalRecords"
             :key="rec.record_id"
             class="bg-white rounded-[14px] border border-[#E8E8E8] p-4"
           >
@@ -235,26 +256,18 @@
           <div class="space-y-3 mb-2">
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">통신사</label>
-              <select v-model="authTelecom" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]">
-                <option value="">선택</option>
-                <option value="0">SKT</option>
-                <option value="1">KT</option>
-                <option value="2">LG U+</option>
-                <option value="3">SKT 알뜰폰</option>
-                <option value="4">KT 알뜰폰</option>
-                <option value="5">LG U+ 알뜰폰</option>
-              </select>
+              <AppSelect
+                v-model="authTelecom"
+                placeholder="통신사 선택"
+                :options="telecomOptions"
+              />
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">인증 방법</label>
-              <select v-model="authLevel" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]">
-                <option value="1">카카오톡</option>
-                <option value="2">페이코</option>
-                <option value="3">통신사(PASS)</option>
-                <option value="4">KB국민은행</option>
-                <option value="5">삼성패스</option>
-                <option value="6">네이버</option>
-              </select>
+              <AppSelect
+                v-model="authLevel"
+                :options="authLevelOptions"
+              />
             </div>
           </div>
           <p class="text-[11px] text-[#BBB] mb-4">고객 본인의 이름·주민번호·전화번호를 기반으로 인증합니다</p>
@@ -302,9 +315,11 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
+import AppSelect from '../../components/ui/AppSelect.vue'
 import { useCodefStore } from '../../stores/codefStore'
 import { useToast } from '../../composables/useToast'
 import * as api from '../../services/agentApi'
+import type { MedicalRecordFull } from '../../types'
 
 const route = useRoute()
 const store = useCodefStore()
@@ -333,9 +348,34 @@ const showAuthModal = ref(false)
 const authTarget = ref<'medical' | 'checkup' | 'healthAge'>('medical')
 const authTelecom = ref('')
 const authLevel = ref('1')
+
+const telecomOptions = [
+  { value: '0', label: 'SKT' },
+  { value: '1', label: 'KT' },
+  { value: '2', label: 'LG U+' },
+  { value: '3', label: 'SKT 알뜰폰' },
+  { value: '4', label: 'KT 알뜰폰' },
+  { value: '5', label: 'LG U+ 알뜰폰' },
+]
+const authLevelOptions = [
+  { value: '1', label: '카카오톡' },
+  { value: '5', label: '통신사(PASS)' },
+  { value: '3', label: '삼성패스' },
+  { value: '4', label: 'KB모바일' },
+  { value: '6', label: '네이버' },
+  { value: '8', label: '토스' },
+]
+const medicalSubTab = ref<'hospital' | 'pharmacy'>('hospital')
 const twoWayPending = ref(false)
 
 const fetchLoading = ref(false)
+
+const filteredMedicalRecords = computed(() => {
+  const isPharmacy = (rec: MedicalRecordFull) =>
+    rec.hospital_name?.includes('약국') || rec.treatment_type === '약국'
+  if (medicalSubTab.value === 'pharmacy') return store.medicalRecords.filter(isPharmacy)
+  return store.medicalRecords.filter(r => !isPharmacy(r))
+})
 
 const authTargetLabel = computed(() => {
   const m: Record<string, string> = { medical: '진료내역', checkup: '건강검진', healthAge: '건강나이' }
@@ -447,8 +487,9 @@ async function doFetchAuth() {
     } else {
       toast.showToast(data.message || '조회에 실패했습니다', 'error')
     }
-  } catch {
-    toast.showToast('조회 요청 중 오류가 발생했습니다', 'error')
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || '조회 요청 중 오류가 발생했습니다'
+    toast.showToast(msg, 'error')
   } finally {
     fetchLoading.value = false
   }
