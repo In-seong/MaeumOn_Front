@@ -144,7 +144,8 @@
         <div
           v-for="chk in store.checkups"
           :key="chk.checkup_id"
-          class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6"
+          class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6 cursor-pointer hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] transition-shadow"
+          @click="selectedCheckup = chk"
         >
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -387,6 +388,75 @@
       </div>
     </div>
 
+    <!-- 검진 상세 모달 -->
+    <div v-if="selectedCheckup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="selectedCheckup = null">
+      <div class="bg-white rounded-[20px] w-full max-w-[640px] max-h-[85vh] flex flex-col shadow-xl">
+        <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#F0F0F0] shrink-0">
+          <h3 class="text-[17px] font-bold text-[#222]">검진 상세</h3>
+          <button class="text-[#999] p-1 hover:text-[#333]" @click="selectedCheckup = null">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" /></svg>
+          </button>
+        </div>
+        <div class="overflow-y-auto px-6 py-5 space-y-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[16px] font-semibold text-[#222]">{{ formatDate(selectedCheckup.checkup_date) }} 검진</p>
+              <p v-if="selectedCheckup.checkup_type" class="text-[13px] text-[#999] mt-0.5">{{ selectedCheckup.checkup_type }}</p>
+              <p v-if="selectedCheckup.checkup_place" class="text-[13px] text-[#999] mt-0.5">{{ selectedCheckup.checkup_place }}</p>
+            </div>
+            <span
+              :class="selectedCheckup.judgment_result === '정상' ? 'bg-green-50 text-green-600' : selectedCheckup.judgment_result ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-[#999]'"
+              class="px-3 py-1 rounded-full text-[12px] font-medium"
+            >{{ selectedCheckup.judgment_result || '-' }}</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-[13px] font-semibold text-[#222] mb-2">신체계측</p>
+              <div class="bg-[#F8F8F8] rounded-[12px] p-4 space-y-2 text-[13px]">
+                <div v-if="selectedCheckup.height" class="flex justify-between"><span class="text-[#999]">키</span><span class="text-[#333]">{{ selectedCheckup.height }}cm</span></div>
+                <div v-if="selectedCheckup.weight" class="flex justify-between"><span class="text-[#999]">체중</span><span class="text-[#333]">{{ selectedCheckup.weight }}kg</span></div>
+                <div v-if="selectedCheckup.waist" class="flex justify-between"><span class="text-[#999]">허리둘레</span><span class="text-[#333]">{{ selectedCheckup.waist }}cm</span></div>
+                <div v-if="selectedCheckup.bmi" class="flex justify-between"><span class="text-[#999]">BMI</span><span class="text-[#333]">{{ selectedCheckup.bmi }}</span></div>
+              </div>
+            </div>
+            <div>
+              <p class="text-[13px] font-semibold text-[#222] mb-2">혈액·혈압</p>
+              <div class="bg-[#F8F8F8] rounded-[12px] p-4 space-y-2 text-[13px]">
+                <div v-if="selectedCheckup.blood_pressure_high" class="flex justify-between"><span class="text-[#999]">혈압</span><span class="text-[#333]">{{ selectedCheckup.blood_pressure_high }}/{{ selectedCheckup.blood_pressure_low }}</span></div>
+                <div v-if="selectedCheckup.hemoglobin" class="flex justify-between"><span class="text-[#999]">혈색소</span><span class="text-[#333]">{{ selectedCheckup.hemoglobin }} g/dL</span></div>
+                <div v-if="selectedCheckup.fasting_blood_sugar" class="flex justify-between"><span class="text-[#999]">공복혈당</span><span class="text-[#333]">{{ selectedCheckup.fasting_blood_sugar }} mg/dL</span></div>
+              </div>
+            </div>
+            <div>
+              <p class="text-[13px] font-semibold text-[#222] mb-2">지질검사</p>
+              <div class="bg-[#F8F8F8] rounded-[12px] p-4 space-y-2 text-[13px]">
+                <div v-if="selectedCheckup.total_cholesterol" class="flex justify-between"><span class="text-[#999]">총콜레스테롤</span><span class="text-[#333]">{{ selectedCheckup.total_cholesterol }}</span></div>
+                <div v-if="selectedCheckup.hdl" class="flex justify-between"><span class="text-[#999]">HDL</span><span class="text-[#333]">{{ selectedCheckup.hdl }}</span></div>
+                <div v-if="selectedCheckup.ldl" class="flex justify-between"><span class="text-[#999]">LDL</span><span class="text-[#333]">{{ selectedCheckup.ldl }}</span></div>
+                <div v-if="selectedCheckup.triglyceride" class="flex justify-between"><span class="text-[#999]">중성지방</span><span class="text-[#333]">{{ selectedCheckup.triglyceride }}</span></div>
+              </div>
+            </div>
+            <div>
+              <p class="text-[13px] font-semibold text-[#222] mb-2">간·신장 기능</p>
+              <div class="bg-[#F8F8F8] rounded-[12px] p-4 space-y-2 text-[13px]">
+                <div v-if="selectedCheckup.ast" class="flex justify-between"><span class="text-[#999]">AST (SGOT)</span><span class="text-[#333]">{{ selectedCheckup.ast }}</span></div>
+                <div v-if="selectedCheckup.alt" class="flex justify-between"><span class="text-[#999]">ALT (SGPT)</span><span class="text-[#333]">{{ selectedCheckup.alt }}</span></div>
+                <div v-if="selectedCheckup.gtp" class="flex justify-between"><span class="text-[#999]">γ-GTP</span><span class="text-[#333]">{{ selectedCheckup.gtp }}</span></div>
+                <div v-if="selectedCheckup.creatinine" class="flex justify-between"><span class="text-[#999]">혈청크레아티닌</span><span class="text-[#333]">{{ selectedCheckup.creatinine }}</span></div>
+                <div v-if="selectedCheckup.gfr" class="flex justify-between"><span class="text-[#999]">신사구체여과율</span><span class="text-[#333]">{{ selectedCheckup.gfr }}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="selectedCheckup.overall_opinion">
+            <p class="text-[13px] font-semibold text-[#222] mb-2">종합소견</p>
+            <div class="bg-[#F8F8F8] rounded-[12px] p-4 text-[13px] text-[#333] leading-relaxed whitespace-pre-line">{{ selectedCheckup.overall_opinion }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 보험 상세 모달 -->
     <div v-if="selectedInsurance" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="selectedInsurance = null">
       <div class="bg-white rounded-[16px] w-[640px] max-h-[80vh] flex flex-col">
@@ -467,7 +537,7 @@ import AppSelect from '../../components/ui/AppSelect.vue'
 import { useCodefStore } from '../../stores/codefStore'
 import { useToast } from '../../composables/useToast'
 import * as api from '../../services/agentApi'
-import type { MedicalRecordFull } from '../../types'
+import type { MedicalRecordFull, HealthCheckupRecord } from '../../types'
 import type { InsuranceContract } from '@shared/types'
 
 const route = useRoute()
@@ -521,6 +591,7 @@ const authLevelOptions = [
 ]
 const medicalSubTab = ref<'hospital' | 'pharmacy'>('hospital')
 const selectedMedical = ref<MedicalRecordFull | null>(null)
+const selectedCheckup = ref<HealthCheckupRecord | null>(null)
 const twoWayPending = ref(false)
 
 const fetchLoading = ref(false)
