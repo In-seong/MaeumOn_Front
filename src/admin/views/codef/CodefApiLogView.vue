@@ -62,8 +62,14 @@
           </tr>
         </tbody>
       </table>
-      <div v-if="filteredSummary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] text-right text-[14px] text-[#999]">
-        전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * 100).toLocaleString() }}원</span>
+      <div v-if="filteredSummary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] flex items-center justify-between">
+        <button @click="printInvoiceBatch" class="flex items-center gap-1.5 px-4 py-2 bg-[#333] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#555] transition-colors">
+          <span class="material-symbols-outlined text-[18px]">print</span>
+          월별 청구서 일괄 발행 ({{ filteredSummary.length }}명)
+        </button>
+        <span class="text-[14px] text-[#999]">
+          전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * 100).toLocaleString() }}원</span>
+        </span>
       </div>
     </div>
 
@@ -85,7 +91,7 @@
             </div>
 
             <!-- 모달 필터 -->
-            <div class="px-6 py-3 border-b border-[#F5F5F5] flex flex-wrap gap-3">
+            <div class="px-6 py-3 border-b border-[#F5F5F5] flex flex-wrap items-center gap-3">
               <select v-model="detailFilters.api_type" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] focus:outline-none focus:border-[#FF7B22] text-[13px] text-[#333]" @change="fetchDetail()">
                 <option value="">전체 API</option>
                 <option value="insurance">보험</option>
@@ -99,6 +105,12 @@
                 <option value="failed">실패</option>
                 <option value="two_way">2-Way 대기</option>
               </select>
+              <div class="ml-auto">
+                <button @click="printInvoiceSingle(selectedAgent!)" class="flex items-center gap-1.5 px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E66A1A] transition-colors">
+                  <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                  청구서 발행
+                </button>
+              </div>
             </div>
 
             <!-- 모달 테이블 -->
@@ -298,6 +310,130 @@ async function fetchDetail(page = 1) {
   } finally {
     detailLoading.value = false
   }
+}
+
+function formatMonth(m: string) {
+  const parts = m.split('-')
+  const y = parts[0] ?? ''
+  const mm = parts[1] ?? ''
+  return `${y}년 ${parseInt(mm) || 0}월`
+}
+
+function todayString() {
+  const d = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}년 ${pad(d.getMonth() + 1)}월 ${pad(d.getDate())}일`
+}
+
+function buildInvoiceHtml(agent: AgentSummary): string {
+  const items = [
+    { label: '보험 조회', count: agent.insurance_count },
+    { label: '진료 조회', count: agent.medical_count },
+    { label: '검진 조회', count: agent.checkup_count },
+    { label: '건강나이 조회', count: agent.health_age_count },
+  ]
+  const unitPrice = 100
+  const rows = items.map(i => `
+    <tr>
+      <td style="padding:10px 16px;border-bottom:1px solid #eee;">${i.label}</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;">${i.count.toLocaleString()}건</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;">${unitPrice.toLocaleString()}원</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${(i.count * unitPrice).toLocaleString()}원</td>
+    </tr>
+  `).join('')
+
+  const total = agent.total_count * unitPrice
+
+  return `
+    <div style="max-width:680px;margin:0 auto;padding:48px 40px;font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;color:#222;">
+      <div style="text-align:center;margin-bottom:36px;">
+        <h1 style="font-size:26px;font-weight:800;margin:0 0 6px;">API 사용료 청구서</h1>
+        <p style="font-size:13px;color:#999;margin:0;">Invoice</p>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-bottom:28px;font-size:14px;">
+        <div>
+          <p style="margin:0 0 4px;color:#999;font-size:12px;">청구 대상</p>
+          <p style="margin:0;font-size:18px;font-weight:700;">${agent.agent_name}</p>
+        </div>
+        <div style="text-align:right;">
+          <p style="margin:0 0 4px;color:#999;font-size:12px;">서비스 기간</p>
+          <p style="margin:0;font-weight:600;">${formatMonth(month.value)}</p>
+          <p style="margin:4px 0 0;color:#999;font-size:12px;">발행일: ${todayString()}</p>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+        <thead>
+          <tr style="background:#f8f8f8;">
+            <th style="padding:10px 16px;text-align:left;font-weight:600;border-bottom:2px solid #ddd;">항목</th>
+            <th style="padding:10px 16px;text-align:right;font-weight:600;border-bottom:2px solid #ddd;">건수</th>
+            <th style="padding:10px 16px;text-align:right;font-weight:600;border-bottom:2px solid #ddd;">단가</th>
+            <th style="padding:10px 16px;text-align:right;font-weight:600;border-bottom:2px solid #ddd;">금액</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+        <tfoot>
+          <tr style="background:#FFF8F3;">
+            <td style="padding:12px 16px;font-weight:700;border-top:2px solid #FF7B22;">합계</td>
+            <td style="padding:12px 16px;text-align:right;font-weight:700;border-top:2px solid #FF7B22;">${agent.total_count.toLocaleString()}건</td>
+            <td style="padding:12px 16px;border-top:2px solid #FF7B22;"></td>
+            <td style="padding:12px 16px;text-align:right;font-weight:800;font-size:16px;color:#FF7B22;border-top:2px solid #FF7B22;">${total.toLocaleString()}원</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div style="background:#f8f8f8;border-radius:8px;padding:16px 20px;font-size:13px;color:#666;margin-bottom:32px;">
+        <p style="margin:0 0 4px;font-weight:600;color:#333;">비고</p>
+        <p style="margin:0;">API 사용 건수 기준 과금 (건당 ${unitPrice.toLocaleString()}원)</p>
+      </div>
+
+      <div style="text-align:center;border-top:1px solid #eee;padding-top:24px;font-size:13px;color:#999;">
+        <p style="margin:0;font-weight:600;color:#555;">보험ON (MaeumON)</p>
+        <p style="margin:4px 0 0;">본 청구서는 전산 발행되었습니다.</p>
+      </div>
+    </div>
+  `
+}
+
+function openPrintWindow(htmlContent: string) {
+  const win = window.open('', '_blank')
+  if (!win) return
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>청구서</title>
+    <style>
+      @page { size: A4; margin: 20mm; }
+      body { margin:0; }
+      .page-break { page-break-after: always; }
+      .page-break:last-child { page-break-after: auto; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+    </style>
+  </head><body>
+    <div class="no-print" style="text-align:center;padding:16px;background:#f5f5f5;font-family:sans-serif;">
+      <button onclick="window.print()" style="padding:10px 28px;background:#FF7B22;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px;">인쇄 / PDF 저장</button>
+      <button onclick="window.close()" style="padding:10px 28px;background:#666;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">닫기</button>
+    </div>
+    ${htmlContent}
+  </body></html>`)
+  win.document.close()
+}
+
+function printInvoiceSingle(agent: AgentSummary) {
+  openPrintWindow(buildInvoiceHtml(agent))
+}
+
+function printInvoiceBatch() {
+  const pages = filteredSummary.value
+    .filter(a => a.total_count > 0)
+    .map((a, i, arr) => {
+      const html = buildInvoiceHtml(a)
+      return i < arr.length - 1 ? `<div class="page-break">${html}</div>` : `<div>${html}</div>`
+    })
+    .join('')
+  openPrintWindow(pages)
 }
 
 onMounted(() => {
