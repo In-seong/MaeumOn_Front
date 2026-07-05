@@ -223,7 +223,7 @@
           <div v-if="(store.healthAge.health_age ?? 0) !== (store.healthAge.chronological_age ?? 0)"
             class="rounded-[12px] p-4 text-[14px] text-center font-medium mb-4"
             :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'">
-            당시 나이보다 <strong>{{ Math.abs((store.healthAge.health_age ?? 0) - (store.healthAge.chronological_age ?? 0)) }}세</strong>
+            건강검진 당시 나이보다 <strong>{{ Math.abs((store.healthAge.health_age ?? 0) - (store.healthAge.chronological_age ?? 0)) }}세</strong>
             {{ (store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? '젊습니다' : '많습니다' }}
           </div>
 
@@ -236,10 +236,8 @@
               }"
               class="px-3 py-1 rounded-full text-[12px] font-medium"
             >{{ store.healthAge.risk_grade_label }}</span>
-            <span class="text-[12px] text-[#BBB]">{{ formatDate(store.healthAge.checkup_date) }} 검진 기준</span>
+            <span class="text-[12px] text-[#BBB]">{{ formatDate(store.healthAge.checkup_date) }} 건강검진 기준</span>
           </div>
-
-          <p v-if="store.healthAge.change_after_text" class="text-[13px] text-[#666] leading-relaxed mt-3 pt-3 border-t border-[#F0F0F0]">{{ store.healthAge.change_after_text }}</p>
         </div>
 
         <div v-if="store.healthAge.detail_list && store.healthAge.detail_list.length > 0"
