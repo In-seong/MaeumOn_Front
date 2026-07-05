@@ -186,6 +186,15 @@ const router = createRouter({
       path: '/codef',
       name: 'codef',
       component: adaptiveView(
+        () => import('../views/codef/CodefSelectView.vue'),
+        () => import('../views-pc/codef/PcCodefSelectView.vue')
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/codef/customers',
+      name: 'codef-customers',
+      component: adaptiveView(
         () => import('../views/codef/CodefCustomerListView.vue'),
         () => import('../views-pc/codef/PcCodefCustomerListView.vue')
       ),
