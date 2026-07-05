@@ -224,6 +224,13 @@ const router = createRouter({
       component: () => import('../views/claim-requests/ClaimRequestListView.vue'),
       meta: { requiresAuth: true },
     },
+    // CODEF API 로그
+    {
+      path: '/codef-logs',
+      name: 'codef-logs',
+      component: () => import('../views/codef/CodefApiLogView.vue'),
+      meta: { requiresAuth: true },
+    },
     // ========== 병원 포털 (별도 레이아웃, 관리자 인증 불필요) ==========
     {
       path: '/portal/login',
