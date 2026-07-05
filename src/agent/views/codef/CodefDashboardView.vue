@@ -111,7 +111,8 @@
           <div
             v-for="rec in filteredMedicalRecords"
             :key="rec.record_id"
-            class="bg-white rounded-[14px] border border-[#E8E8E8] p-4"
+            class="bg-white rounded-[14px] border border-[#E8E8E8] p-4 active:bg-[#FAFAFA] transition-colors cursor-pointer"
+            @click="selectedMedical = rec"
           >
             <div class="flex items-start justify-between mb-1.5">
               <p class="text-[14px] font-semibold text-[#222]">{{ rec.hospital_name || '병원명 없음' }}</p>
@@ -310,6 +311,73 @@
       </div>
     </div>
 
+    <!-- 진료 상세 모달 -->
+    <div v-if="selectedMedical" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" @click.self="selectedMedical = null">
+      <div class="bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#F0F0F0] shrink-0">
+          <h3 class="text-[16px] font-bold text-[#222]">진료 상세</h3>
+          <button class="text-[#999] p-1" @click="selectedMedical = null">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" /></svg>
+          </button>
+        </div>
+        <div class="overflow-y-auto px-5 py-4 space-y-4">
+          <div>
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="text-[15px] font-semibold text-[#222]">{{ selectedMedical.hospital_name || '병원명 없음' }}</p>
+                <p v-if="selectedMedical.department" class="text-[13px] text-[#999] mt-0.5">{{ selectedMedical.department }}</p>
+              </div>
+              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }}</span>
+            </div>
+            <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 space-y-2 text-[13px]">
+              <div v-if="selectedMedical.treatment_type" class="flex justify-between"><span class="text-[#999]">진료유형</span><span class="text-[#333]">{{ selectedMedical.treatment_type }}</span></div>
+              <div v-if="selectedMedical.diagnosis_name" class="flex justify-between"><span class="text-[#999]">진단명</span><span class="text-[#333]">{{ selectedMedical.diagnosis_name }}</span></div>
+              <div v-if="selectedMedical.diagnosis_code" class="flex justify-between"><span class="text-[#999]">질병코드</span><span class="text-[#333]">{{ selectedMedical.diagnosis_code }}</span></div>
+              <div v-if="selectedMedical.visit_days" class="flex justify-between"><span class="text-[#999]">내원일수</span><span class="text-[#333]">{{ selectedMedical.visit_days }}일</span></div>
+              <div v-if="selectedMedical.total_amount" class="flex justify-between"><span class="text-[#999]">총진료비</span><span class="text-[#333] font-medium">{{ formatCurrency(selectedMedical.total_amount) }}</span></div>
+              <div v-if="selectedMedical.public_charge" class="flex justify-between"><span class="text-[#999]">공단부담</span><span class="text-[#333]">{{ formatCurrency(selectedMedical.public_charge) }}</span></div>
+              <div v-if="selectedMedical.deductible_amt" class="flex justify-between"><span class="text-[#999]">본인부담</span><span class="text-[#333] font-medium">{{ formatCurrency(selectedMedical.deductible_amt) }}</span></div>
+            </div>
+          </div>
+
+          <div v-if="parsedDetailTreatList.length > 0">
+            <p class="text-[13px] font-semibold text-[#222] mb-2">세부진료내역 ({{ parsedDetailTreatList.length }}건)</p>
+            <div class="space-y-1.5">
+              <div v-for="(item, idx) in parsedDetailTreatList" :key="idx" class="bg-[#F8F8F8] rounded-[10px] px-3.5 py-2.5">
+                <p class="text-[13px] text-[#333]">{{ item.resCodeName || item.resTreatType || '-' }}</p>
+                <div class="flex gap-3 mt-0.5 text-[11px] text-[#999]">
+                  <span v-if="item.resTreatType && item.resCodeName">{{ item.resTreatType }}</span>
+                  <span v-if="item.resOneDose">{{ item.resOneDose }}회</span>
+                  <span v-if="item.resTotalDosingdays">{{ item.resTotalDosingdays }}일</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="parsedPrescribeDrugList.length > 0">
+            <p class="text-[13px] font-semibold text-[#222] mb-2">처방약 ({{ parsedPrescribeDrugList.length }}건)</p>
+            <div class="space-y-1.5">
+              <div v-for="(drug, idx) in parsedPrescribeDrugList" :key="idx" class="bg-[#F8F8F8] rounded-[10px] px-3.5 py-2.5">
+                <p class="text-[13px] text-[#333]">{{ drug.resDrugName || '-' }}</p>
+                <div class="flex gap-3 mt-0.5 text-[11px] text-[#999]">
+                  <span v-if="drug.resIngredients">{{ drug.resIngredients }}</span>
+                </div>
+                <div class="flex gap-3 mt-0.5 text-[11px] text-[#999]">
+                  <span v-if="drug.resOneDose">1회 {{ drug.resOneDose }}</span>
+                  <span v-if="drug.resDailyDosesNumber">1일 {{ drug.resDailyDosesNumber }}회</span>
+                  <span v-if="drug.resTotalDosingdays">{{ drug.resTotalDosingdays }}일분</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="parsedDetailTreatList.length === 0 && parsedPrescribeDrugList.length === 0" class="text-center py-4">
+            <p class="text-[13px] text-[#999]">세부내역이 없습니다</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 보험 상세 모달 -->
     <div v-if="selectedInsurance" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" @click.self="selectedInsurance = null">
       <div class="bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
@@ -440,6 +508,7 @@ const authLevelOptions = [
   { value: '8', label: '토스' },
 ]
 const medicalSubTab = ref<'hospital' | 'pharmacy'>('hospital')
+const selectedMedical = ref<MedicalRecordFull | null>(null)
 const twoWayPending = ref(false)
 
 const fetchLoading = ref(false)
@@ -450,6 +519,14 @@ const filteredMedicalRecords = computed(() => {
   if (medicalSubTab.value === 'pharmacy') return store.medicalRecords.filter(isPharmacy)
   return store.medicalRecords.filter(r => !isPharmacy(r))
 })
+
+function safeParseJson(json?: string): any[] {
+  if (!json) return []
+  try { return JSON.parse(json) } catch { return [] }
+}
+
+const parsedDetailTreatList = computed(() => safeParseJson(selectedMedical.value?.detail_treat_list_json))
+const parsedPrescribeDrugList = computed(() => safeParseJson(selectedMedical.value?.prescribe_drug_list_json))
 
 const authTargetLabel = computed(() => {
   const m: Record<string, string> = { medical: '진료내역', checkup: '건강검진', healthAge: '건강나이' }
