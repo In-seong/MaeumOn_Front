@@ -41,7 +41,8 @@
           <div
             v-for="ins in store.insuranceList"
             :key="ins.insurance_id"
-            class="bg-white rounded-[14px] border border-[#E8E8E8] p-4"
+            class="bg-white rounded-[14px] border border-[#E8E8E8] p-4 active:bg-[#FAFAFA] transition-colors cursor-pointer"
+            @click="selectedInsurance = ins"
           >
             <div class="flex items-start justify-between mb-2">
               <div>
@@ -308,6 +309,77 @@
         </div>
       </div>
     </div>
+
+    <!-- 보험 상세 모달 -->
+    <div v-if="selectedInsurance" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" @click.self="selectedInsurance = null">
+      <div class="bg-white rounded-t-[20px] w-full max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#F0F0F0] shrink-0">
+          <h3 class="text-[16px] font-bold text-[#222]">보험 상세</h3>
+          <button class="text-[#999] p-1" @click="selectedInsurance = null">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" /></svg>
+          </button>
+        </div>
+        <div class="overflow-y-auto px-5 py-4 space-y-4">
+          <!-- 기본 정보 -->
+          <div>
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="text-[15px] font-semibold text-[#222]">{{ selectedInsurance.product_name || '보험상품' }}</p>
+                <p class="text-[13px] text-[#999] mt-0.5">{{ selectedInsurance.insurance_company?.company_name || '-' }}</p>
+              </div>
+              <span
+                :class="selectedInsurance.contract_status === '정상' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-[#999]'"
+                class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+              >{{ selectedInsurance.contract_status || '-' }}</span>
+            </div>
+            <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 space-y-2 text-[13px]">
+              <div class="flex justify-between"><span class="text-[#999]">보험유형</span><span class="text-[#333]">{{ selectedInsurance.insurance_type || '-' }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">증권번호</span><span class="text-[#333]">{{ selectedInsurance.policy_number || '-' }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">계약자</span><span class="text-[#333]">{{ selectedInsurance.contractor_name || '-' }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">피보험자</span><span class="text-[#333]">{{ selectedInsurance.insured_person || '-' }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">보험료</span><span class="text-[#333] font-medium">{{ formatCurrency(selectedInsurance.premium_amount) }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">납입주기</span><span class="text-[#333]">{{ selectedInsurance.payment_cycle || '-' }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">계약일</span><span class="text-[#333]">{{ formatDate(selectedInsurance.subscription_date) }}</span></div>
+              <div class="flex justify-between"><span class="text-[#999]">만기일</span><span class="text-[#333]">{{ formatDate(selectedInsurance.expiration_date || selectedInsurance.end_date) }}</span></div>
+              <div v-if="selectedInsurance.car_name" class="flex justify-between"><span class="text-[#999]">차량</span><span class="text-[#333]">{{ selectedInsurance.car_name }}</span></div>
+              <div v-if="selectedInsurance.car_number" class="flex justify-between"><span class="text-[#999]">차량번호</span><span class="text-[#333]">{{ selectedInsurance.car_number }}</span></div>
+              <div v-if="selectedInsurance.company_phone" class="flex justify-between"><span class="text-[#999]">고객센터</span><span class="text-[#333]">{{ selectedInsurance.company_phone }}</span></div>
+              <div v-if="selectedInsurance.company_homepage" class="flex justify-between"><span class="text-[#999]">홈페이지</span><span class="text-[#333]">{{ selectedInsurance.company_homepage }}</span></div>
+            </div>
+          </div>
+
+          <!-- 보장내역 -->
+          <div v-if="selectedInsurance.coverages && selectedInsurance.coverages.length > 0">
+            <p class="text-[13px] font-semibold text-[#222] mb-2">보장내역 ({{ selectedInsurance.coverages.length }}건)</p>
+            <div class="space-y-1.5">
+              <div
+                v-for="cov in selectedInsurance.coverages"
+                :key="cov.coverage_id"
+                class="bg-[#F8F8F8] rounded-[10px] px-3.5 py-2.5"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0 mr-2">
+                    <p class="text-[13px] text-[#333]">{{ cov.coverage_name }}</p>
+                    <div class="flex gap-2 mt-0.5 text-[11px] text-[#999]">
+                      <span v-if="cov.insured_person">{{ cov.insured_person }}</span>
+                      <span v-if="cov.coverage_type">{{ cov.coverage_type }}</span>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <p class="text-[13px] font-medium text-[#333]">{{ formatCurrency(cov.coverage_amount) }}</p>
+                    <span
+                      v-if="cov.coverage_status"
+                      :class="cov.coverage_status === '정상' ? 'text-green-600' : 'text-[#999]'"
+                      class="text-[11px]"
+                    >{{ cov.coverage_status }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -320,6 +392,7 @@ import { useCodefStore } from '../../stores/codefStore'
 import { useToast } from '../../composables/useToast'
 import * as api from '../../services/agentApi'
 import type { MedicalRecordFull } from '../../types'
+import type { InsuranceContract } from '@shared/types'
 
 const route = useRoute()
 const store = useCodefStore()
@@ -338,6 +411,7 @@ const tabs = [
 type TabKey = typeof tabs[number]['key']
 const activeTab = ref<TabKey>('insurance')
 
+const selectedInsurance = ref<InsuranceContract | null>(null)
 const showCreditModal = ref(false)
 const creditId = ref('')
 const creditPw = ref('')
