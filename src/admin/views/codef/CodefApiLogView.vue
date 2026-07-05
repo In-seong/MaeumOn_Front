@@ -98,11 +98,14 @@ const logs = ref<LogItem[]>([])
 const agents = ref<AgentOption[]>([])
 const pagination = ref<{ current_page: number; last_page: number; per_page: number; total: number } | null>(null)
 
+const now = new Date()
+const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
 const filters = ref({
   agent_id: '',
   api_type: '',
   status: '',
-  month: '',
+  month: currentMonth,
 })
 
 function rowNum(index: number) {
