@@ -183,19 +183,59 @@
           <p class="text-[14px] text-[#999]">조회된 건강나이 정보가 없습니다</p>
           <p class="text-[12px] text-[#BBB] mt-1">간편인증 후 조회할 수 있습니다</p>
         </div>
-        <div v-else class="bg-white rounded-[14px] border border-[#E8E8E8] p-5">
-          <div class="text-center mb-4">
-            <p class="text-[13px] text-[#999] mb-1">건강나이</p>
-            <p class="text-[36px] font-bold text-[#FF7B22]">{{ store.healthAge.health_age ?? '-' }}<span class="text-[16px] font-normal text-[#999]">세</span></p>
-            <p v-if="store.healthAge.actual_age" class="text-[13px] text-[#999] mt-1">실제 나이 {{ store.healthAge.actual_age }}세</p>
+        <div v-else class="space-y-3">
+          <div class="bg-white rounded-[14px] border border-[#E8E8E8] p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-[56px] h-[56px] rounded-full flex items-center justify-center"
+                  :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'bg-green-50' : 'bg-orange-50'">
+                  <span class="text-[22px] font-bold"
+                    :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'text-green-600' : 'text-[#FF7B22]'">
+                    {{ store.healthAge.health_age ?? '-' }}
+                  </span>
+                </div>
+                <div>
+                  <p class="text-[15px] font-bold text-[#222]">건강나이 {{ store.healthAge.health_age ?? '-' }}세</p>
+                  <p class="text-[13px] text-[#999]">실제 나이 {{ store.healthAge.chronological_age ?? '-' }}세</p>
+                </div>
+              </div>
+              <span v-if="store.healthAge.risk_grade_label"
+                :class="{
+                  'bg-green-50 text-green-600': store.healthAge.risk_grade_label === '잘하고있어요' || store.healthAge.risk_grade_label === '양호',
+                  'bg-yellow-50 text-yellow-700': store.healthAge.risk_grade_label === '주의' || store.healthAge.risk_grade_label === '경계',
+                  'bg-red-50 text-red-600': store.healthAge.risk_grade_label === '관리필요',
+                  'bg-gray-100 text-[#999]': store.healthAge.risk_grade_label === '미평가',
+                }"
+                class="px-2 py-0.5 rounded-full text-[11px] font-medium shrink-0"
+              >{{ store.healthAge.risk_grade_label }}</span>
+            </div>
+
+            <div v-if="(store.healthAge.health_age ?? 0) !== (store.healthAge.chronological_age ?? 0)"
+              class="rounded-[10px] p-3 text-[13px] text-center font-medium"
+              :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'">
+              실제 나이보다 <strong>{{ Math.abs((store.healthAge.health_age ?? 0) - (store.healthAge.chronological_age ?? 0)) }}세</strong>
+              {{ (store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? '젊습니다' : '많습니다' }}
+            </div>
+
+            <p v-if="store.healthAge.change_after_text" class="text-[12px] text-[#666] mt-3 leading-relaxed">{{ store.healthAge.change_after_text }}</p>
+            <p class="text-[11px] text-[#BBB] mt-2">{{ formatDate(store.healthAge.checkup_date) }} 검진 기준</p>
           </div>
-          <div v-if="store.healthAge.risk_level" class="text-center">
-            <span
-              :class="store.healthAge.risk_level === '양호' ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-700'"
-              class="px-3 py-1 rounded-full text-[13px] font-medium"
-            >{{ store.healthAge.risk_level }}</span>
+
+          <div v-if="store.healthAge.detail_list && store.healthAge.detail_list.length > 0"
+            class="bg-white rounded-[14px] border border-[#E8E8E8] p-4">
+            <p class="text-[14px] font-bold text-[#222] mb-3">위험요인 분석</p>
+            <div class="space-y-2">
+              <div v-for="(item, idx) in store.healthAge.detail_list" :key="idx"
+                class="bg-[#F8F8F8] rounded-[10px] px-3.5 py-3">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[13px] font-medium text-[#333]">{{ item.resRiskFactor }}</span>
+                  <span class="text-[13px] font-semibold text-[#FF7B22]">{{ item.resState }}</span>
+                </div>
+                <p v-if="item.resType" class="text-[11px] text-[#999]">{{ item.resType }}</p>
+                <p v-if="item.resRecommendValue" class="text-[11px] text-[#BBB] mt-0.5">권장: {{ item.resRecommendValue }}</p>
+              </div>
+            </div>
           </div>
-          <p class="text-[11px] text-[#BBB] text-center mt-3">{{ formatDate(store.healthAge.created_at) }} 기준</p>
         </div>
       </div>
     </div>

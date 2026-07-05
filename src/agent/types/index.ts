@@ -444,14 +444,31 @@ export interface HealthCheckupRecord {
 }
 
 // ===== CODEF 건강나이 =====
+export interface HealthAgeDetailItem {
+  resRiskFactor: string
+  resState: string
+  resType: string
+  resDecreaseValue: string
+  resRecommendValue: string
+}
+
 export interface HealthAgeRecord {
   prediction_id: number
   customer_id: string
   prediction_type: string
+  checkup_date?: string
   health_age?: number
-  actual_age?: number
-  risk_level?: string
-  raw_data?: Record<string, unknown>
+  chronological_age?: number
+  risk_grade?: string
+  risk_grade_label?: string
+  risk_ratio?: string
+  average_age?: string
+  average_ratio?: string
+  change_after_text?: string
+  detail_list?: HealthAgeDetailItem[]
+  sub_detail_list?: unknown[]
+  compare_list?: unknown[]
+  predicted_at?: string
   created_at: string
   [key: string]: unknown
 }
