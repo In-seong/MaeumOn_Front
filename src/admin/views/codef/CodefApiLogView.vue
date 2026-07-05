@@ -159,7 +159,7 @@ async function fetchData(page = 1) {
     if (filters.value.status) params.status = filters.value.status
     if (filters.value.month) params.month = filters.value.month
 
-    const res = await api.get('/api/admin/codef-billing/logs', { params })
+    const res = await api.get('/admin/codef-billing/logs', { params })
     const data = res.data.data
     logs.value = data.data
     pagination.value = {
@@ -177,7 +177,7 @@ async function fetchData(page = 1) {
 
 async function fetchAgents() {
   try {
-    const res = await api.get('/api/admin/agents', { params: { per_page: 100 } })
+    const res = await api.get('/admin/agents', { params: { per_page: 100 } })
     const data = res.data.data?.data || res.data.data || []
     agents.value = data.map((a: { agent_id: string; account?: { name?: string } }) => ({
       agent_id: a.agent_id,
