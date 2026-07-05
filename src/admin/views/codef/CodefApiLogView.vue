@@ -1,38 +1,96 @@
 <template>
   <div class="p-4 lg:p-6">
-    <h1 class="text-[22px] font-bold text-[#333] mb-6">CODEF API 사용 로그</h1>
+    <div class="flex items-center gap-3 mb-6">
+      <button v-if="selectedAgent" @click="selectedAgent = null" class="text-[#999] hover:text-[#333] transition-colors">
+        <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+      </button>
+      <h1 class="text-[22px] font-bold text-[#333]">
+        {{ selectedAgent ? `${selectedAgent.agent_name} — API 사용 상세` : 'CODEF API 사용 로그' }}
+      </h1>
+    </div>
 
+    <!-- 월 필터 -->
     <div class="mb-4 flex flex-wrap gap-3">
-      <select v-model="filters.agent_id" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchData()">
-        <option value="">전체 설계사</option>
-        <option v-for="a in agents" :key="a.agent_id" :value="a.agent_id">{{ a.name }}</option>
-      </select>
-      <select v-model="filters.api_type" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchData()">
-        <option value="">전체 API</option>
-        <option value="insurance">보험</option>
-        <option value="medical">진료</option>
-        <option value="checkup">검진</option>
-        <option value="health_age">건강나이</option>
-      </select>
-      <select v-model="filters.status" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchData()">
-        <option value="">전체 상태</option>
-        <option value="success">성공</option>
-        <option value="failed">실패</option>
-        <option value="two_way">2-Way 대기</option>
-      </select>
-      <input v-model="filters.month" type="month" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchData()" />
+      <input v-model="month" type="month" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="onMonthChange" />
+      <template v-if="selectedAgent">
+        <select v-model="detailFilters.api_type" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchDetail()">
+          <option value="">전체 API</option>
+          <option value="insurance">보험</option>
+          <option value="medical">진료</option>
+          <option value="checkup">검진</option>
+          <option value="health_age">건강나이</option>
+        </select>
+        <select v-model="detailFilters.status" class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]" @change="fetchDetail()">
+          <option value="">전체 상태</option>
+          <option value="success">성공</option>
+          <option value="failed">실패</option>
+          <option value="two_way">2-Way 대기</option>
+        </select>
+      </template>
     </div>
 
     <div v-if="loading" class="text-center py-10">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
     </div>
 
-    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+    <!-- ===== 1단계: 설계사별 요약 ===== -->
+    <div v-else-if="!selectedAgent" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">설계사</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">보험</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">진료</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">검진</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">건강나이</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">성공</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">실패</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase font-bold">총 건수</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F0F0F0]">
+          <tr v-for="(agent, index) in summary" :key="agent.agent_id" class="hover:bg-[#FFF8F3] transition-colors cursor-pointer" @click="openDetail(agent)">
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ index + 1 }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ agent.agent_name }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center">
+              <span v-if="agent.insurance_count > 0" class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[12px] font-medium rounded-full">{{ agent.insurance_count }}</span>
+              <span v-else class="text-[#ccc]">-</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center">
+              <span v-if="agent.medical_count > 0" class="px-2 py-0.5 bg-purple-50 text-purple-600 text-[12px] font-medium rounded-full">{{ agent.medical_count }}</span>
+              <span v-else class="text-[#ccc]">-</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center">
+              <span v-if="agent.checkup_count > 0" class="px-2 py-0.5 bg-green-50 text-green-600 text-[12px] font-medium rounded-full">{{ agent.checkup_count }}</span>
+              <span v-else class="text-[#ccc]">-</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center">
+              <span v-if="agent.health_age_count > 0" class="px-2 py-0.5 bg-orange-50 text-orange-600 text-[12px] font-medium rounded-full">{{ agent.health_age_count }}</span>
+              <span v-else class="text-[#ccc]">-</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-green-600 font-medium">{{ agent.success_count }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center">
+              <span :class="agent.failed_count > 0 ? 'text-red-500 font-medium' : 'text-[#ccc]'">{{ agent.failed_count || '-' }}</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 text-[15px] text-center font-bold text-[#333]">{{ agent.total_count }}건</td>
+          </tr>
+          <tr v-if="summary.length === 0">
+            <td colspan="9" class="px-4 lg:px-6 py-10 text-center text-[#999]">해당 월에 API 사용 기록이 없습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-if="summary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] text-right text-[14px] text-[#999]">
+        전체 합계: <span class="font-bold text-[#333]">{{ totalAll }}건</span>
+      </div>
+    </div>
+
+    <!-- ===== 2단계: 설계사 상세 로그 ===== -->
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+      <table class="min-w-full divide-y divide-[#E8E8E8]">
+        <thead class="bg-[#FAFAFA]">
+          <tr>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">API 종류</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">액션</th>
@@ -43,9 +101,8 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="(log, index) in logs" :key="log.log_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ rowNum(index) }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ log.agent_name }}</td>
+          <tr v-for="(log, index) in detailLogs" :key="log.log_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ detailRowNum(index) }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555]">{{ log.customer?.name || '-' }}</td>
             <td class="px-4 lg:px-6 py-4">
               <span :class="typeClass(log.api_type)" class="px-2 py-0.5 text-[12px] font-medium rounded-full">{{ typeLabel(log.api_type) }}</span>
@@ -58,13 +115,13 @@
             <td class="px-4 lg:px-6 py-4 text-[13px] text-[#999] hidden lg:table-cell max-w-[200px] truncate">{{ log.error_message || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 text-[13px] text-[#999] whitespace-nowrap">{{ formatDateTime(log.created_at) }}</td>
           </tr>
-          <tr v-if="logs.length === 0">
-            <td colspan="9" class="px-4 lg:px-6 py-10 text-center text-[#999]">로그가 없습니다.</td>
+          <tr v-if="detailLogs.length === 0">
+            <td colspan="8" class="px-4 lg:px-6 py-10 text-center text-[#999]">로그가 없습니다.</td>
           </tr>
         </tbody>
       </table>
 
-      <Pagination v-if="pagination" :current-page="pagination.current_page" :last-page="pagination.last_page" @change="fetchData" />
+      <Pagination v-if="detailPagination && detailPagination.last_page > 1" :current-page="detailPagination.current_page" :last-page="detailPagination.last_page" @change="fetchDetail" />
     </div>
   </div>
 </template>
@@ -74,10 +131,21 @@ import { ref, onMounted } from 'vue'
 import api from '@shared/api'
 import Pagination from '../../components/Pagination.vue'
 
+interface AgentSummary {
+  agent_id: string
+  agent_name: string
+  insurance_count: number
+  medical_count: number
+  checkup_count: number
+  health_age_count: number
+  success_count: number
+  failed_count: number
+  total_count: number
+}
+
 interface LogItem {
   log_id: number
   agent_id: string
-  agent_name: string
   customer_id: string
   customer?: { customer_id: string; name: string; phone: string }
   api_type: string
@@ -88,30 +156,17 @@ interface LogItem {
   created_at: string
 }
 
-interface AgentOption {
-  agent_id: string
-  name: string
-}
-
 const loading = ref(false)
-const logs = ref<LogItem[]>([])
-const agents = ref<AgentOption[]>([])
-const pagination = ref<{ current_page: number; last_page: number; per_page: number; total: number } | null>(null)
+const summary = ref<AgentSummary[]>([])
+const totalAll = ref(0)
+const selectedAgent = ref<AgentSummary | null>(null)
+const detailLogs = ref<LogItem[]>([])
+const detailPagination = ref<{ current_page: number; last_page: number; per_page: number; total: number } | null>(null)
 
 const now = new Date()
-const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+const month = ref(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`)
 
-const filters = ref({
-  agent_id: '',
-  api_type: '',
-  status: '',
-  month: currentMonth,
-})
-
-function rowNum(index: number) {
-  if (!pagination.value) return index + 1
-  return ((pagination.value.current_page - 1) * pagination.value.per_page) + index + 1
-}
+const detailFilters = ref({ api_type: '', status: '' })
 
 function typeLabel(t: string) {
   const m: Record<string, string> = { insurance: '보험', medical: '진료', checkup: '검진', health_age: '건강나이' }
@@ -153,46 +208,71 @@ function formatDateTime(dt: string) {
   return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-async function fetchData(page = 1) {
+function detailRowNum(index: number) {
+  if (!detailPagination.value) return index + 1
+  return ((detailPagination.value.current_page - 1) * detailPagination.value.per_page) + index + 1
+}
+
+async function fetchSummary() {
   loading.value = true
   try {
-    const params: Record<string, string | number> = { page, per_page: 30 }
-    if (filters.value.agent_id) params.agent_id = filters.value.agent_id
-    if (filters.value.api_type) params.api_type = filters.value.api_type
-    if (filters.value.status) params.status = filters.value.status
-    if (filters.value.month) params.month = filters.value.month
+    const params: Record<string, string> = {}
+    if (month.value) params.month = month.value
+    const res = await api.get('/admin/codef-billing/summary', { params })
+    summary.value = res.data.data.agents
+    totalAll.value = res.data.data.total
+  } catch {
+    summary.value = []
+    totalAll.value = 0
+  } finally {
+    loading.value = false
+  }
+}
+
+function openDetail(agent: AgentSummary) {
+  selectedAgent.value = agent
+  detailFilters.value = { api_type: '', status: '' }
+  fetchDetail()
+}
+
+async function fetchDetail(page = 1) {
+  if (!selectedAgent.value) return
+  loading.value = true
+  try {
+    const params: Record<string, string | number> = {
+      agent_id: selectedAgent.value.agent_id,
+      page,
+      per_page: 30,
+    }
+    if (month.value) params.month = month.value
+    if (detailFilters.value.api_type) params.api_type = detailFilters.value.api_type
+    if (detailFilters.value.status) params.status = detailFilters.value.status
 
     const res = await api.get('/admin/codef-billing/logs', { params })
     const data = res.data.data
-    logs.value = data.data
-    pagination.value = {
+    detailLogs.value = data.data
+    detailPagination.value = {
       current_page: data.current_page,
       last_page: data.last_page,
       per_page: data.per_page,
       total: data.total,
     }
   } catch {
-    logs.value = []
+    detailLogs.value = []
   } finally {
     loading.value = false
   }
 }
 
-async function fetchAgents() {
-  try {
-    const res = await api.get('/admin/agents', { params: { per_page: 100 } })
-    const data = res.data.data?.data || res.data.data || []
-    agents.value = data.map((a: { agent_id: string; account?: { name?: string } }) => ({
-      agent_id: a.agent_id,
-      name: a.account?.name || a.agent_id,
-    }))
-  } catch {
-    agents.value = []
+function onMonthChange() {
+  if (selectedAgent.value) {
+    fetchDetail()
+  } else {
+    fetchSummary()
   }
 }
 
 onMounted(() => {
-  fetchAgents()
-  fetchData()
+  fetchSummary()
 })
 </script>
