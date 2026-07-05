@@ -262,7 +262,7 @@
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">주민등록번호</label>
-              <input v-model="authIdentity" type="text" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF7B22]" placeholder="숫자 13자리" />
+              <input :value="authIdentity" @input="onIdentityInput" type="text" maxlength="14" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF7B22]" placeholder="000000-0000000" />
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">통신사</label>
@@ -532,6 +532,18 @@ const filteredMedicalRecords = computed(() => {
   return store.medicalRecords.filter(r => !isPharmacy(r))
 })
 
+function formatIdentity(val: string): string {
+  const digits = val.replace(/\D/g, '').slice(0, 13)
+  if (digits.length > 6) return digits.slice(0, 6) + '-' + digits.slice(6)
+  return digits
+}
+
+function onIdentityInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  authIdentity.value = formatIdentity(input.value)
+  input.value = authIdentity.value
+}
+
 function safeParseJson(json?: string): any[] {
   if (!json) return []
   try { return JSON.parse(json) } catch { return [] }
@@ -634,11 +646,11 @@ async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
     const c = res.data.data
     authUserName.value = c.name || ''
     authPhoneNo.value = c.phone || ''
-    authIdentity.value = c.resident_number_masked || ''
+    authIdentity.value = formatIdentity(c.resident_number_masked || '')
     authTelecom.value = c.telecom || ''
     if (c.resident_number_masked) {
       const unmasked = await api.unmaskResidentNumber(customerId.value)
-      authIdentity.value = unmasked.data.data.resident_number || ''
+      authIdentity.value = formatIdentity(unmasked.data.data.resident_number || '')
     }
   } catch { /* 실패해도 모달은 열림 */ }
   showAuthModal.value = true
@@ -655,7 +667,7 @@ async function doFetchAuth() {
       telecom: authTelecom.value,
       userName: authUserName.value || undefined,
       phoneNo: authPhoneNo.value || undefined,
-      identity: authIdentity.value || undefined,
+      identity: authIdentity.value ? authIdentity.value.replace(/-/g, '') : undefined,
     } as any)
     const data = res.data as { success: boolean; two_way?: boolean; message?: string }
     if (data.two_way) {
