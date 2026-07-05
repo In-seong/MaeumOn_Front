@@ -693,11 +693,11 @@ function formatCurrency(amount?: number | string | null): string {
 <style scoped>
 .sheet-enter-active,
 .sheet-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.4s ease;
 }
 .sheet-enter-active > div:last-child,
 .sheet-leave-active > div:last-child {
-  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .sheet-enter-from,
 .sheet-leave-to {
