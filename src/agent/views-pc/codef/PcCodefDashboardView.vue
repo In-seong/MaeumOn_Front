@@ -216,24 +216,23 @@
             </div>
             <div>
               <p class="text-[18px] font-bold text-[#222]">건강나이 {{ store.healthAge.health_age ?? '-' }}세</p>
-              <p class="text-[14px] text-[#999] mt-0.5">실제 나이 {{ store.healthAge.chronological_age ?? '-' }}세</p>
+              <p class="text-[14px] text-[#999] mt-0.5">당시 나이 {{ store.healthAge.chronological_age ?? '-' }}세</p>
             </div>
           </div>
 
           <div v-if="(store.healthAge.health_age ?? 0) !== (store.healthAge.chronological_age ?? 0)"
             class="rounded-[12px] p-4 text-[14px] text-center font-medium mb-4"
             :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'">
-            실제 나이보다 <strong>{{ Math.abs((store.healthAge.health_age ?? 0) - (store.healthAge.chronological_age ?? 0)) }}세</strong>
+            당시 나이보다 <strong>{{ Math.abs((store.healthAge.health_age ?? 0) - (store.healthAge.chronological_age ?? 0)) }}세</strong>
             {{ (store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? '젊습니다' : '많습니다' }}
           </div>
 
           <div class="flex items-center justify-between mb-3">
-            <span v-if="store.healthAge.risk_grade_label"
+            <span v-if="store.healthAge.risk_grade_label && store.healthAge.risk_grade_label !== '미평가'"
               :class="{
                 'bg-green-50 text-green-600': store.healthAge.risk_grade_label === '잘하고있어요' || store.healthAge.risk_grade_label === '양호',
                 'bg-yellow-50 text-yellow-700': store.healthAge.risk_grade_label === '주의' || store.healthAge.risk_grade_label === '경계',
                 'bg-red-50 text-red-600': store.healthAge.risk_grade_label === '관리필요',
-                'bg-gray-100 text-[#999]': store.healthAge.risk_grade_label === '미평가',
               }"
               class="px-3 py-1 rounded-full text-[12px] font-medium"
             >{{ store.healthAge.risk_grade_label }}</span>
