@@ -4,11 +4,7 @@
       <!-- 상단 바 -->
       <header class="bg-white px-5 pt-4 pb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-[#FF7B22] flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z" fill="white"/>
-            </svg>
-          </div>
+          <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-8 h-8" />
           <span class="text-[#222] text-[20px] font-bold">ON 케어</span>
         </div>
       </header>
