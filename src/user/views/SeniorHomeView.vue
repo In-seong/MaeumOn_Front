@@ -5,7 +5,7 @@
       <header class="bg-white px-5 pt-4 pb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-8 h-8" />
-          <span class="text-[#222] text-[20px] font-bold">ON 케어</span>
+          <span class="text-[20px] font-bold"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
         </div>
       </header>
 
