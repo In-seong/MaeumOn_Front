@@ -248,14 +248,17 @@
             type="text"
             placeholder="아이디"
             class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
+            @input="creditError = ''"
           />
           <input
             v-model="creditPw"
             type="password"
             placeholder="비밀번호"
             class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
+            @input="creditError = ''"
           />
         </div>
+        <p v-if="creditError" class="text-[13px] text-red-500 mt-2 px-1">{{ creditError }}</p>
         <div class="flex gap-2 mt-5">
           <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px]" @click="showCreditModal = false">취소</button>
           <button
@@ -280,6 +283,7 @@
             고객 휴대폰에서<br/>간편인증을 완료해주세요
           </p>
           <p class="text-[12px] text-[#999] text-center mb-4">카카오톡 또는 PASS 앱 확인</p>
+          <p v-if="authError" class="text-[13px] text-red-500 text-center mb-3 px-1">{{ authError }}</p>
           <div class="flex gap-2">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px]" @click="showAuthModal = false">취소</button>
             <button
@@ -323,7 +327,8 @@
               />
             </div>
           </div>
-          <div class="flex gap-2">
+          <p v-if="authError" class="text-[13px] text-red-500 mt-2 px-1">{{ authError }}</p>
+          <div class="flex gap-2 mt-3">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px]" @click="showAuthModal = false">취소</button>
             <button
               class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] disabled:opacity-50"
@@ -616,6 +621,8 @@ const creditId = ref('')
 const creditPw = ref('')
 const showCreditTwoWay = ref(false)
 const creditSmsCode = ref('')
+const creditError = ref('')
+const authError = ref('')
 
 const showAuthModal = ref(false)
 const authTarget = ref<'medical' | 'checkup' | 'healthAge'>('medical')
@@ -720,6 +727,7 @@ async function loadCustomerName() {
 
 async function doFetchInsurance() {
   fetchLoading.value = true
+  creditError.value = ''
   try {
     const res = await api.fetchInsurance(customerId.value, { id: creditId.value, password: creditPw.value })
     const data = res.data as { success: boolean; two_way?: { two_way_pending: boolean }; message?: string }
@@ -732,10 +740,12 @@ async function doFetchInsurance() {
       toast.showToast('보험 계약 조회 완료', 'success')
       store.loadInsurance(customerId.value)
     } else {
-      toast.showToast(data.message || '조회에 실패했습니다', 'error')
+      creditError.value = data.message || '조회에 실패했습니다'
+      toast.showToast(creditError.value, 'error')
     }
-  } catch {
-    toast.showToast('보험 조회 중 오류가 발생했습니다', 'error')
+  } catch (err: any) {
+    creditError.value = err?.response?.data?.message || '보험 조회 중 오류가 발생했습니다'
+    toast.showToast(creditError.value, 'error')
   } finally {
     fetchLoading.value = false
   }
@@ -781,6 +791,7 @@ async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
 
 async function doFetchAuth() {
   fetchLoading.value = true
+  authError.value = ''
   try {
     const fetchFn = authTarget.value === 'medical' ? api.fetchMedical
       : authTarget.value === 'checkup' ? api.fetchCheckup
@@ -801,11 +812,12 @@ async function doFetchAuth() {
       toast.showToast('조회 완료', 'success')
       loadTabData()
     } else {
-      toast.showToast(data.message || '조회에 실패했습니다', 'error')
+      authError.value = data.message || '조회에 실패했습니다'
+      toast.showToast(authError.value, 'error')
     }
   } catch (err: any) {
-    const msg = err?.response?.data?.message || '조회 요청 중 오류가 발생했습니다'
-    toast.showToast(msg, 'error')
+    authError.value = err?.response?.data?.message || '조회 요청 중 오류가 발생했습니다'
+    toast.showToast(authError.value, 'error')
   } finally {
     fetchLoading.value = false
   }
@@ -813,6 +825,7 @@ async function doFetchAuth() {
 
 async function doConfirmAuth() {
   fetchLoading.value = true
+  authError.value = ''
   try {
     const confirmFn = authTarget.value === 'medical' ? api.confirmMedical
       : authTarget.value === 'checkup' ? api.confirmCheckup
@@ -825,10 +838,12 @@ async function doConfirmAuth() {
       toast.showToast('조회 완료', 'success')
       loadTabData()
     } else {
-      toast.showToast(data.message || '인증 확인에 실패했습니다', 'error')
+      authError.value = data.message || '인증 확인에 실패했습니다'
+      toast.showToast(authError.value, 'error')
     }
-  } catch {
-    toast.showToast('인증 확인 중 오류가 발생했습니다', 'error')
+  } catch (err: any) {
+    authError.value = err?.response?.data?.message || '인증 확인 중 오류가 발생했습니다'
+    toast.showToast(authError.value, 'error')
   } finally {
     fetchLoading.value = false
   }
