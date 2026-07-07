@@ -250,13 +250,23 @@
             class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
             @input="creditError = ''"
           />
-          <input
-            v-model="creditPw"
-            type="password"
-            placeholder="비밀번호"
-            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
-            @input="creditError = ''"
-          />
+          <div class="relative">
+            <input
+              v-model="creditPw"
+              :type="creditPwVisible ? 'text' : 'password'"
+              placeholder="비밀번호"
+              class="w-full px-4 py-3 pr-11 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
+              @input="creditError = ''"
+            />
+            <button
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#999]"
+              @click="creditPwVisible = !creditPwVisible"
+            >
+              <svg v-if="creditPwVisible" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke-width="1.5"/></svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
         </div>
         <p v-if="creditError" class="text-[13px] text-red-500 mt-2 px-1">{{ creditError }}</p>
         <div class="flex gap-2 mt-5">
@@ -621,6 +631,7 @@ const creditId = ref('')
 const creditPw = ref('')
 const showCreditTwoWay = ref(false)
 const creditSmsCode = ref('')
+const creditPwVisible = ref(false)
 const creditError = ref('')
 const authError = ref('')
 
