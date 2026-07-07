@@ -263,9 +263,9 @@
       <div class="bg-white rounded-[16px] w-[420px] p-6">
         <h3 class="text-[17px] font-bold text-[#222] mb-5">내보험다보여 로그인</h3>
         <div class="space-y-3">
-          <input v-model="creditId" type="text" placeholder="아이디" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]" @input="creditError = ''" />
+          <input v-model="creditId" type="text" placeholder="아이디" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]" @input="creditError = ''" />
           <div class="relative">
-            <input v-model="creditPw" :type="creditPwVisible ? 'text' : 'password'" placeholder="비밀번호" class="w-full px-4 py-3 pr-11 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]" @input="creditError = ''" />
+            <input v-model="creditPw" :type="creditPwVisible ? 'text' : 'password'" placeholder="비밀번호" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full px-4 py-3 pr-11 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]" @input="creditError = ''" />
             <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#999] hover:text-[#666]" @click="creditPwVisible = !creditPwVisible">
               <svg v-if="creditPwVisible" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke-width="1.5"/></svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -721,8 +721,8 @@ async function doFetchInsurance() {
   creditError.value = ''
   try {
     const res = await api.fetchInsurance(customerId.value, { id: creditId.value, password: creditPw.value })
-    const data = res.data as { success: boolean; two_way?: { two_way_pending: boolean }; message?: string }
-    if (data.two_way?.two_way_pending) {
+    const data = res.data as { success: boolean; two_way?: boolean; message?: string }
+    if (data.two_way) {
       showCreditModal.value = false
       showCreditTwoWay.value = true
       toast.showToast('추가 인증이 필요합니다', 'success')

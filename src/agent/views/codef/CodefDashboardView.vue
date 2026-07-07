@@ -247,6 +247,10 @@
             v-model="creditId"
             type="text"
             placeholder="아이디"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
             class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
             @input="creditError = ''"
           />
@@ -255,6 +259,10 @@
               v-model="creditPw"
               :type="creditPwVisible ? 'text' : 'password'"
               placeholder="비밀번호"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
               class="w-full px-4 py-3 pr-11 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]"
               @input="creditError = ''"
             />
@@ -741,8 +749,8 @@ async function doFetchInsurance() {
   creditError.value = ''
   try {
     const res = await api.fetchInsurance(customerId.value, { id: creditId.value, password: creditPw.value })
-    const data = res.data as { success: boolean; two_way?: { two_way_pending: boolean }; message?: string }
-    if (data.two_way?.two_way_pending) {
+    const data = res.data as { success: boolean; two_way?: boolean; message?: string }
+    if (data.two_way) {
       showCreditModal.value = false
       showCreditTwoWay.value = true
       toast.showToast('추가 인증이 필요합니다', 'success')
