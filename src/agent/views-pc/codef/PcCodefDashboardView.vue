@@ -124,7 +124,12 @@
               <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ formatDate(rec.treatment_date) }}</td>
               <td class="px-5 py-3.5 text-[13px] font-medium text-[#333]">{{ rec.hospital_name || '-' }}</td>
               <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ rec.department || '-' }}</td>
-              <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ rec.diagnosis_name || '-' }}</td>
+              <td class="px-5 py-3.5 text-[13px] text-[#666]">
+                <div class="flex items-center gap-1.5">
+                  <span>{{ rec.diagnosis_name || '-' }}</span>
+                  <span v-if="hasSurgery(rec)" class="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 rounded">수술</span>
+                </div>
+              </td>
               <td class="px-5 py-3.5 text-[13px] text-[#333] text-right font-variant-numeric tabular-nums">{{ formatCurrency(rec.total_amount) }}</td>
             </tr>
           </tbody>
@@ -383,7 +388,10 @@
           </div>
 
           <div v-if="parsedDetailTreatList.length > 0">
-            <p class="text-[14px] font-semibold text-[#222] mb-3">세부진료내역 ({{ parsedDetailTreatList.length }}건)</p>
+            <div class="flex items-center gap-2 mb-3">
+              <p class="text-[14px] font-semibold text-[#222]">세부진료내역 ({{ parsedDetailTreatList.length }}건)</p>
+              <span v-if="selectedHasSurgery" class="text-[13px] font-semibold text-red-500">수술 예상</span>
+            </div>
             <table class="min-w-full divide-y divide-[#E8E8E8]">
               <thead class="bg-[#FAFAFA]">
                 <tr>
@@ -394,9 +402,9 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-[#F0F0F0]">
-                <tr v-for="(item, idx) in parsedDetailTreatList" :key="idx">
-                  <td class="px-4 py-2.5 text-[12px] text-[#999]">{{ item.resTreatType || '-' }}</td>
-                  <td class="px-4 py-2.5 text-[12px] text-[#333]">{{ item.resCodeName || '-' }}</td>
+                <tr v-for="(item, idx) in parsedDetailTreatList" :key="idx" :class="item.resTreatType?.includes('수술') ? 'bg-red-50' : ''">
+                  <td class="px-4 py-2.5 text-[12px]" :class="item.resTreatType?.includes('수술') ? 'text-red-500 font-medium' : 'text-[#999]'">{{ item.resTreatType || '-' }}</td>
+                  <td class="px-4 py-2.5 text-[12px]" :class="item.resTreatType?.includes('수술') ? 'text-red-600 font-medium' : 'text-[#333]'">{{ item.resCodeName || '-' }}</td>
                   <td class="px-4 py-2.5 text-[12px] text-[#666] text-right">{{ item.resOneDose || '-' }}</td>
                   <td class="px-4 py-2.5 text-[12px] text-[#666] text-right">{{ item.resTotalDosingdays || '-' }}</td>
                 </tr>
@@ -672,6 +680,13 @@ function safeParseJson(json?: string): any[] {
 
 const parsedDetailTreatList = computed(() => safeParseJson(selectedMedical.value?.detail_treat_list_json))
 const parsedPrescribeDrugList = computed(() => safeParseJson(selectedMedical.value?.prescribe_drug_list_json))
+
+function hasSurgery(rec: any): boolean {
+  const details = safeParseJson(rec?.detail_treat_list_json)
+  return details.some((d: any) => d.resTreatType?.includes('수술'))
+}
+
+const selectedHasSurgery = computed(() => hasSurgery(selectedMedical.value))
 
 const authTargetLabel = computed(() => {
   const m: Record<string, string> = { medical: '진료내역', checkup: '건강검진', healthAge: '건강나이' }

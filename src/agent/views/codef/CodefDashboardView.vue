@@ -118,7 +118,10 @@
               <p class="text-[14px] font-semibold text-[#222]">{{ rec.hospital_name || '병원명 없음' }}</p>
               <span class="text-[12px] text-[#999]">{{ formatDate(rec.treatment_date) }}</span>
             </div>
-            <p v-if="rec.diagnosis_name" class="text-[13px] text-[#555]">{{ rec.diagnosis_name }}</p>
+            <div v-if="rec.diagnosis_name" class="flex items-center gap-1.5">
+              <p class="text-[13px] text-[#555]">{{ rec.diagnosis_name }}</p>
+              <span v-if="hasSurgery(rec)" class="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 bg-red-50 text-red-500 border border-red-200 rounded">수술</span>
+            </div>
             <div class="flex gap-4 mt-2 text-[12px]">
               <span v-if="rec.department" class="text-[#999]">{{ rec.department }}</span>
               <span v-if="rec.total_amount" class="text-[#333]">{{ formatCurrency(rec.total_amount) }}</span>
@@ -416,11 +419,14 @@
           </div>
 
           <div v-if="parsedDetailTreatList.length > 0">
-            <p class="text-[13px] font-semibold text-[#222] mb-2">세부진료내역 ({{ parsedDetailTreatList.length }}건)</p>
+            <div class="flex items-center gap-2 mb-2">
+              <p class="text-[13px] font-semibold text-[#222]">세부진료내역 ({{ parsedDetailTreatList.length }}건)</p>
+              <span v-if="selectedHasSurgery" class="text-[12px] font-semibold text-red-500">수술 예상</span>
+            </div>
             <div class="space-y-1.5">
-              <div v-for="(item, idx) in parsedDetailTreatList" :key="idx" class="bg-[#F8F8F8] rounded-[10px] px-3.5 py-2.5">
-                <p class="text-[13px] text-[#333]">{{ item.resCodeName || item.resTreatType || '-' }}</p>
-                <div class="flex gap-3 mt-0.5 text-[11px] text-[#999]">
+              <div v-for="(item, idx) in parsedDetailTreatList" :key="idx" class="rounded-[10px] px-3.5 py-2.5" :class="item.resTreatType?.includes('수술') ? 'bg-red-50 border border-red-200' : 'bg-[#F8F8F8]'">
+                <p class="text-[13px]" :class="item.resTreatType?.includes('수술') ? 'text-red-600 font-medium' : 'text-[#333]'">{{ item.resCodeName || item.resTreatType || '-' }}</p>
+                <div class="flex gap-3 mt-0.5 text-[11px]" :class="item.resTreatType?.includes('수술') ? 'text-red-400' : 'text-[#999]'">
                   <span v-if="item.resTreatType && item.resCodeName">{{ item.resTreatType }}</span>
                   <span v-if="item.resOneDose">{{ item.resOneDose }}회</span>
                   <span v-if="item.resTotalDosingdays">{{ item.resTotalDosingdays }}일</span>
@@ -700,6 +706,13 @@ function safeParseJson(json?: string): any[] {
 
 const parsedDetailTreatList = computed(() => safeParseJson(selectedMedical.value?.detail_treat_list_json))
 const parsedPrescribeDrugList = computed(() => safeParseJson(selectedMedical.value?.prescribe_drug_list_json))
+
+function hasSurgery(rec: any): boolean {
+  const details = safeParseJson(rec?.detail_treat_list_json)
+  return details.some((d: any) => d.resTreatType?.includes('수술'))
+}
+
+const selectedHasSurgery = computed(() => hasSurgery(selectedMedical.value))
 
 const authTargetLabel = computed(() => {
   const m: Record<string, string> = { medical: '진료내역', checkup: '건강검진', healthAge: '건강나이' }
