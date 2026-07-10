@@ -712,13 +712,14 @@ const otherStep4Fields = computed(() =>
   })
 )
 
-// Step 5: 계좌 필드를 서명보다 먼저 (자동 이체 계좌를 맨 위로)
+// Step 5: 자동이체 계좌 체크박스 → 계좌 필드 → 서명 순서
 const step5SortedFields = computed(() => {
   const fields = currentStepFields.value
   if (currentStep.value !== 5) return fields
-  const accountFields = fields.filter(f => f.field_type !== 'signature')
+  const autoTransfer = fields.filter(f => f.field_name === 'auto_transfer_account')
+  const accountFields = fields.filter(f => f.field_type !== 'signature' && f.field_name !== 'auto_transfer_account')
   const signatureFields = fields.filter(f => f.field_type === 'signature')
-  return [...accountFields, ...signatureFields]
+  return [...autoTransfer, ...accountFields, ...signatureFields]
 })
 
 // 계약자 필드 유무 판단 (Step 3 활성 여부)
