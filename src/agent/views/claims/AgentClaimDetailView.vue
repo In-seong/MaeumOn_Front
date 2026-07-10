@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="청구 상세" />
-      <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
+      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 96)" @focusin="handleFocusIn">
         <!-- 로딩 -->
         <div v-if="store.loading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
@@ -402,6 +402,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { updateBeneficiary } from '../../services/agentApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
@@ -414,6 +415,7 @@ import StatusBadge from '@user/components/ui/StatusBadge.vue'
 import { useToast } from '../../composables/useToast'
 
 const toast = useToast()
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 
 const router = useRouter()
 const route = useRoute()
@@ -433,15 +435,6 @@ const viewerIndex = ref(0)
 let lastPinchDist = 0
 
 const VIEWER_DEFAULT_SCALE = 0.25
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
 
 function openImageViewer(url: string) {
   const idx = claimImageUrls.value?.findIndex(img => img.url === url) ?? 0

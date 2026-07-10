@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="청구 관리" />
 
-      <main class="px-5 py-3 pb-20 overflow-y-auto" style="height: calc(100dvh - 56px - 60px);" @focusin="handleFocusIn">
+      <main class="px-5 py-3 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px - 60px)', 80)" @focusin="handleFocusIn">
         <!-- Search + New Claim Button Row -->
         <div class="flex items-center gap-2 mb-4">
           <div class="relative flex-1">
@@ -109,11 +109,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ClaimListItem from '../../components/ui/ClaimListItem.vue'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 const router = useRouter()
 const store = useAgentClaimStore()
 
@@ -135,15 +137,6 @@ const filterChips: FilterChip[] = [
 onMounted(() => {
   store.loadClaims()
 })
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
 
 function goToDetail(id: number): void {
   router.push(`/claims/${id}`)

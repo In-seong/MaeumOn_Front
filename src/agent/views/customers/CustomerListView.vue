@@ -5,8 +5,8 @@
 
       <main
         ref="scrollContainer"
-        class="px-5 overflow-y-auto pb-20"
-        style="height: calc(100dvh - 56px - 60px);"
+        class="px-5 overflow-y-auto"
+        :style="mainStyle('calc(100dvh - 56px - 60px)', 80)"
         @scroll="handleScroll"
         @focusin="handleFocusIn"
       >
@@ -98,11 +98,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CustomerListItem from '../../components/ui/CustomerListItem.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 const router = useRouter()
 const store = useCustomerStore()
 
@@ -118,15 +120,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (searchTimeout) clearTimeout(searchTimeout)
 })
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
 
 function handleSearch(): void {
   if (searchTimeout) clearTimeout(searchTimeout)

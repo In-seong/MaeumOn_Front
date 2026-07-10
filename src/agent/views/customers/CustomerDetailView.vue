@@ -37,8 +37,8 @@
 
       <main
         v-if="customer"
-        class="px-5 overflow-y-auto pb-20"
-        style="height: calc(100dvh - 56px);"
+        class="px-5 overflow-y-auto"
+        :style="mainStyle('calc(100dvh - 56px)', 80)"
         @click="showMenu = false"
         @focusin="handleFocusIn"
       >
@@ -640,6 +640,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
@@ -659,6 +660,7 @@ interface Tab {
   label: string
 }
 
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 const route = useRoute()
 const router = useRouter()
 const store = useCustomerStore()
@@ -703,15 +705,6 @@ const contractStatusOptions = [
   { value: 'expired', label: '만기' },
   { value: 'cancelled', label: '해지' },
 ] as const
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
 
 function resetContractForm(): void {
   contractForm.value = {

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '청구서 이어쓰기' : (isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성'))" :custom-back="true" @back="handleHeaderBack" />
-      <main class="px-5 py-4 pb-8 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
+      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)')" @focusin="handleFocusIn">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
@@ -280,9 +280,9 @@
                   <span class="text-[14px] font-medium">고객 정보와 동일</span>
                 </button>
 
-                <!-- 필드 렌더링 -->
+                <!-- 필드 렌더링 (Step 5는 계좌 필드 먼저, 서명 나중) -->
                 <div class="flex flex-col gap-4">
-                  <template v-for="field in currentStepFields" :key="field.form_field_id">
+                  <template v-for="field in (currentStep === 5 ? step5SortedFields : currentStepFields)" :key="field.form_field_id">
                     <!-- 서명 필드: 인라인 렌더링 -->
                     <div v-if="field.field_type === 'signature'">
                       <label class="block text-[13px] font-medium text-[#888] mb-1.5">
@@ -487,6 +487,7 @@ import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 import { compressImages } from '@shared/utils/compressImage'
 import { consentApi } from '@shared/services/insuranceApi'
 import type { ConsentTemplate } from '@shared/services/insuranceApi'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 
 const router = useRouter()
 const route = useRoute()
@@ -711,6 +712,15 @@ const otherStep4Fields = computed(() =>
   })
 )
 
+// Step 5: 계좌 필드를 서명보다 먼저 (자동 이체 계좌를 맨 위로)
+const step5SortedFields = computed(() => {
+  const fields = currentStepFields.value
+  if (currentStep.value !== 5) return fields
+  const accountFields = fields.filter(f => f.field_type !== 'signature')
+  const signatureFields = fields.filter(f => f.field_type === 'signature')
+  return [...accountFields, ...signatureFields]
+})
+
 // 계약자 필드 유무 판단 (Step 3 활성 여부)
 const hasContractorStep = computed(() => activeSteps.value.includes(3))
 
@@ -890,14 +900,7 @@ function scrollToTop() {
   if (mainEl) mainEl.scrollTop = 0
 }
 
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 
 
 // ===== 자동채움: Step 3 (고객 정보와 동일) =====
@@ -1460,4 +1463,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+
 </script>

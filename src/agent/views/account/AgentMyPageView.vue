@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="마이페이지" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);" @focusin="handleFocusIn">
+      <main class="px-6 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px - 60px)', 80)" @focusin="handleFocusIn">
         <!-- Profile Card -->
         <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)]">
           <div class="w-[60px] h-[60px] bg-[#FF7B22] rounded-full flex items-center justify-center flex-shrink-0">
@@ -241,6 +241,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { useToast } from '../../composables/useToast'
 import { changePassword as apiChangePassword } from '../../services/agentApi'
@@ -250,6 +251,7 @@ import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 const authStore = useAgentAuthStore()
 const toast = useToast()
 
@@ -277,15 +279,6 @@ const editForm = ref({
   email: '',
   office_location: '',
 })
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
 
 function startEdit(): void {
   editForm.value = {

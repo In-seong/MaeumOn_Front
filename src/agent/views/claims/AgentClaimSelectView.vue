@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader title="보험금 청구" />
 
-      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
+      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 112)" @focusin="handleFocusIn">
 
         <!-- 배치 임시저장 목록 -->
         <section v-if="!claimMode && batchClaimStore.batchDrafts.length > 0" class="mt-2 mb-5">
@@ -411,6 +411,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import type { AgentClaim, BatchClaim } from '../../types'
 import type { InsuranceCategory } from '@shared/types'
 import { useRouter, useRoute } from 'vue-router'
@@ -419,6 +420,7 @@ import { useCustomerStore } from '../../stores/customerStore'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 const router = useRouter()
 const route = useRoute()
 const customerStore = useCustomerStore()
@@ -516,15 +518,6 @@ watch(claimMode, () => {
   selectedCompanyId.value = null
   selectedFormId.value = null
 })
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
-}
 
 // ===== 핸들러 =====
 function handleCustomerSearch(): void {

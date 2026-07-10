@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '다중 청구 이어쓰기' : '다중 보험 청구'" :custom-back="true" @back="handleHeaderBack" />
 
-      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
+      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 112)" @focusin="handleFocusIn">
 
         <!-- 로딩 -->
         <div v-if="batchStore.loading && !initialLoaded" class="flex items-center justify-center py-20">
@@ -611,6 +611,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import WizardStepBar from '@shared/components/claim/WizardStepBar.vue'
@@ -622,6 +623,7 @@ import { useToast } from '../../composables/useToast'
 import { compressImages } from '@shared/utils/compressImage'
 
 const toast = useToast()
+const { handleFocusIn, mainStyle } = useKeyboardSafe()
 
 const router = useRouter()
 const route = useRoute()
@@ -1446,15 +1448,6 @@ function getFilledCount(entryIdx: number): number {
 
 function getTotalFieldCount(entryIdx: number): number {
   return getUniqueFieldsForEntry(entryIdx).length
-}
-
-function handleFocusIn(e: FocusEvent) {
-  const target = e.target as HTMLElement
-  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    }, 300)
-  }
 }
 
 function formatFieldInput(fieldId: number, fieldType: string, event: Event): void {
