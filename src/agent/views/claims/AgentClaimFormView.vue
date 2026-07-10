@@ -712,14 +712,39 @@ const otherStep4Fields = computed(() =>
   })
 )
 
-// Step 5: 자동이체 계좌 체크박스 → 계좌 필드 → 서명 순서
+// Step 5: 자동이체 체크 시 계좌 입력 필드 숨김
+const ACCOUNT_HIDE_FIELDS = new Set(['bank_name', 'account_number', 'account_holder', 'account_holder_rrn'])
+
+const isAutoTransferChecked = computed(() => {
+  const atField = currentStepFields.value.find(f => f.field_name === 'auto_transfer_account')
+  if (!atField) return false
+  const val = claimStore.fieldValues[atField.form_field_id]
+  if (!val) return false
+  try {
+    const arr = JSON.parse(val)
+    return Array.isArray(arr) && arr.length > 0
+  } catch { return !!val }
+})
+
 const step5SortedFields = computed(() => {
   const fields = currentStepFields.value
   if (currentStep.value !== 5) return fields
   const autoTransfer = fields.filter(f => f.field_name === 'auto_transfer_account')
   const accountFields = fields.filter(f => f.field_type !== 'signature' && f.field_name !== 'auto_transfer_account')
   const signatureFields = fields.filter(f => f.field_type === 'signature')
-  return [...autoTransfer, ...accountFields, ...signatureFields]
+  const visibleAccount = isAutoTransferChecked.value
+    ? accountFields.filter(f => !ACCOUNT_HIDE_FIELDS.has(f.field_name))
+    : accountFields
+  return [...autoTransfer, ...visibleAccount, ...signatureFields]
+})
+
+// 자동이체 체크 시 숨겨진 계좌 필드 값 초기화
+watch(isAutoTransferChecked, (checked) => {
+  if (checked) {
+    currentStepFields.value
+      .filter(f => ACCOUNT_HIDE_FIELDS.has(f.field_name))
+      .forEach(f => claimStore.setFieldValue(f.form_field_id, ''))
+  }
 })
 
 // 계약자 필드 유무 판단 (Step 3 활성 여부)
@@ -835,6 +860,11 @@ function isFieldValid(field: FormField): boolean {
   }
 }
 
+// 자동이체 체크 시 숨겨진 필드는 검증 제외
+function isFieldHiddenByAutoTransfer(f: FormField): boolean {
+  return isAutoTransferChecked.value && ACCOUNT_HIDE_FIELDS.has(f.field_name) && getFieldWizardStep(f) === 5
+}
+
 const isCurrentStepValid = computed(() => {
   if (currentStep.value === 1) {
     const consentsOk = allConsentsAgreed.value
@@ -844,14 +874,14 @@ const isCurrentStepValid = computed(() => {
     return consentsOk && step1FieldsOk
   }
   return currentStepFields.value
-    .filter(f => f.is_required)
+    .filter(f => f.is_required && !isFieldHiddenByAutoTransfer(f))
     .every(f => isFieldValid(f))
 })
 
 const isFormValid = computed(() =>
   allConsentsAgreed.value &&
   wizardDisplayFields.value
-    .filter(f => f.is_required)
+    .filter(f => f.is_required && !isFieldHiddenByAutoTransfer(f))
     .every(f => isFieldValid(f))
 )
 
