@@ -1,9 +1,9 @@
 <template>
   <header class="flex justify-between items-center h-[66px] px-6 py-3">
     <div class="flex items-center gap-2.5">
-      <img src="/icons/LogoIcon.svg" alt="보험청구ON" class="w-10 h-10" />
+      <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-10 h-10" />
       <div class="flex flex-col justify-center translate-y-[1px]">
-        <span class="text-[18px] font-jalnan font-bold text-black leading-none">보험청구ON</span>
+        <span class="text-[20px] font-bold leading-none"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
         <span class="text-[11px] text-[#999] mt-1">{{ agentAuthStore.agentName }} · {{ agentAuthStore.agencyName }}</span>
       </div>
     </div>

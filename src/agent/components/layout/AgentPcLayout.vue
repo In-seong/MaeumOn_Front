@@ -35,8 +35,8 @@ async function handleLogout() {
         </button>
 
         <div class="lg:hidden flex items-center gap-1.5">
-          <img src="/icons/LogoIcon.svg" alt="마음ON" class="w-6 h-6" />
-          <span class="text-[16px] font-bold text-[#FF7B22]">보험청구ON</span>
+          <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-6 h-6" />
+          <span class="text-[16px] font-bold"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
         </div>
 
         <div class="hidden lg:block" />

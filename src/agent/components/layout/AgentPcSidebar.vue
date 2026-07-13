@@ -121,8 +121,8 @@ function toggleGroup(gi: number) {
   >
     <div class="h-16 flex items-center justify-between px-5 border-b border-[#E8E8E8] shrink-0">
       <router-link to="/" class="flex items-center gap-2" @click="emit('close')">
-        <img src="/icons/LogoIcon.svg" alt="마음ON" class="w-7 h-7" />
-        <span class="text-[20px] font-bold text-[#FF7B22]">보험청구ON</span>
+        <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-7 h-7" />
+        <span class="text-[20px] font-bold"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
         <span class="text-[13px] text-[#999] font-medium">설계사</span>
       </router-link>
       <button class="lg:hidden text-[#999] hover:text-[#333]" @click="emit('close')">
