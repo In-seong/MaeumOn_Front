@@ -78,6 +78,27 @@
 
       <!-- 오른쪽 -->
       <div class="flex flex-col gap-6">
+        <!-- 팩스 발송 정보 -->
+        <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6">
+          <h2 class="text-[16px] font-bold text-[#333] mb-4">팩스 발송</h2>
+          <div class="flex flex-col gap-2.5">
+            <div class="flex items-center">
+              <span class="text-[13px] text-[#888] w-[100px]">상태</span>
+              <span :class="faxStatusClass(claim.fax_status)" class="px-2 py-0.5 text-[12px] font-medium rounded-full">{{ faxStatusLabel(claim.fax_status) }}</span>
+            </div>
+            <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">발송번호</span><span class="text-[13px] text-[#333]">{{ claim.fax_number_sent || '-' }}</span></div>
+            <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">발송일시</span><span class="text-[13px] text-[#333]">{{ claim.fax_sent_at ? formatDate(claim.fax_sent_at) : '-' }}</span></div>
+            <div v-if="claim.fax_result_code" class="flex">
+              <span class="text-[13px] text-[#888] w-[100px]">결과코드</span>
+              <span class="text-[13px] text-[#333]">{{ claim.fax_result_code }}</span>
+            </div>
+            <div v-if="(claim as any).fax_result_message" class="flex">
+              <span class="text-[13px] text-[#888] w-[100px]">실패사유</span>
+              <span class="text-[13px] text-[#EF4444] font-medium">{{ (claim as any).fax_result_message }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 비고 -->
         <div v-if="claim.notes" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6">
           <h2 class="text-[16px] font-bold text-[#333] mb-3">비고</h2>
@@ -157,6 +178,25 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + 'B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB'
   return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
+}
+
+function faxStatusLabel(status?: string | null): string {
+  switch (status) {
+    case 'sent': return '발송완료'
+    case 'failed': return '발송실패'
+    case 'pending': return '발송대기'
+    case 'sending': return '발송중'
+    default: return '미발송'
+  }
+}
+
+function faxStatusClass(status?: string | null): string {
+  switch (status) {
+    case 'sent': return 'bg-green-100 text-green-700'
+    case 'failed': return 'bg-red-100 text-red-700'
+    case 'pending': case 'sending': return 'bg-yellow-100 text-yellow-700'
+    default: return 'bg-gray-100 text-gray-600'
+  }
 }
 
 function formatAmount(event: Event) {
