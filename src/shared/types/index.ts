@@ -195,7 +195,7 @@ export interface BatchClaim {
 export const BATCH_STATUS_OPTIONS = [
   { value: 'draft', label: '임시저장', color: 'gray' },
   { value: 'pending', label: '접수 대기', color: 'yellow' },
-  { value: 'processing', label: '처리중', color: 'blue' },
+  { value: 'processing', label: '발송완료', color: 'blue' },
   { value: 'completed', label: '완료', color: 'green' },
   { value: 'partial_failed', label: '일부 실패', color: 'red' },
 ] as const
@@ -341,7 +341,7 @@ export const FIELD_TYPE_OPTIONS = [
 export const CLAIM_STATUS_OPTIONS = [
   { value: 'draft', label: '임시저장', color: 'gray' },
   { value: 'pending', label: '접수 대기', color: 'yellow' },
-  { value: 'processing', label: '처리중', color: 'blue' },
+  { value: 'processing', label: '발송완료', color: 'blue' },
   { value: 'approved', label: '승인', color: 'green' },
   { value: 'rejected', label: '거절', color: 'red' },
   { value: 'paid', label: '지급 완료', color: 'emerald' },

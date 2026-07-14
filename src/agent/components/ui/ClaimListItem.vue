@@ -56,7 +56,7 @@ const companyName = computed(() =>
 const statusLabel = computed(() => {
   const map: Record<string, string> = {
     pending: '접수대기',
-    processing: '처리중',
+    processing: '발송완료',
     approved: '승인',
     rejected: '거절',
     paid: '지급완료',

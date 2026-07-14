@@ -19,7 +19,7 @@
         <option value="">전체 상태</option>
         <option value="draft">임시저장</option>
         <option value="pending">접수 대기</option>
-        <option value="processing">처리중</option>
+        <option value="processing">발송완료</option>
         <option value="completed">전체 완료</option>
         <option value="partial_failed">일부 실패</option>
       </select>

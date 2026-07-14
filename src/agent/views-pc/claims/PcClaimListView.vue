@@ -217,7 +217,7 @@ function statusLabel(status?: string): string {
   const map: Record<string, string> = {
     draft: '임시저장',
     pending: '접수대기',
-    processing: '처리중',
+    processing: '발송완료',
     approved: '승인',
     rejected: '거절',
     paid: '지급완료',
