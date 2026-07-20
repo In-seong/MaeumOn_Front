@@ -46,6 +46,19 @@
 
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
+              대표 전화번호
+            </label>
+            <input
+              v-model="form.contact_phone"
+              type="text"
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+              placeholder="예: 1588-5114"
+            />
+            <p class="mt-1 text-[12px] text-[#999]">설계사 앱 청구 화면에서 전화 연결 아이콘에 사용됩니다.</p>
+          </div>
+
+          <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
               양식명 <span class="text-red-500">*</span>
             </label>
             <input
@@ -202,6 +215,7 @@ const uploading = ref(false)
 const form = ref({
   company_name: '',
   fax_number: '',
+  contact_phone: '',
   form_name: '',
   form_description: '',
   is_active: true,
@@ -248,6 +262,7 @@ async function loadData() {
       form.value = {
         company_name: template.insurance_company?.company_name || '',
         fax_number: template.insurance_company?.fax_number || '',
+        contact_phone: template.insurance_company?.contact_phone || '',
         form_name: template.form_name,
         form_description: template.form_description || '',
         is_active: template.is_active,
@@ -270,6 +285,7 @@ async function handleSubmit() {
       const formData = new FormData()
       formData.append('company_name', form.value.company_name)
       formData.append('fax_number', form.value.fax_number)
+      if (form.value.contact_phone) formData.append('contact_phone', form.value.contact_phone)
       formData.append('form_name', form.value.form_name)
       formData.append('form_description', form.value.form_description || '')
       formData.append('is_active', form.value.is_active ? '1' : '0')
