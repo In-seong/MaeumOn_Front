@@ -20,11 +20,22 @@
         @input="debouncedSearch"
       />
       <select
+        v-model="agentFilter"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+        @change="fetchData()"
+      >
+        <option value="">전체 설계사</option>
+        <option value="null">미배정 고객</option>
+        <option v-for="agent in agentList" :key="agent.agent_id" :value="agent.agent_id">
+          {{ agent.name }}
+        </option>
+      </select>
+      <select
         v-model="activeFilter"
         class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
         @change="fetchData()"
       >
-        <option value="">전체</option>
+        <option value="">전체 상태</option>
         <option value="true">활성화</option>
         <option value="false">비활성화</option>
       </select>
@@ -118,15 +129,18 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { fetchAgents } from '../../services/adminApi'
 import Pagination from '../../components/Pagination.vue'
 import { useSortable } from '../../composables/useSortable'
-import type { AdminCustomer } from '../../types'
+import type { AdminCustomer, AdminAgent } from '../../types'
 
 const router = useRouter()
 const store = useCustomerStore()
 
 const searchQuery = ref('')
 const activeFilter = ref('')
+const agentFilter = ref('')
+const agentList = ref<AdminAgent[]>([])
 const { toggleSort, sortParams, sortIcon } = useSortable()
 
 let searchTimeout: ReturnType<typeof setTimeout>
@@ -142,6 +156,7 @@ async function fetchData(page = 1) {
   await store.loadCustomers({
     search: searchQuery.value || undefined,
     is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
+    agent_id: agentFilter.value || undefined,
     page,
     ...sortParams(),
   })
@@ -201,7 +216,17 @@ async function handleDelete(customer: AdminCustomer) {
   }
 }
 
+async function loadAgentList() {
+  try {
+    const res = await fetchAgents({ per_page: 200 })
+    agentList.value = res.data.data.data
+  } catch {
+    // 설계사 목록 로드 실패해도 고객 목록은 정상 표시
+  }
+}
+
 onMounted(() => {
+  loadAgentList()
   fetchData()
 })
 </script>

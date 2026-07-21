@@ -87,7 +87,7 @@ export interface Contract {
   created_at: string
   updated_at: string
   // Eager loaded
-  insurance_company?: { company_id: number; company_name: string }
+  insurance_company?: { company_id: number; company_name: string; fax_number?: string; contact_phone?: string }
 }
 
 // ===== Consultation (상담요청) =====
@@ -144,7 +144,7 @@ export interface InsuranceClaim {
     claim_form_id: number
     form_name: string
     company_id: number
-    insurance_company?: { company_id: number; company_name: string }
+    insurance_company?: { company_id: number; company_name: string; fax_number?: string; contact_phone?: string }
   }
 }
 

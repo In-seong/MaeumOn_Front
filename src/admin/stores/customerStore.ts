@@ -24,6 +24,7 @@ export const useCustomerStore = defineStore('customer', () => {
   async function loadCustomers(params?: {
     search?: string
     is_active?: boolean
+    agent_id?: string
     page?: number
     per_page?: number
     sort_by?: string

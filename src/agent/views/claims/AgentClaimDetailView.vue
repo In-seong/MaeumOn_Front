@@ -14,8 +14,22 @@
           <CardSection class="mb-4">
             <div class="flex items-start justify-between mb-3">
               <div>
-                <span class="text-[13px] text-[#888]">
+                <span class="text-[13px] text-[#888] inline-flex items-center gap-1.5">
                   {{ claim.claim_form?.insurance_company?.company_name ?? '-' }}
+                  <a
+                    v-if="claim.claim_form?.insurance_company?.contact_phone"
+                    :href="`tel:${claim.claim_form.insurance_company.contact_phone}`"
+                    class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#FF7B22] shrink-0"
+                    @click.stop
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.72 11.72 0 003.66.59 1 1 0 011 1v3.59a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.59a1 1 0 011 1 11.72 11.72 0 00.59 3.66 1 1 0 01-.24 1.01l-2.32 2.12z"/></svg>
+                  </a>
+                  <span
+                    v-else
+                    class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#D0D0D0] shrink-0"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.72 11.72 0 003.66.59 1 1 0 011 1v3.59a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.59a1 1 0 011 1 11.72 11.72 0 00.59 3.66 1 1 0 01-.24 1.01l-2.32 2.12z"/></svg>
+                  </span>
                 </span>
                 <p class="text-[18px] font-bold text-[#222] mt-0.5">
                   {{ claim.claim_form?.form_name ?? '-' }}
