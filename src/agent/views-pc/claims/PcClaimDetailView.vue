@@ -45,6 +45,10 @@
               <span class="text-[13px] text-[#888]">고객명</span>
               <span class="text-[14px] font-medium text-[#333]">{{ claim.customer.name }}</span>
             </div>
+            <div v-if="claim.claim_form?.insurance_company?.contact_phone" class="flex items-center gap-2">
+              <span class="text-[13px] text-[#888]">보험사 전화</span>
+              <span class="text-[14px] font-medium text-[#333]">{{ claim.claim_form.insurance_company.contact_phone }}</span>
+            </div>
           </div>
         </CardSection>
 

@@ -119,6 +119,12 @@
               />
             </div>
 
+            <!-- 보험사 전화번호 -->
+            <div v-if="claim.claim_form?.insurance_company?.contact_phone" class="flex items-center gap-2 py-2 border-t border-[#F0F0F0]">
+              <span class="text-[12px] text-[#888]">전화</span>
+              <span class="text-[12px] font-medium text-[#333]">{{ claim.claim_form.insurance_company.contact_phone }}</span>
+            </div>
+
             <!-- 팩스 상태 -->
             <div class="flex items-center gap-2 py-2 border-t border-[#F0F0F0]">
               <span class="text-[12px] text-[#888]">팩스</span>
