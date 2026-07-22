@@ -73,23 +73,27 @@
                 <!-- 보험사 + 상태 -->
                 <div class="flex items-start justify-between mb-2">
                   <div class="min-w-0 flex-1">
-                    <p class="text-[15px] font-bold text-[#222] truncate inline-flex items-center gap-1.5">
-                      {{ claim.claim_form?.insurance_company?.company_name ?? '-' }}
+                    <div class="flex items-center justify-between gap-2">
+                      <p class="text-[15px] font-bold text-[#222] truncate">
+                        {{ claim.claim_form?.insurance_company?.company_name ?? '-' }}
+                      </p>
                       <a
                         v-if="claim.claim_form?.insurance_company?.contact_phone"
                         :href="`tel:${claim.claim_form.insurance_company.contact_phone}`"
-                        class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#FF7B22] shrink-0"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF7B22] text-[#FF7B22] text-[12px] font-medium shrink-0 active:scale-95 transition-transform"
                         @click.stop
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.72 11.72 0 003.66.59 1 1 0 011 1v3.59a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.59a1 1 0 011 1 11.72 11.72 0 00.59 3.66 1 1 0 01-.24 1.01l-2.32 2.12z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        전화걸기
                       </a>
                       <span
                         v-else
-                        class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#D0D0D0] shrink-0"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D0D0D0] text-[#AAAAAA] text-[12px] font-medium shrink-0"
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.72 11.72 0 003.66.59 1 1 0 011 1v3.59a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.59a1 1 0 011 1 11.72 11.72 0 00.59 3.66 1 1 0 01-.24 1.01l-2.32 2.12z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        전화걸기
                       </span>
-                    </p>
+                    </div>
                     <p class="text-[12px] text-[#888] mt-0.5 truncate">
                       {{ claim.claim_form?.form_name ?? '-' }}
                     </p>
