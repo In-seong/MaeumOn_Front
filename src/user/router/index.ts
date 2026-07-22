@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
 import SeniorHomeView from '../views/SeniorHomeView.vue'
 
 const router = createRouter({
@@ -70,6 +71,22 @@ const router = createRouter({
       component: () => import('../views/ClaimFormStandaloneView.vue'),
     },
   ],
+})
+
+// 인증 가드: 비로그인 시 /login으로 리다이렉트
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+
+  if (to.meta.guest) {
+    if (authStore.isLoggedIn) return { name: 'home' }
+    return true
+  }
+
+  if (!authStore.isLoggedIn) {
+    return { name: 'login' }
+  }
+
+  return true
 })
 
 // 배포 후 stale chunk 처리: 동적 import 실패 시 자동 새로고침 (무한루프 방지)
