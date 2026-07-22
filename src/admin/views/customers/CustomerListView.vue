@@ -19,17 +19,53 @@
         class="flex-1 px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
         @input="debouncedSearch"
       />
-      <select
-        v-model="agentFilter"
-        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-        @change="fetchData()"
-      >
-        <option value="">전체 설계사</option>
-        <option value="null">미배정 고객</option>
-        <option v-for="agent in agentList" :key="agent.agent_id" :value="agent.agent_id">
-          {{ agent.name }}
-        </option>
-      </select>
+      <div class="relative" ref="agentDropdownRef">
+        <button
+          type="button"
+          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] min-w-[160px] text-left flex items-center justify-between gap-2 hover:border-[#CCC] transition-colors"
+          :class="{ 'border-[#FF7B22]': agentDropdownOpen }"
+          @click="agentDropdownOpen = !agentDropdownOpen"
+        >
+          <span :class="{ 'text-[#999]': !agentFilter }">{{ agentFilterLabel }}</span>
+          <svg class="w-4 h-4 text-[#999] shrink-0 transition-transform" :class="{ 'rotate-180': agentDropdownOpen }" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+        </button>
+        <div
+          v-if="agentDropdownOpen"
+          class="absolute top-full left-0 mt-1 w-[240px] bg-white border border-[#E8E8E8] rounded-[12px] shadow-lg z-50 overflow-hidden"
+        >
+          <div class="p-2 border-b border-[#F0F0F0]">
+            <input
+              ref="agentSearchInputRef"
+              v-model="agentSearchQuery"
+              type="text"
+              placeholder="설계사 이름 검색"
+              class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#999] focus:outline-none focus:border-[#FF7B22]"
+            />
+          </div>
+          <ul class="max-h-[240px] overflow-y-auto py-1">
+            <li
+              class="px-4 py-2.5 text-[13px] cursor-pointer hover:bg-[#FFF3ED] transition-colors"
+              :class="{ 'text-[#FF7B22] font-medium bg-[#FFF8F3]': agentFilter === '' }"
+              @click="selectAgent('')"
+            >전체 설계사</li>
+            <li
+              class="px-4 py-2.5 text-[13px] cursor-pointer hover:bg-[#FFF3ED] transition-colors"
+              :class="{ 'text-[#FF7B22] font-medium bg-[#FFF8F3]': agentFilter === 'null' }"
+              @click="selectAgent('null')"
+            >미배정 고객</li>
+            <li
+              v-for="agent in filteredAgentList"
+              :key="agent.agent_id"
+              class="px-4 py-2.5 text-[13px] cursor-pointer hover:bg-[#FFF3ED] transition-colors"
+              :class="{ 'text-[#FF7B22] font-medium bg-[#FFF8F3]': agentFilter === agent.agent_id }"
+              @click="selectAgent(agent.agent_id)"
+            >{{ agent.name }}</li>
+            <li v-if="filteredAgentList.length === 0 && agentSearchQuery" class="px-4 py-3 text-[13px] text-[#999] text-center">
+              검색 결과 없음
+            </li>
+          </ul>
+        </div>
+      </div>
       <select
         v-model="activeFilter"
         class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
@@ -126,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
 import { fetchAgents } from '../../services/adminApi'
@@ -141,6 +177,47 @@ const searchQuery = ref('')
 const activeFilter = ref('')
 const agentFilter = ref('')
 const agentList = ref<AdminAgent[]>([])
+const agentDropdownOpen = ref(false)
+const agentSearchQuery = ref('')
+const agentDropdownRef = ref<HTMLElement | null>(null)
+const agentSearchInputRef = ref<HTMLInputElement | null>(null)
+
+const sortedAgentList = computed(() =>
+  [...agentList.value].sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+)
+
+const filteredAgentList = computed(() => {
+  if (!agentSearchQuery.value) return sortedAgentList.value
+  const q = agentSearchQuery.value.toLowerCase()
+  return sortedAgentList.value.filter(a => a.name.toLowerCase().includes(q))
+})
+
+const agentFilterLabel = computed(() => {
+  if (agentFilter.value === '') return '전체 설계사'
+  if (agentFilter.value === 'null') return '미배정 고객'
+  const found = agentList.value.find(a => a.agent_id === agentFilter.value)
+  return found?.name ?? '전체 설계사'
+})
+
+function selectAgent(value: string) {
+  agentFilter.value = value
+  agentDropdownOpen.value = false
+  agentSearchQuery.value = ''
+  fetchData()
+}
+
+function handleClickOutside(e: MouseEvent) {
+  if (agentDropdownRef.value && !agentDropdownRef.value.contains(e.target as Node)) {
+    agentDropdownOpen.value = false
+    agentSearchQuery.value = ''
+  }
+}
+
+watch(agentDropdownOpen, (open) => {
+  if (open) {
+    nextTick(() => agentSearchInputRef.value?.focus())
+  }
+})
 const { toggleSort, sortParams, sortIcon } = useSortable()
 
 let searchTimeout: ReturnType<typeof setTimeout>
@@ -228,5 +305,10 @@ async function loadAgentList() {
 onMounted(() => {
   loadAgentList()
   fetchData()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
