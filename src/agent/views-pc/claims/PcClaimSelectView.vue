@@ -154,29 +154,6 @@
                 </svg>
               </div>
             </button>
-
-            <button
-              type="button"
-              class="w-full text-left rounded-[12px] border border-[#E8E8E8] p-5 hover:border-[#FF7B22] hover:bg-[#FFF3ED] transition-all"
-              @click="goToBatchClaim"
-            >
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-full bg-[#F0FFF0] flex items-center justify-center shrink-0">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <rect x="2" y="3" width="8" height="11" rx="1" stroke="#3DAA5C" stroke-width="2"/>
-                    <rect x="14" y="3" width="8" height="11" rx="1" stroke="#3DAA5C" stroke-width="2"/>
-                    <path d="M6 18v2M18 18v2M6 20h12" stroke="#3DAA5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <p class="text-[15px] font-semibold text-[#222]">다중 청구 (여러 보험사)</p>
-                  <p class="text-[12px] text-[#999] mt-0.5">한 고객의 여러 보험사에 동시 청구합니다</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0">
-                  <path d="M9 5l7 7-7 7" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            </button>
           </div>
         </div>
 
@@ -287,16 +264,36 @@
           </div>
         </div>
 
-        <!-- ===== 보험사 선택 ===== -->
+        <!-- ===== 보험사 선택 (다중) ===== -->
         <div v-if="showCompanySection" class="bg-white rounded-xl border border-[#E8E8E8] p-5">
           <div class="flex items-center gap-2 mb-4">
             <span
               class="w-6 h-6 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
-              :class="selectedCompanyId ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
+              :class="selectedCompanies.length > 0 ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
             >{{ claimMode === 'customer' ? '2' : '1' }}</span>
             <h2 class="text-[15px] font-semibold text-[#222]">보험사 선택</h2>
-            <span v-if="selectedCompanyName" class="ml-auto text-[13px] text-[#FF7B22] font-medium">
-              {{ selectedCompanyName }}
+            <span v-if="selectedCompanies.length > 0" class="ml-auto text-[13px] text-[#FF7B22] font-medium">
+              {{ selectedCompanies.length }}개 선택
+            </span>
+          </div>
+
+          <!-- 선택된 보험사 칩 -->
+          <div v-if="selectedCompanies.length > 0" class="flex flex-wrap gap-1.5 mb-4">
+            <span
+              v-for="entry in selectedCompanies"
+              :key="entry.company.company_id"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF0E5] text-[12px] font-semibold text-[#FF7B22] border border-[#FFD4B0]"
+            >
+              {{ entry.company.company_name }}
+              <button
+                type="button"
+                class="w-4 h-4 rounded-full flex items-center justify-center text-[#FF7B22] hover:bg-[#FF7B22] hover:text-white transition-colors"
+                @click.stop="toggleCompany(entry.company)"
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </button>
             </span>
           </div>
 
@@ -325,14 +322,23 @@
               v-for="company in filteredCompanies"
               :key="company.company_id"
               type="button"
-              class="flex flex-col items-center justify-center rounded-[12px] p-2 transition-all hover:shadow-sm"
+              class="relative flex flex-col items-center justify-center rounded-[12px] p-2 transition-all hover:shadow-sm"
               :class="
-                selectedCompanyId === company.company_id
+                isCompanySelected(company.company_id)
                   ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
                   : 'bg-[#FAFAFA] border-[1.5px] border-transparent hover:border-[#E8E8E8]'
               "
-              @click="selectCompany(company.company_id)"
+              @click="toggleCompany(company)"
             >
+              <!-- 체크 표시 -->
+              <div
+                v-if="isCompanySelected(company.company_id)"
+                class="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#FF7B22] flex items-center justify-center"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
               <div class="w-full h-[60px] flex items-center justify-center">
                 <img
                   v-if="company.logo_url"
@@ -355,54 +361,58 @@
           </div>
         </div>
 
-        <!-- ===== 양식 선택 ===== -->
-        <div v-if="selectedCompanyId" class="bg-white rounded-xl border border-[#E8E8E8] p-5">
+        <!-- ===== 양식 선택 (보험사별) ===== -->
+        <div v-if="selectedCompanies.length > 0" class="bg-white rounded-xl border border-[#E8E8E8] p-5">
           <div class="flex items-center gap-2 mb-4">
             <span
               class="w-6 h-6 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
-              :class="selectedFormId ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
+              :class="allFormsSelected ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
             >{{ claimMode === 'customer' ? '3' : '2' }}</span>
             <h2 class="text-[15px] font-semibold text-[#222]">양식 선택</h2>
           </div>
 
-          <div v-if="claimStore.loadingClaimForms" class="flex items-center justify-center py-6">
-            <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
-          </div>
-
-          <!-- 양식 1개: 자동 선택 완료 표시 -->
-          <div v-else-if="claimStore.claimForms.length === 1 && selectedFormId" class="p-4 bg-[#FFF0E5] border-[1.5px] border-[#FF7B22] rounded-[12px]">
-            <p class="text-[14px] font-semibold text-[#222]">{{ claimStore.claimForms[0]?.form_name }}</p>
-            <p class="text-[12px] text-[#FF7B22] mt-1">양식이 자동 선택되었습니다</p>
-          </div>
-
-          <!-- 양식 2개 이상: 선택 리스트 -->
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <button
-              v-for="form in claimStore.claimForms"
-              :key="form.claim_form_id"
-              type="button"
-              class="block w-full text-left transition-all rounded-[12px] p-4 hover:shadow-sm"
-              :class="
-                selectedFormId === form.claim_form_id
-                  ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
-                  : 'bg-[#FAFAFA] border-[1.5px] border-transparent hover:border-[#E8E8E8]'
-              "
-              @click="selectedFormId = form.claim_form_id"
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div
+              v-for="entry in selectedCompanies"
+              :key="entry.company.company_id"
+              class="rounded-[12px] bg-[#FAFAFA] border border-[#E8E8E8] p-4"
             >
-              <div v-if="form.template_image_url" class="mb-3 aspect-[4/3] bg-[#F8F8F8] rounded-[8px] overflow-hidden">
-                <img :src="form.template_image_url" :alt="form.form_name" class="w-full h-full object-cover" />
-              </div>
-              <p class="text-[14px] font-semibold text-[#222]">{{ form.form_name }}</p>
-              <p v-if="form.form_description" class="text-[12px] text-[#999] mt-1">{{ form.form_description }}</p>
-              <p v-if="form.form_fields_count" class="text-[11px] text-[#FF7B22] mt-2">입력 필드 {{ form.form_fields_count }}개</p>
-            </button>
-          </div>
+              <p class="text-[14px] font-semibold text-[#222] mb-2">{{ entry.company.company_name }}</p>
 
-          <div
-            v-if="claimStore.claimForms.length === 0 && !claimStore.loadingClaimForms"
-            class="text-center py-6"
-          >
-            <p class="text-[13px] text-[#999]">이 보험사에 등록된 양식이 없습니다.</p>
+              <!-- 로딩 중 -->
+              <div v-if="entry.loadingForms" class="flex items-center justify-center py-3">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#FF7B22]"></div>
+              </div>
+
+              <!-- 양식 1개: 자동 선택 -->
+              <div v-else-if="entry.forms.length === 1 && entry.formId" class="px-3 py-2 bg-[#FFF0E5] rounded-[8px]">
+                <p class="text-[13px] text-[#222]">{{ entry.forms[0]?.form_name }}</p>
+                <p class="text-[11px] text-[#FF7B22] mt-0.5">자동 선택</p>
+              </div>
+
+              <!-- 양식 2개 이상: 선택 버튼 -->
+              <div v-else-if="entry.forms.length > 1" class="flex flex-col gap-1.5">
+                <button
+                  v-for="form in entry.forms"
+                  :key="form.claim_form_id"
+                  type="button"
+                  class="text-left px-3 py-2 rounded-[8px] text-[13px] transition-all hover:shadow-sm"
+                  :class="
+                    entry.formId === form.claim_form_id
+                      ? 'bg-[#FFF0E5] border border-[#FF7B22] font-semibold text-[#222]'
+                      : 'bg-white border border-[#E8E8E8] text-[#666] hover:border-[#FF7B22]'
+                  "
+                  @click="selectFormForCompany(entry.company.company_id, form.claim_form_id)"
+                >
+                  {{ form.form_name }}
+                </button>
+              </div>
+
+              <!-- 양식 없음 -->
+              <p v-else-if="entry.forms.length === 0 && !entry.loadingForms" class="text-[12px] text-[#999] py-2">
+                등록된 양식이 없습니다
+              </p>
+            </div>
           </div>
         </div>
 
@@ -435,11 +445,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import type { AgentClaim, BatchClaim } from '../../types'
-import type { InsuranceCategory } from '@shared/types'
+import type { InsuranceCategory, InsuranceCompany, ClaimForm } from '@shared/types'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
+import { fetchClaimForms as apiFetchClaimForms } from '../../services/agentApi'
 
 const router = useRouter()
 const route = useRoute()
@@ -447,12 +458,19 @@ const customerStore = useCustomerStore()
 const claimStore = useAgentClaimStore()
 const batchClaimStore = useAgentBatchClaimStore()
 
+// ===== 보험사별 양식 선택 타입 =====
+interface SelectedCompanyEntry {
+  company: InsuranceCompany
+  formId: number | null
+  forms: ClaimForm[]
+  loadingForms: boolean
+}
+
 // ===== 상태 =====
 const claimMode = ref<'customer' | 'direct' | null>(null)
 const customerSearch = ref('')
 const selectedCustomerId = ref<string | null>(null)
-const selectedCompanyId = ref<number | null>(null)
-const selectedFormId = ref<number | null>(null)
+const selectedCompanies = ref<SelectedCompanyEntry[]>([])
 const activeCategory = ref<InsuranceCategory>('non-life')
 
 const categoryTabs: { value: InsuranceCategory; label: string }[] = [
@@ -473,30 +491,22 @@ const selectedCustomer = computed(() => {
   return customerStore.customers.find(c => c.customer_id === selectedCustomerId.value) ?? null
 })
 
-const selectedCompanyName = computed(() => {
-  if (!selectedCompanyId.value) return null
-  const company = claimStore.insuranceCompanies.find(c => c.company_id === selectedCompanyId.value)
-  return company?.company_name ?? null
-})
-
-// 보험사 섹션 표시 조건: 바로 청구이거나 고객이 선택된 경우
 const showCompanySection = computed(() => {
   if (claimMode.value === 'direct') return true
   if (claimMode.value === 'customer' && selectedCustomerId.value) return true
   return false
 })
 
+const allFormsSelected = computed(() =>
+  selectedCompanies.value.length > 0 &&
+  selectedCompanies.value.every(e => e.formId !== null)
+)
+
 const canProceed = computed(() => {
-  if (claimMode.value === 'customer') {
-    return selectedCustomerId.value !== null
-      && selectedCompanyId.value !== null
-      && selectedFormId.value !== null
-  }
-  if (claimMode.value === 'direct') {
-    return selectedCompanyId.value !== null
-      && selectedFormId.value !== null
-  }
-  return false
+  if (selectedCompanies.value.length === 0) return false
+  if (!allFormsSelected.value) return false
+  if (claimMode.value === 'customer' && !selectedCustomerId.value) return false
+  return true
 })
 
 // ===== 라이프사이클 =====
@@ -510,33 +520,16 @@ onMounted(async () => {
     batchClaimStore.loadBatchDrafts(),
   ])
 
-  // 고객 상세에서 넘어온 경우 자동 선택
   if (preselectedCustomerId) {
     claimMode.value = 'customer'
     selectedCustomerId.value = preselectedCustomerId
   }
 })
 
-// 보험사 선택 시 양식 로드 + 1개면 자동 선택
-watch(selectedCompanyId, async (newId) => {
-  selectedFormId.value = null
-  if (newId != null) {
-    await claimStore.fetchClaimForms(newId)
-    if (claimStore.claimForms.length === 1) {
-      const form = claimStore.claimForms[0]
-      if (form) selectedFormId.value = form.claim_form_id
-    }
-  } else {
-    claimStore.claimForms = []
-  }
-})
-
-// 모드 변경 시 선택 초기화 (query param으로 자동 선택된 경우 제외)
 watch(claimMode, () => {
   if (preselectedCustomerId && selectedCustomerId.value === preselectedCustomerId) return
   selectedCustomerId.value = null
-  selectedCompanyId.value = null
-  selectedFormId.value = null
+  selectedCompanies.value = []
 })
 
 // ===== 핸들러 =====
@@ -552,18 +545,50 @@ function handleCustomerSearch(): void {
 function selectCustomer(customerId: string): void {
   if (selectedCustomerId.value === customerId) {
     selectedCustomerId.value = null
-    selectedCompanyId.value = null
-    selectedFormId.value = null
+    selectedCompanies.value = []
   } else {
     selectedCustomerId.value = customerId
   }
 }
 
-function selectCompany(companyId: number): void {
-  if (selectedCompanyId.value === companyId) {
-    selectedCompanyId.value = null
+function isCompanySelected(companyId: number): boolean {
+  return selectedCompanies.value.some(e => e.company.company_id === companyId)
+}
+
+async function toggleCompany(company: InsuranceCompany): Promise<void> {
+  const idx = selectedCompanies.value.findIndex(e => e.company.company_id === company.company_id)
+  if (idx >= 0) {
+    selectedCompanies.value.splice(idx, 1)
   } else {
-    selectedCompanyId.value = companyId
+    const entry: SelectedCompanyEntry = {
+      company,
+      formId: null,
+      forms: [],
+      loadingForms: true,
+    }
+    selectedCompanies.value.push(entry)
+
+    try {
+      const res = await apiFetchClaimForms({ company_id: company.company_id })
+      if (res.data.success) {
+        entry.forms = res.data.data
+        if (entry.forms.length === 1) {
+          const form = entry.forms[0]
+          if (form) entry.formId = form.claim_form_id
+        }
+      }
+    } catch {
+      entry.forms = []
+    } finally {
+      entry.loadingForms = false
+    }
+  }
+}
+
+function selectFormForCompany(companyId: number, formId: number): void {
+  const entry = selectedCompanies.value.find(e => e.company.company_id === companyId)
+  if (entry) {
+    entry.formId = entry.formId === formId ? null : formId
   }
 }
 
@@ -592,16 +617,29 @@ async function handleDeleteDraft(claimId: number): Promise<void> {
 function goNext(): void {
   if (!canProceed.value) return
 
-  if (claimMode.value === 'customer') {
-    router.push(`/claims/new/${selectedFormId.value}?customerId=${selectedCustomerId.value}`)
+  if (selectedCompanies.value.length === 1) {
+    const entry = selectedCompanies.value[0]!
+    if (claimMode.value === 'customer') {
+      router.push(`/claims/new/${entry.formId}?customerId=${selectedCustomerId.value}`)
+    } else {
+      router.push(`/claims/new/${entry.formId}`)
+    }
   } else {
-    // 바로 청구: customerId 없이 이동
-    router.push(`/claims/new/${selectedFormId.value}`)
-  }
-}
+    batchClaimStore.resetBatchForm()
 
-function goToBatchClaim(): void {
-  router.push({ name: 'agent-batch-claim-new' })
+    if (claimMode.value === 'customer' && selectedCustomer.value) {
+      batchClaimStore.selectCustomer(selectedCustomer.value)
+    }
+
+    for (const entry of selectedCompanies.value) {
+      batchClaimStore.toggleCompany(entry.company)
+    }
+
+    router.push({
+      name: 'agent-batch-claim-new',
+      query: { fromSelect: 'true' },
+    })
+  }
 }
 
 function resumeBatchDraft(batchId: number): void {

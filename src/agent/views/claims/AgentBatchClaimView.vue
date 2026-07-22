@@ -647,6 +647,9 @@ const INNER_STEP_TITLES: Record<number, string> = {
   5: '계좌 정보',
 }
 
+// SelectView에서 보험사 선택 후 넘어온 경우
+const fromSelect = computed(() => route.query.fromSelect === 'true')
+
 // ===== 상태 =====
 const currentStep = ref(1)
 const innerStep = ref(1)
@@ -903,6 +906,16 @@ const mainButtonLabel = computed(() => {
 
 // ===== 라이프사이클 =====
 onMounted(async () => {
+  if (fromSelect.value) {
+    // SelectView에서 보험사가 이미 설정된 상태 → reset하지 않고 step 3부터 시작
+    await batchStore.loadInsuranceCompanies()
+    currentStep.value = 3
+    innerStep.value = 1
+    batchStore.activeTabIndex = 0
+    initialLoaded.value = true
+    return
+  }
+
   batchStore.resetBatchForm()
 
   // 보험사 목록 + 초기 고객 목록 로드
@@ -963,6 +976,10 @@ watch(innerStep, (newStep) => {
 
 // ===== 핸들러 =====
 function handleHeaderBack(): void {
+  if (fromSelect.value && currentStep.value <= 3) {
+    router.back()
+    return
+  }
   if (currentStep.value > 1) {
     currentStep.value--
   } else {

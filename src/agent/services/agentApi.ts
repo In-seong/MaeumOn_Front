@@ -286,7 +286,7 @@ export const fetchBatchClaim = (id: number) =>
   api.get<ApiResponse<BatchClaim>>(`${BASE}/batch-claims/${id}`)
 
 export const createBatchClaim = (data: {
-  customer_id: string
+  customer_id?: string
   claims: Array<{
     claim_form_id: number
     fields: Array<{ form_field_id: number; field_value: string }>

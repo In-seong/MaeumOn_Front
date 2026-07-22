@@ -541,10 +541,6 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
   }
 
   async function createBatch(): Promise<BatchClaim | null> {
-    if (!selectedCustomer.value) {
-      error.value = '고객을 선택해주세요.'
-      return null
-    }
     if (selectedEntries.value.length === 0) {
       error.value = '보험사를 선택해주세요.'
       return null
@@ -554,7 +550,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     error.value = null
     try {
       const res = await createBatchClaim({
-        customer_id: selectedCustomer.value.customer_id,
+        customer_id: selectedCustomer.value?.customer_id,
         claims: buildClaimsPayload(),
       })
       if (res.data.success) {
