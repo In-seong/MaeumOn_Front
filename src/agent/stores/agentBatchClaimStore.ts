@@ -406,10 +406,6 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
         activeTabIndex.value = Math.max(0, selectedEntries.value.length - 1)
       }
     } else {
-      if (selectedEntries.value.length >= 5) {
-        error.value = '최대 5개 보험사까지 선택 가능합니다.'
-        return
-      }
       selectedEntries.value.push({
         company,
         claimForm: null,
