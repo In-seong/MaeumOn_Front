@@ -113,7 +113,11 @@ async function handleSendOtp(): Promise<void> {
 async function handleVerifyOtp(): Promise<void> {
   const success = await authStore.verifyOtp(authCode.value)
   if (success) {
-    router.push('/pin-login')
+    if (authStore.isLoggedIn) {
+      router.push('/')
+    } else {
+      router.push('/register')
+    }
   }
 }
 

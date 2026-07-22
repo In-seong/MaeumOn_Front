@@ -24,28 +24,16 @@ export const authApi = {
     api.get<ApiResponse<Account>>('/auth/me'),
 }
 
-// ============ 고객 인증 API (OTP + PIN) ============
+// ============ 고객 인증 API (OTP) ============
 export const customerAuthApi = {
   sendOtp: (phone: string) =>
     api.post<ApiResponse<{ debug_otp?: string }>>('/customer-auth/send-otp', { phone }),
 
   verifyOtp: (phone: string, otp: string) =>
-    api.post<ApiResponse<{ is_new: boolean; has_pin: boolean; phone: string; customer_name?: string }>>('/customer-auth/verify-otp', { phone, otp }),
+    api.post<ApiResponse<{ is_new: boolean; phone?: string; token?: string; account?: Account }>>('/customer-auth/verify-otp', { phone, otp }),
 
-  register: (data: { phone: string; name: string; pin: string; device_uuid: string; device_name?: string }) =>
-    api.post<ApiResponse<{ account: Account; token: string; device_token: string }>>('/customer-auth/register', data),
-
-  setPin: (data: { phone: string; pin: string; device_uuid: string; device_name?: string }) =>
-    api.post<ApiResponse<{ account: Account; token: string; device_token: string }>>('/customer-auth/set-pin', data),
-
-  loginWithPin: (data: { phone: string; pin: string; device_uuid: string; device_token: string }) =>
-    api.post<ApiResponse<{ account: Account; token: string }>>('/customer-auth/login-pin', data),
-
-  loginPinNewDevice: (data: { phone: string; pin: string; device_uuid: string; device_name?: string }) =>
-    api.post<ApiResponse<{ account: Account; token: string; device_token: string }>>('/customer-auth/login-pin-new-device', data),
-
-  checkDevice: (data: { device_uuid: string; device_token: string }) =>
-    api.post<ApiResponse<{ registered: boolean; has_pin?: boolean; phone?: string; customer_name?: string }>>('/customer-auth/check-device', data),
+  register: (data: { phone: string; name: string; resident_number: string; telecom: string; address: string }) =>
+    api.post<ApiResponse<{ account: Account; token: string }>>('/customer-auth/register', data),
 }
 
 // ============ 표준 필드 API ============

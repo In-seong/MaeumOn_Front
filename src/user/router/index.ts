@@ -4,7 +4,21 @@ import SeniorHomeView from '../views/SeniorHomeView.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    // ========== 새 사용자 앱 (시니어 친화, 로그인 불필요) ==========
+    // ========== 인증 ==========
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
+      meta: { guest: true },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('../views/account/RegisterView.vue'),
+      meta: { guest: true },
+    },
+
+    // ========== 사용자 앱 ==========
     {
       path: '/',
       name: 'home',
@@ -15,19 +29,16 @@ const router = createRouter({
       name: 'claim-request',
       component: () => import('../views/ClaimRequestView.vue'),
     },
-    // 예약 선택
     {
       path: '/reservation-select',
       name: 'reservation-select',
       component: () => import('../views/ReservationSelectView.vue'),
     },
-    // 혜택
     {
       path: '/benefits',
       name: 'benefits',
       component: () => import('../views/BenefitsView.vue'),
     },
-    // 병원 예약
     {
       path: '/hospitals',
       name: 'hospital-list',
@@ -38,7 +49,6 @@ const router = createRouter({
       name: 'hospital-detail',
       component: () => import('../views/hospital/HospitalDetailNewView.vue'),
     },
-    // 건강검진 센터
     {
       path: '/health-centers',
       name: 'health-center-list',
@@ -49,23 +59,16 @@ const router = createRouter({
       name: 'health-center-detail',
       component: () => import('../views/healthcenter/HealthCenterDetailView.vue'),
     },
-    // 내 예약
     {
       path: '/my-reservations',
       name: 'my-reservations',
       component: () => import('../views/MyReservationsView.vue'),
     },
-
-    // QR 독립 청구 폼 (네비/헤더 없음)
     {
       path: '/claim-form',
       name: 'claim-form-standalone',
       component: () => import('../views/ClaimFormStandaloneView.vue'),
     },
-
-    // ========== 기존 라우트 (비활성화 — 코드 유지, 라우트에서만 제외) ==========
-    // 기존 홈, 로그인, PIN, 청구, 보험, 건강, 마이페이지 등
-    // 기존 views/ 파일은 삭제하지 않고 유지
   ],
 })
 
