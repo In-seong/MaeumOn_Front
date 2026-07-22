@@ -13,7 +13,7 @@
           <!-- 기본 정보 -->
           <CardSection class="mb-4">
             <div class="flex items-start justify-between mb-3">
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 min-w-0 pt-1">
                 <span class="text-[13px] text-[#888]">
                   {{ claim.claim_form?.insurance_company?.company_name ?? '-' }}
                 </span>
