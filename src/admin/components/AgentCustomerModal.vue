@@ -6,7 +6,7 @@
       @click.self="$emit('close')"
     >
       <div class="absolute inset-0 bg-black/40" />
-      <div class="relative bg-white rounded-[16px] shadow-xl w-full max-w-[640px] mx-4 max-h-[80vh] flex flex-col">
+      <div class="relative bg-white rounded-[16px] shadow-xl w-full max-w-[640px] mx-4 max-h-[80vh] flex flex-col overflow-hidden">
         <!-- 헤더 -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-[#F0F0F0]">
           <div>
