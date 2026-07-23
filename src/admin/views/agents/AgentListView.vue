@@ -68,7 +68,14 @@
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.name }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(agent.phone) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">{{ agent.email || '-' }}</td>
-            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ agent.customers_count ?? 0 }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]" @click.stop>
+              <button
+                v-if="(agent.customers_count ?? 0) > 0"
+                class="text-[#FF7B22] font-medium hover:underline"
+                @click="openCustomerModal(agent)"
+              >{{ agent.customers_count }}</button>
+              <span v-else class="text-[#CCC]">0</span>
+            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span
                 :class="agent.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
@@ -113,6 +120,12 @@
         @change="goToPage"
       />
     </div>
+    <AgentCustomerModal
+      :visible="customerModalVisible"
+      :agent-id="customerModalAgentId"
+      :agent-name="customerModalAgentName"
+      @close="customerModalVisible = false"
+    />
   </div>
 </template>
 
@@ -123,6 +136,7 @@ import { useAgentStore } from '../../stores/agentStore'
 import { useSortable } from '../../composables/useSortable'
 import type { AdminAgent } from '../../types'
 import Pagination from '../../components/Pagination.vue'
+import AgentCustomerModal from '../../components/AgentCustomerModal.vue'
 
 const router = useRouter()
 const store = useAgentStore()
@@ -130,6 +144,16 @@ const store = useAgentStore()
 const searchQuery = ref('')
 const activeFilter = ref('')
 const { toggleSort, sortParams, sortIcon } = useSortable()
+
+const customerModalVisible = ref(false)
+const customerModalAgentId = ref('')
+const customerModalAgentName = ref('')
+
+function openCustomerModal(agent: AdminAgent) {
+  customerModalAgentId.value = agent.agent_id
+  customerModalAgentName.value = agent.name
+  customerModalVisible.value = true
+}
 
 let searchTimeout: ReturnType<typeof setTimeout>
 

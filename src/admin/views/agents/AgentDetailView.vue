@@ -41,14 +41,18 @@
     <div v-else-if="agent">
       <!-- 요약 카드 -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5">
+        <div
+          class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5 transition-colors"
+          :class="(agent.customers_count ?? 0) > 0 ? 'cursor-pointer hover:shadow-[0_0_14px_rgba(255,123,34,0.15)]' : ''"
+          @click="(agent.customers_count ?? 0) > 0 && (customerModalVisible = true)"
+        >
           <div class="flex items-center">
             <div class="w-10 h-10 bg-[#FFF3ED] rounded-[12px] flex items-center justify-center mr-4">
               <span class="material-symbols-outlined text-[20px] text-[#FF7B22]">group</span>
             </div>
             <div>
               <p class="text-[12px] text-[#999]">담당 고객 수</p>
-              <p class="text-[22px] font-bold text-[#333]">{{ agent.customers_count ?? 0 }}</p>
+              <p class="text-[22px] font-bold" :class="(agent.customers_count ?? 0) > 0 ? 'text-[#FF7B22]' : 'text-[#CCC]'">{{ agent.customers_count ?? 0 }}</p>
             </div>
           </div>
         </div>
@@ -144,6 +148,14 @@
         </div>
       </div>
     </div>
+
+    <AgentCustomerModal
+      v-if="agent"
+      :visible="customerModalVisible"
+      :agent-id="agent.agent_id"
+      :agent-name="agent.name"
+      @close="customerModalVisible = false"
+    />
   </div>
 </template>
 
@@ -151,11 +163,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAgentStore } from '../../stores/agentStore'
+import AgentCustomerModal from '../../components/AgentCustomerModal.vue'
 
 const route = useRoute()
 const store = useAgentStore()
 
 const loading = ref(false)
+const customerModalVisible = ref(false)
 
 const agent = computed(() => store.selectedAgent)
 
