@@ -44,27 +44,72 @@
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">연락처</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">등록일</th>
+                <th class="px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase tracking-wider w-[50px]"></th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-[#F0F0F0]">
-              <tr
-                v-for="customer in customers"
-                :key="customer.customer_id"
-                class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
-                @click="goToCustomer(customer.customer_id)"
-              >
-                <td class="px-6 py-3.5 whitespace-nowrap text-[14px] font-medium text-[#FF7B22] hover:underline">
-                  {{ customer.name }}
-                </td>
-                <td class="px-6 py-3.5 whitespace-nowrap text-[14px] text-[#999]">
-                  {{ formatPhone(customer.phone) }}
-                </td>
-                <td class="px-6 py-3.5 whitespace-nowrap text-[14px] text-[#999]">
-                  {{ formatDate(customer.created_at) }}
-                </td>
-              </tr>
+              <template v-for="customer in customers" :key="customer.customer_id">
+                <tr
+                  class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
+                  :class="{ 'bg-[#FFF8F3]': expandedId === customer.customer_id }"
+                  @click="toggleExpand(customer.customer_id)"
+                >
+                  <td class="px-6 py-3.5 whitespace-nowrap text-[14px] font-medium text-[#333]">
+                    {{ customer.name }}
+                  </td>
+                  <td class="px-6 py-3.5 whitespace-nowrap text-[14px] text-[#999]">
+                    {{ formatPhone(customer.phone) }}
+                  </td>
+                  <td class="px-6 py-3.5 whitespace-nowrap text-[14px] text-[#999]">
+                    {{ formatDate(customer.created_at) }}
+                  </td>
+                  <td class="px-6 py-3.5 text-center">
+                    <span
+                      class="material-symbols-outlined text-[18px] text-[#999] transition-transform inline-block"
+                      :class="{ 'rotate-180': expandedId === customer.customer_id }"
+                    >expand_more</span>
+                  </td>
+                </tr>
+                <!-- 아코디언 상세 -->
+                <tr v-if="expandedId === customer.customer_id">
+                  <td colspan="4" class="px-0 py-0">
+                    <div class="bg-[#FAFAFA] px-6 py-4 border-t border-[#F0F0F0]">
+                      <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+                        <div>
+                          <p class="text-[11px] text-[#999]">이메일</p>
+                          <p class="text-[13px] text-[#333]">{{ customer.email || '-' }}</p>
+                        </div>
+                        <div>
+                          <p class="text-[11px] text-[#999]">생년월일</p>
+                          <p class="text-[13px] text-[#333]">{{ formatBirthDate(customer.birth_date) }}</p>
+                        </div>
+                        <div>
+                          <p class="text-[11px] text-[#999]">성별</p>
+                          <p class="text-[13px] text-[#333]">{{ formatGender(customer.gender) }}</p>
+                        </div>
+                        <div>
+                          <p class="text-[11px] text-[#999]">직업</p>
+                          <p class="text-[13px] text-[#333]">{{ customer.job || '-' }}</p>
+                        </div>
+                        <div class="col-span-2">
+                          <p class="text-[11px] text-[#999]">주소</p>
+                          <p class="text-[13px] text-[#333]">
+                            {{ [customer.address, customer.detailed_address].filter(Boolean).join(' ') || '-' }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="mt-3 pt-3 border-t border-[#E8E8E8] flex justify-end">
+                        <button
+                          class="text-[13px] text-[#FF7B22] hover:underline font-medium"
+                          @click.stop="goToCustomer(customer.customer_id)"
+                        >상세 페이지로 이동 →</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </template>
               <tr v-if="customers.length === 0 && !loading">
-                <td colspan="3" class="px-6 py-10 text-center text-[#999] text-[14px]">
+                <td colspan="4" class="px-6 py-10 text-center text-[#999] text-[14px]">
                   {{ searchQuery ? '검색 결과가 없습니다.' : '담당 고객이 없습니다.' }}
                 </td>
               </tr>
@@ -107,6 +152,7 @@ const searchQuery = ref('')
 const totalCount = ref(0)
 const customers = ref<AdminCustomer[]>([])
 const pagination = ref<{ current_page: number; last_page: number } | null>(null)
+const expandedId = ref<string | null>(null)
 
 let searchTimeout: ReturnType<typeof setTimeout>
 
@@ -117,8 +163,13 @@ function debouncedSearch() {
   }, 300)
 }
 
+function toggleExpand(customerId: string) {
+  expandedId.value = expandedId.value === customerId ? null : customerId
+}
+
 async function fetchCustomers(page = 1) {
   loading.value = true
+  expandedId.value = null
   try {
     const res = await apiFetchCustomers({
       agent_id: props.agentId,
@@ -166,9 +217,22 @@ function formatDate(dateStr?: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+function formatBirthDate(dateStr?: string): string {
+  if (!dateStr) return '-'
+  return formatDate(dateStr)
+}
+
+function formatGender(gender?: string): string {
+  if (!gender) return '-'
+  if (gender === 'M' || gender === 'male') return '남'
+  if (gender === 'F' || gender === 'female') return '여'
+  return gender
+}
+
 watch(() => props.visible, (newVal) => {
   if (newVal) {
     searchQuery.value = ''
+    expandedId.value = null
     fetchCustomers(1)
   }
 })
