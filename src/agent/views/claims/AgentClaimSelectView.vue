@@ -540,27 +540,27 @@ async function toggleCompany(company: InsuranceCompany): Promise<void> {
   if (idx >= 0) {
     selectedCompanies.value.splice(idx, 1)
   } else {
-    const entry: SelectedCompanyEntry = {
+    selectedCompanies.value.push({
       company,
       formId: null,
       forms: [],
       loadingForms: true,
-    }
-    selectedCompanies.value.push(entry)
+    })
+    const reactiveEntry = selectedCompanies.value[selectedCompanies.value.length - 1]!
 
     try {
       const res = await apiFetchClaimForms({ company_id: company.company_id })
       if (res.data.success) {
-        entry.forms = res.data.data
-        if (entry.forms.length === 1) {
-          const form = entry.forms[0]
-          if (form) entry.formId = form.claim_form_id
+        reactiveEntry.forms = res.data.data
+        if (reactiveEntry.forms.length === 1) {
+          const form = reactiveEntry.forms[0]
+          if (form) reactiveEntry.formId = form.claim_form_id
         }
       }
     } catch {
-      entry.forms = []
+      reactiveEntry.forms = []
     } finally {
-      entry.loadingForms = false
+      reactiveEntry.loadingForms = false
     }
   }
 }
