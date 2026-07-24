@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { BatchClaim, Customer } from '../types'
 import type {
-  InsuranceCompany, ClaimForm, FormPage, FormField,
+  InsuranceCompany, ClaimForm, FormPage, FormField, FieldOptions,
 } from '@shared/types'
 import {
   fetchBatchClaims, fetchBatchClaim,
@@ -49,6 +49,27 @@ const COPY_EXCLUDED_TYPES = new Set(['signature', 'consent'])
 
 /** 자동 복사 제외 표준 필드 코드 (청구서마다 선택지가 달라 개별 입력 필요) */
 const COPY_EXCLUDED_CODES = new Set(['ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE', 'INSURED_RELATION', 'COMPENSATION_RECIPIENT'])
+
+/** 통합 필드 엔트리 */
+export interface UnifiedFieldEntry {
+  entryIndex: number
+  companyName: string
+  formFieldId: number
+}
+
+/** 통합 필드 */
+export interface UnifiedField {
+  key: string
+  standardCode: string | null
+  label: string
+  fieldType: FormField['field_type']
+  fieldOptions: FieldOptions | null
+  placeholder: string
+  isRequired: boolean
+  category: number
+  entries: UnifiedFieldEntry[]
+  isCompanySpecific: boolean
+}
 
 /** 첨부파일 로컬 참조 */
 export interface LocalAttachment {
@@ -705,6 +726,153 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     }
   }
 
+  // ===== 통합 필드 (Unified Fields) =====
+
+  const CATEGORY_LABELS: Record<number, string> = {
+    2: '청구 내용',
+    3: '계약자 정보',
+    4: '피보험자/수익자 정보',
+    5: '계좌 정보',
+  }
+
+  function getFieldCategory(field: FormField): number {
+    if (field.field_type === 'signature') return 99
+    if (field.field_type === 'consent') return 0
+    if (field.field_options?.wizard_step) return field.field_options.wizard_step
+    const name = field.field_name.toLowerCase()
+    if (name.startsWith('consent_')) return 0
+    if (name.startsWith('claim_') || name.startsWith('accident_') || name.startsWith('disease_')) return 2
+    if (name.startsWith('contractor_') || name.startsWith('applicant_')) return 3
+    if (name.startsWith('insured_') || name.startsWith('beneficiary_')) return 4
+    if (name.startsWith('bank_') || name.startsWith('account_')) return 5
+    return 3
+  }
+
+  const unifiedFields = computed<UnifiedField[]>(() => {
+    if (selectedEntries.value.length === 0) return []
+    if (!selectedEntries.value.every(e => e.claimForm && !e.loadingForm)) return []
+
+    const codeMap = new Map<string, UnifiedField>()
+    const specificFields: UnifiedField[] = []
+
+    for (let ei = 0; ei < selectedEntries.value.length; ei++) {
+      const entry = selectedEntries.value[ei]!
+      if (!entry.claimForm) continue
+
+      const fields = getFormFields(entry.claimForm)
+      for (const field of fields) {
+        const cat = getFieldCategory(field)
+        if (cat === 0 || cat === 99) continue
+
+        const info: UnifiedFieldEntry = {
+          entryIndex: ei,
+          companyName: entry.company.company_name,
+          formFieldId: field.form_field_id,
+        }
+
+        if (field.standard_field_code && !COPY_EXCLUDED_CODES.has(field.standard_field_code)) {
+          const existing = codeMap.get(field.standard_field_code)
+          if (existing) {
+            existing.entries.push(info)
+            if (field.is_required) existing.isRequired = true
+          } else {
+            codeMap.set(field.standard_field_code, {
+              key: field.standard_field_code,
+              standardCode: field.standard_field_code,
+              label: field.field_label,
+              fieldType: field.field_type,
+              fieldOptions: field.field_options || null,
+              placeholder: field.placeholder || '',
+              isRequired: field.is_required,
+              category: cat,
+              entries: [info],
+              isCompanySpecific: false,
+            })
+          }
+        } else {
+          specificFields.push({
+            key: `s_${ei}_${field.form_field_id}`,
+            standardCode: field.standard_field_code || null,
+            label: field.field_label,
+            fieldType: field.field_type,
+            fieldOptions: field.field_options || null,
+            placeholder: field.placeholder || '',
+            isRequired: field.is_required,
+            category: cat,
+            entries: [info],
+            isCompanySpecific: true,
+          })
+        }
+      }
+    }
+
+    const common = [...codeMap.values()].sort((a, b) => a.category - b.category)
+    specificFields.sort((a, b) => {
+      const ai = a.entries[0]?.entryIndex ?? 0
+      const bi = b.entries[0]?.entryIndex ?? 0
+      return ai !== bi ? ai - bi : a.category - b.category
+    })
+
+    return [...common, ...specificFields]
+  })
+
+  function setUnifiedValue(field: UnifiedField, value: string): void {
+    for (const e of field.entries) {
+      const entry = selectedEntries.value[e.entryIndex]
+      if (entry) {
+        entry.fieldValues[e.formFieldId] = value
+        delete entry.autoFilledFieldIds[e.formFieldId]
+      }
+    }
+    if (field.standardCode) {
+      const cross = buildCrossCodeValues({ [field.standardCode]: value })
+      for (const [code, val] of Object.entries(cross)) {
+        if (code === field.standardCode) continue
+        for (const entry of selectedEntries.value) {
+          if (!entry.claimForm) continue
+          for (const f of getFormFields(entry.claimForm)) {
+            if (f.standard_field_code === code && !COPY_EXCLUDED_CODES.has(code)) {
+              entry.fieldValues[f.form_field_id] = val
+              entry.autoFilledFieldIds[f.form_field_id] = true
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function getUnifiedValue(field: UnifiedField): string {
+    const first = field.entries[0]
+    if (!first) return ''
+    const entry = selectedEntries.value[first.entryIndex]
+    return entry?.fieldValues[first.formFieldId] ?? ''
+  }
+
+  function getCompanyProgress(entryIndex: number): { filled: number; total: number } {
+    const entry = selectedEntries.value[entryIndex]
+    if (!entry?.claimForm) return { filled: 0, total: 0 }
+    const fields = getFormFields(entry.claimForm)
+    let total = 0, filled = 0
+    for (const f of fields) {
+      if (f.field_type === 'consent') continue
+      total++
+      const val = entry.fieldValues[f.form_field_id]
+      if (val !== undefined && val !== '') filled++
+    }
+    return { filled, total }
+  }
+
+  function applySignatureToAll(dataUrl: string): void {
+    for (const entry of selectedEntries.value) {
+      if (!entry.claimForm) continue
+      for (const f of getFormFields(entry.claimForm)) {
+        if (f.field_type === 'signature') {
+          entry.fieldValues[f.form_field_id] = dataUrl
+        }
+      }
+    }
+  }
+
   // ===== 초기화 =====
   function resetBatchForm(): void {
     selectedCustomer.value = null
@@ -796,5 +964,14 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     // 유틸
     resetBatchForm,
     buildClaimsPayload,
+
+    // 통합 필드
+    unifiedFields,
+    setUnifiedValue,
+    getUnifiedValue,
+    getCompanyProgress,
+    applySignatureToAll,
+    getFieldCategory,
+    CATEGORY_LABELS,
   }
 })
