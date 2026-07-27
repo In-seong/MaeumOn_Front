@@ -12,14 +12,13 @@
       @input="emitInput"
       :placeholder="field.placeholder"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      :class="inputCls"
     />
 
     <div v-else-if="field.field_type === 'date'" class="relative" ref="datePickerWrapperRef">
       <button
         type="button"
-        class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] outline-none border transition-colors text-left cursor-pointer"
-        :class="datePickerOpen ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+        :class="[dateBtnCls, datePickerOpen ? 'border-[#FF7B22]' : (isUnderline ? 'border-[#E5E5E5]' : 'border-[#E8E8E8]')]"
         @click="openDatePicker"
       >
         <span :class="modelValue ? 'text-[#333]' : 'text-[#B0B0B0]'">
@@ -83,7 +82,7 @@
       @input="emitInput"
       :placeholder="field.placeholder"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      :class="inputCls"
     />
 
     <input
@@ -93,7 +92,7 @@
       @input="emitInput"
       placeholder="010-1234-5678"
       :required="field.is_required"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      :class="inputCls"
     />
 
     <div v-else-if="field.field_type === 'resident_number'" class="flex items-center gap-2 w-full min-w-0">
@@ -147,7 +146,7 @@
       placeholder="생년월일 6자리"
       :required="field.is_required"
       maxlength="6"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+      :class="inputCls"
     />
 
     <div v-else-if="field.field_type === 'resident_number_back'" class="relative">
@@ -159,7 +158,7 @@
         placeholder="뒷자리 7자리"
         :required="field.is_required"
         maxlength="7"
-        class="w-full px-4 py-3 pr-10 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]"
+        :class="[inputCls, 'pr-10']"
       />
       <button
         type="button"
@@ -184,15 +183,14 @@
       :placeholder="field.placeholder"
       :required="field.is_required"
       rows="3"
-      class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]"
+      :class="textareaCls"
     ></textarea>
 
     <!-- 셀렉트 (검색 가능 드롭다운) -->
     <div v-else-if="field.field_type === 'select' && field.field_options?.choices" class="relative" ref="selectWrapperRef">
       <button
         type="button"
-        class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] outline-none border transition-colors text-left bg-no-repeat"
-        :class="selectOpen ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+        :class="[selectBtnCls, selectOpen ? 'border-[#FF7B22]' : (isUnderline ? 'border-[#E5E5E5]' : 'border-[#E8E8E8]')]"
         :style="selectArrowStyle"
         @click="selectOpen = !selectOpen"
       >
@@ -275,12 +273,39 @@ import type { FormField } from '@shared/types'
 const props = defineProps<{
   field: FormField
   modelValue: string
+  variant?: 'default' | 'underline'
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'format-input': [fieldId: number, fieldType: string, event: Event]
 }>()
+
+const isUnderline = computed(() => props.variant === 'underline')
+
+const inputCls = computed(() =>
+  isUnderline.value
+    ? 'w-full px-0 py-3 bg-transparent rounded-none text-[15px] text-[#1A1A1A] outline-none border-0 border-b-2 border-[#E5E5E5] focus:border-[#FF7B22] transition-colors placeholder-[#C4C4C4]'
+    : 'w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors placeholder-[#B0B0B0]'
+)
+
+const textareaCls = computed(() =>
+  isUnderline.value
+    ? 'w-full px-0 py-3 bg-transparent rounded-none text-[15px] text-[#1A1A1A] outline-none border-0 border-b-2 border-[#E5E5E5] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#C4C4C4]'
+    : 'w-full px-4 py-3 bg-white rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors resize-none placeholder-[#B0B0B0]'
+)
+
+const selectBtnCls = computed(() =>
+  isUnderline.value
+    ? 'w-full px-0 py-3 bg-transparent rounded-none text-[15px] outline-none border-0 border-b-2 transition-colors text-left bg-no-repeat'
+    : 'w-full px-4 py-3 bg-white rounded-[12px] text-[14px] outline-none border transition-colors text-left bg-no-repeat'
+)
+
+const dateBtnCls = computed(() =>
+  isUnderline.value
+    ? 'w-full px-0 py-3 bg-transparent rounded-none text-[15px] outline-none border-0 border-b-2 transition-colors text-left cursor-pointer'
+    : 'w-full px-4 py-3 bg-white rounded-[12px] text-[14px] outline-none border transition-colors text-left cursor-pointer'
+)
 
 // ===== 검색 가능 셀렉트 =====
 const selectOpen = ref(false)
