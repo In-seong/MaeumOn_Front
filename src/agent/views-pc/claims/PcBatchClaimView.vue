@@ -2,11 +2,7 @@
   <div class="p-6">
     <!-- 상단 네비게이션 -->
     <div class="flex items-center gap-3 mb-6">
-      <button
-        type="button"
-        class="text-[14px] text-[#888] hover:text-[#FF7B22] transition-colors"
-        @click="handleHeaderBack"
-      >
+      <button type="button" class="text-[14px] text-[#888] hover:text-[#FF7B22] transition-colors" @click="handleHeaderBack">
         &larr; 목록으로
       </button>
       <span class="text-[#E0E0E0]">|</span>
@@ -15,7 +11,7 @@
       </h1>
     </div>
 
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-3xl mx-auto">
       <!-- 로딩 -->
       <div v-if="batchStore.loading && !initialLoaded" class="flex items-center justify-center py-20">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
@@ -23,40 +19,13 @@
       </div>
 
       <template v-else>
-        <!-- ===== 스텝 표시 바 ===== -->
-        <div class="flex items-center gap-2 mb-6">
-          <button
-            v-for="s in STEPS"
-            :key="s.step"
-            type="button"
-            class="flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-all"
-            :class="
-              currentStep === s.step
-                ? 'bg-[#FF7B22] text-white'
-                : currentStep > s.step
-                  ? 'bg-[#FFF0E5] text-[#FF7B22] hover:bg-[#FFE4CC] cursor-pointer'
-                  : 'bg-[#F0F0F0] text-[#999]'
-            "
-            @click="currentStep > s.step ? (currentStep = s.step) : undefined"
-          >
-            <template v-if="currentStep > s.step">
-              <span class="w-5 h-5 rounded-full flex items-center justify-center bg-[#FF7B22] text-white">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </template>
-            {{ s.label }}
-          </button>
-        </div>
+        <!-- ==================== Setup Phase: 고객 + 보험사 선택 ==================== -->
+        <template v-if="!wizardPhase">
+          <!-- Step 1: 고객 선택 -->
+          <div v-if="setupStep === 1" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+            <p class="text-[18px] font-bold text-[#222] mb-4">고객을 선택하세요</p>
 
-        <!-- ===== Step 1: 고객 선택 ===== -->
-        <div v-if="currentStep === 1">
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
-            <p class="text-[16px] font-bold text-[#222] mb-4">고객을 선택하세요</p>
-
-            <!-- 선택된 고객 표시 -->
-            <div v-if="batchStore.selectedCustomer" class="rounded-xl bg-[#FFF0E5] border-[1.5px] border-[#FF7B22] p-4 mb-4">
+            <div v-if="batchStore.selectedCustomer" class="rounded-xl bg-[#FFF3ED] border-[1.5px] border-[#FF7B22] p-4 mb-4">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-[#FF7B22] text-white flex items-center justify-center text-[15px] font-bold shrink-0">
                   {{ batchStore.selectedCustomer.name.charAt(0) }}
@@ -69,107 +38,66 @@
               </div>
             </div>
 
-            <!-- 고객 검색 -->
             <template v-if="!batchStore.selectedCustomer">
               <div class="relative mb-3">
                 <div class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/>
-                    <path d="M16 16L20 20" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/><path d="M16 16L20 20" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
                 </div>
-                <input
-                  v-model="customerSearch"
-                  type="text"
-                  placeholder="고객명 또는 연락처 검색"
-                  class="w-full bg-white rounded-xl pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
-                  @input="handleCustomerSearch"
-                />
+                <input v-model="customerSearch" type="text" placeholder="고객명 또는 연락처 검색"
+                  class="w-full bg-white rounded-xl pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors"
+                  @input="handleCustomerSearch" />
               </div>
-
-              <!-- 로딩 -->
               <div v-if="batchStore.loadingCustomers" class="flex items-center justify-center py-6">
                 <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
               </div>
-
-              <!-- 고객 리스트 -->
               <div v-else-if="batchStore.customerSearchResults.length > 0" class="flex flex-col gap-2 max-h-[400px] overflow-y-auto rounded-xl">
-                <button
-                  v-for="customer in batchStore.customerSearchResults"
-                  :key="customer.customer_id"
-                  type="button"
+                <button v-for="customer in batchStore.customerSearchResults" :key="customer.customer_id" type="button"
                   class="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all hover:bg-[#FFF8F3] bg-white border-[1.5px] border-transparent hover:border-[#FF7B22]"
-                  @click="handleSelectCustomer(customer)"
-                >
-                  <div class="w-9 h-9 rounded-full bg-[#F0F0F0] text-[#999] flex items-center justify-center shrink-0 text-[13px] font-bold">
-                    {{ customer.name.charAt(0) }}
-                  </div>
+                  @click="handleSelectCustomer(customer)">
+                  <div class="w-9 h-9 rounded-full bg-[#F0F0F0] text-[#999] flex items-center justify-center shrink-0 text-[13px] font-bold">{{ customer.name.charAt(0) }}</div>
                   <div class="flex-1 min-w-0">
                     <p class="text-[14px] font-semibold text-[#222] truncate">{{ customer.name }}</p>
                     <p class="text-[12px] text-[#999] truncate">{{ customer.phone }}</p>
                   </div>
                 </button>
               </div>
-
-              <!-- 빈 상태 -->
               <div v-else class="flex flex-col items-center justify-center py-10">
-                <div class="w-[48px] h-[48px] rounded-full bg-[#F5F5F5] flex items-center justify-center mb-2">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="9" cy="7" r="4" stroke="#CCCCCC" stroke-width="2"/>
-                  </svg>
-                </div>
-                <p class="text-[13px] text-[#AAAAAA]">
-                  {{ customerSearch ? '검색 결과가 없습니다' : '고객명으로 검색해주세요' }}
-                </p>
+                <p class="text-[13px] text-[#AAAAAA]">{{ customerSearch ? '검색 결과가 없습니다' : '고객명으로 검색해주세요' }}</p>
               </div>
             </template>
+
+            <div class="mt-4 flex justify-end">
+              <button type="button" :disabled="!batchStore.selectedCustomer"
+                class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
+                :class="batchStore.selectedCustomer ? 'bg-[#FF7B22] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'"
+                @click="setupStep = 2">다음: 보험사 선택</button>
+            </div>
           </div>
-        </div>
 
-        <!-- ===== Step 2: 보험사 & 양식 선택 ===== -->
-        <div v-else-if="currentStep === 2">
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
-            <p class="text-[16px] font-bold text-[#222] mb-1">보험사를 선택하세요</p>
-            <p class="text-[12px] text-[#999] mb-4">청구할 보험사를 선택하세요</p>
+          <!-- Step 2: 보험사 선택 -->
+          <div v-else-if="setupStep === 2" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+            <p class="text-[18px] font-bold text-[#222] mb-1">보험사를 선택하세요</p>
+            <p class="text-[13px] text-[#999] mb-4">청구할 보험사를 선택하세요</p>
 
-            <!-- 보험사 로딩 -->
             <div v-if="batchStore.loadingCompanies" class="flex items-center justify-center py-10">
               <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
             </div>
-
             <template v-else>
-              <!-- 보험사 목록 (체크박스) -->
               <div class="grid grid-cols-2 gap-3 mb-4">
-                <button
-                  v-for="company in batchStore.insuranceCompanies"
-                  :key="company.company_id"
-                  type="button"
+                <button v-for="company in batchStore.insuranceCompanies" :key="company.company_id" type="button"
                   class="w-full text-left rounded-xl px-4 py-3 transition-all hover:shadow-md"
-                  :class="
-                    batchStore.isCompanySelected(company.company_id)
-                      ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
-                      : 'bg-white border-[1.5px] border-[#E8E8E8] hover:border-[#FF7B22]'
-                  "
-                  @click="batchStore.toggleCompany(company)"
-                >
+                  :class="batchStore.isCompanySelected(company.company_id) ? 'bg-[#FFF3ED] border-[1.5px] border-[#FF7B22]' : 'bg-white border-[1.5px] border-[#E8E8E8] hover:border-[#FF7B22]'"
+                  @click="batchStore.toggleCompany(company)">
                   <div class="flex items-center gap-3">
-                    <div
-                      class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-all"
-                      :class="batchStore.isCompanySelected(company.company_id)
-                        ? 'bg-[#FF7B22] border-[#FF7B22]'
-                        : 'bg-white border-[#CCCCCC]'
-                      "
-                    >
-                      <svg v-if="batchStore.isCompanySelected(company.company_id)" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                      :class="batchStore.isCompanySelected(company.company_id) ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                      <svg v-if="batchStore.isCompanySelected(company.company_id)" width="10" height="8" viewBox="0 0 12 10" fill="none">
+                        <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                    </div>
+                    </span>
                     <span class="text-[14px] font-semibold text-[#222]">{{ company.company_name }}</span>
                   </div>
-
-                  <!-- 양식 선택 (체크된 보험사만) -->
-                  <div v-if="batchStore.isCompanySelected(company.company_id)" class="mt-3 ml-8">
+                  <div v-if="batchStore.isCompanySelected(company.company_id)" class="mt-2 ml-8">
                     <div v-if="getEntryForCompany(company.company_id)?.loadingForm" class="flex items-center gap-2 py-1">
                       <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
                       <span class="text-[12px] text-[#999]">양식 로딩 중...</span>
@@ -178,18 +106,12 @@
                       <div v-if="getEntryForCompany(company.company_id)?.availableForms.length === 1" class="text-[12px] text-[#FF7B22] font-medium">
                         양식: {{ getEntryForCompany(company.company_id)?.claimForm?.form_name }}
                       </div>
-                      <select
-                        v-else-if="(getEntryForCompany(company.company_id)?.availableForms.length ?? 0) > 1"
+                      <select v-else-if="(getEntryForCompany(company.company_id)?.availableForms.length ?? 0) > 1"
                         class="w-full text-[13px] border border-[#E8E8E8] rounded-lg px-3 py-2 outline-none focus:border-[#FF7B22] bg-white"
                         :value="getEntryForCompany(company.company_id)?.claimForm?.claim_form_id ?? ''"
-                        @change="handleFormSelect(company.company_id, Number(($event.target as HTMLSelectElement).value))"
-                      >
+                        @change="handleFormSelect(company.company_id, Number(($event.target as HTMLSelectElement).value))">
                         <option value="" disabled>양식을 선택하세요</option>
-                        <option
-                          v-for="form in getEntryForCompany(company.company_id)?.availableForms"
-                          :key="form.claim_form_id"
-                          :value="form.claim_form_id"
-                        >{{ form.form_name }}</option>
+                        <option v-for="form in getEntryForCompany(company.company_id)?.availableForms" :key="form.claim_form_id" :value="form.claim_form_id">{{ form.form_name }}</option>
                       </select>
                       <div v-else class="text-[12px] text-[#999]">등록된 양식이 없습니다</div>
                     </template>
@@ -197,436 +119,365 @@
                 </button>
               </div>
 
-              <!-- 선택 요약 -->
-              <div v-if="batchStore.selectedEntries.length > 0" class="rounded-xl bg-[#F8F8F8] px-4 py-3 text-[13px] text-[#666]">
-                선택: {{ batchStore.selectedEntries.length }}개 보험사,
-                {{ batchStore.selectedEntries.filter(e => e.claimForm).length }}개 양식
+              <div v-if="batchStore.selectedEntries.length > 0" class="rounded-xl bg-[#F8F8F8] px-4 py-3 text-[13px] text-[#666] mb-4">
+                선택: {{ batchStore.selectedEntries.length }}개 보험사, {{ batchStore.selectedEntries.filter(e => e.claimForm).length }}개 양식
               </div>
             </template>
-          </div>
-        </div>
 
-        <!-- ===== Step 3: 양식별 필드 입력 (탭 전환) ===== -->
-        <div v-else-if="currentStep === 3">
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
-            <!-- 보험사 탭 -->
-            <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
-              <button
-                v-for="(entry, idx) in batchStore.selectedEntries"
-                :key="entry.company.company_id"
-                type="button"
-                class="shrink-0 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all whitespace-nowrap"
-                :class="
-                  batchStore.activeTabIndex === idx
-                    ? 'bg-[#FF7B22] text-white'
-                    : 'bg-white text-[#666] border border-[#E8E8E8] hover:border-[#FF7B22] hover:text-[#FF7B22]'
-                "
-                @click="batchStore.activeTabIndex = idx"
-              >
-                {{ entry.company.company_name }}
-                <template v-if="entry.claimForm">
-                  <span v-if="getFilledCount(idx) === getTotalFieldCount(idx) && getTotalFieldCount(idx) > 0" class="ml-1">&#x2705;</span>
-                  <span v-else-if="getFilledCount(idx) > 0" class="ml-1 opacity-70">&#x1F504; {{ getFilledCount(idx) }}/{{ getTotalFieldCount(idx) }}</span>
-                  <span v-else class="ml-1 opacity-50">&#x23F3; 0/{{ getTotalFieldCount(idx) }}</span>
-                </template>
+            <div class="flex gap-3 justify-end mt-4">
+              <button type="button" class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border border-[#E5E5E5] text-[#666] hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors"
+                @click="setupStep = 1">이전</button>
+              <button type="button" :disabled="!batchStore.allFormsLoaded || batchStore.selectedEntries.length === 0"
+                class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
+                :class="batchStore.allFormsLoaded && batchStore.selectedEntries.length > 0 ? 'bg-[#FF7B22] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'"
+                @click="enterWizard">양식 입력 시작</button>
+            </div>
+          </div>
+        </template>
+
+        <!-- ==================== Wizard Phase: 10스텝 BankDiary 위저드 ==================== -->
+        <template v-else>
+          <!-- 프로그레스 바 -->
+          <div class="mb-6">
+            <div class="h-[3px] bg-[#F0F0F0] rounded-full">
+              <div class="h-full bg-[#FF7B22] rounded-full transition-all duration-300"
+                :style="{ width: `${(activeStepIndex + 1) / activeSteps.length * 100}%` }"></div>
+            </div>
+            <div class="flex gap-2 mt-3 flex-wrap">
+              <button v-for="(s, i) in activeSteps" :key="s" type="button"
+                class="px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all"
+                :class="currentStep === s ? 'bg-[#FF7B22] text-white'
+                  : i < activeStepIndex ? 'bg-[#FFF3ED] text-[#FF7B22] hover:bg-[#FFE4CC] cursor-pointer'
+                  : 'bg-[#F0F0F0] text-[#999]'"
+                @click="i < activeStepIndex ? (currentStep = s) : undefined">
+                {{ STEP_TITLES[s] || '' }}
               </button>
             </div>
+          </div>
 
-            <!-- 자동 복사 안내 (첫 번째 탭이 아닐 때) -->
-            <div v-if="batchStore.activeTabIndex > 0 && hasAutoFilledFields" class="mb-4 px-4 py-2.5 rounded-xl bg-[#EFF6FF] text-[13px] text-[#3B82F6] flex items-center gap-1.5">
-              <span>&#x1F517;</span>
-              <span>{{ batchStore.selectedEntries[0]?.company.company_name }}에서 입력한 공통 값이 자동으로 채워졌습니다.</span>
+          <!-- ===== Step 1: 약관 동의 ===== -->
+          <div v-if="currentStep === 1" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+            <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">약관 동의</p>
+            <p class="text-[13px] text-[#6B7280] mb-5">보험금 청구를 위한 약관에 동의해주세요</p>
+
+            <button type="button" @click="toggleAllConsents"
+              class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-4 transition-colors"
+              :class="allConsentsChecked ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
+              <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                :class="allConsentsChecked ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                <svg v-if="allConsentsChecked" width="12" height="10" viewBox="0 0 12 10" fill="none">
+                  <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="text-[16px] font-bold text-[#1A1A1A]">전체 동의</span>
+            </button>
+
+            <div class="flex flex-col gap-2">
+              <button v-for="item in CONSENT_ITEMS" :key="item.id" type="button" @click="toggleConsent(item.id)"
+                class="w-full flex items-center gap-3 bg-white border rounded-[14px] p-4 transition-colors text-left hover:shadow-sm"
+                :class="consentState[item.id] ? 'border-[#FF7B22]' : 'border-[#E5E5E5]'">
+                <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                  :class="consentState[item.id] ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                  <svg v-if="consentState[item.id]" width="12" height="10" viewBox="0 0 12 10" fill="none">
+                    <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="flex-1 text-[14px] text-[#1A1A1A]">
+                  <span class="text-[#FF3B30] font-medium">[필수]</span> {{ item.title }}
+                </span>
+              </button>
             </div>
+          </div>
 
-            <!-- 현재 탭의 양식 정보 -->
-            <template v-if="currentEntry?.claimForm">
-              <div class="rounded-xl bg-[#F8F8F8] border border-[#E8E8E8] p-4 mb-5">
-                <p class="text-[13px] text-[#888]">{{ currentEntry.company.company_name }}</p>
-                <p class="text-[16px] font-bold text-[#222] mt-0.5">{{ currentEntry.claimForm.form_name }}</p>
-              </div>
+          <!-- ===== Steps 2-6: 필드 입력 ===== -->
+          <div v-else-if="currentStep >= 2 && currentStep <= 6" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+            <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">{{ STEP_TITLES[currentStep] }}</p>
+            <p class="text-[13px] text-[#6B7280] mb-5">{{ STEP_SUBTITLES[currentStep] || '' }}</p>
 
-              <!-- 위저드 스텝 바 (단건과 동일한 5스텝) -->
-              <div class="mb-5">
-                <WizardStepBar
-                  :current-step="innerStep"
-                  :active-steps="activeInnerSteps"
-                  :step-labels="INNER_STEP_LABELS"
-                />
-              </div>
+            <!-- Step 4: 고객 정보와 동일 -->
+            <button v-if="currentStep === 4 && batchStore.selectedCustomer" type="button"
+              @click="autoFillContractor = !autoFillContractor; handleAutoFillContractor()"
+              class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-5 transition-colors hover:shadow-sm"
+              :class="autoFillContractor ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
+              <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                :class="autoFillContractor ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                <svg v-if="autoFillContractor" width="12" height="10" viewBox="0 0 12 10" fill="none">
+                  <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="text-[14px] font-medium text-[#1A1A1A]">고객 정보와 동일</span>
+            </button>
 
-              <p class="text-[15px] font-bold text-[#222] mb-4">
-                {{ INNER_STEP_TITLES[innerStep] || '' }}
-              </p>
+            <!-- Step 5: 계약자와 동일 -->
+            <button v-if="currentStep === 5" type="button"
+              @click="autoFillInsured = !autoFillInsured; handleAutoFillInsured()"
+              class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-5 transition-colors hover:shadow-sm"
+              :class="autoFillInsured ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
+              <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                :class="autoFillInsured ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                <svg v-if="autoFillInsured" width="12" height="10" viewBox="0 0 12 10" fill="none">
+                  <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="text-[14px] font-medium text-[#1A1A1A]">계약자와 동일</span>
+            </button>
 
-              <!-- 고객 정보와 동일 체크박스 (innerStep 3~5에서 매핑 가능한 필드가 있을 때) -->
-              <div
-                v-if="hasCustomerMappableFields"
-                class="mb-4 rounded-xl bg-[#FFF0E5] border border-[#FFD4AD] px-4 py-3"
-              >
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <div
-                    class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-all"
-                    :class="isAutoFillChecked
-                      ? 'bg-[#FF7B22] border-[#FF7B22]'
-                      : 'bg-white border-[#CCCCCC]'
-                    "
-                  >
-                    <svg v-if="isAutoFillChecked" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                  <input
-                    type="checkbox"
-                    class="hidden"
-                    :checked="isAutoFillChecked"
-                    @change="handleAutoFillToggle(innerStep, ($event.target as HTMLInputElement).checked)"
-                  />
-                  <div>
-                    <span class="text-[13px] font-semibold text-[#333]">고객 정보와 동일</span>
-                    <p class="text-[11px] text-[#888] mt-0.5">{{ batchStore.selectedCustomer?.name }}님의 정보로 자동 입력합니다</p>
-                  </div>
-                </label>
-              </div>
-
-              <!-- 필드 렌더링 -->
-              <CardSection class="mb-5">
-                <!-- Step 1: 약관 동의 -->
-                <template v-if="innerStep === 1">
-                  <div v-if="consentFields.length === 0" class="py-6 text-center">
-                    <p class="text-[13px] text-[#999]">이 양식에 동의 항목이 없습니다</p>
-                    <p class="text-[12px] text-[#999] mt-1">다음 단계로 이동하여 필드를 입력해주세요</p>
-                  </div>
-                  <div v-else class="flex flex-col gap-3">
-                    <p class="text-[13px] text-[#666] mb-1">아래 항목에 동의해주세요. 대리 청구 시 고객 동의를 확인한 것으로 간주됩니다.</p>
-                    <div v-for="field in consentFields" :key="field.form_field_id">
-                      <label class="flex items-start gap-2.5 cursor-pointer p-3 rounded-xl border transition-all hover:shadow-sm"
-                        :class="currentEntry?.fieldValues[field.form_field_id] === 'agree'
-                          ? 'border-[#FF7B22] bg-[#FFF8F3]'
-                          : 'border-[#E8E8E8] bg-white'"
-                      >
-                        <div
-                          class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all"
-                          :class="currentEntry?.fieldValues[field.form_field_id] === 'agree'
-                            ? 'bg-[#FF7B22] border-[#FF7B22]'
-                            : 'bg-white border-[#CCCCCC]'"
-                        >
-                          <svg v-if="currentEntry?.fieldValues[field.form_field_id] === 'agree'" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
-                        <input
-                          type="checkbox"
-                          class="hidden"
-                          :checked="currentEntry?.fieldValues[field.form_field_id] === 'agree'"
-                          @change="setConsentValueWithSync(field, ($event.target as HTMLInputElement).checked ? 'agree' : '')"
-                        />
-                        <div class="flex-1">
-                          <span class="text-[13px] font-medium text-[#333]">{{ field.field_label }}</span>
-                          <span v-if="field.is_required" class="text-[#FF0000] ml-0.5">*</span>
-                        </div>
-                      </label>
-                    </div>
-                    <!-- 전체 동의 -->
-                    <button
-                      v-if="consentFields.length > 1"
-                      type="button"
-                      class="w-full py-2.5 rounded-xl text-[13px] font-semibold transition-all"
-                      :class="consentFields.every(f => currentEntry?.fieldValues[f.form_field_id] === 'agree')
-                        ? 'bg-[#FF7B22] text-white'
-                        : 'border border-[#E0E0E0] text-[#555] hover:border-[#FF7B22] hover:text-[#FF7B22]'"
-                      @click="handleToggleAllConsent()"
-                    >
-                      전체 동의
-                    </button>
-                  </div>
-                </template>
-
-                <!-- Step 2~5: 일반 필드 -->
-                <template v-else>
-                  <div v-if="currentInnerStepFields.length === 0" class="py-6 text-center">
-                    <p class="text-[13px] text-[#999]">이 단계에 해당하는 필드가 없습니다</p>
-                  </div>
-                  <div v-else class="flex flex-col gap-4">
-                    <template v-for="field in currentInnerStepFields" :key="field.form_field_id">
-                      <!-- 서명 필드: 캔버스 직접 렌더링 -->
-                      <div v-if="field.field_type === 'signature'">
-                        <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                          {{ field.field_label }}
-                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                        </label>
-                        <div v-if="!currentEntry.fieldValues[field.form_field_id]?.startsWith('data:image/')">
-                          <canvas
-                            :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
-                            class="w-full h-40 border border-[#E8E8E8] rounded-xl bg-white touch-none cursor-crosshair"
-                            @mousedown="startSignatureDraw(field.form_field_id, $event)"
-                            @mousemove="drawSignature($event)"
-                            @mouseup="endSignatureDraw"
-                            @mouseleave="endSignatureDraw"
-                            @touchstart="startSignatureDraw(field.form_field_id, $event)"
-                            @touchmove="drawSignature($event)"
-                            @touchend="endSignatureDraw"
-                          ></canvas>
-                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2.5 bg-[#FF7B22] text-white rounded-xl text-[13px] font-medium hover:bg-[#E56D1E] transition-colors">서명 완료</button>
-                        </div>
-                        <div v-else class="text-center">
-                          <img :src="currentEntry.fieldValues[field.form_field_id]" alt="서명" class="h-28 mx-auto border border-[#E8E8E8] rounded-xl bg-white" />
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] hover:underline">다시 서명</button>
-                        </div>
-                      </div>
-                      <!-- 일반 필드 -->
-                      <div v-else class="relative">
-                        <!-- 자동 채움 표시 배경 -->
-                        <div
-                          v-if="batchStore.isFieldAutoFilled(batchStore.activeTabIndex, field.form_field_id)"
-                          class="absolute -left-2 -right-2 -top-1 -bottom-1 rounded-xl bg-[#EFF6FF]/50 pointer-events-none"
-                        ></div>
-                        <div class="relative">
-                          <!-- 자동 채움 뱃지 -->
-                          <div
-                            v-if="batchStore.isFieldAutoFilled(batchStore.activeTabIndex, field.form_field_id)"
-                            class="flex items-center gap-1 mb-1"
-                          >
-                            <span class="text-[11px] text-[#3B82F6]">&#x1F517; 자동 입력</span>
-                          </div>
-                          <ClaimFieldInput
-                            :field="field"
-                            :model-value="currentEntry.fieldValues[field.form_field_id] || ''"
-                            @update:model-value="setFieldValueWithSync(field, $event)"
-                            @format-input="formatFieldInput"
-                          />
-                        </div>
-                      </div>
-                    </template>
-                  </div>
-                </template>
-              </CardSection>
-
-              <!-- 내부 스텝 네비게이션 -->
+            <!-- Step 6: 자동이체 계좌 -->
+            <div v-if="currentStep === 6" class="mb-5">
+              <p class="text-[13px] font-medium text-[#6B7280] mb-3">보험료 자동이체 계좌로 수령하시겠습니까?</p>
               <div class="flex gap-3">
-                <button
-                  v-if="innerStep > 1"
-                  type="button"
-                  class="flex-1 py-3 rounded-xl border border-[#E8E8E8] text-[14px] font-semibold text-[#666] bg-white hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors"
-                  @click="innerStep--"
-                >이전</button>
-                <button
-                  v-if="innerStep < maxInnerStep"
-                  type="button"
-                  class="flex-1 py-3 rounded-xl bg-[#FF7B22] text-white text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors"
-                  @click="innerStep++"
-                >다음</button>
-              </div>
-            </template>
-
-            <!-- 양식이 로드되지 않은 경우 -->
-            <div v-if="!currentEntry?.claimForm" class="flex items-center justify-center py-10">
-              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
-              <p class="ml-2 text-[13px] text-[#999]">양식 로딩 중...</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== Step 4: 첨부파일 ===== -->
-        <div v-else-if="currentStep === 4">
-          <p class="text-[16px] font-bold text-[#222] mb-4">서류 첨부</p>
-
-          <!-- 공통 서류 -->
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5 mb-4">
-            <p class="text-[14px] font-semibold text-[#222] mb-1">공통 서류</p>
-            <p class="text-[12px] text-[#999] mb-3">전체 보험사에 동일하게 첨부됩니다 (최대 20장, 파일당 20MB)</p>
-
-            <div v-if="batchStore.commonDocuments.length > 0" class="flex flex-col gap-2 mb-3">
-              <div
-                v-for="doc in batchStore.commonDocuments"
-                :key="doc.id"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F8F8F8]"
-              >
-                <span class="text-[16px]">&#x1F4C4;</span>
-                <div class="flex-1 min-w-0">
-                  <p class="text-[13px] text-[#333] truncate">{{ doc.name }}</p>
-                  <p class="text-[11px] text-[#999]">{{ formatFileSize(doc.size) }}</p>
-                </div>
-                <button type="button" @click="batchStore.removeCommonDocument(doc.id)" class="text-[12px] text-[#FF4444] font-medium shrink-0 hover:underline">삭제</button>
+                <button type="button" @click="autoTransferAccount = true"
+                  class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors hover:shadow-sm"
+                  :class="autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">네</button>
+                <button type="button" @click="autoTransferAccount = false"
+                  class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors hover:shadow-sm"
+                  :class="!autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">아니오</button>
               </div>
             </div>
 
-            <div class="flex gap-3">
-              <label class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                서류 선택
-                <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="handleCommonFileSelect" />
-              </label>
-              <label class="flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
-                촬영
-                <input type="file" class="hidden" accept="image/*" capture="environment" @change="handleCommonFileSelect" />
-              </label>
-            </div>
-          </div>
+            <!-- Step 5: 피보험자 섹션 헤더 -->
+            <p v-if="currentStep === 5 && insuredFields.length > 0" class="text-[15px] font-semibold text-[#1A1A1A] mb-3">피보험자 정보</p>
 
-          <!-- 개별 서류 -->
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
-            <p class="text-[14px] font-semibold text-[#222] mb-1">개별 서류</p>
-            <p class="text-[12px] text-[#999] mb-3">특정 보험사에만 첨부할 서류입니다</p>
-
-            <div class="grid grid-cols-1 gap-4">
-              <div v-for="(entry, idx) in batchStore.selectedEntries" :key="entry.company.company_id" class="rounded-xl bg-[#F8F8F8] p-4">
-                <p class="text-[13px] font-semibold text-[#333] mb-3">{{ entry.company.company_name }}</p>
-
-                <div v-if="getPerClaimDocs(idx).length > 0" class="flex flex-col gap-2 mb-3">
-                  <div
-                    v-for="doc in getPerClaimDocs(idx)"
-                    :key="doc.id"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white"
-                  >
-                    <span class="text-[14px]">&#x1F4C4;</span>
-                    <span class="flex-1 text-[12px] text-[#333] truncate">{{ doc.name }}</span>
-                    <button type="button" @click="batchStore.removePerClaimDocument(idx, doc.id)" class="text-[11px] text-[#FF4444] hover:underline">삭제</button>
+            <!-- 공통 필드 -->
+            <div class="grid grid-cols-1 gap-5">
+              <template v-for="field in currentStepCommonFields" :key="field.key">
+                <div>
+                  <div v-if="field.entries.length > 1" class="flex flex-wrap gap-1 mb-1">
+                    <span v-for="e in field.entries" :key="e.formFieldId"
+                      class="text-[10px] px-1.5 py-0.5 bg-[#FFF3ED] text-[#FF7B22] rounded-full">{{ e.companyName }}</span>
                   </div>
-                </div>
-
-                <div class="flex gap-2">
-                  <label class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    선택
-                    <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="(e) => handlePerClaimFileSelect(e, idx)" />
-                  </label>
-                  <label class="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
-                    촬영
-                    <input type="file" class="hidden" accept="image/*" capture="environment" @change="(e) => handlePerClaimFileSelect(e, idx)" />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== Step 5: 최종 확인 ===== -->
-        <div v-else-if="currentStep === 5">
-          <p class="text-[16px] font-bold text-[#222] mb-4">최종 확인</p>
-
-          <!-- 고객 정보 -->
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5 mb-4">
-            <div class="flex items-center gap-3 text-[14px] text-[#666]">
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#333]">고객:</span>
-                <span>{{ batchStore.selectedCustomer?.name }}</span>
-              </div>
-              <span class="text-[#E0E0E0]">|</span>
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-[#333]">청구 건수:</span>
-                <span>{{ batchStore.selectedEntries.length }}건</span>
-              </div>
-              <template v-if="batchStore.commonDocuments.length > 0">
-                <span class="text-[#E0E0E0]">|</span>
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[#333]">공통 서류:</span>
-                  <span>{{ batchStore.commonDocuments.length }}건</span>
+                  <ClaimFieldInput :field="fieldToFormField(field)" :model-value="batchStore.getUnifiedValue(field)"
+                    @update:model-value="(val: string) => batchStore.setUnifiedValue(field, val)"
+                    @format-input="(_fid: number, ft: string, ev: Event) => handleFormatInput(field, ft, ev)"
+                    variant="underline" />
                 </div>
               </template>
             </div>
+
+            <!-- Step 5: 수익자 섹션 -->
+            <template v-if="currentStep === 5 && beneficiaryFields.length > 0">
+              <div class="mt-8 mb-3 pt-6 border-t border-[#F0F0F0]">
+                <p class="text-[15px] font-semibold text-[#1A1A1A]">수익자 정보</p>
+              </div>
+              <div class="grid grid-cols-1 gap-5">
+                <template v-for="field in beneficiaryFields" :key="field.key">
+                  <div>
+                    <ClaimFieldInput :field="fieldToFormField(field)" :model-value="batchStore.getUnifiedValue(field)"
+                      @update:model-value="(val: string) => batchStore.setUnifiedValue(field, val)"
+                      @format-input="(_fid: number, ft: string, ev: Event) => handleFormatInput(field, ft, ev)"
+                      variant="underline" />
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <!-- 보험사별 전용 필드 -->
+            <template v-for="(entry, idx) in batchStore.selectedEntries" :key="'spec-' + idx">
+              <template v-if="specificFieldsForStep(currentStep, idx).length > 0">
+                <div class="mt-6 mb-3 flex items-center gap-2">
+                  <span class="w-[6px] h-[6px] rounded-full bg-[#FF7B22]"></span>
+                  <p class="text-[13px] font-semibold text-[#FF7B22]">{{ entry.company.company_name }}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-5">
+                  <template v-for="field in specificFieldsForStep(currentStep, idx)" :key="field.key">
+                    <div>
+                      <ClaimFieldInput :field="fieldToFormField(field)" :model-value="batchStore.getUnifiedValue(field)"
+                        @update:model-value="(val: string) => batchStore.setUnifiedValue(field, val)"
+                        @format-input="(_fid: number, ft: string, ev: Event) => handleFormatInput(field, ft, ev)"
+                        variant="underline" />
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </template>
           </div>
 
-          <!-- 보험사별 요약 -->
-          <div class="grid grid-cols-1 gap-4">
-            <div
-              v-for="(entry, idx) in batchStore.selectedEntries"
-              :key="entry.company.company_id"
-              class="bg-white rounded-xl border border-[#E8E8E8] p-5"
-            >
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-[14px] font-bold text-[#222]">{{ idx + 1 }}. {{ entry.company.company_name }}</span>
-                <span v-if="entry.claimForm" class="text-[12px] text-[#888]">- {{ entry.claimForm.form_name }}</span>
+          <!-- ===== Step 7: 증빙 서류 ===== -->
+          <div v-else-if="currentStep === 7" class="space-y-4">
+            <div class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+              <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">공통 서류</p>
+              <p class="text-[13px] text-[#6B7280] mb-4">전체 보험사에 동일하게 첨부됩니다 (최대 20장, 파일당 20MB)</p>
+
+              <label class="flex items-center justify-center gap-2 h-[52px] border-2 border-dashed border-[#E5E5E5] rounded-[12px] cursor-pointer hover:border-[#FF7B22] transition-colors mb-4">
+                <span class="material-symbols-outlined text-[20px] text-[#6B7280]">add_photo_alternate</span>
+                <span class="text-[14px] text-[#6B7280] font-medium">사진/서류 추가</span>
+                <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="handleCommonFileSelect" />
+              </label>
+
+              <div v-if="batchStore.commonDocuments.length > 0" class="grid grid-cols-5 gap-3">
+                <div v-for="doc in batchStore.commonDocuments" :key="doc.id"
+                  class="relative w-full aspect-square rounded-[12px] overflow-hidden bg-[#F5F5F5]">
+                  <img v-if="isImageFile(doc.name)" :src="getFilePreview(doc.file)" :alt="doc.name" class="w-full h-full object-cover" />
+                  <div v-else class="w-full h-full flex flex-col items-center justify-center">
+                    <span class="material-symbols-outlined text-[24px] text-[#C4C4C4]">description</span>
+                    <span class="text-[9px] text-[#C4C4C4] mt-0.5 truncate max-w-[60px]">{{ doc.name.split('.').pop() }}</span>
+                  </div>
+                  <button @click="batchStore.removeCommonDocument(doc.id)" type="button"
+                    class="absolute -top-1 -right-1 w-[22px] h-[22px] bg-[#FF3B30] rounded-full flex items-center justify-center shadow-sm hover:bg-[#E02020]">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1L9 9M9 1L1 9" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </button>
+                </div>
               </div>
+              <p v-else class="text-center text-[13px] text-[#C4C4C4] mt-4">아직 첨부된 서류가 없습니다</p>
+            </div>
 
-              <div class="flex items-center gap-4 flex-wrap">
-                <!-- 입력 완료율 -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[13px]">
-                    필드 {{ getFilledCount(idx) }}/{{ getTotalFieldCount(idx) }}
-                  </span>
-                  <span v-if="getFilledCount(idx) === getTotalFieldCount(idx) && getTotalFieldCount(idx) > 0"
-                    class="text-[12px] text-green-600 font-medium">&#x2705; 입력 완료</span>
-                  <span v-else-if="getRequiredUnfilledCount(idx) > 0"
-                    class="text-[12px] text-[#FF4444] font-medium">&#x26A0;&#xFE0F; 필수 미입력 {{ getRequiredUnfilledCount(idx) }}건</span>
-                </div>
-
-                <!-- 미입력 필수 필드 경고 시 바로가기 -->
-                <button
-                  v-if="getRequiredUnfilledCount(idx) > 0"
-                  type="button"
-                  class="text-[12px] text-[#FF7B22] font-medium hover:underline"
-                  @click="goToEntryInput(idx)"
-                >&rarr; 입력하러 가기</button>
-
-                <!-- 동의 상태 -->
-                <div class="flex items-center gap-1.5">
-                  <span v-if="getConsentStatus(idx) === 'all'" class="text-[12px] text-green-600 font-medium">&#x2705; 약관 동의 완료</span>
-                  <span v-else-if="getConsentStatus(idx) === 'partial'" class="text-[12px] text-[#FF4444] font-medium">&#x26A0;&#xFE0F; 약관 미동의 항목 있음</span>
-                  <span v-else-if="getConsentStatus(idx) === 'none'" class="text-[12px] text-[#FF4444] font-medium">&#x26A0;&#xFE0F; 약관 동의 필요</span>
-                </div>
-
-                <!-- 서류 요약 -->
-                <div class="text-[12px] text-[#888]">
-                  서류: 공통 {{ batchStore.commonDocuments.length }}건
-                  <template v-if="getPerClaimDocs(idx).length > 0"> + 개별 {{ getPerClaimDocs(idx).length }}건</template>
+            <!-- 개별 서류 -->
+            <div class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+              <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">개별 서류</p>
+              <p class="text-[13px] text-[#6B7280] mb-4">특정 보험사에만 첨부할 서류입니다</p>
+              <div class="space-y-4">
+                <div v-for="(entry, idx) in batchStore.selectedEntries" :key="entry.company.company_id" class="rounded-xl bg-[#F6F6F8] p-4">
+                  <p class="text-[14px] font-semibold text-[#333] mb-3">{{ entry.company.company_name }}</p>
+                  <div v-if="getPerClaimDocs(idx).length > 0" class="flex flex-col gap-2 mb-3">
+                    <div v-for="doc in getPerClaimDocs(idx)" :key="doc.id" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white">
+                      <span class="flex-1 text-[12px] text-[#333] truncate">{{ doc.name }}</span>
+                      <button type="button" @click="batchStore.removePerClaimDocument(idx, doc.id)" class="text-[11px] text-[#FF4444] hover:underline">삭제</button>
+                    </div>
+                  </div>
+                  <label class="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                    서류 추가
+                    <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="(e) => handlePerClaimFileSelect(e, idx)" />
+                  </label>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 경고 메시지 -->
-          <div v-if="totalRequiredUnfilled > 0" class="mt-4 p-4 rounded-xl bg-[#FFF3CD] text-[13px] text-[#856404]">
-            &#x26A0;&#xFE0F; 미입력 필수 필드가 {{ totalRequiredUnfilled }}건 있습니다. 모두 입력해야 제출할 수 있습니다.
+          <!-- ===== Step 8: 청구 내용 확인 ===== -->
+          <div v-else-if="currentStep === 8" class="space-y-4">
+            <div class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+              <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">청구 내용 확인</p>
+              <p class="text-[13px] text-[#6B7280] mb-5">입력하신 내용을 확인해주세요</p>
+
+              <div class="space-y-4">
+                <div v-for="(entry, idx) in batchStore.selectedEntries" :key="'review-' + idx"
+                  class="bg-[#F6F6F8] rounded-[14px] p-[18px_20px]">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-[15px] font-bold text-[#1A1A1A]">{{ entry.company.company_name }}</p>
+                    <span class="text-[12px] font-medium px-2 py-0.5 rounded-full"
+                      :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF7B22]'">
+                      {{ progressPercent(idx) }}%
+                    </span>
+                  </div>
+                  <div class="space-y-2">
+                    <template v-for="item in getSummaryForEntry(idx)" :key="item.label">
+                      <div v-if="item.value" class="flex justify-between text-[13px]">
+                        <span class="text-[#6B7280] shrink-0 mr-3">{{ item.label }}</span>
+                        <span class="text-[#1A1A1A] text-right truncate">{{ displayValue(item.value) }}</span>
+                      </div>
+                    </template>
+                  </div>
+                  <button v-if="progressPercent(idx) < 100" type="button" @click="goToFirstIncompleteStep()"
+                    class="mt-3 text-[12px] text-[#FF7B22] font-medium hover:underline">미입력 항목 채우기 →</button>
+                </div>
+              </div>
+
+              <div class="mt-4 bg-[#F6F6F8] rounded-[14px] p-[18px_20px]">
+                <p class="text-[15px] font-bold text-[#1A1A1A] mb-2">첨부 서류</p>
+                <p class="text-[13px] text-[#6B7280]">공통 {{ batchStore.commonDocuments.length }}개 파일</p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- 에러 -->
-        <div v-if="batchStore.error" class="p-3 bg-[#FFE5E5] rounded-xl text-[13px] text-[#FF0000] mb-4 mt-4">
-          {{ batchStore.error }}
-        </div>
+          <!-- ===== Step 9: 서명 ===== -->
+          <div v-else-if="currentStep === 9" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+            <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">서명</p>
+            <p class="text-[13px] text-[#6B7280] mb-5">아래 영역에 서명해주세요. 모든 보험사 청구서에 적용됩니다.</p>
 
-        <!-- 하단 버튼 영역 -->
-        <div class="sticky bottom-0 bg-white border-t border-[#E8E8E8] p-4 mt-6 -mx-6 rounded-b-xl">
-          <div class="max-w-4xl mx-auto flex gap-3">
-            <!-- 임시저장 (Step 2~4에서 표시) -->
-            <button
-              v-if="currentStep >= 2 && currentStep <= 4"
-              type="button"
-              :disabled="batchStore.loading"
-              class="py-3 px-6 rounded-xl text-[14px] font-semibold border-[1.5px] border-[#FF7B22] text-[#FF7B22] bg-white hover:bg-[#FFF8F3] transition-colors"
-              @click="handleSaveDraft"
-            >
-              {{ batchStore.loading ? '저장 중...' : '임시저장' }}
-            </button>
+            <div v-if="!signatureDataUrl">
+              <div class="relative rounded-[14px] overflow-hidden bg-[#FAF0F0]" style="height: 200px;">
+                <canvas ref="signatureCanvasRef"
+                  class="absolute inset-0 w-full h-full cursor-crosshair"
+                  @mousedown="startDraw" @mousemove="onDraw" @mouseup="endDraw" @mouseleave="endDraw"
+                ></canvas>
+                <p v-if="!hasDrawn" class="absolute inset-0 flex items-center justify-center text-[14px] text-[#C4C4C4] pointer-events-none">
+                  여기에 서명해주세요</p>
+              </div>
+              <div class="flex gap-3 mt-3">
+                <button type="button" @click="clearCanvas"
+                  class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-[#6B7280] border border-[#E5E5E5] hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">지우기</button>
+                <button type="button" @click="completeSignature"
+                  class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-white bg-[#FF7B22] hover:bg-[#E86D1A] transition-colors">서명 완료</button>
+              </div>
+            </div>
+            <div v-else class="text-center">
+              <div class="rounded-[14px] overflow-hidden bg-[#FAF0F0] p-4 inline-block">
+                <img :src="signatureDataUrl" alt="서명" class="max-h-[120px]" />
+              </div>
+              <div class="mt-3">
+                <button type="button" @click="resetSignature" class="text-[13px] text-[#FF7B22] font-medium hover:underline">다시 서명</button>
+              </div>
+            </div>
+          </div>
 
-            <!-- 메인 버튼 -->
-            <button
-              type="button"
-              :disabled="!canProceedMain"
-              class="flex-1 py-3 rounded-xl text-[15px] font-semibold transition-colors"
-              :class="
-                canProceedMain
-                  ? 'bg-[#FF7B22] text-white hover:bg-[#E56D1E]'
-                  : 'bg-[#E0E0E0] text-[#AAAAAA] cursor-not-allowed'
-              "
-              @click="handleMainAction"
-            >
-              {{ mainButtonLabel }}
+          <!-- ===== Step 10: 최종 확인 ===== -->
+          <div v-else-if="currentStep === 10" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
+            <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">최종 확인</p>
+            <p class="text-[13px] text-[#6B7280] mb-5">{{ batchStore.selectedEntries.length }}개 보험사에 청구서를 제출합니다</p>
+
+            <div class="space-y-3 mb-6">
+              <div v-for="(entry, idx) in batchStore.selectedEntries" :key="'final-' + idx"
+                class="flex items-center gap-3 bg-[#F6F6F8] rounded-[14px] p-4">
+                <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center text-[16px] font-bold shrink-0"
+                  :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF7B22]'">
+                  {{ progressPercent(idx) === 100 ? '✓' : '!' }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[15px] font-medium text-[#1A1A1A] truncate">{{ entry.company.company_name }}</p>
+                  <p class="text-[12px] text-[#6B7280]">{{ entry.claimForm?.form_name || '' }}</p>
+                </div>
+                <span class="text-[13px] font-semibold shrink-0"
+                  :class="progressPercent(idx) === 100 ? 'text-[#34C759]' : 'text-[#FF7B22]'">
+                  {{ progressPercent(idx) }}%
+                </span>
+              </div>
+            </div>
+
+            <div v-if="signatureDataUrl" class="bg-[#F6F6F8] rounded-[14px] p-4 mb-6">
+              <p class="text-[13px] text-[#6B7280] mb-2">서명</p>
+              <img :src="signatureDataUrl" alt="서명" class="h-[60px]" />
+            </div>
+
+            <div class="bg-[#F6F6F8] rounded-[14px] p-4">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors"
+                  :class="finalConsentChecked ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'"
+                  @click="finalConsentChecked = !finalConsentChecked">
+                  <svg v-if="finalConsentChecked" width="12" height="10" viewBox="0 0 12 10" fill="none">
+                    <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div @click="finalConsentChecked = !finalConsentChecked">
+                  <p class="text-[14px] font-medium text-[#1A1A1A]">위 내용을 확인하였으며, 청구에 동의합니다</p>
+                  <p class="text-[12px] text-[#6B7280] mt-1">{{ batchStore.selectedEntries.map(e => e.company.company_name).join(', ') }}</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 에러 -->
+          <div v-if="batchStore.error" class="p-3 bg-[#FFE5E5] rounded-xl text-[13px] text-[#FF0000] mt-4">{{ batchStore.error }}</div>
+
+          <!-- 하단 액션 바 -->
+          <div class="flex gap-3 justify-between mt-6">
+            <div class="flex gap-3">
+              <button type="button" @click="handleWizardBack"
+                class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border border-[#E5E5E5] text-[#666] hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">이전</button>
+              <button v-if="currentStep <= 7" type="button" @click="handleSaveDraft" :disabled="batchStore.loading"
+                class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border-[1.5px] border-[#FF7B22] text-[#FF7B22] bg-white hover:bg-[#FFF8F3] transition-colors">
+                {{ batchStore.loading ? '저장 중...' : '임시저장' }}
+              </button>
+            </div>
+            <button type="button" @click="handleCTA" :disabled="!canProceed || batchStore.loading"
+              class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
+              :class="canProceed && !batchStore.loading ? 'bg-[#FF7B22] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'">
+              <span v-if="batchStore.loading">처리 중...</span>
+              <span v-else>{{ ctaText }}</span>
             </button>
           </div>
-        </div>
+        </template>
       </template>
     </div>
 
     <!-- Toast -->
     <Transition name="fade">
-      <div
-        v-if="toast.visible.value"
-        class="fixed bottom-10 left-1/2 -translate-x-1/2 text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap"
-        :class="toast.variant.value === 'error' ? 'bg-[#FF4444]' : 'bg-[#333]'"
-      >
+      <div v-if="toast.visible.value" class="fixed bottom-10 left-1/2 -translate-x-1/2 text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap"
+        :class="toast.variant.value === 'error' ? 'bg-[#FF4444]' : 'bg-[#333]'">
         {{ toast.message.value }}
       </div>
     </Transition>
@@ -636,460 +487,447 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import CardSection from '@user/components/ui/CardSection.vue'
-import WizardStepBar from '@shared/components/claim/WizardStepBar.vue'
 import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
+import type { UnifiedField } from '../../stores/agentBatchClaimStore'
 import type { Customer } from '../../types'
 import type { FormField, FormPage } from '@shared/types'
 import { useToast } from '../../composables/useToast'
 import { compressImages } from '@shared/utils/compressImage'
 
 const toast = useToast()
-
 const router = useRouter()
 const route = useRoute()
 const batchStore = useAgentBatchClaimStore()
 
-// ===== 상수 =====
-const STEPS = [
-  { step: 1, label: '고객' },
-  { step: 2, label: '보험사' },
-  { step: 3, label: '입력' },
-  { step: 4, label: '서류' },
-  { step: 5, label: '확인' },
-] as const
-
-const INNER_STEP_LABELS = ['약관', '청구', '계약자', '피보험자', '계좌']
-const INNER_STEP_TITLES: Record<number, string> = {
-  1: '약관 동의',
-  2: '청구 내용',
-  3: '계약자 정보',
-  4: '피보험자 정보',
-  5: '계좌 정보',
-}
-
-// SelectView에서 보험사 선택 후 넘어온 경우
-const fromSelect = computed(() => route.query.fromSelect === 'true')
-
-// ===== 상태 =====
-const currentStep = ref(1)
-const innerStep = ref(1)
-const entryInnerSteps = ref<Record<number, number>>({})
-const customerSearch = ref('')
+// ===== Setup Phase =====
+const setupStep = ref(1)
 const initialLoaded = ref(false)
+const customerSearch = ref('')
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
-// "고객 정보와 동일" 체크 상태 (innerStep별)
-const autoFillCustomerStep3 = ref(false)
-const autoFillCustomerStep4 = ref(false)
-const autoFillCustomerStep5 = ref(false)
-
-// draft 편집 모드
-const batchId = computed(() => {
-  const id = route.params.batchId
-  return id ? Number(id) : null
-})
+const fromSelect = computed(() => route.query.fromSelect === 'true')
+const batchId = computed(() => { const id = route.params.batchId; return id ? Number(id) : null })
 const isDraftMode = ref(false)
 
-// ===== Computed =====
-const currentEntry = computed(() => batchStore.activeEntry)
+const wizardPhase = computed(() =>
+  batchStore.allFormsLoaded && batchStore.selectedEntries.length > 0 && wizardEntered.value
+)
+const wizardEntered = ref(false)
 
-const activeInnerSteps = computed(() => {
-  if (!currentEntry.value?.claimForm) return [1]
-  const fields = getAllFieldsForEntry(currentEntry.value)
-  const steps = new Set<number>()
-  steps.add(1) // 약관은 항상 표시
-  for (const f of fields) {
-    if (f.field_type === 'consent') continue // consent는 step 1에서 일괄 처리
+function enterWizard() {
+  batchStore.autoFillFromCustomer()
+  wizardEntered.value = true
+}
+
+// ===== Wizard Step Definitions =====
+const currentStep = ref(1)
+
+const STEP_TITLES: Record<number, string> = {
+  1: '약관 동의', 2: '진단 정보', 3: '사고·청구 내용', 4: '계약자 정보',
+  5: '피보험자·수익자 정보', 6: '계좌 정보', 7: '증빙 서류',
+  8: '청구 내용 확인', 9: '서명', 10: '최종 확인',
+}
+
+const STEP_SUBTITLES: Record<number, string> = {
+  2: '진단명과 사고 유형을 입력해주세요', 3: '사고 일시와 청구 사유를 입력해주세요',
+  4: '계약자(청구인)의 정보를 입력해주세요', 5: '피보험자와 수익자 정보를 입력해주세요',
+  6: '보험금을 수령할 계좌를 입력해주세요',
+}
+
+// ===== Field → Step Mapping =====
+const DIAGNOSIS_CODES = new Set([
+  'ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE', 'DISEASE_NAME', 'DISEASE_CODE',
+  'HOSPITALIZATION_YN', 'SURGERY_YN',
+])
+
+function getFieldWizardStep(field: UnifiedField): number {
+  if (field.category === 2) {
+    if (field.standardCode && DIAGNOSIS_CODES.has(field.standardCode)) return 2
+    const name = field.key.toLowerCase()
+    if (name.includes('disease') || name.includes('hospital_yn') || name.includes('surgery_yn')) return 2
+    return 3
+  }
+  if (field.category === 3) return 4
+  if (field.category === 4) return 5
+  if (field.category === 5) return 6
+  return 3
+}
+
+const fieldsByStep = computed(() => {
+  const map: Record<number, UnifiedField[]> = { 2: [], 3: [], 4: [], 5: [], 6: [] }
+  for (const f of batchStore.unifiedFields) {
     const step = getFieldWizardStep(f)
-    steps.add(step)
+    const arr = map[step]
+    if (arr) arr.push(f)
   }
-  return Array.from(steps).sort((a, b) => a - b)
+  return map
 })
 
-const maxInnerStep = computed(() => {
-  const steps = activeInnerSteps.value
-  const last = steps[steps.length - 1]
-  return last ?? 5
+const activeSteps = computed(() => {
+  const steps: number[] = [1]
+  for (const s of [2, 3, 4, 5, 6] as const) {
+    const fields = fieldsByStep.value[s]
+    if (fields && fields.length > 0) steps.push(s)
+  }
+  steps.push(7, 8, 9, 10)
+  return steps
 })
 
-// consent 필드 목록 (innerStep 1에서 표시, CONSENT_AUTO 제외)
-const consentFields = computed(() => {
-  if (!currentEntry.value?.claimForm) return []
-  const fields = getAllFieldsForEntry(currentEntry.value)
-  const seen = new Set<string>()
-  return fields.filter((f) => {
-    if (f.field_type !== 'consent') return false
-    if (f.standard_field_code === 'CONSENT_AUTO') return false
-    if (f.standard_field_code) {
-      if (seen.has(f.standard_field_code)) return false
-      seen.add(f.standard_field_code)
-    }
-    return true
+const activeStepIndex = computed(() => {
+  const idx = activeSteps.value.indexOf(currentStep.value)
+  return idx >= 0 ? idx : 0
+})
+
+// ===== Step Field Accessors =====
+function commonFieldsForStep(step: number): UnifiedField[] {
+  return (fieldsByStep.value[step] || []).filter(f => !f.isCompanySpecific)
+}
+
+function specificFieldsForStep(step: number, entryIndex: number): UnifiedField[] {
+  return (fieldsByStep.value[step] || []).filter(f =>
+    f.isCompanySpecific && f.entries.some(e => e.entryIndex === entryIndex)
+  )
+}
+
+const insuredFields = computed(() =>
+  commonFieldsForStep(5).filter(f => {
+    const code = f.standardCode || ''; const name = f.key.toLowerCase()
+    return code.startsWith('INSURED_') || (name.startsWith('insured_') && !code.startsWith('BENEFICIARY_'))
   })
-})
+)
 
-// consent 값 설정 + 같은 entry 내 중복 standard_field_code 동기화
-function setConsentValueWithSync(field: FormField, value: string) {
-  batchStore.setActiveFieldValue(field.form_field_id, value)
-  const entry = currentEntry.value
-  if (!entry || !field.standard_field_code) return
-  const allFields = getAllFieldsForEntry(entry)
-  for (const f of allFields) {
-    if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
-      batchStore.setActiveFieldValue(f.form_field_id, value)
-    }
-  }
-}
-
-function handleToggleAllConsent() {
-  const allAgreed = consentFields.value.every(cf => currentEntry.value?.fieldValues[cf.form_field_id] === 'agree')
-  const newValue = allAgreed ? '' : 'agree'
-  for (const f of consentFields.value) {
-    setConsentValueWithSync(f, newValue)
-  }
-}
-
-const currentInnerStepFields = computed(() => {
-  if (!currentEntry.value?.claimForm) return []
-  const fields = getAllFieldsForEntry(currentEntry.value)
-  // consent 제외 + 같은 standard_field_code 중복 제거 (첫 번째만 표시)
-  const seen = new Set<string>()
-  return fields.filter((f) => {
-    if (f.field_type === 'consent') return false
-    if (f.standard_field_code) {
-      if (seen.has(f.standard_field_code)) return false
-      seen.add(f.standard_field_code)
-    }
-    return getFieldWizardStep(f) === innerStep.value
+const beneficiaryFields = computed(() =>
+  commonFieldsForStep(5).filter(f => {
+    const code = f.standardCode || ''; const name = f.key.toLowerCase()
+    return code.startsWith('BENEFICIARY_') || name.startsWith('beneficiary_')
   })
-})
+)
 
-// 표준 필드 값 동기화: 같은 standard_field_code를 가진 모든 필드에 동일 값 세팅
-function setFieldValueWithSync(field: FormField, value: string) {
-  const entry = currentEntry.value
-  if (!entry) return
-  batchStore.setActiveFieldValue(field.form_field_id, value)
-
-  if (field.standard_field_code && field.field_type !== 'signature') {
-    // 1) 같은 탭 내 중복 필드 동기화
-    const allFields = getAllFieldsForEntry(entry)
-    for (const f of allFields) {
-      if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
-        batchStore.setActiveFieldValue(f.form_field_id, value)
-      }
-    }
-
-    // 2) 다른 탭(entry)의 같은 standard_field_code 필드에도 전파
-    //    RRN 통합↔분리 변환도 처리
-    //    단, 청구서마다 선택지가 달라 개별 입력이 필요한 필드는 제외
-    const SYNC_EXCLUDED_CODES = new Set(['ACCIDENT_TYPE', 'ACCIDENT_DETAIL_TYPE', 'INSURED_RELATION', 'COMPENSATION_RECIPIENT'])
-    if (SYNC_EXCLUDED_CODES.has(field.standard_field_code)) return
-
-    const code = field.standard_field_code
-    const crossMap: Record<string, string> = { [code]: value }
-
-    // RRN 크로스 매핑: 통합 → 분리, 분리 → 통합
-    const rrnMatch = code.match(/^(CONTRACTOR|INSURED|BENEFICIARY)_RRN(_FRONT|_BACK)?$/)
-    if (rrnMatch) {
-      const prefix = rrnMatch[1]
-      const suffix = rrnMatch[2] || ''
-      if (!suffix) {
-        // 통합(RRN) 입력 → 분리(FRONT/BACK) 생성
-        const digits = value.replace(/\D/g, '')
-        if (digits.length >= 6) {
-          crossMap[`${prefix}_RRN_FRONT`] = digits.slice(0, 6)
-          crossMap[`${prefix}_RRN_BACK`] = digits.length > 6 ? digits.slice(6, 13) : ''
-        }
-      } else if (suffix === '_FRONT' || suffix === '_BACK') {
-        // 분리 입력 → 통합(RRN) 생성 (다른 파트의 현재 값과 조합)
-        const otherSuffix = suffix === '_FRONT' ? '_BACK' : '_FRONT'
-        const otherCode = `${prefix}_RRN${otherSuffix}`
-        // 같은 탭에서 다른 파트 값 찾기
-        const allFields = getAllFieldsForEntry(entry)
-        const otherField = allFields.find(f => f.standard_field_code === otherCode)
-        if (otherField) {
-          const otherVal = entry.fieldValues[otherField.form_field_id] || ''
-          const front = suffix === '_FRONT' ? value : otherVal
-          const back = suffix === '_BACK' ? value : otherVal
-          if (front && back) {
-            crossMap[`${prefix}_RRN`] = `${front.replace(/\D/g, '')}-${back.replace(/\D/g, '')}`
-          }
-        }
-      }
-    }
-
-    for (let i = 0; i < batchStore.selectedEntries.length; i++) {
-      if (i === batchStore.activeTabIndex) continue
-      const otherEntry = batchStore.selectedEntries[i]
-      if (!otherEntry?.claimForm) continue
-      const otherFields = getAllFieldsForEntry(otherEntry)
-      for (const f of otherFields) {
-        if (!f.standard_field_code || f.field_type === 'signature') continue
-        const mappedVal = crossMap[f.standard_field_code]
-        if (mappedVal === undefined) continue
-        // 사용자가 직접 수정한 값이면 덮어쓰지 않음
-        const currentVal = otherEntry.fieldValues[f.form_field_id]
-        if (currentVal && !otherEntry.autoFilledFieldIds[f.form_field_id]) continue
-        otherEntry.fieldValues[f.form_field_id] = mappedVal
-        otherEntry.autoFilledFieldIds[f.form_field_id] = true
-      }
-    }
-  }
-}
-
-// "고객 정보와 동일" 체크박스 핸들러
-function getAutoFillRef(step: number) {
-  if (step === 3) return autoFillCustomerStep3
-  if (step === 4) return autoFillCustomerStep4
-  if (step === 5) return autoFillCustomerStep5
-  return null
-}
-
-function handleAutoFillToggle(step: number, checked: boolean) {
-  const refObj = getAutoFillRef(step)
-  if (refObj) refObj.value = checked
-
-  const fields = currentInnerStepFields.value
-  batchStore.autoFillStepFromCustomer(batchStore.activeTabIndex, fields, checked)
-
-  // 동기화: 같은 standard_field_code를 가진 다른 필드에도 값 전파
-  if (checked) {
-    const entry = currentEntry.value
-    if (!entry) return
-    const allFields = getAllFieldsForEntry(entry)
-    for (const field of fields) {
-      if (field.standard_field_code && field.field_type !== 'signature') {
-        const val = entry.fieldValues[field.form_field_id]
-        if (val) {
-          for (const f of allFields) {
-            if (f.form_field_id !== field.form_field_id && f.standard_field_code === field.standard_field_code) {
-              batchStore.setActiveFieldValue(f.form_field_id, val)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-// 현재 innerStep의 자동채움 체크 상태
-const isAutoFillChecked = computed(() => {
-  if (innerStep.value === 3) return autoFillCustomerStep3.value
-  if (innerStep.value === 4) return autoFillCustomerStep4.value
-  if (innerStep.value === 5) return autoFillCustomerStep5.value
-  return false
-})
-
-// 현재 innerStep에 고객 매핑 가능한 필드가 있는지 확인
-const hasCustomerMappableFields = computed(() => {
-  if (!batchStore.selectedCustomer) return false
-  if (innerStep.value < 3) return false
-  return currentInnerStepFields.value.some(f => {
-    if (!f.standard_field_code) return false
-    const map: Record<string, boolean> = {
-      CONTRACTOR_NAME: true, CONTRACTOR_PHONE: true, CONTRACTOR_RRN: true,
-      CONTRACTOR_RRN_FRONT: true, CONTRACTOR_RRN_BACK: true,
-      CONTRACTOR_ADDRESS: true, CONTRACTOR_EMAIL: true,
-      INSURED_NAME: true, INSURED_PHONE: true, INSURED_RRN: true,
-      INSURED_RRN_FRONT: true, INSURED_RRN_BACK: true,
-      INSURED_ADDRESS: true, INSURED_EMAIL: true,
-      BENEFICIARY_NAME: true, BENEFICIARY_PHONE: true, BENEFICIARY_RRN: true,
-      BENEFICIARY_RRN_FRONT: true, BENEFICIARY_RRN_BACK: true,
-      BENEFICIARY_ADDRESS: true, BENEFICIARY_EMAIL: true,
-    }
-    return !!map[f.standard_field_code]
+const otherStep5Fields = computed(() =>
+  commonFieldsForStep(5).filter(f => {
+    const code = f.standardCode || ''; const name = f.key.toLowerCase()
+    return !code.startsWith('INSURED_') && !code.startsWith('BENEFICIARY_') &&
+      !name.startsWith('insured_') && !name.startsWith('beneficiary_')
   })
+)
+
+const ACCOUNT_HIDE_CODES = new Set(['BANK_NAME', 'ACCOUNT_NUMBER', 'ACCOUNT_HOLDER', 'ACCOUNT_HOLDER_RRN'])
+
+const visibleAccountFields = computed(() => {
+  const allFields = commonFieldsForStep(6)
+  if (autoTransferAccount.value) return allFields.filter(f => !f.standardCode || !ACCOUNT_HIDE_CODES.has(f.standardCode))
+  return allFields
 })
 
-const canProceedMain = computed(() => {
-  if (batchStore.loading) return false
-  if (currentStep.value === 1) return !!batchStore.selectedCustomer
-  if (currentStep.value === 2) return batchStore.allFormsLoaded && batchStore.selectedEntries.length > 0
-  if (currentStep.value === 3) return batchStore.allFormsLoaded && batchStore.selectedEntries.length > 0
-  if (currentStep.value === 4) return true // 서류 첨부는 선택 사항
-  if (currentStep.value === 5) return totalRequiredUnfilled.value === 0
-  return false
+const currentStepCommonFields = computed((): UnifiedField[] => {
+  const step = currentStep.value
+  if (step === 5) return [...insuredFields.value, ...otherStep5Fields.value]
+  if (step === 6) return visibleAccountFields.value
+  return commonFieldsForStep(step)
 })
 
-const mainButtonLabel = computed(() => {
-  if (batchStore.loading) return '처리 중...'
-  if (currentStep.value === 1) return '다음: 보험사 선택'
-  if (currentStep.value === 2) return '다음: 필드 입력'
-  if (currentStep.value === 3) return '다음: 서류 첨부'
-  if (currentStep.value === 4) return '다음: 최종 확인'
-  if (currentStep.value === 5) {
-    if (isDraftMode.value) return '제출하기'
-    return '일괄 제출'
+// ===== Consent (Step 1) =====
+const CONSENT_ITEMS = [
+  { id: 'privacy', title: '개인정보 수집·이용 동의' },
+  { id: 'identification', title: '고유식별정보 처리 동의' },
+  { id: 'sensitive', title: '민감정보 처리 동의' },
+]
+
+const consentState = ref<Record<string, boolean>>({ privacy: false, identification: false, sensitive: false })
+const allConsentsChecked = computed(() => CONSENT_ITEMS.every(item => consentState.value[item.id]))
+
+function toggleAllConsents() {
+  const newVal = !allConsentsChecked.value
+  for (const item of CONSENT_ITEMS) consentState.value[item.id] = newVal
+}
+
+function toggleConsent(id: string) { consentState.value[id] = !consentState.value[id] }
+
+// ===== Auto-fill =====
+const autoFillContractor = ref(false)
+const autoFillInsured = ref(false)
+const autoTransferAccount = ref(false)
+const finalConsentChecked = ref(false)
+
+function handleAutoFillContractor() {
+  if (!batchStore.selectedCustomer) return
+  for (let i = 0; i < batchStore.selectedEntries.length; i++) {
+    const entry = batchStore.selectedEntries[i]
+    if (!entry?.claimForm) continue
+    const fields = batchStore.getFormFields(entry.claimForm).filter(f => batchStore.getFieldCategory(f) === 3)
+    batchStore.autoFillStepFromCustomer(i, fields, autoFillContractor.value)
   }
+}
+
+function handleAutoFillInsured() {
+  const CODE_MAP: Record<string, string[]> = {
+    CONTRACTOR_NAME: ['INSURED_NAME', 'BENEFICIARY_NAME'],
+    CONTRACTOR_RRN: ['INSURED_RRN', 'BENEFICIARY_RRN'],
+    CONTRACTOR_RRN_FRONT: ['INSURED_RRN_FRONT', 'BENEFICIARY_RRN_FRONT'],
+    CONTRACTOR_RRN_BACK: ['INSURED_RRN_BACK', 'BENEFICIARY_RRN_BACK'],
+    CONTRACTOR_PHONE: ['INSURED_PHONE', 'BENEFICIARY_PHONE'],
+    CONTRACTOR_ADDRESS: ['INSURED_ADDRESS', 'BENEFICIARY_ADDRESS'],
+    CONTRACTOR_EMAIL: ['INSURED_EMAIL', 'BENEFICIARY_EMAIL'],
+  }
+  for (const field of batchStore.unifiedFields) {
+    if (!field.standardCode) continue
+    const targets = CODE_MAP[field.standardCode]
+    if (!targets) continue
+    const sourceVal = batchStore.getUnifiedValue(field)
+    for (const targetCode of targets) {
+      const targetField = batchStore.unifiedFields.find(f => f.standardCode === targetCode)
+      if (targetField) batchStore.setUnifiedValue(targetField, autoFillInsured.value ? sourceVal : '')
+    }
+  }
+}
+
+// ===== File Upload =====
+const MAX_FILE_COUNT = 20
+const MAX_FILE_SIZE_MB = 20
+const filePreviewUrls = ref<Record<string, string>>({})
+
+async function handleCommonFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (!input.files) return
+  const rawFiles = Array.from(input.files)
+  if (batchStore.commonDocuments.length + rawFiles.length > MAX_FILE_COUNT) {
+    alert(`공통 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`); input.value = ''; return
+  }
+  const files = await compressImages(rawFiles)
+  const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
+  if (oversized) { alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`); input.value = ''; return }
+  for (const file of files) {
+    batchStore.addCommonDocument(file)
+    if (file.type.startsWith('image/')) {
+      const lastDoc = batchStore.commonDocuments[batchStore.commonDocuments.length - 1]
+      if (lastDoc) filePreviewUrls.value[lastDoc.id] = URL.createObjectURL(file)
+    }
+  }
+  input.value = ''
+}
+
+async function handlePerClaimFileSelect(event: Event, entryIdx: number) {
+  const input = event.target as HTMLInputElement
+  if (!input.files) return
+  const rawFiles = Array.from(input.files)
+  const currentDocs = batchStore.perClaimDocuments[entryIdx] || []
+  if (currentDocs.length + rawFiles.length > MAX_FILE_COUNT) {
+    alert(`보험사별 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`); input.value = ''; return
+  }
+  const files = await compressImages(rawFiles)
+  for (const file of files) batchStore.addPerClaimDocument(entryIdx, file)
+  input.value = ''
+}
+
+function isImageFile(name: string): boolean { return /\.(jpe?g|png|gif|webp|bmp|heic)$/i.test(name) }
+
+function getFilePreview(file: File): string {
+  const doc = batchStore.commonDocuments.find(d => d.file === file)
+  if (doc && filePreviewUrls.value[doc.id]) return filePreviewUrls.value[doc.id]!
+  const url = URL.createObjectURL(file)
+  if (doc) filePreviewUrls.value[doc.id] = url
+  return url
+}
+
+function getPerClaimDocs(entryIdx: number) { return batchStore.perClaimDocuments[entryIdx] || [] }
+
+// ===== Signature (Step 9) =====
+const signatureCanvasRef = ref<HTMLCanvasElement | null>(null)
+const isDrawing = ref(false)
+const hasDrawn = ref(false)
+const signatureDataUrl = ref('')
+
+function initCanvas() {
+  const canvas = signatureCanvasRef.value
+  if (!canvas) return
+  const dpr = window.devicePixelRatio || 1
+  const rect = canvas.getBoundingClientRect()
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr
+  const ctx = canvas.getContext('2d')
+  if (ctx) { ctx.scale(dpr, dpr); ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000000' }
+}
+
+function getPos(e: MouseEvent) {
+  const canvas = signatureCanvasRef.value
+  if (!canvas) return { x: 0, y: 0 }
+  const rect = canvas.getBoundingClientRect()
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+}
+
+function startDraw(e: MouseEvent) {
+  isDrawing.value = true; hasDrawn.value = true
+  const ctx = signatureCanvasRef.value?.getContext('2d')
+  if (!ctx) return
+  const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y)
+}
+
+function onDraw(e: MouseEvent) {
+  if (!isDrawing.value) return
+  const ctx = signatureCanvasRef.value?.getContext('2d')
+  if (!ctx) return
+  const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke()
+}
+
+function endDraw() { isDrawing.value = false }
+
+function clearCanvas() {
+  const canvas = signatureCanvasRef.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height)
+  hasDrawn.value = false
+}
+
+function completeSignature() {
+  const canvas = signatureCanvasRef.value
+  if (!canvas || !hasDrawn.value) return
+  signatureDataUrl.value = canvas.toDataURL('image/png')
+  batchStore.applySignatureToAll(signatureDataUrl.value)
+}
+
+function resetSignature() {
+  signatureDataUrl.value = ''; batchStore.applySignatureToAll('')
+  nextTick(() => nextTick(() => initCanvas()))
+}
+
+// ===== Summary =====
+function getSummaryForEntry(entryIndex: number) {
+  const entry = batchStore.selectedEntries[entryIndex]
+  if (!entry?.claimForm) return []
+  const fields = batchStore.getFormFields(entry.claimForm)
+  return fields.filter(f => f.field_type !== 'consent' && f.field_type !== 'signature')
+    .map(f => ({ label: f.field_label, value: entry.fieldValues[f.form_field_id] || '' }))
+}
+
+function displayValue(val: string): string {
+  if (val.startsWith('data:image/')) return '(서명)'
+  if (val.startsWith('[')) { try { const arr = JSON.parse(val); if (Array.isArray(arr)) return arr.join(', ') } catch { /* */ } }
+  return val
+}
+
+function progressPercent(entryIndex: number): number {
+  const p = batchStore.getCompanyProgress(entryIndex)
+  return p.total === 0 ? 100 : Math.round((p.filled / p.total) * 100)
+}
+
+// ===== Navigation =====
+const canProceed = computed(() => {
+  switch (currentStep.value) {
+    case 1: return allConsentsChecked.value
+    case 9: return signatureDataUrl.value !== ''
+    case 10: return finalConsentChecked.value
+    default: return true
+  }
+})
+
+const ctaText = computed(() => {
+  if (currentStep.value === 10) return `${batchStore.selectedEntries.length}건 일괄 청구 제출`
   return '다음'
 })
 
-// ===== 라이프사이클 =====
-onMounted(async () => {
-  if (fromSelect.value) {
-    await batchStore.loadInsuranceCompanies()
-    currentStep.value = 3
-    innerStep.value = 1
-    batchStore.activeTabIndex = 0
-    initialLoaded.value = true
-    return
-  }
+function handleCTA() {
+  if (currentStep.value === 10) { handleSubmitBatch(); return }
+  const idx = activeSteps.value.indexOf(currentStep.value)
+  const next = activeSteps.value[idx + 1]
+  if (next !== undefined) { currentStep.value = next; window.scrollTo(0, 0) }
+}
 
-  batchStore.resetBatchForm()
-
-  // 보험사 목록 + 초기 고객 목록 로드
-  await Promise.all([
-    batchStore.loadInsuranceCompanies(),
-    batchStore.searchCustomers(''),
-  ])
-
-  // draft 편집 모드
-  if (batchId.value) {
-    const batch = await batchStore.loadBatchClaim(batchId.value)
-    if (batch && batch.batch_status === 'draft') {
-      isDraftMode.value = true
-      batchStore.currentBatch = batch
-      await restoreDraft(batch)
-    }
-  }
-
-  initialLoaded.value = true
-})
-
-onUnmounted(() => {
-  if (searchTimeout) clearTimeout(searchTimeout)
-})
-
-// 양식 로드 완료 시 CONSENT_AUTO 필드 자동 동의 처리
-watch(() => batchStore.allFormsLoaded, (loaded) => {
-  if (!loaded) return
-  for (const entry of batchStore.selectedEntries) {
-    const fields = getAllFieldsForEntry(entry)
-    for (const f of fields) {
-      if (f.field_type === 'consent' && f.standard_field_code === 'CONSENT_AUTO') {
-        entry.fieldValues[f.form_field_id] = 'agree'
-      }
-    }
-  }
-})
-
-// 탭 전환 시 내부 스텝 저장/복원 + 2차 자동 복사 + 체크박스 초기화
-watch(() => batchStore.activeTabIndex, (newIdx, oldIdx) => {
-  // 이전 탭의 innerStep 저장
-  if (oldIdx !== undefined && oldIdx !== null) {
-    entryInnerSteps.value[oldIdx] = innerStep.value
-  }
-  // 새 탭의 저장된 innerStep 복원 (없으면 1)
-  innerStep.value = entryInnerSteps.value[newIdx] ?? 1
-  autoFillCustomerStep3.value = false
-  autoFillCustomerStep4.value = false
-  autoFillCustomerStep5.value = false
-  // 2차 채움: 첫 번째 양식의 표준 필드 값을 현재 탭에 복사
-  batchStore.autoCopyStandardFields(newIdx)
-})
-
-// innerStep 변경 시 현재 탭의 값 저장
-watch(innerStep, (newStep) => {
-  entryInnerSteps.value[batchStore.activeTabIndex] = newStep
-})
-
-// ===== 핸들러 =====
-function handleHeaderBack(): void {
-  if (fromSelect.value && currentStep.value <= 3) {
-    router.back()
-    return
-  }
-  if (currentStep.value > 1) {
-    currentStep.value--
+function handleWizardBack() {
+  const idx = activeSteps.value.indexOf(currentStep.value)
+  if (idx > 0) {
+    const prev = activeSteps.value[idx - 1]
+    if (prev !== undefined) { currentStep.value = prev; window.scrollTo(0, 0) }
   } else {
-    router.back()
+    wizardEntered.value = false; setupStep.value = 2
   }
 }
 
-function handleCustomerSearch(): void {
+function handleHeaderBack() {
+  if (wizardPhase.value) { handleWizardBack(); return }
+  if (setupStep.value > 1) { setupStep.value--; return }
+  router.back()
+}
+
+function goToFirstIncompleteStep() {
+  for (const s of [2, 3, 4, 5, 6] as const) {
+    if (!activeSteps.value.includes(s)) continue
+    const fields = fieldsByStep.value[s]
+    if (!fields || fields.length === 0) continue
+    if (fields.some(f => f.isRequired && !batchStore.getUnifiedValue(f))) {
+      currentStep.value = s; window.scrollTo(0, 0); return
+    }
+  }
+  currentStep.value = 2; window.scrollTo(0, 0)
+}
+
+// ===== Field Helpers =====
+function fieldToFormField(uf: UnifiedField): FormField {
+  const first = uf.entries[0]
+  return {
+    form_field_id: first?.formFieldId ?? 0, claim_form_id: 0, field_name: uf.key,
+    standard_field_code: uf.standardCode, field_label: uf.label, field_type: uf.fieldType,
+    field_order: 0, is_required: uf.isRequired, field_options: uf.fieldOptions,
+    x_position: 0, y_position: 0, width: 0, height: 0, font_size: 12, font_color: '#000',
+    placeholder: uf.placeholder,
+  }
+}
+
+function handleFormatInput(field: UnifiedField, fieldType: string, event: Event) {
+  const target = event.target as HTMLInputElement
+  let value = target.value
+  switch (fieldType) {
+    case 'phone':
+      value = value.replace(/[^0-9]/g, '')
+      if (value.length > 3 && value.length <= 7) value = value.slice(0, 3) + '-' + value.slice(3)
+      else if (value.length > 7) value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11)
+      target.value = value; break
+    case 'resident_number':
+      value = value.replace(/[^0-9]/g, '')
+      if (value.length > 6) value = value.slice(0, 6) + '-' + value.slice(6, 13)
+      target.value = value; break
+    case 'resident_number_front': value = value.replace(/[^0-9]/g, '').slice(0, 6); target.value = value; break
+    case 'resident_number_back': value = value.replace(/[^0-9]/g, '').slice(0, 7); target.value = value; break
+    case 'number': value = value.replace(/[^0-9]/g, ''); target.value = value; break
+  }
+  batchStore.setUnifiedValue(field, value)
+}
+
+// ===== Setup Phase Handlers =====
+function handleCustomerSearch() {
   if (searchTimeout) clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    batchStore.searchCustomers(customerSearch.value)
-  }, 400)
+  searchTimeout = setTimeout(() => batchStore.searchCustomers(customerSearch.value), 400)
 }
 
-function handleSelectCustomer(customer: Customer): void {
-  batchStore.selectCustomer(customer)
-}
-
-function clearCustomer(): void {
-  batchStore.selectedCustomer = null
-  customerSearch.value = ''
-}
+function handleSelectCustomer(customer: Customer) { batchStore.selectCustomer(customer) }
+function clearCustomer() { batchStore.selectedCustomer = null; customerSearch.value = '' }
 
 function getEntryForCompany(companyId: number) {
-  return batchStore.selectedEntries.find((e) => e.company.company_id === companyId)
+  return batchStore.selectedEntries.find(e => e.company.company_id === companyId)
 }
 
-function handleFormSelect(companyId: number, formId: number): void {
+function handleFormSelect(companyId: number, formId: number) {
   if (!formId) return
   const entry = getEntryForCompany(companyId)
-  if (entry) {
-    batchStore.selectFormForEntry(entry, formId)
-  }
+  if (entry) batchStore.selectFormForEntry(entry, formId)
 }
 
-function handleMainAction(): void {
-  if (!canProceedMain.value) return
-
-  if (currentStep.value === 1) {
-    currentStep.value = 2
-  } else if (currentStep.value === 2) {
-    currentStep.value = 3
-    innerStep.value = 1
-    batchStore.activeTabIndex = 0
-  } else if (currentStep.value === 3) {
-    // 서류 첨부로 넘어가기 전 모든 청구서 필수 필드 검증
-    if (totalRequiredUnfilled.value > 0) {
-      const warnings: string[] = []
-      for (let i = 0; i < batchStore.selectedEntries.length; i++) {
-        const count = getRequiredUnfilledCount(i)
-        if (count > 0) {
-          const entry = batchStore.selectedEntries[i]
-          if (entry) {
-            warnings.push(`${entry.company.company_name}: 미입력 ${count}건`)
-          }
-        }
-      }
-      alert(`필수 필드를 모두 입력해주세요.\n\n${warnings.join('\n')}`)
-      return
-    }
-    currentStep.value = 4
-  } else if (currentStep.value === 4) {
-    currentStep.value = 5
-  } else if (currentStep.value === 5) {
-    handleSubmitBatch()
-  }
-}
-
-async function handleSaveDraft(): Promise<void> {
+// ===== Draft & Submit =====
+async function handleSaveDraft() {
   if (isDraftMode.value && batchStore.currentBatch) {
     const result = await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
-    if (result) {
-      toast.showToast('임시저장이 갱신되었습니다.')
-    }
+    if (result) toast.showToast('임시저장이 갱신되었습니다.')
   } else {
     const result = await batchStore.saveDraft()
     if (result) {
-      isDraftMode.value = true
-      batchStore.currentBatch = result
+      isDraftMode.value = true; batchStore.currentBatch = result
       toast.showToast('임시저장되었습니다.')
-      // URL 갱신 (새 draft → 편집 모드)
       router.replace({ name: 'agent-batch-claim-edit', params: { batchId: result.batch_claim_id } })
     }
   }
 }
 
-async function handleSubmitBatch(): Promise<void> {
-  if (!confirm(`${batchStore.selectedEntries.length}건의 청구서를 일괄 제출하시겠습니까?`)) return
-
+async function handleSubmitBatch() {
   let result
   if (isDraftMode.value && batchStore.currentBatch) {
     result = await batchStore.submitDraft(batchStore.currentBatch.batch_claim_id)
@@ -1098,35 +936,17 @@ async function handleSubmitBatch(): Promise<void> {
   }
 
   if (result && result.claims && result.claims.length > 0) {
-    // 첨부파일 업로드: 공통 서류 + 개별 서류
     const { uploadAgentClaimDocument } = await import('../../services/agentApi')
-
-    // selectedEntries 기준으로 claim_form_id 매칭하여 올바른 청구에 업로드
     for (let i = 0; i < batchStore.selectedEntries.length; i++) {
       const entry = batchStore.selectedEntries[i]
       if (!entry?.claimForm) continue
-      const matchedClaim = result.claims.find(
-        (c: { claim_form_id?: number }) => c.claim_form_id === entry.claimForm!.claim_form_id
-      )
+      const matchedClaim = result.claims.find((c: { claim_form_id?: number }) => c.claim_form_id === entry.claimForm!.claim_form_id)
       if (!matchedClaim) continue
       const claimId = matchedClaim.claim_id
-
-      // 공통 서류 업로드
-      for (const doc of batchStore.commonDocuments) {
-        try {
-          await uploadAgentClaimDocument(claimId, doc.file)
-        } catch { /* 개별 실패 무시 */ }
-      }
-
-      // 해당 청구 개별 서류 업로드
+      for (const doc of batchStore.commonDocuments) { try { await uploadAgentClaimDocument(claimId, doc.file) } catch { /* */ } }
       const perDocs = batchStore.perClaimDocuments[i] || []
-      for (const doc of perDocs) {
-        try {
-          await uploadAgentClaimDocument(claimId, doc.file)
-        } catch { /* 개별 실패 무시 */ }
-      }
+      for (const doc of perDocs) { try { await uploadAgentClaimDocument(claimId, doc.file) } catch { /* */ } }
     }
-
     toast.showToast('일괄 제출이 완료되었습니다.')
     router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
   } else if (result) {
@@ -1135,404 +955,63 @@ async function handleSubmitBatch(): Promise<void> {
   }
 }
 
-// ===== Draft 복원 =====
-async function restoreDraft(batch: import('../../types').BatchClaim): Promise<void> {
-  // 고객 복원
-  if (batch.customer) {
-    batchStore.selectedCustomer = batch.customer as Customer
-  }
+// ===== Draft Restore =====
+function getAllFieldsForEntry(entry: { claimForm: import('@shared/types').ClaimForm | null }): FormField[] {
+  if (!entry.claimForm) return []
+  const form = entry.claimForm; const fields: FormField[] = []
+  if (form.form_pages && form.form_pages.length > 0) {
+    form.form_pages.forEach((page: FormPage) => { if (page.form_fields) fields.push(...page.form_fields) })
+  } else if (form.form_fields) { fields.push(...form.form_fields) }
+  return fields.sort((a, b) => a.field_order - b.field_order)
+}
 
-  // claims에서 보험사 + 양식 + 필드 복원
+async function restoreDraft(batch: import('../../types').BatchClaim) {
+  if (batch.customer) batchStore.selectedCustomer = batch.customer as Customer
   if (batch.claims && batch.claims.length > 0) {
     for (const claim of batch.claims) {
       const companyId = claim.claim_form?.company_id || claim.company_id
       if (!companyId) continue
-
-      const company = batchStore.insuranceCompanies.find((c) => c.company_id === companyId)
+      const company = batchStore.insuranceCompanies.find(c => c.company_id === companyId)
       if (!company) continue
-
-      // 보험사 토글 (이미 체크되어 있지 않으면)
-      if (!batchStore.isCompanySelected(company.company_id)) {
-        batchStore.toggleCompany(company)
-      }
-
-      // 양식 선택 대기 후 필드값 복원
+      if (!batchStore.isCompanySelected(company.company_id)) batchStore.toggleCompany(company)
       const claimFormId = claim.claim_form?.claim_form_id || claim.claim_form_id
       if (claimFormId) {
-        const entry = batchStore.selectedEntries.find((e) => e.company.company_id === company.company_id)
+        const entry = batchStore.selectedEntries.find(e => e.company.company_id === company.company_id)
         if (entry) {
           await batchStore.selectFormForEntry(entry, claimFormId)
-          // fieldValues 복원 (claim의 field_values가 있으면)
           const claimWithValues = claim as unknown as { field_values?: Array<{ form_field_id: number; field_value: string }> }
           if (claimWithValues.field_values) {
-            for (const fv of claimWithValues.field_values) {
-              entry.fieldValues[fv.form_field_id] = fv.field_value
-            }
-            // 복원 후 consent 중복 필드 동기화
-            const allFields = getAllFieldsForEntry(entry)
-            for (const f of allFields) {
-              if (f.field_type === 'consent' && f.standard_field_code) {
-                const val = entry.fieldValues[f.form_field_id]
-                if (val) {
-                  for (const dup of allFields) {
-                    if (dup.form_field_id !== f.form_field_id && dup.standard_field_code === f.standard_field_code) {
-                      entry.fieldValues[dup.form_field_id] = val
-                    }
-                  }
-                }
-              }
-            }
+            for (const fv of claimWithValues.field_values) entry.fieldValues[fv.form_field_id] = fv.field_value
           }
         }
       }
     }
-    currentStep.value = 3
+    wizardEntered.value = true
   }
 }
 
-// ===== Step 5: 확인 화면용 Computed =====
-const hasAutoFilledFields = computed(() => {
-  const entry = currentEntry.value
-  if (!entry) return false
-  return Object.keys(entry.autoFilledFieldIds).length > 0
+// ===== Lifecycle =====
+onMounted(async () => {
+  if (fromSelect.value) {
+    await batchStore.loadInsuranceCompanies()
+    wizardEntered.value = true
+    initialLoaded.value = true
+    return
+  }
+  batchStore.resetBatchForm()
+  await Promise.all([batchStore.loadInsuranceCompanies(), batchStore.searchCustomers('')])
+  if (batchId.value) {
+    const batch = await batchStore.loadBatchClaim(batchId.value)
+    if (batch && batch.batch_status === 'draft') {
+      isDraftMode.value = true; batchStore.currentBatch = batch
+      await restoreDraft(batch)
+    }
+  }
+  initialLoaded.value = true
 })
 
-function getRequiredUnfilledCount(entryIdx: number): number {
-  const entry = batchStore.selectedEntries[entryIdx]
-  if (!entry) return 0
+onUnmounted(() => { if (searchTimeout) clearTimeout(searchTimeout) })
 
-  // 일반 필드 (consent 제외, 중복 제거)
-  const fields = getUniqueFieldsForEntry(entryIdx)
-  let count = fields.filter((f) => {
-    if (!f.is_required) return false
-    const val = entry.fieldValues[f.form_field_id]
-    if (f.field_type === 'signature') return !val || !val.startsWith('data:image/')
-    return !val || val.trim() === ''
-  }).length
-
-  // consent 필수 필드 (중복 제거)
-  const allFields = getAllFieldsForEntry(entry)
-  const seenConsent = new Set<string>()
-  for (const f of allFields) {
-    if (f.field_type !== 'consent' || !f.is_required) continue
-    const key = f.standard_field_code || String(f.form_field_id)
-    if (seenConsent.has(key)) continue
-    seenConsent.add(key)
-    const val = entry.fieldValues[f.form_field_id]
-    if (val !== 'agree') count++
-  }
-
-  return count
-}
-
-const totalRequiredUnfilled = computed(() => {
-  let count = 0
-  for (let i = 0; i < batchStore.selectedEntries.length; i++) {
-    count += getRequiredUnfilledCount(i)
-  }
-  return count
-})
-
-function getConsentStatus(entryIdx: number): 'all' | 'partial' | 'none' | 'empty' {
-  const entry = batchStore.selectedEntries[entryIdx]
-  if (!entry) return 'empty'
-  const allFields = getAllFieldsForEntry(entry)
-  const consentFieldsList = allFields.filter(f => f.field_type === 'consent')
-  if (consentFieldsList.length === 0) return 'empty'
-  const seen = new Set<string>()
-  const uniqueConsents = consentFieldsList.filter(f => {
-    const key = f.standard_field_code || String(f.form_field_id)
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
-  const agreedCount = uniqueConsents.filter(f => entry.fieldValues[f.form_field_id] === 'agree').length
-  if (agreedCount === uniqueConsents.length) return 'all'
-  if (agreedCount > 0) return 'partial'
-  return 'none'
-}
-
-function goToEntryInput(entryIdx: number): void {
-  currentStep.value = 3
-  batchStore.activeTabIndex = entryIdx
-  innerStep.value = 1
-}
-
-function getPerClaimDocs(entryIdx: number): import('../../stores/agentBatchClaimStore').LocalAttachment[] {
-  return batchStore.perClaimDocuments[entryIdx] || []
-}
-
-// ===== 첨부파일 핸들러 =====
-const MAX_FILE_COUNT = 20
-const MAX_FILE_SIZE_MB = 20
-
-async function handleCommonFileSelect(event: Event): Promise<void> {
-  const input = event.target as HTMLInputElement
-  if (!input.files) return
-  const rawFiles = Array.from(input.files)
-
-  if (batchStore.commonDocuments.length + rawFiles.length > MAX_FILE_COUNT) {
-    alert(`공통 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`)
-    input.value = ''
-    return
-  }
-
-  const files = await compressImages(rawFiles)
-
-  const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
-  if (oversized) {
-    alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`)
-    input.value = ''
-    return
-  }
-
-  for (const file of files) {
-    batchStore.addCommonDocument(file)
-  }
-  input.value = ''
-}
-
-async function handlePerClaimFileSelect(event: Event, entryIdx: number): Promise<void> {
-  const input = event.target as HTMLInputElement
-  if (!input.files) return
-  const rawFiles = Array.from(input.files)
-
-  const currentDocs = batchStore.perClaimDocuments[entryIdx] || []
-  if (currentDocs.length + rawFiles.length > MAX_FILE_COUNT) {
-    alert(`보험사별 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`)
-    input.value = ''
-    return
-  }
-
-  const files = await compressImages(rawFiles)
-
-  const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
-  if (oversized) {
-    alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`)
-    input.value = ''
-    return
-  }
-
-  for (const file of files) {
-    batchStore.addPerClaimDocument(entryIdx, file)
-  }
-  input.value = ''
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes}B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
-}
-
-// ===== 서명 =====
-const signatureCanvasRefs = ref<Record<number, HTMLCanvasElement>>({})
-const isDrawing = ref(false)
-const activeSignatureFieldId = ref<number | null>(null)
-
-function setSignatureCanvasRef(fieldId: number, el: unknown) {
-  if (el) {
-    signatureCanvasRefs.value[fieldId] = el as HTMLCanvasElement
-    // DOM이 완전히 렌더링된 후 캔버스 초기화 (getBoundingClientRect가 0 반환 방지)
-    nextTick(() => {
-      setTimeout(() => initSignatureCanvas(fieldId), 50)
-    })
-  }
-}
-
-function initSignatureCanvas(fieldId: number) {
-  const canvas = signatureCanvasRefs.value[fieldId]
-  if (!canvas) return
-  const dpr = window.devicePixelRatio || 1
-  const rect = canvas.getBoundingClientRect()
-  canvas.width = rect.width * dpr
-  canvas.height = rect.height * dpr
-  const ctx = canvas.getContext('2d')
-  if (ctx) {
-    ctx.scale(dpr, dpr)
-    ctx.lineWidth = 2
-    ctx.lineCap = 'round'
-    ctx.strokeStyle = '#000000'
-  }
-}
-
-function getSignaturePos(canvas: HTMLCanvasElement, e: MouseEvent | TouchEvent) {
-  const rect = canvas.getBoundingClientRect()
-  if ('touches' in e) {
-    const touch = e.touches[0]
-    if (!touch) return { x: 0, y: 0 }
-    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top }
-  }
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top }
-}
-
-function startSignatureDraw(fieldId: number, e: MouseEvent | TouchEvent) {
-  const canvas = signatureCanvasRefs.value[fieldId]
-  if (!canvas) return
-  isDrawing.value = true
-  activeSignatureFieldId.value = fieldId
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  const pos = getSignaturePos(canvas, e)
-  ctx.beginPath()
-  ctx.moveTo(pos.x, pos.y)
-  e.preventDefault()
-}
-
-function drawSignature(e: MouseEvent | TouchEvent) {
-  if (!isDrawing.value || activeSignatureFieldId.value === null) return
-  const canvas = signatureCanvasRefs.value[activeSignatureFieldId.value]
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  const pos = getSignaturePos(canvas, e)
-  ctx.lineTo(pos.x, pos.y)
-  ctx.stroke()
-  e.preventDefault()
-}
-
-function endSignatureDraw() {
-  isDrawing.value = false
-  activeSignatureFieldId.value = null
-}
-
-function completeSignature(fieldId: number) {
-  const canvas = signatureCanvasRefs.value[fieldId]
-  if (!canvas) return
-  const dataUrl = canvas.toDataURL('image/png')
-  batchStore.setActiveFieldValue(fieldId, dataUrl)
-
-  // 같은 entry 내 동일 standard_field_code 서명 필드에도 동기화
-  const entry = currentEntry.value
-  if (!entry) return
-  const allFields = getAllFieldsForEntry(entry)
-  const thisField = allFields.find(f => f.form_field_id === fieldId)
-  if (thisField?.standard_field_code) {
-    for (const f of allFields) {
-      if (f.form_field_id !== fieldId && f.standard_field_code === thisField.standard_field_code) {
-        batchStore.setActiveFieldValue(f.form_field_id, dataUrl)
-      }
-    }
-  }
-}
-
-function resetSignature(fieldId: number) {
-  batchStore.setActiveFieldValue(fieldId, '')
-  // v-if 전환 후 캔버스가 다시 마운트되므로 nextTick에서 재초기화
-  nextTick(() => {
-    initSignatureCanvas(fieldId)
-  })
-}
-
-// ===== 유틸 =====
-function getAllFieldsForEntry(entry: { claimForm: import('@shared/types').ClaimForm | null }): FormField[] {
-  if (!entry.claimForm) return []
-  const form = entry.claimForm
-  const fields: FormField[] = []
-  if (form.form_pages && form.form_pages.length > 0) {
-    form.form_pages.forEach((page: FormPage) => {
-      if (page.form_fields) {
-        fields.push(...page.form_fields)
-      }
-    })
-  } else if (form.form_fields) {
-    fields.push(...form.form_fields)
-  }
-  return fields.sort((a, b) => a.field_order - b.field_order)
-}
-
-function getFieldWizardStep(field: FormField): number {
-  // 서명 필드는 DB에 저장된 wizard_step 무시하고 항상 마지막 스텝
-  if (field.field_type === 'signature') return 5
-
-  // 명시적 wizard_step 지정 시 사용
-  if (field.field_options?.wizard_step) return field.field_options.wizard_step
-
-  // field_name prefix 기반 추론
-  const name = field.field_name.toLowerCase()
-  if (name.startsWith('consent_') || field.field_type === 'consent') return 1
-  if (name.startsWith('claim_') || name.startsWith('accident_') || name.startsWith('disease_')) return 2
-  if (name.startsWith('contractor_') || name.startsWith('applicant_')) return 3
-  if (name.startsWith('insured_') || name.startsWith('beneficiary_')) return 4
-  if (name.startsWith('bank_') || name.startsWith('account_')) return 5
-
-  return 3 // 기본값
-}
-
-function getUniqueFieldsForEntry(entryIdx: number): FormField[] {
-  const entry = batchStore.selectedEntries[entryIdx]
-  if (!entry) return []
-  const allFields = getAllFieldsForEntry(entry)
-  const seen = new Set<string>()
-  return allFields.filter((f) => {
-    if (f.field_type === 'consent') return false
-    if (f.standard_field_code) {
-      if (seen.has(f.standard_field_code)) return false
-      seen.add(f.standard_field_code)
-    }
-    return true
-  })
-}
-
-function getFilledCount(entryIdx: number): number {
-  const entry = batchStore.selectedEntries[entryIdx]
-  if (!entry) return 0
-  const fields = getUniqueFieldsForEntry(entryIdx)
-  return fields.filter((f) => {
-    const val = entry.fieldValues[f.form_field_id]
-    return val !== undefined && val !== ''
-  }).length
-}
-
-function getTotalFieldCount(entryIdx: number): number {
-  return getUniqueFieldsForEntry(entryIdx).length
-}
-
-function formatFieldInput(fieldId: number, fieldType: string, event: Event): void {
-  const target = event.target as HTMLInputElement
-  let value = target.value
-
-  switch (fieldType) {
-    case 'phone':
-      value = value.replace(/[^0-9]/g, '')
-      if (value.length > 3 && value.length <= 7) {
-        value = value.slice(0, 3) + '-' + value.slice(3)
-      } else if (value.length > 7) {
-        value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11)
-      }
-      target.value = value
-      break
-    case 'resident_number':
-      value = value.replace(/[^0-9]/g, '')
-      if (value.length > 6) {
-        value = value.slice(0, 6) + '-' + value.slice(6, 13)
-      }
-      target.value = value
-      break
-    case 'resident_number_front':
-      value = value.replace(/[^0-9]/g, '').slice(0, 6)
-      target.value = value
-      break
-    case 'resident_number_back':
-      value = value.replace(/[^0-9]/g, '').slice(0, 7)
-      target.value = value
-      break
-    case 'number':
-      value = value.replace(/[^0-9]/g, '')
-      target.value = value
-      break
-  }
-
-  // 크로스 탭 동기화를 위해 필드 객체를 찾아 setFieldValueWithSync 호출
-  const entry = currentEntry.value
-  if (entry) {
-    const allFields = getAllFieldsForEntry(entry)
-    const matchedField = allFields.find(f => f.form_field_id === fieldId)
-    if (matchedField) {
-      setFieldValueWithSync(matchedField, value)
-      return
-    }
-  }
-  batchStore.setActiveFieldValue(fieldId, value)
-}
+watch(currentStep, (step) => { if (step === 9) nextTick(() => initCanvas()) })
+watch(signatureCanvasRef, (el) => { if (el) nextTick(() => initCanvas()) })
 </script>
