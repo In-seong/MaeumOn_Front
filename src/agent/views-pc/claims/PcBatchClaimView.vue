@@ -131,7 +131,7 @@
         <div v-else-if="currentStep === 2">
           <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
             <p class="text-[16px] font-bold text-[#222] mb-1">보험사를 선택하세요</p>
-            <p class="text-[12px] text-[#999] mb-4">최대 5개 보험사까지 선택 가능합니다</p>
+            <p class="text-[12px] text-[#999] mb-4">청구할 보험사를 선택하세요</p>
 
             <!-- 보험사 로딩 -->
             <div v-if="batchStore.loadingCompanies" class="flex items-center justify-center py-10">
