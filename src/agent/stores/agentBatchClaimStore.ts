@@ -773,7 +773,9 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
         if (field.standard_field_code && !COPY_EXCLUDED_CODES.has(field.standard_field_code)) {
           const existing = codeMap.get(field.standard_field_code)
           if (existing) {
-            existing.entries.push(info)
+            if (!existing.entries.some(e => e.entryIndex === ei)) {
+              existing.entries.push(info)
+            }
             if (field.is_required) existing.isRequired = true
           } else {
             codeMap.set(field.standard_field_code, {
