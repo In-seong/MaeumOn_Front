@@ -848,7 +848,10 @@ async function doFetchAuth() {
       toast.showToast(authError.value, 'error')
     }
   } catch (err: any) {
-    authError.value = err?.response?.data?.message || '조회 요청 중 오류가 발생했습니다'
+    const status = err?.response?.status || 'NET'
+    const code = err?.response?.data?.code || ''
+    const msg = err?.response?.data?.message || err?.message || '조회 요청 중 오류가 발생했습니다'
+    authError.value = `[${status}${code ? ' ' + code : ''}] ${msg}`
     toast.showToast(authError.value, 'error')
   } finally {
     fetchLoading.value = false
@@ -874,7 +877,10 @@ async function doConfirmAuth() {
       toast.showToast(authError.value, 'error')
     }
   } catch (err: any) {
-    authError.value = err?.response?.data?.message || '인증 확인 중 오류가 발생했습니다'
+    const status = err?.response?.status || 'NET'
+    const code = err?.response?.data?.code || ''
+    const msg = err?.response?.data?.message || err?.message || '인증 확인 중 오류가 발생했습니다'
+    authError.value = `[${status}${code ? ' ' + code : ''}] ${msg}`
     toast.showToast(authError.value, 'error')
   } finally {
     fetchLoading.value = false
