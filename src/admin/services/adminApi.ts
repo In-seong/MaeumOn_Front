@@ -289,3 +289,43 @@ export const updateBanner = (id: number, formData: FormData) =>
 
 export const deleteBanner = (id: number) =>
   api.delete(`${BASE}/banners/${id}`)
+
+// ===== 기업용 보험 문의 =====
+export const fetchCorporateInquiries = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<CorporateInquiry>>>(`${BASE}/corporate-inquiries`, { params })
+
+export const fetchCorporateInquiry = (id: number) =>
+  api.get<ApiResponse<CorporateInquiry>>(`${BASE}/corporate-inquiries/${id}`)
+
+export const updateCorporateInquiry = (id: number, data: Record<string, unknown>) =>
+  api.put<ApiResponse<CorporateInquiry>>(`${BASE}/corporate-inquiries/${id}`, data)
+
+export const assignCorporateInquiries = (data: { inquiry_ids: number[]; agent_id: string; notes?: string }) =>
+  api.post<ApiResponse<null>>(`${BASE}/corporate-inquiries/assign`, data)
+
+export const fetchUnassignedCorporateInquiries = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<CorporateInquiry[]>>(`${BASE}/corporate-inquiries/unassigned`, { params })
+
+export interface CorporateInquiry {
+  id: number
+  company_name: string
+  address: string | null
+  ceo_name: string
+  phone: string
+  annual_revenue: string | null
+  industry: string | null
+  consultation_field: string | null
+  privacy_agreed: boolean
+  status: 'NEW' | 'IN_PROGRESS' | 'COMPLETED'
+  agent_id: string | null
+  assigned_at: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+  agent?: {
+    agent_id: string
+    name: string
+    phone: string
+    email?: string
+  } | null
+}

@@ -78,6 +78,25 @@ const router = createRouter({
       component: () => import('../views/assignments/AssignmentCreateView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/assignments/corporate-create',
+      name: 'assignment-corporate-create',
+      component: () => import('../views/assignments/CorporateAssignmentCreateView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 기업용 보험 문의
+    {
+      path: '/corporate-inquiries',
+      name: 'corporate-inquiries',
+      component: () => import('../views/corporate-inquiries/CorporateInquiryListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/corporate-inquiries/:id',
+      name: 'corporate-inquiry-detail',
+      component: () => import('../views/corporate-inquiries/CorporateInquiryDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 추가계약 발굴 (SFR-040, 041)
     {
       path: '/additional-contracts',

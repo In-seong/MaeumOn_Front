@@ -2,12 +2,20 @@
   <div class="p-4 lg:p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">DB 배분 관리</h1>
-      <router-link
-        to="/assignments/create"
-        class="px-3 lg:px-4 py-2 lg:py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[13px] lg:text-[14px] font-medium"
-      >
-        배분 등록
-      </router-link>
+      <div class="flex gap-2">
+        <router-link
+          to="/assignments/create"
+          class="px-3 lg:px-4 py-2 lg:py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[13px] lg:text-[14px] font-medium"
+        >
+          개인 배분 등록
+        </router-link>
+        <router-link
+          to="/assignments/corporate-create"
+          class="px-3 lg:px-4 py-2 lg:py-2.5 bg-[#2563EB] text-white rounded-[12px] hover:bg-[#1D4ED8] transition-colors text-[13px] lg:text-[14px] font-medium"
+        >
+          기업용 배분 등록
+        </router-link>
+      </div>
     </div>
 
     <!-- 탭 -->
