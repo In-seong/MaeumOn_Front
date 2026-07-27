@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white" :style="mainStyle" @focusin="handleFocusIn">
+  <div class="min-h-screen bg-white" :style="mainStyle('100dvh')" @focusin="handleFocusIn">
     <!-- 헤더 -->
     <div class="sticky top-0 z-30 bg-white">
       <div class="flex items-center h-[56px] px-5 max-w-[402px] mx-auto">
@@ -100,8 +100,11 @@
           </button>
 
           <!-- Step 6: 자동이체 계좌 -->
-          <div v-if="currentStep === 6" class="mb-6">
+          <div v-if="currentStep === 6 && hasAutoTransferField" class="mb-6">
             <p class="text-[13px] font-medium text-[#6B7280] mb-3">보험료 자동이체 계좌로 수령하시겠습니까?</p>
+            <p v-if="autoTransferAccount && !allHaveAutoTransfer" class="text-[12px] text-[#FF7B22] mb-2">
+              일부 보험사는 자동이체 수령을 지원하지 않아 계좌 정보를 입력해야 합니다.
+            </p>
             <div class="flex gap-3">
               <button type="button" @click="autoTransferAccount = true"
                 class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors"
@@ -490,12 +493,29 @@ const otherStep5Fields = computed(() =>
   })
 )
 
-const ACCOUNT_HIDE_CODES = new Set(['BANK_NAME', 'ACCOUNT_NUMBER', 'ACCOUNT_HOLDER', 'ACCOUNT_HOLDER_RRN'])
+const ACCOUNT_HIDE_CODES = new Set(['BANK_NAME', 'ACCOUNT_NUMBER', 'ACCOUNT_HOLDER', 'ACCOUNT_HOLDER_RRN', 'AUTO_TRANSFER_ACCOUNT'])
+
+const hasAutoTransferField = computed(() => {
+  return batchStore.selectedEntries.some(entry => {
+    if (!entry.claimForm) return false
+    return batchStore.getFormFields(entry.claimForm).some(f => f.standard_field_code === 'AUTO_TRANSFER_ACCOUNT')
+  })
+})
+
+const allHaveAutoTransfer = computed(() => {
+  return batchStore.selectedEntries.every(entry => {
+    if (!entry.claimForm) return false
+    return batchStore.getFormFields(entry.claimForm).some(f => f.standard_field_code === 'AUTO_TRANSFER_ACCOUNT')
+  })
+})
 
 const visibleAccountFields = computed(() => {
   const allFields = commonFieldsForStep(6)
-  if (autoTransferAccount.value) {
+  if (autoTransferAccount.value && allHaveAutoTransfer.value) {
     return allFields.filter(f => !f.standardCode || !ACCOUNT_HIDE_CODES.has(f.standardCode))
+  }
+  if (autoTransferAccount.value) {
+    return allFields.filter(f => f.standardCode !== 'AUTO_TRANSFER_ACCOUNT')
   }
   return allFields
 })
@@ -580,6 +600,17 @@ function handleAutoFillInsured() {
     }
   }
 }
+
+watch(autoTransferAccount, (useAuto) => {
+  for (const entry of batchStore.selectedEntries) {
+    if (!entry.claimForm) continue
+    for (const f of batchStore.getFormFields(entry.claimForm)) {
+      if (f.standard_field_code === 'AUTO_TRANSFER_ACCOUNT') {
+        entry.fieldValues[f.form_field_id] = useAuto ? '확인' : ''
+      }
+    }
+  }
+})
 
 // ===== File Upload (Step 7) =====
 const filePreviewUrls = ref<Record<string, string>>({})

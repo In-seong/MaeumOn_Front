@@ -197,6 +197,7 @@ const detailLoading = ref(false)
 const summary = ref<AgentSummary[]>([])
 const totalAll = ref(0)
 const searchName = ref('')
+const unitPrice = ref(600)
 
 const filteredSummary = computed(() => {
   if (!searchName.value.trim()) return summary.value
@@ -330,17 +331,17 @@ function buildInvoiceHtml(agent: AgentSummary): string {
     { label: '검진 조회', count: agent.checkup_count },
     { label: '건강나이 조회', count: agent.health_age_count },
   ]
-  const unitPrice = 100
+  const price = unitPrice.value
   const rows = items.map(i => `
     <tr>
       <td style="padding:10px 16px;border-bottom:1px solid #eee;">${i.label}</td>
       <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;">${i.count.toLocaleString()}건</td>
-      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;">${unitPrice.toLocaleString()}원</td>
-      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${(i.count * unitPrice).toLocaleString()}원</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;">${price.toLocaleString()}원</td>
+      <td style="padding:10px 16px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${(i.count * price).toLocaleString()}원</td>
     </tr>
   `).join('')
 
-  const total = agent.total_count * unitPrice
+  const total = agent.total_count * price
 
   return `
     <div style="max-width:680px;margin:0 auto;padding:48px 40px;font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;color:#222;">
@@ -385,7 +386,7 @@ function buildInvoiceHtml(agent: AgentSummary): string {
 
       <div style="background:#f8f8f8;border-radius:8px;padding:16px 20px;font-size:13px;color:#666;margin-bottom:32px;">
         <p style="margin:0 0 4px;font-weight:600;color:#333;">비고</p>
-        <p style="margin:0;">API 사용 건수 기준 과금 (건당 ${unitPrice.toLocaleString()}원)</p>
+        <p style="margin:0;">API 사용 건수 기준 과금 (건당 ${price.toLocaleString()}원)</p>
       </div>
 
       <div style="text-align:center;border-top:1px solid #eee;padding-top:24px;font-size:13px;color:#999;">
@@ -434,7 +435,12 @@ function printInvoiceBatch() {
   openPrintWindow(pages)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const res = await api.get('/admin/settings')
+    const data = res.data.data
+    if (data.codef_unit_price) unitPrice.value = Number(data.codef_unit_price.value) || 600
+  } catch { /* 기본값 유지 */ }
   fetchSummary()
 })
 </script>

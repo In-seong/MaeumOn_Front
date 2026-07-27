@@ -231,6 +231,13 @@ const router = createRouter({
       component: () => import('../views/codef/CodefApiLogView.vue'),
       meta: { requiresAuth: true },
     },
+    // 사이트 설정
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('../views/settings/SettingsView.vue'),
+      meta: { requiresAuth: true },
+    },
     // ========== 병원 포털 (별도 레이아웃, 관리자 인증 불필요) ==========
     {
       path: '/portal/login',

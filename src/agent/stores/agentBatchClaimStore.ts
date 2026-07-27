@@ -42,6 +42,14 @@ const CUSTOMER_FIELD_MAP: Record<string, string> = {
   BENEFICIARY_PHONE: 'phone',
   BENEFICIARY_ADDRESS: 'address',
   BENEFICIARY_EMAIL: 'email',
+  // 청구자
+  CLAIMANT_NAME: 'name',
+  CLAIMANT_RRN: 'resident_number',
+  CLAIMANT_RRN_FRONT: 'resident_number_front',
+  CLAIMANT_RRN_BACK: 'resident_number_back',
+  CLAIMANT_PHONE: 'phone',
+  CLAIMANT_ADDRESS: 'address',
+  CLAIMANT_EMAIL: 'email',
 }
 
 /** 자동 복사 제외 필드 타입 (법적 요건상 양식마다 개별 필요) */
@@ -273,7 +281,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
    */
   function buildCrossCodeValues(codeValues: Record<string, string>): Record<string, string> {
     const result = { ...codeValues }
-    const prefixes = ['CONTRACTOR', 'INSURED', 'BENEFICIARY']
+    const prefixes = ['CONTRACTOR', 'INSURED', 'BENEFICIARY', 'CLAIMANT']
 
     for (const prefix of prefixes) {
       const rrnCode = `${prefix}_RRN`
@@ -742,7 +750,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     const name = field.field_name.toLowerCase()
     if (name.startsWith('consent_')) return 0
     if (name.startsWith('claim_') || name.startsWith('accident_') || name.startsWith('disease_')) return 2
-    if (name.startsWith('contractor_') || name.startsWith('applicant_')) return 3
+    if (name.startsWith('contractor_') || name.startsWith('applicant_') || name.startsWith('claimant_')) return 3
     if (name.startsWith('insured_') || name.startsWith('beneficiary_')) return 4
     if (name.startsWith('bank_') || name.startsWith('account_')) return 5
     return 3
@@ -819,6 +827,7 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
   })
 
   function setUnifiedValue(field: UnifiedField, value: string): void {
+    const directIds = new Set(field.entries.map(e => e.formFieldId))
     for (const e of field.entries) {
       const entry = selectedEntries.value[e.entryIndex]
       if (entry) {
@@ -829,11 +838,11 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     if (field.standardCode) {
       const cross = buildCrossCodeValues({ [field.standardCode]: value })
       for (const [code, val] of Object.entries(cross)) {
-        if (code === field.standardCode) continue
+        if (COPY_EXCLUDED_CODES.has(code)) continue
         for (const entry of selectedEntries.value) {
           if (!entry.claimForm) continue
           for (const f of getFormFields(entry.claimForm)) {
-            if (f.standard_field_code === code && !COPY_EXCLUDED_CODES.has(code)) {
+            if (f.standard_field_code === code && !directIds.has(f.form_field_id)) {
               entry.fieldValues[f.form_field_id] = val
               entry.autoFilledFieldIds[f.form_field_id] = true
             }
@@ -855,8 +864,13 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     if (!entry?.claimForm) return { filled: 0, total: 0 }
     const fields = getFormFields(entry.claimForm)
     let total = 0, filled = 0
+    const seenCodes = new Set<string>()
     for (const f of fields) {
-      if (f.field_type === 'consent') continue
+      if (f.field_type === 'consent' || f.field_type === 'signature') continue
+      if (f.standard_field_code && !COPY_EXCLUDED_CODES.has(f.standard_field_code)) {
+        if (seenCodes.has(f.standard_field_code)) continue
+        seenCodes.add(f.standard_field_code)
+      }
       total++
       const val = entry.fieldValues[f.form_field_id]
       if (val !== undefined && val !== '') filled++

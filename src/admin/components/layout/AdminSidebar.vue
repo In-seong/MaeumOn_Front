@@ -79,6 +79,7 @@ const navGroups: NavGroup[] = [
       { label: '알림 발송', icon: 'notifications_active', to: '/notifications', match: ['/notifications'] },
       { label: '상담 관리', icon: 'forum', to: '/consultations', match: ['/consultations'] },
       { label: 'API 사용 로그', icon: 'api', to: '/codef-logs', match: ['/codef-logs'] },
+      { label: '설정', icon: 'settings', to: '/settings', match: ['/settings'] },
     ],
   },
 ]

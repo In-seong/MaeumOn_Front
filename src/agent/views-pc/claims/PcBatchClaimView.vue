@@ -219,7 +219,7 @@
             </button>
 
             <!-- Step 6: 자동이체 계좌 -->
-            <div v-if="currentStep === 6" class="mb-5">
+            <div v-if="currentStep === 6 && hasAutoTransferField" class="mb-5">
               <p class="text-[13px] font-medium text-[#6B7280] mb-3">보험료 자동이체 계좌로 수령하시겠습니까?</p>
               <div class="flex gap-3">
                 <button type="button" @click="autoTransferAccount = true"
@@ -229,6 +229,9 @@
                   class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors hover:shadow-sm"
                   :class="!autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">아니오</button>
               </div>
+              <p v-if="autoTransferAccount && !allHaveAutoTransfer" class="mt-2 text-[12px] text-[#F59E0B]">
+                ※ 일부 보험사는 자동이체 계좌 수령을 지원하지 않아, 해당 보험사는 계좌 정보를 직접 입력해야 합니다.
+              </p>
             </div>
 
             <!-- Step 5: 피보험자 섹션 헤더 -->
@@ -491,7 +494,7 @@ import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 import type { UnifiedField } from '../../stores/agentBatchClaimStore'
 import type { Customer } from '../../types'
-import type { FormField, FormPage } from '@shared/types'
+import type { FormField } from '@shared/types'
 import { useToast } from '../../composables/useToast'
 import { compressImages } from '@shared/utils/compressImage'
 
@@ -612,11 +615,30 @@ const otherStep5Fields = computed(() =>
   })
 )
 
-const ACCOUNT_HIDE_CODES = new Set(['BANK_NAME', 'ACCOUNT_NUMBER', 'ACCOUNT_HOLDER', 'ACCOUNT_HOLDER_RRN'])
+const ACCOUNT_HIDE_CODES = new Set(['BANK_NAME', 'ACCOUNT_NUMBER', 'ACCOUNT_HOLDER', 'ACCOUNT_HOLDER_RRN', 'AUTO_TRANSFER_ACCOUNT'])
+
+const hasAutoTransferField = computed(() => {
+  return batchStore.selectedEntries.some(entry => {
+    if (!entry.claimForm) return false
+    return batchStore.getFormFields(entry.claimForm).some(f => f.standard_field_code === 'AUTO_TRANSFER_ACCOUNT')
+  })
+})
+
+const allHaveAutoTransfer = computed(() => {
+  return batchStore.selectedEntries.every(entry => {
+    if (!entry.claimForm) return false
+    return batchStore.getFormFields(entry.claimForm).some(f => f.standard_field_code === 'AUTO_TRANSFER_ACCOUNT')
+  })
+})
 
 const visibleAccountFields = computed(() => {
   const allFields = commonFieldsForStep(6)
-  if (autoTransferAccount.value) return allFields.filter(f => !f.standardCode || !ACCOUNT_HIDE_CODES.has(f.standardCode))
+  if (autoTransferAccount.value && allHaveAutoTransfer.value) {
+    return allFields.filter(f => !f.standardCode || !ACCOUNT_HIDE_CODES.has(f.standardCode))
+  }
+  if (autoTransferAccount.value) {
+    return allFields.filter(f => f.standardCode !== 'AUTO_TRANSFER_ACCOUNT')
+  }
   return allFields
 })
 
@@ -681,6 +703,17 @@ function handleAutoFillInsured() {
     }
   }
 }
+
+watch(autoTransferAccount, (useAuto) => {
+  for (const entry of batchStore.selectedEntries) {
+    if (!entry.claimForm) continue
+    for (const f of batchStore.getFormFields(entry.claimForm)) {
+      if (f.standard_field_code === 'AUTO_TRANSFER_ACCOUNT') {
+        entry.fieldValues[f.form_field_id] = useAuto ? '확인' : ''
+      }
+    }
+  }
+})
 
 // ===== File Upload =====
 const MAX_FILE_COUNT = 20
@@ -956,15 +989,6 @@ async function handleSubmitBatch() {
 }
 
 // ===== Draft Restore =====
-function getAllFieldsForEntry(entry: { claimForm: import('@shared/types').ClaimForm | null }): FormField[] {
-  if (!entry.claimForm) return []
-  const form = entry.claimForm; const fields: FormField[] = []
-  if (form.form_pages && form.form_pages.length > 0) {
-    form.form_pages.forEach((page: FormPage) => { if (page.form_fields) fields.push(...page.form_fields) })
-  } else if (form.form_fields) { fields.push(...form.form_fields) }
-  return fields.sort((a, b) => a.field_order - b.field_order)
-}
-
 async function restoreDraft(batch: import('../../types').BatchClaim) {
   if (batch.customer) batchStore.selectedCustomer = batch.customer as Customer
   if (batch.claims && batch.claims.length > 0) {
