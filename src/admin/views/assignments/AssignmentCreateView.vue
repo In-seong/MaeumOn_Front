@@ -17,21 +17,46 @@
 
     <!-- 2-Panel Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Left Panel: 미배정 고객 -->
+      <!-- Left Panel: 미배정 고객 / 청구 신청 -->
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
         <div class="px-4 lg:px-6 py-4 border-b border-[#E8E8E8]">
-          <h2 class="text-[16px] font-bold text-[#333] mb-3">미배정 고객</h2>
+          <!-- 탭 전환 -->
+          <div class="flex gap-1 mb-3 bg-[#F5F5F5] rounded-[10px] p-1">
+            <button
+              @click="activeTab = 'customers'"
+              :class="[
+                'flex-1 py-2 px-3 rounded-[8px] text-[13px] font-medium transition-colors',
+                activeTab === 'customers'
+                  ? 'bg-white text-[#333] shadow-sm'
+                  : 'text-[#999] hover:text-[#666]'
+              ]"
+            >
+              미배정 고객
+            </button>
+            <button
+              @click="activeTab = 'claims'"
+              :class="[
+                'flex-1 py-2 px-3 rounded-[8px] text-[13px] font-medium transition-colors',
+                activeTab === 'claims'
+                  ? 'bg-white text-[#333] shadow-sm'
+                  : 'text-[#999] hover:text-[#666]'
+              ]"
+            >
+              청구 신청
+            </button>
+          </div>
+
           <input
-            v-model="customerSearch"
+            v-model="searchQuery"
             type="text"
-            placeholder="고객 이름으로 검색"
+            :placeholder="activeTab === 'customers' ? '고객 이름으로 검색' : '신청자 이름/전화번호 검색'"
             class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-            @input="debouncedCustomerSearch"
+            @input="debouncedSearch"
           />
         </div>
 
         <!-- 전체 선택 -->
-        <div v-if="filteredCustomers.length > 0" class="px-4 lg:px-6 py-2 border-b border-[#F0F0F0] flex items-center gap-2">
+        <div v-if="currentList.length > 0" class="px-4 lg:px-6 py-2 border-b border-[#F0F0F0] flex items-center gap-2">
           <input
             type="checkbox"
             :checked="isAllSelected"
@@ -40,27 +65,27 @@
             class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22]"
           />
           <span class="text-[13px] text-[#999]">
-            전체 선택 ({{ selectedCustomerIds.size }}/{{ filteredCustomers.length }})
+            전체 선택 ({{ selectedIds.size }}/{{ currentList.length }})
           </span>
         </div>
 
         <!-- 로딩 -->
-        <div v-if="customersLoading" class="text-center py-10">
+        <div v-if="listLoading" class="text-center py-10">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
           <p class="mt-2 text-[13px] text-[#999]">로딩 중...</p>
         </div>
 
-        <!-- 고객 목록 -->
-        <div v-else class="max-h-[400px] overflow-y-auto">
+        <!-- 고객 목록 (미배정 고객 탭) -->
+        <div v-else-if="activeTab === 'customers'" class="max-h-[400px] overflow-y-auto">
           <div
             v-for="customer in filteredCustomers"
             :key="customer.customer_id"
             class="flex items-center gap-3 px-4 lg:px-6 py-3 hover:bg-[#FAFAFA] transition-colors cursor-pointer border-b border-[#F5F5F5] last:border-b-0"
-            @click="toggleCustomer(customer.customer_id)"
+            @click="toggleItem(customer.customer_id)"
           >
             <input
               type="checkbox"
-              :checked="selectedCustomerIds.has(customer.customer_id)"
+              :checked="selectedIds.has(customer.customer_id)"
               class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22] pointer-events-none"
             />
             <div class="flex-1 min-w-0">
@@ -70,6 +95,36 @@
           </div>
           <div v-if="filteredCustomers.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
             미배정 고객이 없습니다.
+          </div>
+        </div>
+
+        <!-- 청구 신청 목록 (청구 신청 탭) -->
+        <div v-else class="max-h-[400px] overflow-y-auto">
+          <div
+            v-for="claim in filteredClaims"
+            :key="claim.request_id"
+            class="flex items-center gap-3 px-4 lg:px-6 py-3 hover:bg-[#FAFAFA] transition-colors cursor-pointer border-b border-[#F5F5F5] last:border-b-0"
+            @click="toggleItem(String(claim.request_id))"
+          >
+            <input
+              type="checkbox"
+              :checked="selectedIds.has(String(claim.request_id))"
+              class="w-4 h-4 text-[#FF7B22] border-[#E8E8E8] rounded focus:ring-[#FF7B22] pointer-events-none"
+            />
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="text-[14px] font-medium text-[#333]">{{ claim.name }}</p>
+                <span class="px-1.5 py-0.5 text-[11px] bg-[#FFF3ED] text-[#FF7B22] rounded-[4px] font-medium">청구</span>
+              </div>
+              <p class="text-[12px] text-[#999]">{{ formatPhone(claim.phone) }}</p>
+              <p v-if="claim.memo" class="text-[11px] text-[#BBB] mt-0.5 truncate">{{ claim.memo }}</p>
+            </div>
+            <div class="text-[11px] text-[#BBB] shrink-0">
+              {{ formatDate(claim.created_at) }}
+            </div>
+          </div>
+          <div v-if="filteredClaims.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
+            미배정 청구 신청이 없습니다.
           </div>
         </div>
       </div>
@@ -130,9 +185,9 @@
         </div>
 
         <!-- 배분 요약 -->
-        <div v-if="selectedCustomerIds.size > 0 && selectedAgentId" class="px-4 lg:px-6 py-4 border-t border-[#E8E8E8]">
+        <div v-if="selectedIds.size > 0 && selectedAgentId" class="px-4 lg:px-6 py-4 border-t border-[#E8E8E8]">
           <div class="bg-[#F0F7FF] rounded-[12px] p-3 text-[13px] text-[#336]">
-            <span class="font-medium">{{ selectedCustomerIds.size }}명</span>의 고객을
+            <span class="font-medium">{{ selectedIds.size }}{{ activeTab === 'customers' ? '명의 고객' : '건의 청구신청' }}</span>을
             <span class="font-medium">{{ selectedAgent?.name }}</span> 설계사에게 배분합니다.
           </div>
         </div>
@@ -141,15 +196,16 @@
 
     <!-- 비고 및 제출 -->
     <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6">
-      <label class="block text-[14px] font-medium text-[#333] mb-2">비고 (선택)</label>
+      <label v-if="activeTab === 'customers'" class="block text-[14px] font-medium text-[#333] mb-2">비고 (선택)</label>
       <textarea
+        v-if="activeTab === 'customers'"
         v-model="notes"
         rows="3"
         placeholder="배분 관련 메모를 입력하세요"
         class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] resize-none"
       ></textarea>
 
-      <div class="flex justify-end gap-3 mt-4">
+      <div class="flex justify-end gap-3" :class="activeTab === 'customers' ? 'mt-4' : ''">
         <button
           @click="router.push('/assignments')"
           class="px-5 py-2.5 bg-[#F8F8F8] text-[#555] rounded-[12px] hover:bg-[#EFEFEF] transition-colors text-[14px] font-medium"
@@ -167,7 +223,7 @@
           ]"
         >
           <span v-if="store.loading">처리 중...</span>
-          <span v-else>대량 배분</span>
+          <span v-else>{{ activeTab === 'customers' ? '대량 배분' : '청구 배정' }}</span>
         </button>
       </div>
     </div>
@@ -175,27 +231,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAssignmentStore } from '../../stores/assignmentStore'
 
 const router = useRouter()
 const store = useAssignmentStore()
 
-const customerSearch = ref('')
-const selectedCustomerIds = ref<Set<string>>(new Set())
+const activeTab = ref<'customers' | 'claims'>('customers')
+const searchQuery = ref('')
+const selectedIds = ref<Set<string>>(new Set())
 const selectedAgentId = ref('')
 const notes = ref('')
 const customersLoading = ref(false)
 
-let customerSearchTimeout: ReturnType<typeof setTimeout>
+let searchTimeout: ReturnType<typeof setTimeout>
+
+watch(activeTab, () => {
+  selectedIds.value = new Set()
+  searchQuery.value = ''
+  if (activeTab.value === 'claims' && store.unassignedClaimRequests.length === 0) {
+    loadClaimRequests()
+  }
+})
 
 const filteredCustomers = computed(() => {
-  if (!customerSearch.value) return store.unassignedCustomers
-  const q = customerSearch.value.toLowerCase()
+  if (!searchQuery.value) return store.unassignedCustomers
+  const q = searchQuery.value.toLowerCase()
   return store.unassignedCustomers.filter(
     c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))
   )
+})
+
+const filteredClaims = computed(() => {
+  if (!searchQuery.value) return store.unassignedClaimRequests
+  const q = searchQuery.value.toLowerCase()
+  return store.unassignedClaimRequests.filter(
+    c => c.name.toLowerCase().includes(q) || c.phone.includes(q)
+  )
+})
+
+const currentList = computed(() => {
+  if (activeTab.value === 'customers') {
+    return filteredCustomers.value.map(c => ({ id: c.customer_id }))
+  }
+  return filteredClaims.value.map(c => ({ id: String(c.request_id) }))
+})
+
+const listLoading = computed(() => {
+  return activeTab.value === 'customers' ? customersLoading.value : store.claimRequestsLoading
 })
 
 const selectedAgent = computed(() => {
@@ -204,47 +288,49 @@ const selectedAgent = computed(() => {
 })
 
 const isAllSelected = computed(() => {
-  return filteredCustomers.value.length > 0 &&
-    filteredCustomers.value.every(c => selectedCustomerIds.value.has(c.customer_id))
+  return currentList.value.length > 0 &&
+    currentList.value.every(item => selectedIds.value.has(item.id))
 })
 
 const isPartialSelected = computed(() => {
   if (isAllSelected.value) return false
-  return filteredCustomers.value.some(c => selectedCustomerIds.value.has(c.customer_id))
+  return currentList.value.some(item => selectedIds.value.has(item.id))
 })
 
 const canSubmit = computed(() => {
-  return selectedCustomerIds.value.size > 0 && selectedAgentId.value !== ''
+  return selectedIds.value.size > 0 && selectedAgentId.value !== ''
 })
 
-function toggleCustomer(customerId: string) {
-  const newSet = new Set(selectedCustomerIds.value)
-  if (newSet.has(customerId)) {
-    newSet.delete(customerId)
+function toggleItem(id: string) {
+  const newSet = new Set(selectedIds.value)
+  if (newSet.has(id)) {
+    newSet.delete(id)
   } else {
-    newSet.add(customerId)
+    newSet.add(id)
   }
-  selectedCustomerIds.value = newSet
+  selectedIds.value = newSet
 }
 
 function toggleSelectAll() {
   if (isAllSelected.value) {
-    // Deselect all currently filtered
-    const newSet = new Set(selectedCustomerIds.value)
-    filteredCustomers.value.forEach(c => newSet.delete(c.customer_id))
-    selectedCustomerIds.value = newSet
+    const newSet = new Set(selectedIds.value)
+    currentList.value.forEach(item => newSet.delete(item.id))
+    selectedIds.value = newSet
   } else {
-    // Select all currently filtered
-    const newSet = new Set(selectedCustomerIds.value)
-    filteredCustomers.value.forEach(c => newSet.add(c.customer_id))
-    selectedCustomerIds.value = newSet
+    const newSet = new Set(selectedIds.value)
+    currentList.value.forEach(item => newSet.add(item.id))
+    selectedIds.value = newSet
   }
 }
 
-function debouncedCustomerSearch() {
-  clearTimeout(customerSearchTimeout)
-  customerSearchTimeout = setTimeout(() => {
-    loadUnassigned()
+function debouncedSearch() {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    if (activeTab.value === 'customers') {
+      loadUnassigned()
+    } else {
+      loadClaimRequests()
+    }
   }, 300)
 }
 
@@ -252,11 +338,17 @@ async function loadUnassigned() {
   customersLoading.value = true
   try {
     await store.loadUnassignedCustomers({
-      search: customerSearch.value || undefined,
+      search: searchQuery.value || undefined,
     })
   } finally {
     customersLoading.value = false
   }
+}
+
+async function loadClaimRequests() {
+  await store.loadUnassignedClaimRequests({
+    search: searchQuery.value || undefined,
+  })
 }
 
 function formatPhone(phone?: string): string {
@@ -271,21 +363,39 @@ function formatPhone(phone?: string): string {
   return phone
 }
 
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
 async function handleSubmit() {
   if (!canSubmit.value) return
 
-  const assignments = Array.from(selectedCustomerIds.value).map(customerId => ({
-    customer_id: customerId,
-    agent_id: selectedAgentId.value,
-  }))
-
   try {
-    const result = await store.bulkAssignment({
-      assignments,
-      notes: notes.value || undefined,
-    })
+    if (activeTab.value === 'customers') {
+      const assignments = Array.from(selectedIds.value).map(customerId => ({
+        customer_id: customerId,
+        agent_id: selectedAgentId.value,
+      }))
 
-    alert(`${result.created_count}건의 DB 배분이 등록되었습니다.`)
+      const result = await store.bulkAssignment({
+        assignments,
+        notes: notes.value || undefined,
+      })
+
+      alert(`${result.created_count}건의 DB 배분이 등록되었습니다.`)
+    } else {
+      const requestIds = Array.from(selectedIds.value).map(id => Number(id))
+
+      const result = await store.bulkAssignClaimRequests({
+        request_ids: requestIds,
+        agent_id: selectedAgentId.value,
+      })
+
+      alert(`${result.assigned_count}건의 청구신청이 배정되었습니다.`)
+    }
+
     router.push('/assignments')
   } catch (e: any) {
     alert(e.response?.data?.message || '배분 등록에 실패했습니다.')

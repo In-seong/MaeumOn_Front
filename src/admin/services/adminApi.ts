@@ -230,6 +230,9 @@ export const assignClaimRequest = (id: number, agentId: string) =>
 export const updateClaimRequestStatus = (id: number, status: string) =>
   api.put<ApiResponse<AdminClaimRequest>>(`${BASE}/claim-requests/${id}/status`, { status })
 
+export const bulkAssignClaimRequests = (data: { request_ids: number[]; agent_id: string }) =>
+  api.post<ApiResponse<{ assigned_count: number }>>(`${BASE}/claim-requests/bulk-assign`, data)
+
 // ===== Reservations (예약 관리) =====
 export const fetchAdminReservations = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminReservation>>>(`${BASE}/reservations`, { params })

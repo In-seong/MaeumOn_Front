@@ -9,6 +9,8 @@ import {
   fetchClaimAssignments as apiFetchClaimAssignments,
   fetchCustomers as apiFetchCustomers,
   fetchAgents as apiFetchAgents,
+  fetchAdminClaimRequests as apiFetchClaimRequests,
+  bulkAssignClaimRequests as apiBulkAssignClaimRequests,
 } from '../services/adminApi'
 
 export const useAssignmentStore = defineStore('assignment', () => {
@@ -20,6 +22,8 @@ export const useAssignmentStore = defineStore('assignment', () => {
   const pagination = ref<Omit<LaravelPagination<Assignment>, 'data'> | null>(null)
   const claimPagination = ref<Omit<LaravelPagination<AdminClaimRequest>, 'data'> | null>(null)
   const unassignedCustomers = ref<AdminCustomer[]>([])
+  const unassignedClaimRequests = ref<AdminClaimRequest[]>([])
+  const claimRequestsLoading = ref(false)
   const agentOptions = ref<AdminAgent[]>([])
 
   async function loadAssignments(params?: {
@@ -135,6 +139,40 @@ export const useAssignmentStore = defineStore('assignment', () => {
     }
   }
 
+  async function loadUnassignedClaimRequests(params?: { search?: string; per_page?: number }) {
+    claimRequestsLoading.value = true
+    error.value = null
+
+    try {
+      const response = await apiFetchClaimRequests({
+        status: 'pending',
+        per_page: params?.per_page ?? 100,
+        search: params?.search,
+      } as Record<string, unknown>)
+      const { data } = response.data.data
+      unassignedClaimRequests.value = data
+    } catch (e: any) {
+      error.value = e.response?.data?.message || '미배정 청구신청 목록을 불러오는데 실패했습니다.'
+    } finally {
+      claimRequestsLoading.value = false
+    }
+  }
+
+  async function bulkAssignClaimRequests(data: { request_ids: number[]; agent_id: string }) {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await apiBulkAssignClaimRequests(data)
+      return response.data.data
+    } catch (e: any) {
+      error.value = e.response?.data?.message || '청구신청 대량 배정에 실패했습니다.'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function loadAgentOptions() {
     try {
       const response = await apiFetchAgents({
@@ -157,6 +195,8 @@ export const useAssignmentStore = defineStore('assignment', () => {
     pagination,
     claimPagination,
     unassignedCustomers,
+    unassignedClaimRequests,
+    claimRequestsLoading,
     agentOptions,
     loadAssignments,
     loadClaimAssignments,
@@ -164,6 +204,8 @@ export const useAssignmentStore = defineStore('assignment', () => {
     bulkAssignment,
     deleteAssignment,
     loadUnassignedCustomers,
+    loadUnassignedClaimRequests,
+    bulkAssignClaimRequests,
     loadAgentOptions,
   }
 })

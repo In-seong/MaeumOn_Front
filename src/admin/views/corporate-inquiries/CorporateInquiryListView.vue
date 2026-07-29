@@ -7,7 +7,7 @@
 
     <!-- 필터 + 검색 -->
     <div class="flex flex-col lg:flex-row gap-3 mb-4">
-      <div class="flex border-b border-[#E8E8E8] overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
+      <div class="flex border-b border-[#E8E8E8]">
         <button v-for="tab in statusTabs" :key="tab.value" @click="filterStatus = tab.value; loadData()"
           :class="['px-5 py-3 text-[14px] font-medium border-b-2 transition-colors -mb-[1px]',
             filterStatus === tab.value ? 'border-[#FF7B22] text-[#FF7B22]' : 'border-transparent text-[#999] hover:text-[#333]']">
