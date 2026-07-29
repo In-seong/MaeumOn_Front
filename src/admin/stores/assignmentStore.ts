@@ -129,6 +129,7 @@ export const useAssignmentStore = defineStore('assignment', () => {
         is_active: true,
         per_page: params?.per_page ?? 100,
         search: params?.search,
+        created_after: '2026-07-03 12:00:00',
       } as Record<string, unknown>)
       const { data } = response.data.data
       unassignedCustomers.value = data
