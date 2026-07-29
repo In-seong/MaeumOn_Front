@@ -85,6 +85,7 @@ const typeIcon: Record<string, string> = {
   consultation: '💬',
   assignment: '📋',
   claim: '📄',
+  claim_request: '📩',
   obligation: '⚠️',
   calendar: '📌',
 }
