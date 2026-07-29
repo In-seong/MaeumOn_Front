@@ -306,6 +306,9 @@ export const updateCorporateInquiry = (id: number, data: Record<string, unknown>
 export const assignCorporateInquiries = (data: { inquiry_ids: number[]; agent_id: string; notes?: string }) =>
   api.post<ApiResponse<null>>(`${BASE}/corporate-inquiries/assign`, data)
 
+export const createCorporateInquiry = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<CorporateInquiry>>(`${BASE}/corporate-inquiries`, data)
+
 export const fetchUnassignedCorporateInquiries = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<CorporateInquiry[]>>(`${BASE}/corporate-inquiries/unassigned`, { params })
 

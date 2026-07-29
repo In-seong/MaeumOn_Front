@@ -30,6 +30,138 @@
           />
         </div>
 
+        <!-- 신규 기업 고객 등록 토글 -->
+        <div class="px-4 lg:px-6 py-3 border-b border-[#F0F0F0]">
+          <button
+            @click="showNewForm = !showNewForm"
+            class="flex items-center gap-1.5 text-[13px] font-medium text-[#FF7B22] hover:text-[#E56D1E] transition-colors"
+          >
+            <span class="material-symbols-outlined text-[18px]">{{ showNewForm ? 'close' : 'domain_add' }}</span>
+            {{ showNewForm ? '닫기' : '신규 기업 고객 등록' }}
+          </button>
+
+          <!-- 인라인 등록 폼 -->
+          <div v-if="showNewForm" class="mt-3 p-4 bg-[#FAFAFA] rounded-[12px] border border-[#E8E8E8]">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- 1. 업체명 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">업체명 *</label>
+                <input
+                  v-model="newInquiry.company_name"
+                  type="text"
+                  placeholder="업체명"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <!-- 2. 지역(시/도/군) -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">지역 (시/도/군)</label>
+                <input
+                  v-model="newInquiry.address"
+                  type="text"
+                  placeholder="예: 서울시 강남구"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <!-- 3. 대표자명 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">대표자명 *</label>
+                <input
+                  v-model="newInquiry.ceo_name"
+                  type="text"
+                  placeholder="대표자명"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <!-- 4. 휴대폰번호 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">휴대폰번호 *</label>
+                <input
+                  v-model="newInquiry.phone"
+                  type="tel"
+                  placeholder="010-1234-5678"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <!-- 5. 업태 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">업태</label>
+                <select
+                  v-model="newInquiry.industry"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option value="">선택</option>
+                  <option value="제조업">제조업</option>
+                  <option value="도소매업">도소매업</option>
+                  <option value="서비스업">서비스업</option>
+                  <option value="음식점업">음식점업</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+              <!-- 6. 연매출 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">연매출</label>
+                <select
+                  v-model="newInquiry.annual_revenue"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option value="">선택</option>
+                  <option value="4억미만">4억미만</option>
+                  <option value="4~10억">4~10억</option>
+                  <option value="10~30억">10~30억</option>
+                  <option value="30억이상">30억이상</option>
+                </select>
+              </div>
+              <!-- 7. 상담목적 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">상담목적</label>
+                <select
+                  v-model="newInquiry.consultation_field"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option value="">선택</option>
+                  <option value="운영자금">운영자금</option>
+                  <option value="시설자금">시설자금</option>
+                  <option value="특허및인증">특허및인증</option>
+                  <option value="증여/상속/가업승계">증여/상속/가업승계</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+              <!-- 8. 담당설계사 -->
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">담당설계사</label>
+                <select
+                  v-model="newInquiry.agent_id"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option value="">미배정</option>
+                  <option
+                    v-for="agent in store.agentOptions"
+                    :key="agent.agent_id"
+                    :value="agent.agent_id"
+                  >
+                    {{ agent.name }} ({{ agent.agent_id }})
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="flex justify-end mt-3">
+              <button
+                @click="handleCreateInquiry"
+                :disabled="!canCreateInquiry || creatingInquiry"
+                :class="[
+                  'px-4 py-2 rounded-[8px] text-[13px] font-medium transition-colors',
+                  canCreateInquiry && !creatingInquiry
+                    ? 'bg-[#FF7B22] text-white hover:bg-[#E56D1E]'
+                    : 'bg-[#E8E8E8] text-[#999] cursor-not-allowed'
+                ]"
+              >
+                {{ creatingInquiry ? '등록 중...' : '등록' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 전체 선택 -->
         <div v-if="filteredInquiries.length > 0" class="px-4 lg:px-6 py-2 border-b border-[#F0F0F0] flex items-center gap-2">
           <input
@@ -181,6 +313,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
+import { createCorporateInquiry } from '../../services/adminApi'
 
 const router = useRouter()
 const store = useCorporateInquiryStore()
@@ -190,6 +323,23 @@ const selectedIds = ref<Set<number>>(new Set())
 const selectedAgentId = ref('')
 const notes = ref('')
 const inquiriesLoading = ref(false)
+
+const showNewForm = ref(false)
+const creatingInquiry = ref(false)
+const newInquiry = ref({
+  company_name: '',
+  address: '',
+  ceo_name: '',
+  phone: '',
+  industry: '',
+  annual_revenue: '',
+  consultation_field: '',
+  agent_id: '',
+})
+
+const canCreateInquiry = computed(() =>
+  newInquiry.value.company_name && newInquiry.value.ceo_name && newInquiry.value.phone
+)
 
 let searchTimeout: ReturnType<typeof setTimeout>
 
@@ -272,6 +422,36 @@ function formatPhone(phone?: string): string {
     return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
   }
   return phone
+}
+
+async function handleCreateInquiry() {
+  if (!canCreateInquiry.value) return
+  creatingInquiry.value = true
+  try {
+    const data: Record<string, unknown> = {
+      company_name: newInquiry.value.company_name,
+      ceo_name: newInquiry.value.ceo_name,
+      phone: newInquiry.value.phone,
+    }
+    if (newInquiry.value.address) data.address = newInquiry.value.address
+    if (newInquiry.value.industry) data.industry = newInquiry.value.industry
+    if (newInquiry.value.annual_revenue) data.annual_revenue = newInquiry.value.annual_revenue
+    if (newInquiry.value.consultation_field) data.consultation_field = newInquiry.value.consultation_field
+    if (newInquiry.value.agent_id) data.agent_id = newInquiry.value.agent_id
+
+    await createCorporateInquiry(data)
+    newInquiry.value = {
+      company_name: '', address: '', ceo_name: '', phone: '',
+      industry: '', annual_revenue: '', consultation_field: '', agent_id: '',
+    }
+    showNewForm.value = false
+    await loadUnassigned()
+    alert('기업 고객이 등록되었습니다.')
+  } catch (e: any) {
+    alert(e.response?.data?.message || '기업 고객 등록에 실패했습니다.')
+  } finally {
+    creatingInquiry.value = false
+  }
 }
 
 async function handleSubmit() {

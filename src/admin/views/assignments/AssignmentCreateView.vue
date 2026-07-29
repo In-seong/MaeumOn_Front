@@ -55,6 +55,55 @@
           />
         </div>
 
+        <!-- 신규 고객 등록 토글 -->
+        <div class="px-4 lg:px-6 py-3 border-b border-[#F0F0F0]">
+          <button
+            @click="showNewCustomerForm = !showNewCustomerForm"
+            class="flex items-center gap-1.5 text-[13px] font-medium text-[#FF7B22] hover:text-[#E56D1E] transition-colors"
+          >
+            <span class="material-symbols-outlined text-[18px]">{{ showNewCustomerForm ? 'close' : 'person_add' }}</span>
+            {{ showNewCustomerForm ? '닫기' : '신규 고객 등록' }}
+          </button>
+
+          <!-- 인라인 등록 폼 -->
+          <div v-if="showNewCustomerForm" class="mt-3 p-4 bg-[#FAFAFA] rounded-[12px] border border-[#E8E8E8]">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">이름 *</label>
+                <input
+                  v-model="newCustomer.name"
+                  type="text"
+                  placeholder="고객 이름"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">전화번호 *</label>
+                <input
+                  v-model="newCustomer.phone"
+                  type="tel"
+                  placeholder="010-1234-5678"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+            </div>
+            <div class="flex justify-end mt-3">
+              <button
+                @click="handleCreateCustomer"
+                :disabled="!newCustomer.name || !newCustomer.phone || creatingCustomer"
+                :class="[
+                  'px-4 py-2 rounded-[8px] text-[13px] font-medium transition-colors',
+                  newCustomer.name && newCustomer.phone && !creatingCustomer
+                    ? 'bg-[#FF7B22] text-white hover:bg-[#E56D1E]'
+                    : 'bg-[#E8E8E8] text-[#999] cursor-not-allowed'
+                ]"
+              >
+                {{ creatingCustomer ? '등록 중...' : '등록' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 전체 선택 -->
         <div v-if="currentList.length > 0" class="px-4 lg:px-6 py-2 border-b border-[#F0F0F0] flex items-center gap-2">
           <input
@@ -234,6 +283,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAssignmentStore } from '../../stores/assignmentStore'
+import { createCustomer } from '../../services/adminApi'
 
 const router = useRouter()
 const store = useAssignmentStore()
@@ -244,6 +294,10 @@ const selectedIds = ref<Set<string>>(new Set())
 const selectedAgentId = ref('')
 const notes = ref('')
 const customersLoading = ref(false)
+
+const showNewCustomerForm = ref(false)
+const creatingCustomer = ref(false)
+const newCustomer = ref({ name: '', phone: '' })
 
 let searchTimeout: ReturnType<typeof setTimeout>
 
@@ -367,6 +421,25 @@ function formatDate(dateStr?: string): string {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
+async function handleCreateCustomer() {
+  if (!newCustomer.value.name || !newCustomer.value.phone) return
+  creatingCustomer.value = true
+  try {
+    await createCustomer({
+      name: newCustomer.value.name,
+      phone: newCustomer.value.phone,
+    })
+    newCustomer.value = { name: '', phone: '' }
+    showNewCustomerForm.value = false
+    await loadUnassigned()
+    alert('고객이 등록되었습니다.')
+  } catch (e: any) {
+    alert(e.response?.data?.message || '고객 등록에 실패했습니다.')
+  } finally {
+    creatingCustomer.value = false
+  }
 }
 
 async function handleSubmit() {
