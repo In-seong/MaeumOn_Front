@@ -886,13 +886,19 @@ async function handleSaveDraft() {
 
 async function handleSubmit() {
   if (!canProceed.value) return
-  const batch = batchStore.currentBatch
-    ? await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
-    : await batchStore.createBatch()
 
-  if (batch && !batchStore.error) {
-    const result = await batchStore.submitDraft(batch.batch_claim_id)
-    if (result) {
+  if (batchStore.currentBatch) {
+    const batch = await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
+    if (batch && !batchStore.error) {
+      const result = await batchStore.submitDraft(batch.batch_claim_id)
+      if (result) {
+        router.replace(`/batch-claims/${batch.batch_claim_id}`)
+      }
+    }
+  } else {
+    // createBatch()는 STATUS_PENDING으로 생성 + PDF까지 완료하므로 submitDraft 불필요
+    const batch = await batchStore.createBatch()
+    if (batch && !batchStore.error) {
       router.replace(`/batch-claims/${batch.batch_claim_id}`)
     }
   }
