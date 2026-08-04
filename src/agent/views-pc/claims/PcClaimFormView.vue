@@ -134,10 +134,16 @@
                 <div class="flex flex-col gap-4">
                   <template v-for="field in insuredStepFields" :key="field.form_field_id">
                     <div v-if="field.field_type === 'signature'">
-                      <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                        {{ field.field_label }}
-                        <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                      </label>
+                      <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-[13px] font-medium text-[#888]">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] hover:text-[#FF7B22] transition-colors">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
+                          다시 쓰기
+                        </button>
+                      </div>
                       <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
                         <canvas
                           :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
@@ -172,10 +178,16 @@
                 <div class="flex flex-col gap-4">
                   <template v-for="field in beneficiaryStepFields" :key="field.form_field_id">
                     <div v-if="field.field_type === 'signature'">
-                      <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                        {{ field.field_label }}
-                        <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                      </label>
+                      <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-[13px] font-medium text-[#888]">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] hover:text-[#FF7B22] transition-colors">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
+                          다시 쓰기
+                        </button>
+                      </div>
                       <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
                         <canvas
                           :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
@@ -205,10 +217,16 @@
                 <div class="flex flex-col gap-4">
                   <template v-for="field in otherStep4Fields" :key="field.form_field_id">
                     <div v-if="field.field_type === 'signature'">
-                      <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                        {{ field.field_label }}
-                        <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                      </label>
+                      <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-[13px] font-medium text-[#888]">
+                          {{ field.field_label }}
+                          <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                        </label>
+                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] hover:text-[#FF7B22] transition-colors">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
+                          다시 쓰기
+                        </button>
+                      </div>
                       <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
                         <canvas
                           :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
@@ -243,10 +261,16 @@
               <div class="flex flex-col gap-4">
                 <template v-for="field in currentStepFields" :key="field.form_field_id">
                   <div v-if="field.field_type === 'signature'">
-                    <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                      {{ field.field_label }}
-                      <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                    </label>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <label class="text-[13px] font-medium text-[#888]">
+                        {{ field.field_label }}
+                        <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                      </label>
+                      <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] hover:text-[#FF7B22] transition-colors">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
+                        다시 쓰기
+                      </button>
+                    </div>
                     <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
                       <canvas
                         :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"
@@ -292,10 +316,16 @@
                 <template v-for="field in (currentStep === 5 ? step5SortedFields : currentStepFields)" :key="field.form_field_id">
                   <!-- 서명 필드: 인라인 렌더링 -->
                   <div v-if="field.field_type === 'signature'">
-                    <label class="block text-[13px] font-medium text-[#888] mb-1.5">
-                      {{ field.field_label }}
-                      <span v-if="field.is_required" class="text-[#FF0000]">*</span>
-                    </label>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <label class="text-[13px] font-medium text-[#888]">
+                        {{ field.field_label }}
+                        <span v-if="field.is_required" class="text-[#FF0000]">*</span>
+                      </label>
+                      <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] hover:text-[#FF7B22] transition-colors">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
+                        다시 쓰기
+                      </button>
+                    </div>
                     <div v-if="!claimStore.fieldValues[field.form_field_id]?.startsWith('data:image/')">
                       <canvas
                         :ref="(el: any) => setSignatureCanvasRef(field.form_field_id, el)"

@@ -380,7 +380,13 @@
 
           <!-- ===== Step 9: 서명 ===== -->
           <div v-else-if="currentStep === 9" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
-            <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">서명</p>
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-[18px] font-bold text-[#1A1A1A]">서명</p>
+              <button type="button" @click="resetSignature" class="flex items-center gap-1 text-[12px] text-[#999] hover:text-[#FF7B22] transition-colors">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
+                다시 쓰기
+              </button>
+            </div>
             <p class="text-[13px] text-[#6B7280] mb-5">아래 영역에 서명해주세요. 모든 보험사 청구서에 적용됩니다.</p>
 
             <div v-if="!signatureDataUrl">
