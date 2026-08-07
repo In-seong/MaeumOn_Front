@@ -2,8 +2,8 @@
   <div class="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
     <div class="w-full max-w-[440px] bg-white rounded-2xl shadow-lg p-10">
       <div class="flex flex-col items-center gap-3 mb-10">
-        <img src="/icons/LogoIcon.svg" alt="보험청구ON" class="w-16 h-16" />
-        <span class="text-[24px] font-jalnan font-bold text-black">보험청구ON</span>
+        <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-16 h-16" />
+        <span class="text-[24px] font-jalnan font-bold text-black">ON:CARE</span>
         <span class="text-[14px] text-[#999]">설계사 전용</span>
       </div>
 
@@ -49,8 +49,9 @@
         </button>
       </form>
 
-      <p class="mt-8 text-[12px] text-[#B0B0B0] text-center">
-        계정 관련 문의는 관리자에게 연락하세요
+      <p class="mt-6 text-[13px] text-[#888] text-center">
+        계정이 없으신가요?
+        <router-link to="/register" class="text-[#FF7B22] font-semibold">회원가입</router-link>
       </p>
     </div>
   </div>

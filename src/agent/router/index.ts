@@ -21,6 +21,15 @@ const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: '/register',
+      name: 'agent-register',
+      component: adaptiveView(
+        () => import('../views/RegisterView.vue'),
+        () => import('../views-pc/PcRegisterView.vue')
+      ),
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/',
       name: 'agent-home',
       component: adaptiveView(
