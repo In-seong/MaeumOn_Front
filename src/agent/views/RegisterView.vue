@@ -58,6 +58,25 @@
         <router-link to="/login" class="text-[#FF7B22] font-semibold">로그인</router-link>
       </p>
     </div>
+
+    <!-- 승인 대기 다이얼로그 -->
+    <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="goToLogin">
+      <div class="bg-white rounded-2xl p-8 mx-6 max-w-[340px] w-full text-center shadow-xl">
+        <div class="w-14 h-14 bg-[#FFF3ED] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-[#FF7B22]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-[18px] font-bold text-[#333] mb-2">회원가입 완료</h3>
+        <p class="text-[14px] text-[#777] leading-relaxed mb-6">
+          관리자 승인 후 로그인할 수 있습니다.<br />
+          승인이 완료되면 앱에서 로그인해 주세요.
+        </p>
+        <ActionButton full large @click="goToLogin">
+          확인
+        </ActionButton>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -71,6 +90,7 @@ import ActionButton from '@user/components/ui/ActionButton.vue'
 const router = useRouter()
 const loading = ref(false)
 const errorMsg = ref<string | null>(null)
+const showDialog = ref(false)
 
 const form = reactive({
   name: '',
@@ -79,6 +99,10 @@ const form = reactive({
   password_confirmation: '',
   phone: '',
 })
+
+function goToLogin() {
+  router.push('/login')
+}
 
 async function handleRegister() {
   errorMsg.value = null
@@ -98,12 +122,8 @@ async function handleRegister() {
 
   loading.value = true
   try {
-    const res = await api.post('/auth/agent-register', form)
-    const token = res.data.token || res.data.data?.token
-    if (token) {
-      localStorage.setItem('agentToken', token)
-      router.push('/')
-    }
+    await api.post('/auth/agent-register', form)
+    showDialog.value = true
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }
     const errors = err?.response?.data?.errors
