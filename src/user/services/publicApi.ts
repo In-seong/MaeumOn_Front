@@ -161,3 +161,12 @@ export interface BannerData {
 
 export const fetchBanners = () =>
   api.get<ApiResponse<BannerData[]>>(`${BASE}/banners`)
+
+// 설계사 목록 (간편 청구 시 선택용)
+export interface PublicAgent {
+  agent_id: string
+  name: string
+}
+
+export const fetchPublicAgents = () =>
+  api.get<ApiResponse<PublicAgent[]>>(`${BASE}/agents`)
