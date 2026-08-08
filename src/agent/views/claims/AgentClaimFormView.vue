@@ -518,6 +518,8 @@ import { compressImages } from '@shared/utils/compressImage'
 import { consentApi } from '@shared/services/insuranceApi'
 import type { ConsentTemplate } from '@shared/services/insuranceApi'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
+import api from '@shared/api'
+import type { ClaimRequestFile } from '../../types'
 
 const router = useRouter()
 const route = useRoute()
@@ -529,6 +531,7 @@ const isDraftMode = computed(() => claimStore.currentClaim?.claim_status === 'dr
 const claimId = computed(() => Number(route.params.claimId))
 const templateId = computed(() => Number(route.params.templateId || route.query.templateId))
 const customerId = computed(() => (route.query.customerId as string) || '')
+const requestId = computed(() => (route.query.requestId as string) || '')
 const submitting = ref(false)
 const savingDraft = ref(false)
 // 임시저장 버튼 표시 조건: 신규 작성 또는 draft 모드 (pending 수정 모드에서는 숨김)
@@ -1519,6 +1522,38 @@ onMounted(async () => {
       if (firstStep !== undefined) {
         currentStep.value = firstStep
       }
+    }
+
+    // 청구배정 파일 자동 첨부
+    if (requestId.value && !isEditMode.value) {
+      try {
+        const assignRes = await api.get<{ data: Array<{ request_id: number; files?: ClaimRequestFile[] }> }>('/agent/claim-assignments')
+        const assignment = assignRes.data.data.find(a => a.request_id === Number(requestId.value))
+        if (assignment?.files && assignment.files.length > 0) {
+          const downloaded = await Promise.all(
+            assignment.files.map(async (file) => {
+              try {
+                const res = await api.get(`/agent/claim-request-files/${file.file_id}/download`, { responseType: 'blob' })
+                const ext = file.file_name.split('.').pop()?.toLowerCase() ?? ''
+                const mimeTypes: Record<string, string> = {
+                  jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+                  gif: 'image/gif', webp: 'image/webp', pdf: 'application/pdf',
+                }
+                const mime = mimeTypes[ext] ?? 'application/octet-stream'
+                const blob = new Blob([res.data as BlobPart], { type: mime })
+                return new File([blob], file.file_name, { type: mime })
+              } catch {
+                return null
+              }
+            })
+          )
+          const validFiles = downloaded.filter((f): f is File => f !== null)
+          if (validFiles.length > 0) {
+            const compressed = await compressImages(validFiles)
+            attachedFiles.value.push(...compressed)
+          }
+        }
+      } catch { /* 파일 자동 첨부 실패 시 무시 */ }
     }
   } finally {
     loading.value = false

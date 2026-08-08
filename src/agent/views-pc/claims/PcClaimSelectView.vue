@@ -511,6 +511,7 @@ const canProceed = computed(() => {
 
 // ===== 라이프사이클 =====
 const preselectedCustomerId = (route.query.customerId as string) || null
+const preselectedRequestId = (route.query.requestId as string) || null
 
 onMounted(async () => {
   await Promise.all([
@@ -619,11 +620,14 @@ function goNext(): void {
 
   if (selectedCompanies.value.length === 1) {
     const entry = selectedCompanies.value[0]!
-    if (claimMode.value === 'customer') {
-      router.push(`/claims/new/${entry.formId}?customerId=${selectedCustomerId.value}`)
-    } else {
-      router.push(`/claims/new/${entry.formId}`)
+    const query: Record<string, string> = {}
+    if (claimMode.value === 'customer' && selectedCustomerId.value) {
+      query.customerId = selectedCustomerId.value
     }
+    if (preselectedRequestId) {
+      query.requestId = preselectedRequestId
+    }
+    router.push({ path: `/claims/new/${entry.formId}`, query })
   } else {
     batchClaimStore.resetBatchForm()
 

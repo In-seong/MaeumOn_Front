@@ -398,7 +398,7 @@ async function goToClaim() {
       registeredCustomerId.value = customerId
       emit('customerRegistered', props.assignment.request_id)
     }
-    router.push({ name: 'agent-claim-select', query: { customerId } })
+    router.push({ name: 'agent-claim-select', query: { customerId, requestId: String(props.assignment.request_id) } })
   } catch {
     // 에러 처리
   } finally {
