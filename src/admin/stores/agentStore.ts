@@ -18,7 +18,7 @@ export const useAgentStore = defineStore('agent', () => {
 
   async function loadAgents(params?: {
     search?: string
-    is_active?: boolean
+    is_active?: boolean | 'all'
     page?: number
     per_page?: number
     sort_by?: string

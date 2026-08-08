@@ -76,16 +76,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAgentAuthStore } from '../../stores/agentAuthStore'
 
 const router = useRouter()
+const authStore = useAgentAuthStore()
 
-const menuItems = [
-  { icon: 'customers', label: '고객관리', sub: '고객 목록 관리', path: '/customers', bgClass: 'bg-[#FFF3ED]' },
-  { icon: 'claims', label: '청구관리', sub: '청구 현황 보기', path: '/claims', bgClass: 'bg-[#FFF3ED]' },
-  { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new', bgClass: 'bg-[#FFF3ED]' },
-  { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', bgClass: 'bg-[#FFF3ED]' },
-  { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]' },
-  { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]' },
+const isReviewAccount = computed(() => authStore.agent?.employee_number === 'TEST001')
+
+const allMenuItems = [
+  { icon: 'customers', label: '고객관리', sub: '고객 목록 관리', path: '/customers', bgClass: 'bg-[#FFF3ED]', review: true },
+  { icon: 'claims', label: '청구관리', sub: '청구 현황 보기', path: '/claims', bgClass: 'bg-[#FFF3ED]', review: false },
+  { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new', bgClass: 'bg-[#FFF3ED]', review: false },
+  { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', bgClass: 'bg-[#FFF3ED]', review: true },
+  { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]', review: true },
+  { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]', review: false },
 ]
+
+const menuItems = computed(() =>
+  isReviewAccount.value ? allMenuItems.filter(i => i.review) : allMenuItems
+)
 </script>

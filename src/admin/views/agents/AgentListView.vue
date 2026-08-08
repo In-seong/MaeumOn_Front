@@ -167,7 +167,7 @@ function debouncedSearch() {
 async function fetchData(page = 1) {
   await store.loadAgents({
     search: searchQuery.value || undefined,
-    is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
+    is_active: activeFilter.value === '' ? 'all' : activeFilter.value === 'true',
     page,
     ...sortParams(),
   })

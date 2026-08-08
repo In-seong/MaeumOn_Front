@@ -201,7 +201,7 @@
               <div class="flex flex-col gap-3">
                 <div class="flex items-center justify-between py-2 border-b border-[#F5F5F5]">
                   <span class="text-[13px] text-[#888]">앱 이름</span>
-                  <span class="text-[13px] text-[#333] font-medium">보험청구ON (설계사)</span>
+                  <span class="text-[13px] text-[#333] font-medium">ON:CARE (설계사)</span>
                 </div>
                 <div class="flex items-center justify-between py-2 border-b border-[#F5F5F5]">
                   <span class="text-[13px] text-[#888]">앱 버전</span>

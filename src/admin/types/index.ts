@@ -280,10 +280,16 @@ export interface AdminClaimRequest {
   name: string
   phone: string
   memo?: string
+  hospital_id?: number
   status: 'pending' | 'assigned' | 'completed' | 'cancelled'
   assigned_agent_id?: string
   linked_claim_id?: number
   files?: AdminClaimRequestFile[]
+  hospital?: {
+    hospital_id: number
+    hospital_name: string
+    address?: string
+  }
   assigned_agent?: {
     agent_id: string
     name: string

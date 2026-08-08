@@ -202,6 +202,13 @@
                 {{ [inquiry.industry, inquiry.consultation_field].filter(Boolean).join(' · ') }}
               </p>
             </div>
+            <button
+              @click.stop="showInquiryDetail(inquiry)"
+              class="p-1.5 rounded-[8px] hover:bg-[#F0F0F0] transition-colors shrink-0"
+              title="상세보기"
+            >
+              <span class="material-symbols-outlined text-[18px] text-[#999]">info</span>
+            </button>
           </div>
           <div v-if="filteredInquiries.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
             미배분 기업 문의가 없습니다.
@@ -306,6 +313,54 @@
         </button>
       </div>
     </div>
+
+    <!-- 기업 문의 상세보기 모달 -->
+    <div v-if="detailInquiry" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" @click.self="detailInquiry = null">
+      <div class="bg-white rounded-[16px] w-full max-w-[420px] max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[#E8E8E8]">
+          <h3 class="text-[16px] font-bold text-[#333]">기업 문의 상세</h3>
+          <button @click="detailInquiry = null" class="text-[#888] hover:text-[#333] text-[22px]">&times;</button>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">업체명</span>
+            <span class="text-[#333] font-medium">{{ detailInquiry.company_name }}</span>
+          </div>
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">대표자명</span>
+            <span class="text-[#333]">{{ detailInquiry.ceo_name }}</span>
+          </div>
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">전화번호</span>
+            <span class="text-[#333]">{{ formatPhone(detailInquiry.phone) }}</span>
+          </div>
+          <div v-if="detailInquiry.address" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">지역</span>
+            <span class="text-[#333]">{{ detailInquiry.address }}</span>
+          </div>
+          <div v-if="detailInquiry.industry" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">업태</span>
+            <span class="text-[#333]">{{ detailInquiry.industry }}</span>
+          </div>
+          <div v-if="detailInquiry.annual_revenue" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">연매출</span>
+            <span class="text-[#333]">{{ detailInquiry.annual_revenue }}</span>
+          </div>
+          <div v-if="detailInquiry.consultation_field" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">상담목적</span>
+            <span class="text-[#333]">{{ detailInquiry.consultation_field }}</span>
+          </div>
+          <div v-if="detailInquiry.notes" class="text-[13px]">
+            <p class="text-[#999] mb-1">메모</p>
+            <p class="text-[#333] bg-[#F8F8F8] rounded-[8px] px-3 py-2 whitespace-pre-wrap">{{ detailInquiry.notes }}</p>
+          </div>
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">등록일</span>
+            <span class="text-[#333]">{{ detailInquiry.created_at?.slice(0, 10) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -313,7 +368,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
-import { createCorporateInquiry } from '../../services/adminApi'
+import { createCorporateInquiry, type CorporateInquiry } from '../../services/adminApi'
 
 const router = useRouter()
 const store = useCorporateInquiryStore()
@@ -323,6 +378,7 @@ const selectedIds = ref<Set<number>>(new Set())
 const selectedAgentId = ref('')
 const notes = ref('')
 const inquiriesLoading = ref(false)
+const detailInquiry = ref<CorporateInquiry | null>(null)
 
 const showNewForm = ref(false)
 const creatingInquiry = ref(false)
@@ -410,6 +466,10 @@ async function loadUnassigned() {
   } finally {
     inquiriesLoading.value = false
   }
+}
+
+function showInquiryDetail(inquiry: CorporateInquiry) {
+  detailInquiry.value = inquiry
 }
 
 function formatPhone(phone?: string): string {

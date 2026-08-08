@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAgentAuthStore } from '../../stores/agentAuthStore'
 
 const route = useRoute()
+const authStore = useAgentAuthStore()
 
 defineProps<{
   open: boolean
@@ -24,42 +26,50 @@ interface NavGroup {
   items: NavItem[]
 }
 
-const navGroups: NavGroup[] = [
-  {
-    title: '',
-    collapsible: false,
-    items: [
-      { label: '홈', icon: 'home', to: '/' },
-    ],
-  },
-  {
-    title: '고객 관리',
-    collapsible: true,
-    items: [
-      { label: '고객 목록', icon: 'people', to: '/customers' },
-      { label: '상담 요청', icon: 'forum', to: '/consultations' },
-      { label: 'DB 배분', icon: 'swap_horiz', to: '/db-distribution' },
-    ],
-  },
-  {
-    title: '보험 청구',
-    collapsible: true,
-    items: [
-      { label: '청구 관리', icon: 'receipt_long', to: '/claims' },
-      { label: '새 청구', icon: 'add_circle', to: '/claims/new' },
-      { label: '다중 청구', icon: 'content_copy', to: '/batch-claims/new' },
-    ],
-  },
-  {
-    title: '업무 관리',
-    collapsible: true,
-    items: [
-      { label: '일정 관리', icon: 'event', to: '/schedule' },
-      { label: '알릴의무', icon: 'security', to: '/alert-duty' },
-      { label: '보험·건강 조회', icon: 'health_and_safety', to: '/codef' },
-    ],
-  },
-  {
+const isReviewAccount = computed(() => authStore.agent?.employee_number === 'TEST001')
+
+const navGroups = computed<NavGroup[]>(() => {
+  const groups: NavGroup[] = [
+    {
+      title: '',
+      collapsible: false,
+      items: [
+        { label: '홈', icon: 'home', to: '/' },
+      ],
+    },
+    {
+      title: '고객 관리',
+      collapsible: true,
+      items: [
+        { label: '고객 목록', icon: 'people', to: '/customers' },
+        { label: '상담 요청', icon: 'forum', to: '/consultations' },
+        { label: 'DB 배분', icon: 'swap_horiz', to: '/db-distribution' },
+      ],
+    },
+  ]
+
+  if (!isReviewAccount.value) {
+    groups.push({
+      title: '보험 청구',
+      collapsible: true,
+      items: [
+        { label: '청구 관리', icon: 'receipt_long', to: '/claims' },
+        { label: '새 청구', icon: 'add_circle', to: '/claims/new' },
+        { label: '다중 청구', icon: 'content_copy', to: '/batch-claims/new' },
+      ],
+    })
+  }
+
+  const taskItems: NavItem[] = [
+    { label: '일정 관리', icon: 'event', to: '/schedule' },
+    { label: '알릴의무', icon: 'security', to: '/alert-duty' },
+  ]
+  if (!isReviewAccount.value) {
+    taskItems.push({ label: '보험·건강 조회', icon: 'health_and_safety', to: '/codef' })
+  }
+  groups.push({ title: '업무 관리', collapsible: true, items: taskItems })
+
+  groups.push({
     title: '기타',
     collapsible: true,
     items: [
@@ -67,8 +77,10 @@ const navGroups: NavGroup[] = [
       { label: '메시지 발송', icon: 'send', to: '/messages/send' },
       { label: '알림', icon: 'notifications', to: '/notifications' },
     ],
-  },
-]
+  })
+
+  return groups
+})
 
 const bottomItems: NavItem[] = [
   { label: '마이페이지', icon: 'person', to: '/mypage' },
@@ -90,7 +102,7 @@ function groupHasActive(group: NavGroup): boolean {
 const collapsed = ref<Record<number, boolean>>({})
 
 const isCollapsed = computed(() => (gi: number) => {
-  const group = navGroups[gi]
+  const group = navGroups.value[gi]
   if (!group || !group.collapsible) return false
   if (collapsed.value[gi] !== undefined) return collapsed.value[gi]
   return !groupHasActive(group)

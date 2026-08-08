@@ -141,6 +141,13 @@
               <p class="text-[14px] font-medium text-[#333]">{{ customer.name }}</p>
               <p class="text-[12px] text-[#999]">{{ formatPhone(customer.phone) }}</p>
             </div>
+            <button
+              @click.stop="showCustomerDetail(customer)"
+              class="p-1.5 rounded-[8px] hover:bg-[#F0F0F0] transition-colors shrink-0"
+              title="상세보기"
+            >
+              <span class="material-symbols-outlined text-[18px] text-[#999]">info</span>
+            </button>
           </div>
           <div v-if="filteredCustomers.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
             미배정 고객이 없습니다.
@@ -168,6 +175,13 @@
               <p class="text-[12px] text-[#999]">{{ formatPhone(claim.phone) }}</p>
               <p v-if="claim.memo" class="text-[11px] text-[#BBB] mt-0.5 truncate">{{ claim.memo }}</p>
             </div>
+            <button
+              @click.stop="showClaimDetail(claim.request_id)"
+              class="p-1.5 rounded-[8px] hover:bg-[#F0F0F0] transition-colors shrink-0"
+              title="상세보기"
+            >
+              <span class="material-symbols-outlined text-[18px] text-[#999]">info</span>
+            </button>
             <div class="text-[11px] text-[#BBB] shrink-0">
               {{ formatDate(claim.created_at) }}
             </div>
@@ -276,6 +290,105 @@
         </button>
       </div>
     </div>
+
+    <!-- 고객 상세보기 모달 -->
+    <div v-if="detailCustomer" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" @click.self="detailCustomer = null">
+      <div class="bg-white rounded-[16px] w-full max-w-[420px] max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[#E8E8E8]">
+          <h3 class="text-[16px] font-bold text-[#333]">고객 상세 정보</h3>
+          <button @click="detailCustomer = null" class="text-[#888] hover:text-[#333] text-[22px]">&times;</button>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">이름</span>
+            <span class="text-[#333] font-medium">{{ detailCustomer.name }}</span>
+          </div>
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">전화번호</span>
+            <span class="text-[#333]">{{ formatPhone(detailCustomer.phone) }}</span>
+          </div>
+          <div v-if="detailCustomer.gender" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">성별</span>
+            <span class="text-[#333]">{{ detailCustomer.gender === 'M' ? '남성' : detailCustomer.gender === 'F' ? '여성' : detailCustomer.gender }}</span>
+          </div>
+          <div v-if="detailCustomer.birth_date" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">생년월일</span>
+            <span class="text-[#333]">{{ detailCustomer.birth_date }}</span>
+          </div>
+          <div v-if="detailCustomer.address" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">주소</span>
+            <span class="text-[#333] text-right max-w-[60%]">{{ detailCustomer.address }}{{ detailCustomer.detailed_address ? ' ' + detailCustomer.detailed_address : '' }}</span>
+          </div>
+          <div v-if="detailCustomer.job" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">직업</span>
+            <span class="text-[#333]">{{ detailCustomer.job }}</span>
+          </div>
+          <div v-if="detailCustomer.email" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">이메일</span>
+            <span class="text-[#333]">{{ detailCustomer.email }}</span>
+          </div>
+          <div v-if="detailCustomer.created_at" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">등록일</span>
+            <span class="text-[#333]">{{ detailCustomer.created_at?.slice(0, 10) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 청구 신청 상세보기 모달 -->
+    <div v-if="detailClaim" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" @click.self="detailClaim = null">
+      <div class="bg-white rounded-[16px] w-full max-w-[420px] max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[#E8E8E8]">
+          <h3 class="text-[16px] font-bold text-[#333]">청구 신청 상세</h3>
+          <button @click="detailClaim = null" class="text-[#888] hover:text-[#333] text-[22px]">&times;</button>
+        </div>
+        <div v-if="detailLoading" class="px-5 py-10 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+          <p class="mt-2 text-[13px] text-[#999]">로딩 중...</p>
+        </div>
+        <div v-else class="px-5 py-4 space-y-3">
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">신청자</span>
+            <span class="text-[#333] font-medium">{{ detailClaim.name }}</span>
+          </div>
+          <div class="flex justify-between text-[13px]">
+            <span class="text-[#999]">전화번호</span>
+            <span class="text-[#333]">{{ formatPhone(detailClaim.phone) }}</span>
+          </div>
+          <div v-if="detailClaim.hospital" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">병원</span>
+            <span class="text-[#333]">{{ detailClaim.hospital.hospital_name }}</span>
+          </div>
+          <div v-if="detailClaim.memo" class="text-[13px]">
+            <p class="text-[#999] mb-1">메모</p>
+            <p class="text-[#333] bg-[#F8F8F8] rounded-[8px] px-3 py-2 whitespace-pre-wrap">{{ detailClaim.memo }}</p>
+          </div>
+          <div v-if="detailClaim.created_at" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">신청일</span>
+            <span class="text-[#333]">{{ detailClaim.created_at?.slice(0, 10) }}</span>
+          </div>
+          <div v-if="detailClaim.files && detailClaim.files.length > 0" class="text-[13px]">
+            <p class="text-[#999] mb-2">첨부파일 ({{ detailClaim.files.length }}건)</p>
+            <div class="grid grid-cols-2 gap-2">
+              <div v-for="file in detailClaim.files" :key="file.file_id" class="relative">
+                <a :href="file.file_download_url || ''" target="_blank" class="block">
+                  <img
+                    v-if="isImageFile(file.file_name)"
+                    :src="file.file_download_url || ''"
+                    :alt="file.file_name || '첨부파일'"
+                    class="w-full h-24 object-cover rounded-[8px] border border-[#E8E8E8]"
+                  />
+                  <div v-else class="w-full h-24 bg-[#F8F8F8] rounded-[8px] border border-[#E8E8E8] flex flex-col items-center justify-center">
+                    <span class="material-symbols-outlined text-[24px] text-[#999]">description</span>
+                    <p class="text-[11px] text-[#999] mt-1 truncate max-w-full px-2">{{ file.file_name || '파일' }}</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -283,7 +396,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAssignmentStore } from '../../stores/assignmentStore'
-import { createCustomer } from '../../services/adminApi'
+import { createCustomer, fetchAdminClaimRequest } from '../../services/adminApi'
+import type { AdminCustomer, AdminClaimRequest } from '../../types'
 
 const router = useRouter()
 const store = useAssignmentStore()
@@ -298,6 +412,10 @@ const customersLoading = ref(false)
 const showNewCustomerForm = ref(false)
 const creatingCustomer = ref(false)
 const newCustomer = ref({ name: '', phone: '' })
+
+const detailCustomer = ref<AdminCustomer | null>(null)
+const detailClaim = ref<AdminClaimRequest | null>(null)
+const detailLoading = ref(false)
 
 let searchTimeout: ReturnType<typeof setTimeout>
 
@@ -421,6 +539,28 @@ function formatDate(dateStr?: string): string {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
+function showCustomerDetail(customer: AdminCustomer) {
+  detailCustomer.value = customer
+}
+
+async function showClaimDetail(requestId: number) {
+  detailLoading.value = true
+  detailClaim.value = {} as AdminClaimRequest
+  try {
+    const res = await fetchAdminClaimRequest(requestId)
+    detailClaim.value = res.data.data
+  } catch {
+    detailClaim.value = null
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+function isImageFile(fileName?: string): boolean {
+  if (!fileName) return false
+  return /\.(jpg|jpeg|png|gif|webp|bmp|heic)$/i.test(fileName)
 }
 
 async function handleCreateCustomer() {

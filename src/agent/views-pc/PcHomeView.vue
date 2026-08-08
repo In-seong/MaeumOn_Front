@@ -148,23 +148,31 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useScheduleStore } from '../stores/scheduleStore'
 import { useNotificationStore } from '../stores/notificationStore'
+import { useAgentAuthStore } from '../stores/agentAuthStore'
 import { fetchTodayTasks, toggleScheduleComplete } from '../services/agentApi'
 import type { CalendarEvent, DashboardTask } from '../types'
 
 const router = useRouter()
 const scheduleStore = useScheduleStore()
 const notificationStore = useNotificationStore()
+const authStore = useAgentAuthStore()
 
 const upcomingEvents = computed(() => scheduleStore.upcomingEvents)
 
-const quickMenuItems = [
-  { icon: 'customers', label: '고객관리', sub: '고객 목록 관리', path: '/customers' },
-  { icon: 'claims', label: '청구관리', sub: '청구 현황 보기', path: '/claims' },
-  { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new' },
-  { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send' },
-  { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution' },
-  { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef' },
+const isReviewAccount = computed(() => authStore.agent?.employee_number === 'TEST001')
+
+const allQuickMenuItems = [
+  { icon: 'customers', label: '고객관리', sub: '고객 목록 관리', path: '/customers', review: true },
+  { icon: 'claims', label: '청구관리', sub: '청구 현황 보기', path: '/claims', review: false },
+  { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new', review: false },
+  { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', review: true },
+  { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution', review: true },
+  { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', review: false },
 ]
+
+const quickMenuItems = computed(() =>
+  isReviewAccount.value ? allQuickMenuItems.filter(i => i.review) : allQuickMenuItems
+)
 
 const eventTypeIcon: Record<string, string> = {
   birthday: '🎂',
