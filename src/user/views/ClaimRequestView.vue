@@ -125,20 +125,12 @@
             <FileUploadSimple @update:files="onFilesChange" />
           </div>
 
-          <!-- 담당 설계사 선택 -->
-          <div>
-            <p class="text-[13px] font-medium text-[#555] mb-2">담당 설계사 (선택)</p>
-            <select
-              v-model="form.agent_id"
-              class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[15px] focus:outline-none focus:border-[#FF7B22] appearance-none"
-              :class="form.agent_id ? 'text-[#222]' : 'text-[#999]'"
-            >
-              <option value="">없음</option>
-              <option v-for="a in agents" :key="a.agent_id" :value="a.agent_id">
-                {{ a.name }}
-              </option>
-            </select>
-          </div>
+          <!-- 담당 설계사 -->
+          <FormInput
+            label="담당 설계사 (선택)"
+            v-model="form.agent_name"
+            placeholder="설계사 이름을 입력하세요"
+          />
 
         </div>
 
@@ -203,8 +195,8 @@ import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import FileUploadSimple from '@user/components/FileUploadSimple.vue'
 import SeniorBottomNav from '@user/components/SeniorBottomNav.vue'
-import { submitClaimRequest, fetchHospitals, fetchPublicAgents } from '@user/services/publicApi'
-import type { PartnerHospital, PublicAgent } from '@user/services/publicApi'
+import { submitClaimRequest, fetchHospitals } from '@user/services/publicApi'
+import type { PartnerHospital } from '@user/services/publicApi'
 
 const dialog = useDialog()
 const showGuide = ref(true)
@@ -213,11 +205,10 @@ const form = ref({
   phone: '',
   hospital_id: null as number | null,
   memo: '',
-  agent_id: '',
+  agent_name: '',
 })
 
 const hospitals = ref<PartnerHospital[]>([])
-const agents = ref<PublicAgent[]>([])
 const hospitalPickerOpen = ref(false)
 const hospitalSearch = ref('')
 
@@ -241,12 +232,10 @@ function selectHospital(h: PartnerHospital) {
 
 onMounted(async () => {
   try {
-    const [hospRes, agentRes] = await Promise.all([fetchHospitals(), fetchPublicAgents()])
-    hospitals.value = hospRes.data.data
-    agents.value = agentRes.data.data
+    const res = await fetchHospitals()
+    hospitals.value = res.data.data
   } catch {
     hospitals.value = []
-    agents.value = []
   }
 })
 
@@ -287,8 +276,8 @@ async function submitRequest() {
     if (form.value.memo) {
       formData.append('memo', form.value.memo)
     }
-    if (form.value.agent_id) {
-      formData.append('agent_id', form.value.agent_id)
+    if (form.value.agent_name) {
+      formData.append('agent_name', form.value.agent_name)
     }
     files.value.forEach((file) => {
       formData.append('files[]', file)

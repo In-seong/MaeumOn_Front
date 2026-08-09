@@ -46,7 +46,7 @@
                 {{ getStatusLabel(item.status) }}
               </span>
             </td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden md:table-cell">{{ item.assigned_agent?.name || '-' }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#555] hidden md:table-cell">{{ item.assigned_agent?.name || item.agent_name || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999] hidden sm:table-cell">{{ formatDate(item.created_at ?? '') }}</td>
             <td class="px-4 lg:px-6 py-4 text-right" @click.stop>
               <button @click="openDetail(item)" class="px-3 py-1.5 text-white rounded-[8px] text-[13px] font-medium"
@@ -122,9 +122,9 @@
               <p class="text-[12px] text-[#888] mb-1">접수일</p>
               <p class="text-[#222]">{{ formatDateTime(activeItem.created_at ?? '') }}</p>
             </div>
-            <div v-if="activeItem.assigned_agent">
+            <div v-if="activeItem.assigned_agent || activeItem.agent_name">
               <p class="text-[12px] text-[#888] mb-1">담당 설계사</p>
-              <p class="text-[#222]">{{ activeItem.assigned_agent.name }}</p>
+              <p class="text-[#222]">{{ activeItem.assigned_agent?.name || activeItem.agent_name }}</p>
             </div>
           </div>
 
