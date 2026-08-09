@@ -129,7 +129,7 @@
           <FormInput
             label="담당 설계사 (선택)"
             v-model="form.agent_name"
-            placeholder="설계사 이름을 입력하세요"
+            placeholder="없음"
           />
 
         </div>
