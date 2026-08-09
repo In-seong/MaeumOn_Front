@@ -359,6 +359,14 @@
             <span class="text-[#999]">병원</span>
             <span class="text-[#333]">{{ detailClaim.hospital.hospital_name }}</span>
           </div>
+          <div v-if="detailClaim.agent_name" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">담당 설계사</span>
+            <span class="text-[#333]">{{ detailClaim.agent_name }}</span>
+          </div>
+          <div v-if="detailClaim.matched_agent" class="flex justify-between text-[13px]">
+            <span class="text-[#999]">예상 담당 설계사</span>
+            <span class="text-[#333]">{{ detailClaim.matched_agent.name }}</span>
+          </div>
           <div v-if="detailClaim.memo" class="text-[13px]">
             <p class="text-[#999] mb-1">메모</p>
             <p class="text-[#333] bg-[#F8F8F8] rounded-[8px] px-3 py-2 whitespace-pre-wrap">{{ detailClaim.memo }}</p>
