@@ -1516,6 +1516,32 @@ onMounted(async () => {
       claimStore.setFieldValue(f.form_field_id, 'agree')
     })
 
+    // DB배분에서 넘어온 경우: 계약자/피보험자 정보 자동 채우기
+    if (requestId.value && customerId.value && !isEditMode.value) {
+      const customer = customerStore.selectedCustomer
+      if (customer) {
+        autoFillFromCustomer.value = true
+        const step3Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 3)
+        step3Fields.forEach(field => {
+          const key = matchAutoFillKey(field)
+          if (key) {
+            const val = getCustomerValueByKey(customer, key)
+            if (val) claimStore.setFieldValue(field.form_field_id, val)
+          }
+        })
+        autoFillInsuredFromContractor.value = true
+        const step4Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 4)
+        step4Fields.forEach(field => {
+          const key = matchAutoFillKey(field)
+          if (key) {
+            const val = getCustomerValueByKey(customer, key)
+            if (val) claimStore.setFieldValue(field.form_field_id, val)
+          }
+        })
+        syncDuplicateStandardFields()
+      }
+    }
+
     // 첫 번째 활성 스텝으로 이동
     if (activeSteps.value.length > 0) {
       const firstStep = activeSteps.value[0]
