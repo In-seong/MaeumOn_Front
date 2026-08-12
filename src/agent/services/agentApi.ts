@@ -20,6 +20,9 @@ const BASE = '/agent'
 export const changePassword = (data: { current_password: string; new_password: string; new_password_confirmation: string }) =>
   api.put<ApiResponse<null>>('/auth/change-password', data)
 
+export const deleteAccount = () =>
+  api.delete<ApiResponse<null>>('/auth/delete-account')
+
 // ===== Dashboard =====
 export const fetchDashboard = () =>
   api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`)
