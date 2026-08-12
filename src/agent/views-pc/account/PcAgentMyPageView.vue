@@ -102,7 +102,7 @@
               class="flex items-center justify-between py-3.5 border-b border-[#F5F5F5] last:border-b-0 hover:bg-[#FAFAFA] transition-colors -mx-1 px-1 rounded cursor-pointer"
               @click="item.action"
             >
-              <span class="text-[14px] text-[#333]">{{ item.label }}</span>
+              <span class="text-[14px]" :class="item.danger ? 'text-[#FF4444]' : 'text-[#333]'">{{ item.label }}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
@@ -234,6 +234,63 @@
       </Transition>
     </Teleport>
 
+    <!-- 회원 탈퇴 모달 -->
+    <Teleport to="body">
+      <Transition name="fade-modal">
+        <div
+          v-if="showDeleteModal"
+          class="fixed inset-0 z-[100] flex items-center justify-center"
+          @click.self="closeDeleteModal"
+        >
+          <div class="absolute inset-0 bg-black/40" @click="closeDeleteModal" />
+
+          <div class="relative w-full max-w-[420px] bg-white rounded-xl p-6 z-10 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-[18px] font-bold text-[#FF4444]">회원 탈퇴</h3>
+              <button
+                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F5F5F5] transition-colors"
+                @click="closeDeleteModal"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <div class="bg-[#FFF5F5] rounded-lg p-4 mb-4">
+              <p class="text-[13px] text-[#333] leading-[1.6]">
+                탈퇴 시 계정 정보와 관련 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
+              </p>
+            </div>
+
+            <div class="mb-4">
+              <label class="text-[13px] text-[#888] mb-1.5 block font-medium">확인을 위해 <strong class="text-[#FF4444]">'탈퇴'</strong>를 입력해주세요</label>
+              <input
+                v-model="deleteConfirmText"
+                type="text"
+                placeholder="탈퇴"
+                class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF4444] transition-colors text-[#333]"
+              />
+            </div>
+
+            <div class="flex gap-3">
+              <button
+                class="flex-1 py-3 rounded-lg border border-[#E0E0E0] text-[13px] text-[#666] font-medium hover:bg-[#F5F5F5] transition-colors"
+                @click="closeDeleteModal"
+              >
+                취소
+              </button>
+              <button
+                :disabled="deleting || deleteConfirmText !== '탈퇴'"
+                class="flex-1 py-3 rounded-lg bg-[#FF4444] text-white text-[13px] font-semibold hover:bg-[#CC3333] transition-colors disabled:opacity-40"
+                @click="handleDeleteAccount"
+              >
+                {{ deleting ? '처리 중...' : '탈퇴하기' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Toast -->
     <Transition name="fade">
       <div
@@ -251,7 +308,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { useToast } from '../../composables/useToast'
-import { changePassword as apiChangePassword } from '../../services/agentApi'
+import { changePassword as apiChangePassword, deleteAccount as apiDeleteAccount } from '../../services/agentApi'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 
 const authStore = useAgentAuthStore()
@@ -380,7 +437,37 @@ onMounted(() => {
 const menuItems = [
   { label: '비밀번호 변경', action: () => openPwModal() },
   { label: '앱 정보', action: () => { showAppInfoModal.value = true } },
+  { label: '회원 탈퇴', action: () => { showDeleteModal.value = true }, danger: true },
 ]
+
+// ===== 회원 탈퇴 =====
+const showDeleteModal = ref(false)
+const deleteConfirmText = ref('')
+const deleting = ref(false)
+
+async function handleDeleteAccount(): Promise<void> {
+  if (deleteConfirmText.value !== '탈퇴') {
+    toast.showToast('탈퇴를 정확히 입력해주세요.', 'error')
+    return
+  }
+  deleting.value = true
+  try {
+    await apiDeleteAccount()
+    toast.showToast('계정이 삭제되었습니다.')
+    authStore.$reset()
+    localStorage.clear()
+    setTimeout(() => { window.location.href = '/login' }, 500)
+  } catch {
+    toast.showToast('계정 삭제에 실패했습니다.', 'error')
+  } finally {
+    deleting.value = false
+  }
+}
+
+function closeDeleteModal(): void {
+  showDeleteModal.value = false
+  deleteConfirmText.value = ''
+}
 
 // ===== 로그아웃 =====
 async function handleLogout(): Promise<void> {
