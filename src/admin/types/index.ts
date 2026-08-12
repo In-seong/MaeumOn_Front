@@ -295,6 +295,11 @@ export interface AdminClaimRequest {
     name: string
     phone?: string
   }
+  agent_name?: string
+  matched_agent?: {
+    agent_id: string
+    name: string
+  }
   created_at?: string
   updated_at?: string
 }
