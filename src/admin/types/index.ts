@@ -56,6 +56,10 @@ export interface AdminAgent {
     role: string
     is_active: boolean
   }
+  branches?: Array<{
+    branch_id: number
+    branch_name: string
+  }>
 }
 
 // 공지사항 타입

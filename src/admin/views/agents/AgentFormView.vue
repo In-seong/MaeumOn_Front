@@ -94,6 +94,32 @@
 
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
+              소속 지사 <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-if="isSuperAdmin"
+              v-model="form.branch_id"
+              required
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+            >
+              <option value="">지사 선택</option>
+              <option
+                v-for="b in branchStore.branches"
+                :key="b.branch_id"
+                :value="b.branch_id"
+              >{{ b.branch_name }}</option>
+            </select>
+            <input
+              v-else
+              :value="myBranchName"
+              type="text"
+              disabled
+              class="w-full px-4 py-2.5 bg-[#EFEFEF] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#666] cursor-not-allowed"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
               근무지
             </label>
             <input
@@ -152,12 +178,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAgentStore } from '../../stores/agentStore'
+import { useAuthStore } from '../../stores/authStore'
+import { useBranchStore } from '../../stores/branchStore'
 
 const route = useRoute()
 const router = useRouter()
 const store = useAgentStore()
+const authStore = useAuthStore()
+const branchStore = useBranchStore()
 
 const isEdit = computed(() => !!route.params.id)
+const isSuperAdmin = computed(() => authStore.user?.admin?.admin_role === 'SUPER')
+const myBranchName = computed(() => authStore.user?.admin?.branch?.branch_name ?? '')
 const loading = ref(false)
 const submitting = ref(false)
 
@@ -171,15 +203,21 @@ const form = ref({
   office_location: '',
   specialization: '',
   hire_date: '',
+  branch_id: '' as string | number,
 })
 
 async function loadData() {
+  if (isSuperAdmin.value && branchStore.branches.length === 0) {
+    await branchStore.loadBranches()
+  }
+
   if (!isEdit.value) return
 
   loading.value = true
   try {
     const agent = await store.loadAgent(route.params.id as string)
     if (agent) {
+      const agentBranch = agent.branches?.[0]
       form.value = {
         username: agent.account?.username || '',
         password: '',
@@ -190,6 +228,7 @@ async function loadData() {
         office_location: agent.office_location || '',
         specialization: agent.specialization || '',
         hire_date: agent.hire_date || '',
+        branch_id: agentBranch?.branch_id ?? '',
       }
     }
   } finally {
@@ -220,6 +259,7 @@ async function handleSubmit() {
   if (form.value.email) payload.email = form.value.email
   if (form.value.office_location) payload.office_location = form.value.office_location
   if (form.value.specialization) payload.specialization = form.value.specialization
+  if (form.value.branch_id) payload.branch_id = Number(form.value.branch_id)
 
   try {
     if (isEdit.value) {
