@@ -938,6 +938,7 @@ const submitButtonText = computed(() => {
 
 function goNextStep() {
   if (!isCurrentStepValid.value) return
+  claimStore.error = null
   const currentIdx = activeSteps.value.indexOf(currentStep.value)
   if (currentIdx < activeSteps.value.length - 1) {
     const nextStep = activeSteps.value[currentIdx + 1]
@@ -949,6 +950,7 @@ function goNextStep() {
 }
 
 function goPrevStep() {
+  claimStore.error = null
   const currentIdx = activeSteps.value.indexOf(currentStep.value)
   if (currentIdx > 0) {
     const prevStep = activeSteps.value[currentIdx - 1]
@@ -1381,6 +1383,10 @@ async function handleSubmitDraft() {
 
   submitting.value = true
   try {
+    // 제출 전 현재 폼 값을 DB에 먼저 저장
+    const updated = await claimStore.updateDraftClaim(claimStore.currentClaim.claim_id)
+    if (!updated) return
+
     const result = await claimStore.submitDraftClaim(
       claimStore.currentClaim.claim_id,
       customerId.value || undefined,
