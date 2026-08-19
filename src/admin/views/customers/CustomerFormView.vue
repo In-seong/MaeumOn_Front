@@ -199,12 +199,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { fetchAgents } from '../../services/adminApi'
 import type { AdminAgent } from '../../types'
 
 const route = useRoute()
 const router = useRouter()
 const store = useCustomerStore()
+const branchStore = useBranchStore()
 
 const agentList = ref<AdminAgent[]>([])
 
@@ -293,7 +295,7 @@ async function handleSubmit() {
 
 async function loadAgentList() {
   try {
-    const response = await fetchAgents({ per_page: 200, is_active: true } as Record<string, unknown>)
+    const response = await fetchAgents({ per_page: 200, is_active: true, ...branchStore.getBranchParam() } as Record<string, unknown>)
     agentList.value = response.data.data.data
   } catch {
     // 설계사 목록 로딩 실패 시 무시

@@ -190,11 +190,12 @@ export const useAssignmentStore = defineStore('assignment', () => {
     }
   }
 
-  async function loadAgentOptions() {
+  async function loadAgentOptions(extraParams?: Record<string, unknown>) {
     try {
       const response = await apiFetchAgents({
         is_active: true,
         per_page: 100,
+        ...extraParams,
       } as Record<string, unknown>)
       const { data } = response.data.data
       agentOptions.value = data

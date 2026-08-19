@@ -531,11 +531,13 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAssignmentStore } from '../../stores/assignmentStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { createCustomer, fetchAdminClaimRequest, fetchAdminHospitals } from '../../services/adminApi'
 import type { AdminCustomer, AdminClaimRequest, AdminHospital } from '../../types'
 
 const router = useRouter()
 const store = useAssignmentStore()
+const branchStore = useBranchStore()
 
 const activeTab = ref<'customers' | 'claims'>('customers')
 const searchQuery = ref('')
@@ -653,6 +655,7 @@ async function loadUnassigned() {
   try {
     await store.loadUnassignedCustomers({
       search: searchQuery.value || undefined,
+      ...branchStore.getBranchParam(),
     })
   } finally {
     customersLoading.value = false
@@ -662,6 +665,7 @@ async function loadUnassigned() {
 async function loadClaimRequests() {
   await store.loadUnassignedClaimRequests({
     search: searchQuery.value || undefined,
+    ...branchStore.getBranchParam(),
   })
 }
 
@@ -813,8 +817,8 @@ onMounted(async () => {
   customersLoading.value = true
   try {
     await Promise.all([
-      store.loadUnassignedCustomers(),
-      store.loadAgentOptions(),
+      store.loadUnassignedCustomers(branchStore.getBranchParam()),
+      store.loadAgentOptions(branchStore.getBranchParam()),
       loadHospitals(),
     ])
   } finally {

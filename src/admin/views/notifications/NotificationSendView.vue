@@ -2,9 +2,11 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchAgents, sendNotification } from '../../services/adminApi'
+import { useBranchStore } from '../../stores/branchStore'
 import type { AdminAgent } from '../../types'
 
 const router = useRouter()
+const branchStore = useBranchStore()
 
 // 설계사 목록
 const agents = ref<AdminAgent[]>([])
@@ -49,7 +51,7 @@ const canSend = computed(() =>
 onMounted(async () => {
   loadingAgents.value = true
   try {
-    const res = await fetchAgents({ per_page: 200, is_active: true })
+    const res = await fetchAgents({ per_page: 200, is_active: true, ...branchStore.getBranchParam() })
     agents.value = (res.data?.data?.data ?? res.data?.data ?? []) as AdminAgent[]
   } catch {
     // handled globally

@@ -79,7 +79,7 @@ export const useCorporateInquiryStore = defineStore('corporateInquiry', () => {
     }
   }
 
-  async function loadUnassigned(params?: { search?: string }) {
+  async function loadUnassigned(params?: Record<string, unknown>) {
     loading.value = true
     error.value = null
     try {
@@ -92,9 +92,9 @@ export const useCorporateInquiryStore = defineStore('corporateInquiry', () => {
     }
   }
 
-  async function loadAgentOptions() {
+  async function loadAgentOptions(extraParams?: Record<string, unknown>) {
     try {
-      const res = await apiFetchAgents({ is_active: true, per_page: 100 } as Record<string, unknown>)
+      const res = await apiFetchAgents({ is_active: true, per_page: 100, ...extraParams } as Record<string, unknown>)
       const { data } = res.data.data
       agentOptions.value = data
     } catch (e: any) {

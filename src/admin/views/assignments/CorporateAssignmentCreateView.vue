@@ -368,10 +368,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { createCorporateInquiry, type CorporateInquiry } from '../../services/adminApi'
 
 const router = useRouter()
 const store = useCorporateInquiryStore()
+const branchStore = useBranchStore()
 
 const inquirySearch = ref('')
 const selectedIds = ref<Set<number>>(new Set())
@@ -462,6 +464,7 @@ async function loadUnassigned() {
   try {
     await store.loadUnassigned({
       search: inquirySearch.value || undefined,
+      ...branchStore.getBranchParam(),
     })
   } finally {
     inquiriesLoading.value = false
@@ -535,8 +538,8 @@ onMounted(async () => {
   inquiriesLoading.value = true
   try {
     await Promise.all([
-      store.loadUnassigned(),
-      store.loadAgentOptions(),
+      store.loadUnassigned(branchStore.getBranchParam()),
+      store.loadAgentOptions(branchStore.getBranchParam()),
     ])
   } finally {
     inquiriesLoading.value = false

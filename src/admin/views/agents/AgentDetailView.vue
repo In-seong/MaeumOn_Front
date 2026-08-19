@@ -94,6 +94,10 @@
             <p class="text-[14px] text-[#333]">{{ agent.email || '-' }}</p>
           </div>
           <div>
+            <p class="text-[12px] text-[#999] mb-1">소속 지사</p>
+            <p class="text-[14px] text-[#333]">{{ agent.branches?.[0]?.branch_name || '-' }}</p>
+          </div>
+          <div>
             <p class="text-[12px] text-[#999] mb-1">근무지</p>
             <p class="text-[14px] text-[#333]">{{ agent.office_location || '-' }}</p>
           </div>
