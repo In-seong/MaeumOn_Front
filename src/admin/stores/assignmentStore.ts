@@ -11,6 +11,7 @@ import {
   fetchAgents as apiFetchAgents,
   fetchAdminClaimRequests as apiFetchClaimRequests,
   bulkAssignClaimRequests as apiBulkAssignClaimRequests,
+  createAdminClaimRequest as apiCreateAdminClaimRequest,
 } from '../services/adminApi'
 
 export const useAssignmentStore = defineStore('assignment', () => {
@@ -174,6 +175,21 @@ export const useAssignmentStore = defineStore('assignment', () => {
     }
   }
 
+  async function createClaimRequest(formData: FormData) {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await apiCreateAdminClaimRequest(formData)
+      return response.data.data
+    } catch (e: any) {
+      error.value = e.response?.data?.message || '청구 신청 등록에 실패했습니다.'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function loadAgentOptions() {
     try {
       const response = await apiFetchAgents({
@@ -207,6 +223,7 @@ export const useAssignmentStore = defineStore('assignment', () => {
     loadUnassignedCustomers,
     loadUnassignedClaimRequests,
     bulkAssignClaimRequests,
+    createClaimRequest,
     loadAgentOptions,
   }
 })

@@ -55,8 +55,8 @@
           />
         </div>
 
-        <!-- 신규 고객 등록 토글 -->
-        <div class="px-4 lg:px-6 py-3 border-b border-[#F0F0F0]">
+        <!-- 신규 고객 등록 토글 (미배정 고객 탭) -->
+        <div v-if="activeTab === 'customers'" class="px-4 lg:px-6 py-3 border-b border-[#F0F0F0]">
           <button
             @click="showNewCustomerForm = !showNewCustomerForm"
             class="flex items-center gap-1.5 text-[13px] font-medium text-[#FF7B22] hover:text-[#E56D1E] transition-colors"
@@ -65,7 +65,6 @@
             {{ showNewCustomerForm ? '닫기' : '신규 고객 등록' }}
           </button>
 
-          <!-- 인라인 등록 폼 -->
           <div v-if="showNewCustomerForm" class="mt-3 p-4 bg-[#FAFAFA] rounded-[12px] border border-[#E8E8E8]">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -99,6 +98,121 @@
                 ]"
               >
                 {{ creatingCustomer ? '등록 중...' : '등록' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 신규 청구 등록 토글 (청구 신청 탭) -->
+        <div v-if="activeTab === 'claims'" class="px-4 lg:px-6 py-3 border-b border-[#F0F0F0]">
+          <button
+            @click="showNewClaimForm = !showNewClaimForm"
+            class="flex items-center gap-1.5 text-[13px] font-medium text-[#FF7B22] hover:text-[#E56D1E] transition-colors"
+          >
+            <span class="material-symbols-outlined text-[18px]">{{ showNewClaimForm ? 'close' : 'note_add' }}</span>
+            {{ showNewClaimForm ? '닫기' : '신규 청구 등록' }}
+          </button>
+
+          <div v-if="showNewClaimForm" class="mt-3 p-4 bg-[#FAFAFA] rounded-[12px] border border-[#E8E8E8]">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">이름 *</label>
+                <input
+                  v-model="newClaim.name"
+                  type="text"
+                  placeholder="환자 이름"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">전화번호 *</label>
+                <input
+                  v-model="newClaim.phone"
+                  type="tel"
+                  placeholder="010-1234-5678"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                />
+              </div>
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">병원</label>
+                <select
+                  v-model="newClaim.hospital_id"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option value="">선택 안 함</option>
+                  <option
+                    v-for="h in hospitalOptions"
+                    :key="h.hospital_id"
+                    :value="h.hospital_id"
+                  >
+                    {{ h.hospital_name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[12px] font-medium text-[#666] mb-1">설계사 배정</label>
+                <select
+                  v-model="newClaim.agent_id"
+                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option value="">미배정</option>
+                  <option
+                    v-for="agent in store.agentOptions"
+                    :key="agent.agent_id"
+                    :value="agent.agent_id"
+                  >
+                    {{ agent.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="block text-[12px] font-medium text-[#666] mb-1">메모</label>
+              <textarea
+                v-model="newClaim.memo"
+                rows="2"
+                placeholder="카톡 내용 등 메모"
+                class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22] resize-none"
+              ></textarea>
+            </div>
+            <div class="mt-3">
+              <label class="block text-[12px] font-medium text-[#666] mb-1">
+                첨부파일 (최대 10개, 각 10MB)
+              </label>
+              <input
+                ref="claimFileInput"
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.hwp"
+                class="w-full text-[13px] text-[#333] file:mr-3 file:py-1.5 file:px-3 file:rounded-[8px] file:border-0 file:text-[12px] file:font-medium file:bg-[#FF7B22] file:text-white hover:file:bg-[#E56D1E] file:cursor-pointer"
+                @change="handleClaimFileChange"
+              />
+              <div v-if="newClaimFiles.length > 0" class="mt-2 flex flex-wrap gap-2">
+                <div
+                  v-for="(file, idx) in newClaimFiles"
+                  :key="idx"
+                  class="flex items-center gap-1 bg-white border border-[#E8E8E8] rounded-[6px] px-2 py-1 text-[12px] text-[#666]"
+                >
+                  <span class="truncate max-w-[120px]">{{ file.name }}</span>
+                  <button
+                    @click="removeClaimFile(idx)"
+                    class="text-[#999] hover:text-[#FF4444] transition-colors"
+                  >&times;</button>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end mt-3">
+              <button
+                @click="handleCreateClaim"
+                :disabled="!newClaim.name || !newClaim.phone || creatingClaim"
+                :class="[
+                  'px-4 py-2 rounded-[8px] text-[13px] font-medium transition-colors',
+                  newClaim.name && newClaim.phone && !creatingClaim
+                    ? 'bg-[#FF7B22] text-white hover:bg-[#E56D1E]'
+                    : 'bg-[#E8E8E8] text-[#999] cursor-not-allowed'
+                ]"
+              >
+                {{ creatingClaim ? '등록 중...' : '등록' }}
               </button>
             </div>
           </div>
@@ -404,8 +518,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAssignmentStore } from '../../stores/assignmentStore'
-import { createCustomer, fetchAdminClaimRequest } from '../../services/adminApi'
-import type { AdminCustomer, AdminClaimRequest } from '../../types'
+import { createCustomer, fetchAdminClaimRequest, fetchAdminHospitals } from '../../services/adminApi'
+import type { AdminCustomer, AdminClaimRequest, AdminHospital } from '../../types'
 
 const router = useRouter()
 const store = useAssignmentStore()
@@ -420,6 +534,13 @@ const customersLoading = ref(false)
 const showNewCustomerForm = ref(false)
 const creatingCustomer = ref(false)
 const newCustomer = ref({ name: '', phone: '' })
+
+const showNewClaimForm = ref(false)
+const creatingClaim = ref(false)
+const newClaim = ref({ name: '', phone: '', hospital_id: '', agent_id: '', memo: '' })
+const newClaimFiles = ref<File[]>([])
+const claimFileInput = ref<HTMLInputElement | null>(null)
+const hospitalOptions = ref<AdminHospital[]>([])
 
 const detailCustomer = ref<AdminCustomer | null>(null)
 const detailClaim = ref<AdminClaimRequest | null>(null)
@@ -590,6 +711,48 @@ async function handleCreateCustomer() {
   }
 }
 
+function handleClaimFileChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (!target.files) return
+  const files = Array.from(target.files)
+  const total = newClaimFiles.value.length + files.length
+  if (total > 10) {
+    alert('첨부파일은 최대 10개까지 가능합니다.')
+    return
+  }
+  newClaimFiles.value.push(...files)
+  if (claimFileInput.value) claimFileInput.value.value = ''
+}
+
+function removeClaimFile(idx: number) {
+  newClaimFiles.value.splice(idx, 1)
+}
+
+async function handleCreateClaim() {
+  if (!newClaim.value.name || !newClaim.value.phone) return
+  creatingClaim.value = true
+  try {
+    const formData = new FormData()
+    formData.append('name', newClaim.value.name)
+    formData.append('phone', newClaim.value.phone)
+    if (newClaim.value.hospital_id) formData.append('hospital_id', newClaim.value.hospital_id)
+    if (newClaim.value.agent_id) formData.append('agent_id', newClaim.value.agent_id)
+    if (newClaim.value.memo) formData.append('memo', newClaim.value.memo)
+    newClaimFiles.value.forEach(file => formData.append('files[]', file))
+
+    await store.createClaimRequest(formData)
+    newClaim.value = { name: '', phone: '', hospital_id: '', agent_id: '', memo: '' }
+    newClaimFiles.value = []
+    showNewClaimForm.value = false
+    await loadClaimRequests()
+    alert('청구 신청이 등록되었습니다.')
+  } catch (e: any) {
+    alert(e.response?.data?.message || '청구 신청 등록에 실패했습니다.')
+  } finally {
+    creatingClaim.value = false
+  }
+}
+
 async function handleSubmit() {
   if (!canSubmit.value) return
 
@@ -623,12 +786,22 @@ async function handleSubmit() {
   }
 }
 
+async function loadHospitals() {
+  try {
+    const res = await fetchAdminHospitals({ per_page: 200, is_active: true })
+    hospitalOptions.value = res.data.data.data
+  } catch {
+    // 병원 목록 실패 시 무시
+  }
+}
+
 onMounted(async () => {
   customersLoading.value = true
   try {
     await Promise.all([
       store.loadUnassignedCustomers(),
       store.loadAgentOptions(),
+      loadHospitals(),
     ])
   } finally {
     customersLoading.value = false
