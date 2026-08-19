@@ -1488,7 +1488,8 @@ onMounted(async () => {
           })
         }
 
-        // 카테고리별 consent 필드 상태 복원
+        // consent 필드 상태 복원
+        let formConsentAllAgreed = false
         if (privacyConsentFields.value.length > 0 &&
           privacyConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {
           consentAgreed.value.credit = true
@@ -1498,13 +1499,20 @@ onMounted(async () => {
           consentAgreed.value.sensitive = true
           consentAgreed.value.unique_id = true
         }
-        // 레거시 필드만 있는 경우
         if (privacyConsentFields.value.length === 0 && sensitiveConsentFields.value.length === 0 &&
           legacyConsentFields.value.length > 0 &&
           legacyConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')) {
           consentAgreed.value.credit = true
           consentAgreed.value.sensitive = true
           consentAgreed.value.unique_id = true
+        }
+        // 폼 필드 기반 동의가 모두 agree면, 폼 필드 없는 UI 동의 항목도 복원
+        formConsentAllAgreed = templateConsentFields.value.length > 0 &&
+          templateConsentFields.value.every(f => claimStore.fieldValues[f.form_field_id] === 'agree')
+        if (formConsentAllAgreed) {
+          consentTemplates.value.forEach(ct => {
+            consentAgreed.value[ct.consent_type] = true
+          })
         }
       }
     } else {

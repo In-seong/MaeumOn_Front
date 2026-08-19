@@ -55,6 +55,7 @@ const companyName = computed(() =>
 
 const statusLabel = computed(() => {
   const map: Record<string, string> = {
+    draft: '임시저장',
     pending: '접수대기',
     processing: '발송완료',
     approved: '승인',

@@ -139,7 +139,12 @@ onMounted(() => {
 })
 
 function goToDetail(id: number): void {
-  router.push(`/claims/${id}`)
+  const claim = store.filteredClaims.find(c => c.claim_id === id)
+  if (claim?.claim_status === 'draft') {
+    router.push(`/claims/${id}/edit?templateId=${claim.claim_form_id}`)
+  } else {
+    router.push(`/claims/${id}`)
+  }
 }
 </script>
 
