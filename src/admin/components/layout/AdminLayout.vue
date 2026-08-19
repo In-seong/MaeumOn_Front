@@ -18,11 +18,19 @@ watch(() => route.path, () => {
   sidebarOpen.value = false
 })
 
-onMounted(async () => {
-  if (isSuperAdmin.value) {
+async function initBranches() {
+  if (isSuperAdmin.value && branchStore.branches.length === 0) {
     await branchStore.loadBranches()
     branchStore.restoreSelection()
   }
+}
+
+watch(isSuperAdmin, (val) => {
+  if (val) initBranches()
+})
+
+onMounted(() => {
+  initBranches()
 })
 
 function onBranchChange(e: Event) {
