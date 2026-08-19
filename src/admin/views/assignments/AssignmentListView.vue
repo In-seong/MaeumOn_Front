@@ -192,13 +192,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAssignmentStore } from '../../stores/assignmentStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
 import type { Assignment } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
 const store = useAssignmentStore()
+const branchStore = useBranchStore()
 const searchQuery = ref('')
 const activeTab = ref<'db' | 'claim'>('db')
 const { toggleSort, sortParams, sortIcon } = useSortable()
@@ -228,20 +230,25 @@ function switchTab(tab: 'db' | 'claim') {
 }
 
 async function fetchData(page = 1) {
+  const bp = branchStore.getBranchParam()
   if (activeTab.value === 'db') {
     await store.loadAssignments({
       search: searchQuery.value || undefined,
       page,
       ...sortParams(),
+      ...bp,
     })
   } else {
     await store.loadClaimAssignments({
       search: searchQuery.value || undefined,
       page,
       ...sortParams(),
+      ...bp,
     })
   }
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 function handleSort(field: string) {
   toggleSort(field)

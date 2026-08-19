@@ -95,8 +95,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { fetchBatchClaims } from '../../services/adminApi'
+import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
 import type { AdminBatchClaim, LaravelPagination } from '../../types'
 import Pagination from '../../components/Pagination.vue'
@@ -105,6 +106,7 @@ const batchClaims = ref<AdminBatchClaim[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminBatchClaim>, 'data'> | null>(null)
 const loading = ref(false)
 
+const branchStore = useBranchStore()
 const filters = reactive({
   search: '',
   status: '',
@@ -131,6 +133,7 @@ async function fetchData(page = 1) {
       batch_status: filters.status || undefined,
       page,
       ...sortParams(),
+      ...branchStore.getBranchParam(),
     })
     const { data, ...paginationData } = response.data.data
     batchClaims.value = data
@@ -164,6 +167,8 @@ function getBatchStatusClass(status: string) {
     default: return 'bg-gray-100 text-gray-800'
   }
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 onMounted(() => {
   fetchData()

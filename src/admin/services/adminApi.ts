@@ -13,8 +13,8 @@ import type {
 const BASE = '/admin'
 
 // ===== Dashboard =====
-export const fetchDashboardSummary = () =>
-  api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`)
+export const fetchDashboardSummary = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`, { params })
 
 // ===== Customers (SFR-032~038) =====
 export const fetchCustomers = (params?: Record<string, unknown>) =>

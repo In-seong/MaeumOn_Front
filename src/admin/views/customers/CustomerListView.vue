@@ -165,6 +165,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { fetchAgents } from '../../services/adminApi'
 import Pagination from '../../components/Pagination.vue'
 import { useSortable } from '../../composables/useSortable'
@@ -172,6 +173,7 @@ import type { AdminCustomer, AdminAgent } from '../../types'
 
 const router = useRouter()
 const store = useCustomerStore()
+const branchStore = useBranchStore()
 
 const searchQuery = ref('')
 const activeFilter = ref('')
@@ -236,8 +238,11 @@ async function fetchData(page = 1) {
     agent_id: agentFilter.value || undefined,
     page,
     ...sortParams(),
+    ...branchStore.getBranchParam(),
   })
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 function handleSort(field: string) {
   toggleSort(field)

@@ -215,11 +215,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { fetchAdminClaimRequests, assignClaimRequest, fetchAgents } from '../../services/adminApi'
+import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
 import type { AdminClaimRequest, AdminClaimRequestFile, AdminAgent, LaravelPagination } from '../../types'
 
+const branchStore = useBranchStore()
 const requests = ref<AdminClaimRequest[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminClaimRequest>, 'data'> | null>(null)
 const loading = ref(false)
@@ -269,7 +271,7 @@ function debouncedSearch() { clearTimeout(searchTimeout); searchTimeout = setTim
 async function fetchData(page = 1) {
   loading.value = true
   try {
-    const res = await fetchAdminClaimRequests({ search: filters.search || undefined, status: filters.status || undefined, page, ...sortParams() })
+    const res = await fetchAdminClaimRequests({ search: filters.search || undefined, status: filters.status || undefined, page, ...sortParams(), ...branchStore.getBranchParam() })
     const { data, ...pag } = res.data.data
     requests.value = data
     pagination.value = pag
@@ -370,5 +372,6 @@ async function submitAssign() {
   } finally { submitting.value = false }
 }
 
+watch(() => branchStore.selectedBranchId, () => fetchData())
 onMounted(() => fetchData())
 </script>

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useAuthStore } from '../stores/authStore'
+import { useBranchStore } from '../stores/branchStore'
 import { fetchDashboardSummary } from '../services/adminApi'
 import type { DashboardSummary } from '../types'
 
 const authStore = useAuthStore()
+const branchStore = useBranchStore()
 const summary = ref<DashboardSummary | null>(null)
 const loading = ref(false)
 
@@ -19,7 +21,7 @@ const statCards = [
 async function loadDashboard() {
   loading.value = true
   try {
-    const res = await fetchDashboardSummary()
+    const res = await fetchDashboardSummary(branchStore.getBranchParam())
     summary.value = res.data.data
   } catch {
     // Dashboard summary is optional - show zeros if fails
@@ -40,6 +42,8 @@ function getStatValue(key: string): number {
   if (!summary.value) return 0
   return (summary.value as any)[key] ?? 0
 }
+
+watch(() => branchStore.selectedBranchId, () => loadDashboard())
 
 onMounted(async () => {
   await authStore.fetchUser()

@@ -133,14 +133,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNoticeStore } from '../../stores/noticeStore'
+import { useBranchStore } from '../../stores/branchStore'
 import type { AdminNotice } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
 const router = useRouter()
 const store = useNoticeStore()
+const branchStore = useBranchStore()
 
 const noticeTypeFilter = ref('')
 const pinnedFilter = ref(false)
@@ -155,8 +157,11 @@ async function fetchData(page = 1) {
     notice_type: noticeTypeFilter.value || undefined,
     is_pinned: pinnedFilter.value ? true : undefined,
     page,
+    ...branchStore.getBranchParam(),
   })
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 function goToPage(page: number) {
   fetchData(page)

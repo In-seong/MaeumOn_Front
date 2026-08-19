@@ -16,7 +16,7 @@ export const usePerformanceStore = defineStore('performance', () => {
   const pagination = ref<Omit<LaravelPagination<AgentPerformance>, 'data'> | null>(null)
   const period = ref<'day' | 'week' | 'month'>('month')
 
-  async function loadSummary(periodParam?: 'day' | 'week' | 'month') {
+  async function loadSummary(periodParam?: 'day' | 'week' | 'month', extraParams?: Record<string, unknown>) {
     loading.value = true
     error.value = null
 
@@ -24,7 +24,7 @@ export const usePerformanceStore = defineStore('performance', () => {
       if (periodParam) {
         period.value = periodParam
       }
-      const response = await fetchPerformanceSummary({ period: period.value })
+      const response = await fetchPerformanceSummary({ period: period.value, ...extraParams })
       summary.value = response.data.data
     } catch (e: any) {
       error.value = e.response?.data?.message || '실적 요약을 불러오는데 실패했습니다.'

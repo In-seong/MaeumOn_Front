@@ -89,14 +89,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
 import Pagination from '../../components/Pagination.vue'
 
 const router = useRouter()
 const store = useCorporateInquiryStore()
+const branchStore = useBranchStore()
 
 const search = ref('')
 const filterStatus = ref('')
@@ -134,6 +136,7 @@ function fetchData() {
     search: search.value || undefined,
     status: filterStatus.value || undefined,
     ...sortParams(),
+    ...branchStore.getBranchParam(),
   })
 }
 
@@ -159,6 +162,11 @@ function formatDate(d: string) {
   if (!d) return '-'
   return d.slice(0, 10)
 }
+
+watch(() => branchStore.selectedBranchId, () => {
+  currentPage.value = 1
+  fetchData()
+})
 
 onMounted(() => fetchData())
 </script>

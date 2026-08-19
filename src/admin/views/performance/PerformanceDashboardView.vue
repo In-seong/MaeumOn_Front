@@ -108,12 +108,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { usePerformanceStore } from '../../stores/performanceStore'
+import { useBranchStore } from '../../stores/branchStore'
 import type { AgentPerformance } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
 const store = usePerformanceStore()
+const branchStore = useBranchStore()
 
 const summaryLoading = ref(false)
 const tableLoading = ref(false)
@@ -183,13 +185,13 @@ function toggleSort(key: string) {
 
 async function changePeriod(newPeriod: 'day' | 'week' | 'month') {
   summaryLoading.value = true
-  await store.loadSummary(newPeriod)
+  await store.loadSummary(newPeriod, branchStore.getBranchParam())
   summaryLoading.value = false
 }
 
 async function fetchAgentTable(page = 1) {
   tableLoading.value = true
-  await store.loadAgentPerformances({ page })
+  await store.loadAgentPerformances({ page, ...branchStore.getBranchParam() })
   tableLoading.value = false
 }
 
@@ -202,12 +204,23 @@ function formatAmount(amount?: number): string {
   return amount.toLocaleString('ko-KR')
 }
 
+watch(() => branchStore.selectedBranchId, async () => {
+  summaryLoading.value = true
+  tableLoading.value = true
+  await Promise.all([
+    store.loadSummary(undefined, branchStore.getBranchParam()),
+    store.loadAgentPerformances({ ...branchStore.getBranchParam() }),
+  ])
+  summaryLoading.value = false
+  tableLoading.value = false
+})
+
 onMounted(async () => {
   summaryLoading.value = true
   tableLoading.value = true
   await Promise.all([
-    store.loadSummary(),
-    store.loadAgentPerformances(),
+    store.loadSummary(undefined, branchStore.getBranchParam()),
+    store.loadAgentPerformances({ ...branchStore.getBranchParam() }),
   ])
   summaryLoading.value = false
   tableLoading.value = false

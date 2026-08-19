@@ -89,11 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useAdditionalContractStore } from '../../stores/additionalContractStore'
+import { useBranchStore } from '../../stores/branchStore'
 import Pagination from '../../components/Pagination.vue'
 
 const store = useAdditionalContractStore()
+const branchStore = useBranchStore()
 
 const tabs = [
   { label: '미청구', value: 'unclaimed' },
@@ -116,6 +118,7 @@ async function fetchData(page = 1) {
   await store.loadResults({
     type: store.activeType,
     page,
+    ...branchStore.getBranchParam(),
   })
 }
 
@@ -134,6 +137,8 @@ function formatPhone(phone?: string): string {
   }
   return phone
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 onMounted(() => {
   fetchData()

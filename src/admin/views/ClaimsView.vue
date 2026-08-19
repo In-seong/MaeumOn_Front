@@ -167,9 +167,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { claimApi } from '@shared/services/insuranceApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
+import { useBranchStore } from '../stores/branchStore'
 import { useSortable } from '../composables/useSortable'
 import Pagination from '../components/Pagination.vue'
 import type { InsuranceClaim, PaginatedResponse } from '@shared/types'
@@ -178,6 +179,7 @@ const claims = ref<InsuranceClaim[]>([])
 const pagination = ref<Omit<PaginatedResponse<InsuranceClaim>, 'data'> | null>(null)
 const loading = ref(false)
 
+const branchStore = useBranchStore()
 const statusOptions = CLAIM_STATUS_OPTIONS
 const { toggleSort, sortParams, sortIcon } = useSortable()
 
@@ -215,6 +217,7 @@ async function fetchData(page = 1) {
       date_to: filters.date_to || undefined,
       page,
       ...sortParams(),
+      ...branchStore.getBranchParam(),
     })
     const { data, ...paginationData } = response.data.data
     claims.value = data
@@ -308,6 +311,8 @@ async function doStatusChange(claimId: number, newStatus: string, amount?: numbe
     fetchData()
   }
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 onMounted(() => {
   fetchData()

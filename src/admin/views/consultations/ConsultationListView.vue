@@ -234,7 +234,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import {
   fetchConsultations,
   fetchConsultation,
@@ -242,8 +242,11 @@ import {
   assignConsultation,
   fetchAgents,
 } from '../../services/adminApi'
+import { useBranchStore } from '../../stores/branchStore'
 import type { AdminConsultation, AdminAgent, LaravelPagination } from '../../types'
 import Pagination from '../../components/Pagination.vue'
+
+const branchStore = useBranchStore()
 
 const consultations = ref<AdminConsultation[]>([])
 const pagination = ref<Omit<LaravelPagination<AdminConsultation>, 'data'> | null>(null)
@@ -280,6 +283,7 @@ async function fetchData(page = 1) {
       consultation_status: filters.status || undefined,
       consultation_type: filters.type || undefined,
       page,
+      ...branchStore.getBranchParam(),
     })
     const { data, ...paginationData } = response.data.data
     consultations.value = data
@@ -397,6 +401,8 @@ async function submitAnswer() {
     submitting.value = false
   }
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 onMounted(() => {
   fetchData()

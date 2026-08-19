@@ -130,9 +130,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAgentStore } from '../../stores/agentStore'
+import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
 import type { AdminAgent } from '../../types'
 import Pagination from '../../components/Pagination.vue'
@@ -140,6 +141,7 @@ import AgentCustomerModal from '../../components/AgentCustomerModal.vue'
 
 const router = useRouter()
 const store = useAgentStore()
+const branchStore = useBranchStore()
 
 const searchQuery = ref('')
 const activeFilter = ref('')
@@ -170,8 +172,11 @@ async function fetchData(page = 1) {
     is_active: activeFilter.value === '' ? 'all' : activeFilter.value === 'true',
     page,
     ...sortParams(),
+    ...branchStore.getBranchParam(),
   })
 }
+
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 function handleSort(field: string) {
   toggleSort(field)
