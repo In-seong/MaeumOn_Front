@@ -201,12 +201,10 @@ const router = createRouter({
       component: () => import('../views/consultations/ConsultationListView.vue'),
       meta: { requiresAuth: true },
     },
-    // 배치 청구 관리
+    // 배치 청구 → 청구 관리로 리다이렉트
     {
       path: '/batch-claims',
-      name: 'batch-claims',
-      component: () => import('../views/claims/BatchClaimListView.vue'),
-      meta: { requiresAuth: true },
+      redirect: '/claims',
     },
     // 병원 관리
     {

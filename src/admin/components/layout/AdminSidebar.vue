@@ -54,7 +54,6 @@ const navGroups: NavGroup[] = [
       { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'] },
       { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'] },
       { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims'] },
-      { label: '배치 청구', icon: 'content_copy', to: '/batch-claims', match: ['/batch-claims'] },
     ],
   },
   {
