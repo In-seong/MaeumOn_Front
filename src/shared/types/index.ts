@@ -15,6 +15,32 @@ export interface PaginatedResponse<T> {
 }
 
 // 계정 타입
+export interface Branch {
+  branch_id: number
+  branch_name: string
+  branch_code: string
+  region?: string
+  address?: string
+  contact_phone?: string
+  manager_admin_id?: string
+  is_active: boolean
+  agents_count?: number
+  manager?: { admin_id: string; name: string; phone?: string }
+}
+
+export interface AdminProfile {
+  admin_id: string
+  name: string
+  phone?: string
+  email?: string
+  department?: string
+  position?: string
+  admin_role: 'SUPER' | 'BRANCH'
+  branch_id?: number
+  branch?: Branch
+  is_active: boolean
+}
+
 export interface Account {
   account_id: number
   username: string
@@ -22,6 +48,7 @@ export interface Account {
   is_active: boolean
   last_login_at?: string
   customer?: Customer
+  admin?: AdminProfile
 }
 
 // 고객 타입

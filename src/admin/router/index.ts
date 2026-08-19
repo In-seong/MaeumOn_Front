@@ -257,6 +257,20 @@ const router = createRouter({
       component: () => import('../views/settings/SettingsView.vue'),
       meta: { requiresAuth: true },
     },
+    // 지사 관리 (슈퍼 관리자)
+    {
+      path: '/branches',
+      name: 'branches',
+      component: () => import('../views/branches/BranchListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // 관리자 계정 관리 (슈퍼 관리자)
+    {
+      path: '/admin-accounts',
+      name: 'admin-accounts',
+      component: () => import('../views/admin-accounts/AdminAccountListView.vue'),
+      meta: { requiresAuth: true },
+    },
     // ========== 병원 포털 (별도 레이아웃, 관리자 인증 불필요) ==========
     {
       path: '/portal/login',

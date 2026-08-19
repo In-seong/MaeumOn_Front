@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '../../stores/authStore'
 
 const route = useRoute()
+const authStore = useAuthStore()
+
+const isSuperAdmin = computed(() => authStore.user?.admin?.admin_role === 'SUPER')
 
 defineProps<{
   open: boolean
@@ -22,6 +26,7 @@ interface NavItem {
 interface NavGroup {
   title: string
   collapsible: boolean
+  superOnly?: boolean
   items: NavItem[]
 }
 
@@ -81,6 +86,15 @@ const navGroups: NavGroup[] = [
       { label: '상담 관리', icon: 'forum', to: '/consultations', match: ['/consultations'] },
       { label: 'API 사용 로그', icon: 'api', to: '/codef-logs', match: ['/codef-logs'] },
       { label: '설정', icon: 'settings', to: '/settings', match: ['/settings'] },
+    ],
+  },
+  {
+    title: '시스템 관리',
+    collapsible: true,
+    superOnly: true,
+    items: [
+      { label: '지사 관리', icon: 'apartment', to: '/branches', match: ['/branches'] },
+      { label: '관리자 계정', icon: 'admin_panel_settings', to: '/admin-accounts', match: ['/admin-accounts'] },
     ],
   },
 ]
@@ -143,7 +157,7 @@ function toggleGroup(gi: number) {
 
     <!-- 네비게이션 -->
     <nav class="flex-1 overflow-y-auto py-4 px-3">
-      <div v-for="(group, gi) in navGroups" :key="gi" class="mb-1">
+      <div v-for="(group, gi) in navGroups" :key="gi" class="mb-1" v-show="!group.superOnly || isSuperAdmin">
         <!-- 접기 불가 그룹 (대시보드) -->
         <template v-if="!group.collapsible">
           <ul class="space-y-0.5 mb-3">

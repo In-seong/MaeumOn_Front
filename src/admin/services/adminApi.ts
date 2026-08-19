@@ -298,6 +298,66 @@ export const updateBanner = (id: number, formData: FormData) =>
 export const deleteBanner = (id: number) =>
   api.delete(`${BASE}/banners/${id}`)
 
+// ===== Branches (지사 관리) =====
+export const fetchBranches = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<BranchData[]>>(`${BASE}/branches`, { params })
+
+export const fetchBranch = (id: number) =>
+  api.get<ApiResponse<BranchData>>(`${BASE}/branches/${id}`)
+
+export const createBranch = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<BranchData>>(`${BASE}/branches`, data)
+
+export const updateBranch = (id: number, data: Record<string, unknown>) =>
+  api.put<ApiResponse<BranchData>>(`${BASE}/branches/${id}`, data)
+
+export const deleteBranch = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/branches/${id}`)
+
+export const transferBranchAgents = (id: number, data: Record<string, unknown>) =>
+  api.post<ApiResponse<null>>(`${BASE}/branches/${id}/transfer-agents`, data)
+
+export interface BranchData {
+  branch_id: number
+  branch_name: string
+  branch_code: string
+  region?: string
+  address?: string
+  contact_phone?: string
+  manager_admin_id?: string
+  is_active: boolean
+  agents_count?: number
+  manager?: { admin_id: string; name: string; phone?: string }
+}
+
+// ===== Admin Accounts (관리자 계정 관리) =====
+export const fetchAdminAccounts = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<AdminAccountData[]>>(`${BASE}/admin-accounts`, { params })
+
+export const createAdminAccount = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<AdminAccountData>>(`${BASE}/admin-accounts`, data)
+
+export const updateAdminAccount = (id: string, data: Record<string, unknown>) =>
+  api.put<ApiResponse<AdminAccountData>>(`${BASE}/admin-accounts/${id}`, data)
+
+export const deleteAdminAccount = (id: string) =>
+  api.delete<ApiResponse<null>>(`${BASE}/admin-accounts/${id}`)
+
+export interface AdminAccountData {
+  admin_id: string
+  account_id: number
+  name: string
+  phone?: string
+  email?: string
+  department?: string
+  position?: string
+  admin_role: 'SUPER' | 'BRANCH'
+  branch_id?: number
+  is_active: boolean
+  account?: { account_id: number; username: string; is_active: boolean }
+  branch?: { branch_id: number; branch_name: string }
+}
+
 // ===== 기업용 보험 문의 =====
 export const fetchCorporateInquiries = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<CorporateInquiry>>>(`${BASE}/corporate-inquiries`, { params })
