@@ -125,6 +125,7 @@
           <tr>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[60px]">No.</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">이름</th>
+            <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">구분</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배정 설계사</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">병원</th>
@@ -142,6 +143,14 @@
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index, store.claimPagination) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">
               {{ item.name }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+              <span
+                :class="(item as any).source_type === 'resident' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'"
+                class="px-2 py-0.5 text-[11px] font-medium rounded-full"
+              >
+                {{ (item as any).source_type === 'resident' ? '상주' : '배분' }}
+              </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
               {{ formatPhone(item.phone) }}
@@ -165,7 +174,7 @@
             </td>
           </tr>
           <tr v-if="store.claimAssignments.length === 0">
-            <td colspan="8" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="9" class="px-6 py-10 text-center text-[#999]">
               청구 배정 이력이 없습니다.
             </td>
           </tr>

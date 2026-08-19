@@ -114,6 +114,19 @@
           </button>
 
           <div v-if="showNewClaimForm" class="mt-3 p-4 bg-[#FAFAFA] rounded-[12px] border border-[#E8E8E8]">
+            <div class="flex items-center gap-4 mb-3">
+              <label class="text-[12px] font-medium text-[#666]">DB 구분</label>
+              <div class="flex gap-3">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" v-model="newClaim.source_type" value="resident" class="accent-[#FF7B22]" />
+                  <span class="text-[13px] text-[#333]">상주DB</span>
+                </label>
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" v-model="newClaim.source_type" value="distribution" class="accent-[#FF7B22]" />
+                  <span class="text-[13px] text-[#333]">배분DB</span>
+                </label>
+              </div>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[12px] font-medium text-[#666] mb-1">이름 *</label>
@@ -537,7 +550,7 @@ const newCustomer = ref({ name: '', phone: '' })
 
 const showNewClaimForm = ref(false)
 const creatingClaim = ref(false)
-const newClaim = ref({ name: '', phone: '', hospital_id: '', agent_id: '', memo: '' })
+const newClaim = ref({ name: '', phone: '', hospital_id: '', agent_id: '', memo: '', source_type: 'resident' })
 const newClaimFiles = ref<File[]>([])
 const claimFileInput = ref<HTMLInputElement | null>(null)
 const hospitalOptions = ref<AdminHospital[]>([])
@@ -738,10 +751,11 @@ async function handleCreateClaim() {
     if (newClaim.value.hospital_id) formData.append('hospital_id', newClaim.value.hospital_id)
     if (newClaim.value.agent_id) formData.append('agent_id', newClaim.value.agent_id)
     if (newClaim.value.memo) formData.append('memo', newClaim.value.memo)
+    if (newClaim.value.source_type) formData.append('source_type', newClaim.value.source_type)
     newClaimFiles.value.forEach(file => formData.append('files[]', file))
 
     await store.createClaimRequest(formData)
-    newClaim.value = { name: '', phone: '', hospital_id: '', agent_id: '', memo: '' }
+    newClaim.value = { name: '', phone: '', hospital_id: '', agent_id: '', memo: '', source_type: 'resident' }
     newClaimFiles.value = []
     showNewClaimForm.value = false
     await loadClaimRequests()
