@@ -2,237 +2,135 @@
   <div class="p-4 lg:p-6">
     <h1 class="text-[22px] font-bold text-[#333] mb-6">청구 관리</h1>
 
-    <!-- 탭 -->
-    <div class="flex gap-1 mb-5">
-      <button
-        v-for="tab in tabs"
-        :key="tab.value"
-        :class="[
-          'px-4 py-2 rounded-[10px] text-[14px] font-medium transition-colors',
-          activeTab === tab.value
-            ? 'bg-[#FF7B22] text-white'
-            : 'bg-[#F0F0F0] text-[#666] hover:bg-[#E8E8E8]',
-        ]"
-        @click="switchTab(tab.value)"
+    <!-- 필터 -->
+    <div class="mb-4 flex flex-wrap gap-3">
+      <input
+        v-model="filters.search"
+        type="text"
+        placeholder="고객명 또는 사용자명으로 검색"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+        @input="debouncedSearch"
+      />
+      <select
+        v-model="filters.status"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+        @change="fetchData()"
       >
-        {{ tab.label }}
-      </button>
+        <option value="">전체 상태</option>
+        <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+      <input
+        v-model="filters.date_from"
+        type="date"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+        @change="fetchData()"
+      />
+      <span class="self-center text-[#999]">~</span>
+      <input
+        v-model="filters.date_to"
+        type="date"
+        class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+        @change="fetchData()"
+      />
     </div>
 
-    <!-- ===== 개별 청구 탭 ===== -->
-    <template v-if="activeTab === 'single'">
-      <!-- 필터 -->
-      <div class="mb-4 flex flex-wrap gap-3">
-        <input
-          v-model="filters.search"
-          type="text"
-          placeholder="고객명 또는 사용자명으로 검색"
-          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-          @input="debouncedSearch"
-        />
-        <select
-          v-model="filters.status"
-          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-          @change="fetchData()"
-        >
-          <option value="">전체 상태</option>
-          <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
-        <input
-          v-model="filters.date_from"
-          type="date"
-          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-          @change="fetchData()"
-        />
-        <span class="self-center text-[#999]">~</span>
-        <input
-          v-model="filters.date_to"
-          type="date"
-          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-          @change="fetchData()"
-        />
-      </div>
+    <!-- 로딩 -->
+    <div v-if="loading" class="text-center py-10">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
+    </div>
 
-      <div v-if="loading" class="text-center py-10">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
-      </div>
+    <!-- 테이블 -->
+    <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+      <table class="min-w-full divide-y divide-[#E8E8E8]">
+        <thead class="bg-[#FAFAFA]">
+          <tr>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사 / 양식</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleSort('claim_status')">상태 {{ sortIcon('claim_status') }}</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">청구건수</th>
+            <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('approved_amount')">승인금액 {{ sortIcon('approved_amount') }}</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">팩스</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('created_at')">생성일 {{ sortIcon('created_at') }}</th>
+            <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F0F0F0]">
+          <tr v-for="(claim, index) in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]">
+              <router-link :to="`/claims/${claim.claim_id}`" class="text-[#FF7B22] hover:underline font-medium">{{ rowNum(index) }}</router-link>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+              <div class="text-[14px] font-medium text-[#333]">{{ claim.customer?.name }}</div>
+              <div class="text-[12px] text-[#999]">{{ claim.customer?.email }}</div>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+              <div class="text-[14px] text-[#333]">{{ claim.claim_form?.insurance_company?.company_name }}</div>
+              <div class="text-[12px] text-[#999]">{{ claim.claim_form?.form_name }}</div>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+              <select
+                :value="claim.claim_status"
+                @change="handleStatusChange(claim, ($event.target as HTMLSelectElement).value)"
+                :class="getStatusClass(claim.claim_status)"
+                class="px-2 py-1 text-[12px] font-medium rounded-full border-0 cursor-pointer"
+              >
+                <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-center text-[14px] hidden sm:table-cell">
+              <span v-if="claim.batch_claim" class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-[12px] font-medium">
+                {{ claim.batch_claim.total_count }}건
+              </span>
+              <span v-else class="text-[#999]">1건</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px] hidden lg:table-cell">
+              <span v-if="claim.approved_amount" class="font-medium text-[#22C55E]">
+                {{ Number(claim.approved_amount).toLocaleString() }}원
+              </span>
+              <span v-else class="text-[#999]">-</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">
+              <span v-if="claim.fax_status === 'sent'" class="text-green-600">발송완료</span>
+              <span v-else-if="claim.fax_status === 'failed'" class="text-red-500">발송실패</span>
+              <span v-else>-</span>
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
+              {{ formatDate(claim.created_at ?? '') }}
+            </td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px]">
+              <a
+                v-if="claim.generated_pdf_url"
+                :href="claim.generated_pdf_url"
+                target="_blank"
+                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
+              >
+                이미지
+              </a>
+              <a
+                v-if="claim.generated_pdf_url"
+                :href="claim.generated_pdf_url"
+                target="_blank"
+                class="text-green-600 hover:text-green-700"
+              >
+                PDF
+              </a>
+            </td>
+          </tr>
+          <tr v-if="claims.length === 0">
+            <td colspan="9" class="px-4 lg:px-6 py-10 text-center text-[#999]">
+              청구 내역이 없습니다.
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
-        <table class="min-w-full divide-y divide-[#E8E8E8]">
-          <thead class="bg-[#FAFAFA]">
-            <tr>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사 / 양식</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleSort('claim_status')">상태 {{ sortIcon('claim_status') }}</th>
-              <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('approved_amount')">승인금액 {{ sortIcon('approved_amount') }}</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">팩스</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('created_at')">생성일 {{ sortIcon('created_at') }}</th>
-              <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[#F0F0F0]">
-            <tr v-for="(claim, index) in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors">
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]">
-                <router-link :to="`/claims/${claim.claim_id}`" class="text-[#FF7B22] hover:underline font-medium">{{ rowNum(index) }}</router-link>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                <div class="text-[14px] font-medium text-[#333]">{{ claim.customer?.name }}</div>
-                <div class="text-[12px] text-[#999]">{{ claim.customer?.email }}</div>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                <div class="text-[14px] text-[#333]">{{ claim.claim_form?.insurance_company?.company_name }}</div>
-                <div class="text-[12px] text-[#999]">{{ claim.claim_form?.form_name }}</div>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                <select
-                  :value="claim.claim_status"
-                  @change="handleStatusChange(claim, ($event.target as HTMLSelectElement).value)"
-                  :class="getStatusClass(claim.claim_status)"
-                  class="px-2 py-1 text-[12px] font-medium rounded-full border-0 cursor-pointer"
-                >
-                  <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
-                    {{ opt.label }}
-                  </option>
-                </select>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px] hidden lg:table-cell">
-                <span v-if="claim.approved_amount" class="font-medium text-[#22C55E]">
-                  {{ Number(claim.approved_amount).toLocaleString() }}원
-                </span>
-                <span v-else class="text-[#999]">-</span>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">
-                <span v-if="claim.fax_status === 'sent'" class="text-green-600">발송완료</span>
-                <span v-else-if="claim.fax_status === 'failed'" class="text-red-500">발송실패</span>
-                <span v-else>-</span>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
-                {{ formatDate(claim.created_at ?? '') }}
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px]">
-                <a
-                  v-if="claim.generated_pdf_url"
-                  :href="claim.generated_pdf_url"
-                  target="_blank"
-                  class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
-                >
-                  이미지
-                </a>
-                <a
-                  v-if="claim.generated_pdf_url"
-                  :href="claim.generated_pdf_url"
-                  target="_blank"
-                  class="text-green-600 hover:text-green-700"
-                >
-                  PDF
-                </a>
-              </td>
-            </tr>
-            <tr v-if="claims.length === 0">
-              <td colspan="8" class="px-4 lg:px-6 py-10 text-center text-[#999]">
-                청구 내역이 없습니다.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <Pagination v-if="pagination" :current-page="pagination.current_page" :last-page="pagination.last_page" @change="goToPage" />
-      </div>
-    </template>
-
-    <!-- ===== 다중 청구 탭 ===== -->
-    <template v-if="activeTab === 'batch'">
-      <!-- 필터 -->
-      <div class="mb-4 flex flex-wrap gap-3">
-        <input
-          v-model="batchFilters.search"
-          type="text"
-          placeholder="고객명 또는 설계사명으로 검색"
-          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-          @input="debouncedBatchSearch"
-        />
-        <select
-          v-model="batchFilters.status"
-          class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-          @change="fetchBatchData()"
-        >
-          <option value="">전체 상태</option>
-          <option value="draft">임시저장</option>
-          <option value="pending">접수 대기</option>
-          <option value="processing">발송완료</option>
-          <option value="completed">전체 완료</option>
-          <option value="partial_failed">일부 실패</option>
-        </select>
-      </div>
-
-      <div v-if="batchLoading" class="text-center py-10">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
-      </div>
-
-      <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
-        <table class="min-w-full divide-y divide-[#E8E8E8]">
-          <thead class="bg-[#FAFAFA]">
-            <tr>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">설계사</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleBatchSort('batch_status')">상태 {{ batchSortable.sortIcon('batch_status') }}</th>
-              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">청구건수</th>
-              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">완료건수</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">비고</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleBatchSort('created_at')">생성일 {{ batchSortable.sortIcon('created_at') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[#F0F0F0]">
-            <tr v-for="(item, index) in batchClaims" :key="item.batch_claim_id" class="hover:bg-[#FAFAFA] transition-colors">
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
-                {{ batchRowNum(index) }}
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                <div class="text-[14px] font-medium text-[#333]">{{ item.customer?.name || '-' }}</div>
-                <div class="text-[12px] text-[#999]">{{ item.customer_id }}</div>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                <div class="text-[14px] text-[#333]">{{ item.agent?.name || '-' }}</div>
-                <div class="text-[12px] text-[#999]">{{ item.agent_id }}</div>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                <span :class="getBatchStatusClass(item.batch_status)" class="px-2 py-1 text-[12px] font-medium rounded-full">
-                  {{ item.batch_status_label || item.batch_status }}
-                </span>
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-center text-[14px] text-[#333] hidden sm:table-cell">
-                {{ item.claims_count ?? item.total_count }}
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-center text-[14px] text-[#333] hidden sm:table-cell">
-                {{ item.completed_count }}
-              </td>
-              <td class="px-4 lg:px-6 py-4 text-[13px] text-[#555] hidden lg:table-cell max-w-[200px] truncate">
-                {{ item.notes || '-' }}
-              </td>
-              <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
-                {{ formatDate(item.created_at ?? '') }}
-              </td>
-            </tr>
-            <tr v-if="batchClaims.length === 0">
-              <td colspan="8" class="px-4 lg:px-6 py-10 text-center text-[#999]">
-                다중 청구 내역이 없습니다.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <Pagination
-          v-if="batchPagination"
-          :current-page="batchPagination.current_page"
-          :last-page="batchPagination.last_page"
-          @change="goToBatchPage"
-        />
-      </div>
-    </template>
+      <Pagination v-if="pagination" :current-page="pagination.current_page" :last-page="pagination.last_page" @change="goToPage" />
+    </div>
 
     <!-- 승인 금액 입력 모달 -->
     <Teleport to="body">
@@ -279,20 +177,11 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { claimApi } from '@shared/services/insuranceApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
-import { fetchBatchClaims } from '../services/adminApi'
 import { useBranchStore } from '../stores/branchStore'
 import { useSortable } from '../composables/useSortable'
 import Pagination from '../components/Pagination.vue'
 import type { InsuranceClaim, PaginatedResponse } from '@shared/types'
-import type { AdminBatchClaim, LaravelPagination } from '../types'
 
-const tabs = [
-  { label: '개별 청구', value: 'single' as const },
-  { label: '다중 청구', value: 'batch' as const },
-]
-const activeTab = ref<'single' | 'batch'>('single')
-
-// ===== 개별 청구 =====
 const claims = ref<InsuranceClaim[]>([])
 const pagination = ref<Omit<PaginatedResponse<InsuranceClaim>, 'data'> | null>(null)
 const loading = ref(false)
@@ -425,81 +314,7 @@ async function doStatusChange(claimId: number, newStatus: string, amount?: numbe
   }
 }
 
-// ===== 다중 청구 =====
-const batchClaims = ref<AdminBatchClaim[]>([])
-const batchPagination = ref<Omit<LaravelPagination<AdminBatchClaim>, 'data'> | null>(null)
-const batchLoading = ref(false)
-const batchSortable = useSortable()
-
-const batchFilters = reactive({
-  search: '',
-  status: '',
-})
-
-let batchSearchTimeout: ReturnType<typeof setTimeout>
-let batchLoaded = false
-
-function batchRowNum(index: number): number {
-  const p = batchPagination.value
-  return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
-}
-
-function debouncedBatchSearch() {
-  clearTimeout(batchSearchTimeout)
-  batchSearchTimeout = setTimeout(() => fetchBatchData(), 300)
-}
-
-async function fetchBatchData(page = 1) {
-  batchLoading.value = true
-  try {
-    const response = await fetchBatchClaims({
-      search: batchFilters.search || undefined,
-      batch_status: batchFilters.status || undefined,
-      page,
-      ...batchSortable.sortParams(),
-      ...branchStore.getBranchParam(),
-    })
-    const { data, ...pg } = response.data.data
-    batchClaims.value = data
-    batchPagination.value = pg
-  } finally {
-    batchLoading.value = false
-  }
-}
-
-function handleBatchSort(field: string) {
-  batchSortable.toggleSort(field)
-  fetchBatchData()
-}
-
-function goToBatchPage(page: number) {
-  fetchBatchData(page)
-}
-
-function getBatchStatusClass(status: string) {
-  switch (status) {
-    case 'draft': return 'bg-gray-100 text-gray-600'
-    case 'pending': return 'bg-yellow-100 text-yellow-800'
-    case 'processing': return 'bg-blue-100 text-blue-800'
-    case 'completed': return 'bg-green-100 text-green-800'
-    case 'partial_failed': return 'bg-red-100 text-red-800'
-    default: return 'bg-gray-100 text-gray-800'
-  }
-}
-
-function switchTab(tab: 'single' | 'batch') {
-  activeTab.value = tab
-  if (tab === 'batch' && !batchLoaded) {
-    batchLoaded = true
-    fetchBatchData()
-  }
-}
-
-// ===== 공통 =====
-watch(() => branchStore.selectedBranchId, () => {
-  fetchData()
-  if (batchLoaded) fetchBatchData()
-})
+watch(() => branchStore.selectedBranchId, () => fetchData())
 
 onMounted(() => {
   fetchData()
