@@ -403,3 +403,81 @@ export interface CorporateInquiry {
     email?: string
   } | null
 }
+
+// ===== 자동배분 =====
+
+export interface DistributionListItem {
+  item_id: number
+  list_id: number
+  agent_id: string
+  position: number
+  agent?: { agent_id: string; name: string; employee_number?: string; phone?: string }
+}
+
+export interface DistributionList {
+  list_id: number
+  branch_id: number
+  name: string
+  content_hash: string
+  items_count?: number
+  items?: DistributionListItem[]
+  created_at: string
+  updated_at: string
+}
+
+export interface DistributionConfig {
+  config_id: number
+  branch_id: number
+  is_active: boolean
+  current_list_id: number | null
+  current_position: number
+  delay_minutes: number
+  timeout_hours: number
+  branch?: { branch_id: number; branch_name: string }
+  current_list?: DistributionList | null
+}
+
+export interface DistributionQueueItem {
+  queue_id: number
+  customer_id: string
+  branch_id: number
+  status: 'pending' | 'assigned' | 'completed' | 'failed'
+  scheduled_at: string
+  assigned_agent_id: string | null
+  assigned_at: string | null
+  viewed_at: string | null
+  timeout_count: number
+  customer?: { customer_id: string; name: string; phone: string }
+  assigned_agent?: { agent_id: string; name: string }
+  created_at: string
+}
+
+export const fetchDistributionConfig = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<DistributionConfig | DistributionConfig[]>>(`${BASE}/distribution/config`, { params })
+
+export const toggleDistribution = (branchId: number) =>
+  api.post<ApiResponse<{ is_active: boolean; resume_info?: Record<string, unknown> }>>(`${BASE}/distribution/${branchId}/toggle`)
+
+export const setDistributionPosition = (branchId: number, position: number) =>
+  api.put<ApiResponse<null>>(`${BASE}/distribution/${branchId}/position`, { position })
+
+export const fetchDistributionLists = (branchId: number) =>
+  api.get<ApiResponse<DistributionList[]>>(`${BASE}/distribution/${branchId}/lists`)
+
+export const fetchDistributionList = (branchId: number, listId: number) =>
+  api.get<ApiResponse<DistributionList>>(`${BASE}/distribution/${branchId}/lists/${listId}`)
+
+export const saveDistributionList = (branchId: number, data: { name: string; agent_ids: string[] }) =>
+  api.post<ApiResponse<DistributionList>>(`${BASE}/distribution/${branchId}/lists`, data)
+
+export const updateDistributionList = (branchId: number, listId: number, data: { name?: string; agent_ids?: string[] }) =>
+  api.put<ApiResponse<DistributionList>>(`${BASE}/distribution/${branchId}/lists/${listId}`, data)
+
+export const deleteDistributionList = (branchId: number, listId: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/distribution/${branchId}/lists/${listId}`)
+
+export const activateDistributionList = (branchId: number, listId: number) =>
+  api.post<ApiResponse<null>>(`${BASE}/distribution/${branchId}/lists/${listId}/activate`)
+
+export const fetchDistributionQueue = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<DistributionQueueItem>>>(`${BASE}/distribution/queue`, { params })

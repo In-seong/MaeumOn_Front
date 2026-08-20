@@ -45,6 +45,7 @@ const navGroups: NavGroup[] = [
       { label: '고객 관리', icon: 'people', to: '/customers', match: ['/customers'] },
       { label: '설계사 관리', icon: 'badge', to: '/agents', match: ['/agents'] },
       { label: 'DB 배분', icon: 'swap_horiz', to: '/assignments', match: ['/assignments'] },
+      { label: '자동배분', icon: 'autorenew', to: '/distribution', match: ['/distribution'] },
     ],
   },
   {

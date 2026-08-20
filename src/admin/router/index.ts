@@ -262,6 +262,13 @@ const router = createRouter({
       component: () => import('../views/branches/BranchListView.vue'),
       meta: { requiresAuth: true },
     },
+    // 자동배분 관리
+    {
+      path: '/distribution',
+      name: 'distribution',
+      component: () => import('../views/distribution/DistributionView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 관리자 계정 관리 (슈퍼 관리자)
     {
       path: '/admin-accounts',
