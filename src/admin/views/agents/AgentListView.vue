@@ -49,6 +49,7 @@
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[60px]">No.</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell cursor-pointer select-none hover:text-[#333]" @click="handleSort('employee_number')">사번 {{ sortIcon('employee_number') }}</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider cursor-pointer select-none hover:text-[#333]" @click="handleSort('name')">이름 {{ sortIcon('name') }}</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">로그인 ID</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">이메일</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">담당고객수</th>
@@ -66,6 +67,7 @@
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#333] hidden md:table-cell">{{ agent.employee_number || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.name }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ agent.account?.username || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(agent.phone) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">{{ agent.email || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]" @click.stop>
@@ -106,7 +108,7 @@
             </td>
           </tr>
           <tr v-if="store.agents.length === 0">
-            <td colspan="8" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="9" class="px-6 py-10 text-center text-[#999]">
               등록된 설계사가 없습니다.
             </td>
           </tr>
