@@ -17,13 +17,21 @@
           {{ agent.is_active ? '활성화' : '비활성화' }}
         </span>
       </div>
-      <router-link
-        v-if="agent"
-        :to="`/agents/${agent.agent_id}/edit`"
-        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
-      >
-        수정
-      </router-link>
+      <div v-if="agent" class="flex items-center gap-2">
+        <button
+          v-if="(agent.customers_count ?? 0) > 0"
+          class="px-4 py-2.5 border border-[#FF7B22] text-[#FF7B22] rounded-[12px] hover:bg-[#FFF3ED] transition-colors text-[14px] font-medium"
+          @click="reassignModalVisible = true"
+        >
+          고객 재배분
+        </button>
+        <router-link
+          :to="`/agents/${agent.agent_id}/edit`"
+          class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
+        >
+          수정
+        </router-link>
+      </div>
     </div>
 
     <!-- 로딩 상태 -->
@@ -160,6 +168,15 @@
       :agent-name="agent.name"
       @close="customerModalVisible = false"
     />
+
+    <ReassignCustomerModal
+      v-if="agent"
+      :visible="reassignModalVisible"
+      :agent-id="agent.agent_id"
+      :agent-name="agent.name"
+      @close="reassignModalVisible = false"
+      @done="loadData"
+    />
   </div>
 </template>
 
@@ -168,12 +185,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAgentStore } from '../../stores/agentStore'
 import AgentCustomerModal from '../../components/AgentCustomerModal.vue'
+import ReassignCustomerModal from '../../components/ReassignCustomerModal.vue'
 
 const route = useRoute()
 const store = useAgentStore()
 
 const loading = ref(false)
 const customerModalVisible = ref(false)
+const reassignModalVisible = ref(false)
 
 const agent = computed(() => store.selectedAgent)
 
