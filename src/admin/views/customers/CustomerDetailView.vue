@@ -17,13 +17,31 @@
           {{ customer.is_active ? '활성화' : '비활성화' }}
         </span>
       </div>
-      <router-link
-        v-if="customer"
-        :to="`/customers/${customer.customer_id}/edit`"
-        class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
-      >
-        수정
-      </router-link>
+      <div v-if="customer" class="flex items-center gap-2 shrink-0">
+        <button
+          @click="handleToggleActive"
+          :disabled="toggling"
+          class="px-3 py-2 rounded-[10px] text-[13px] font-medium transition-colors"
+          :class="customer.is_active
+            ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+            : 'bg-green-50 text-green-700 hover:bg-green-100'"
+        >
+          {{ customer.is_active ? '비활성화' : '활성화' }}
+        </button>
+        <button
+          v-if="!customer.is_active"
+          @click="handleDelete"
+          class="px-3 py-2 bg-red-50 text-red-600 rounded-[10px] hover:bg-red-100 transition-colors text-[13px] font-medium"
+        >
+          완전 삭제
+        </button>
+        <router-link
+          :to="`/customers/${customer.customer_id}/edit`"
+          class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[14px] font-medium"
+        >
+          수정
+        </router-link>
+      </div>
     </div>
 
     <!-- 로딩 상태 -->
@@ -322,15 +340,18 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import api from '@shared/api'
 import { useCustomerStore } from '../../stores/customerStore'
 import { unmaskResidentNumber } from '../../services/adminApi'
 import type { Memo } from '../../types'
 
 const route = useRoute()
+const router = useRouter()
 const store = useCustomerStore()
 
 const loading = ref(false)
+const toggling = ref(false)
 const activeTab = ref('info')
 const memoSubmitting = ref(false)
 const editingMemoId = ref<number | null>(null)
@@ -527,6 +548,28 @@ async function loadData() {
   } finally {
     loading.value = false
   }
+}
+
+async function handleToggleActive() {
+  if (!customer.value) return
+  const action = customer.value.is_active ? '비활성화' : '활성화'
+  if (!confirm(`이 고객을 ${action}하시겠습니까?`)) return
+  toggling.value = true
+  try {
+    await api.patch(`/admin/customers/${customer.value.customer_id}/toggle-active`)
+    await loadData()
+  } catch { alert(`${action}에 실패했습니다.`) }
+  finally { toggling.value = false }
+}
+
+async function handleDelete() {
+  if (!customer.value) return
+  if (!confirm('이 고객을 완전 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return
+  if (!confirm('정말로 삭제하시겠습니까? 리스트에서 완전히 사라집니다.')) return
+  try {
+    await api.delete(`/admin/customers/${customer.value.customer_id}`)
+    router.replace('/customers')
+  } catch { alert('삭제에 실패했습니다.') }
 }
 
 onMounted(() => {

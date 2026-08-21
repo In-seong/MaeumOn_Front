@@ -19,6 +19,23 @@
       </div>
       <div v-if="agent" class="flex items-center gap-2">
         <button
+          @click="handleToggleActive"
+          :disabled="toggling"
+          class="px-3 py-2 rounded-[10px] text-[13px] font-medium transition-colors"
+          :class="agent.is_active
+            ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+            : 'bg-green-50 text-green-700 hover:bg-green-100'"
+        >
+          {{ agent.is_active ? '비활성화' : '활성화' }}
+        </button>
+        <button
+          v-if="!agent.is_active"
+          @click="handleDeleteAgent"
+          class="px-3 py-2 bg-red-50 text-red-600 rounded-[10px] hover:bg-red-100 transition-colors text-[13px] font-medium"
+        >
+          완전 삭제
+        </button>
+        <button
           v-if="(agent.customers_count ?? 0) > 0"
           class="px-4 py-2.5 border border-[#FF7B22] text-[#FF7B22] rounded-[12px] hover:bg-[#FFF3ED] transition-colors text-[14px] font-medium"
           @click="reassignModalVisible = true"
@@ -182,15 +199,18 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import api from '@shared/api'
 import { useAgentStore } from '../../stores/agentStore'
 import AgentCustomerModal from '../../components/AgentCustomerModal.vue'
 import ReassignCustomerModal from '../../components/ReassignCustomerModal.vue'
 
 const route = useRoute()
+const router = useRouter()
 const store = useAgentStore()
 
 const loading = ref(false)
+const toggling = ref(false)
 const customerModalVisible = ref(false)
 const reassignModalVisible = ref(false)
 
@@ -227,6 +247,28 @@ async function loadData() {
   } finally {
     loading.value = false
   }
+}
+
+async function handleToggleActive() {
+  if (!agent.value) return
+  const action = agent.value.is_active ? '비활성화' : '활성화'
+  if (!confirm(`이 설계사를 ${action}하시겠습니까?`)) return
+  toggling.value = true
+  try {
+    await api.patch(`/admin/agents/${agent.value.agent_id}/toggle-active`)
+    await loadData()
+  } catch { alert(`${action}에 실패했습니다.`) }
+  finally { toggling.value = false }
+}
+
+async function handleDeleteAgent() {
+  if (!agent.value) return
+  if (!confirm('이 설계사를 완전 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return
+  if (!confirm('정말로 삭제하시겠습니까? 리스트에서 완전히 사라집니다.')) return
+  try {
+    await api.delete(`/admin/agents/${agent.value.agent_id}`)
+    router.replace('/agents')
+  } catch { alert('삭제에 실패했습니다.') }
 }
 
 onMounted(() => {

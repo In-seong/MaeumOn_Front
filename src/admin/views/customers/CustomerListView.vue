@@ -136,10 +136,10 @@
                 수정
               </router-link>
               <button
-                @click="handleDelete(customer)"
-                class="text-red-500 hover:text-red-600"
+                @click="handleToggleActive(customer)"
+                :class="customer.is_active ? 'text-amber-600 hover:text-amber-700' : 'text-green-600 hover:text-green-700'"
               >
-                삭제
+                {{ customer.is_active ? '비활성화' : '활성화' }}
               </button>
             </td>
           </tr>
@@ -164,6 +164,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@shared/api'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { fetchAgents } from '../../services/adminApi'
@@ -285,16 +286,14 @@ function formatPhone(phone?: string): string {
   return phone
 }
 
-async function handleDelete(customer: AdminCustomer) {
-  if (!confirm(`"${customer.name}" 고객을 비활성화하시겠습니까?`)) {
-    return
-  }
-
+async function handleToggleActive(customer: AdminCustomer) {
+  const action = customer.is_active ? '비활성화' : '활성화'
+  if (!confirm(`"${customer.name}" 고객을 ${action}하시겠습니까?`)) return
   try {
-    await store.deleteCustomer(customer.customer_id)
-    alert('비활성화되었습니다.')
+    await api.patch(`/admin/customers/${customer.customer_id}/toggle-active`)
+    await fetchData()
   } catch (e: any) {
-    alert(e.response?.data?.message || '처리에 실패했습니다.')
+    alert(e.response?.data?.message || `${action}에 실패했습니다.`)
   }
 }
 
