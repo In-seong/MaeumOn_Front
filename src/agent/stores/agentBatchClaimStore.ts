@@ -251,36 +251,40 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     return fields
   }
 
+  /** 단일 엔트리에 대해 고객 정보 자동 채움 */
+  function autoFillEntryFromCustomer(entry: CompanyFormEntry): void {
+    const customer = selectedCustomer.value
+    if (!customer || !entry.claimForm) return
+
+    const fields = getFormFields(entry.claimForm)
+    for (const field of fields) {
+      if (!field.standard_field_code) continue
+      const customerKey = CUSTOMER_FIELD_MAP[field.standard_field_code]
+      if (!customerKey) continue
+      let val: string | undefined
+      if (customerKey === 'resident_number_front') {
+        const rrn = customer.resident_number || ''
+        val = rrn.replace(/-/g, '').slice(0, 6) || undefined
+      } else if (customerKey === 'resident_number_back') {
+        const rrn = customer.resident_number || ''
+        const raw = rrn.replace(/-/g, '')
+        val = raw.length > 6 ? raw.slice(6, 13) : undefined
+      } else {
+        const raw = (customer as Record<string, unknown>)[customerKey]
+        val = raw && typeof raw === 'string' ? raw : undefined
+      }
+      if (val) {
+        entry.fieldValues[field.form_field_id] = val
+        entry.autoFilledFieldIds[field.form_field_id] = true
+      }
+    }
+  }
+
   /** 1차 채움: 고객 선택 시 customer_field 기반 자동 채움 */
   function autoFillFromCustomer(): void {
-    const customer = selectedCustomer.value
-    if (!customer) return
-
+    if (!selectedCustomer.value) return
     for (const entry of selectedEntries.value) {
-      if (!entry.claimForm) continue
-      const fields = getFormFields(entry.claimForm)
-      for (const field of fields) {
-        if (!field.standard_field_code) continue
-        const customerKey = CUSTOMER_FIELD_MAP[field.standard_field_code]
-        if (!customerKey) continue
-        let val: string | undefined
-        // 주민번호 앞/뒤 분리 가상 키 처리
-        if (customerKey === 'resident_number_front') {
-          const rrn = customer.resident_number || ''
-          val = rrn.replace(/-/g, '').slice(0, 6) || undefined
-        } else if (customerKey === 'resident_number_back') {
-          const rrn = customer.resident_number || ''
-          const raw = rrn.replace(/-/g, '')
-          val = raw.length > 6 ? raw.slice(6, 13) : undefined
-        } else {
-          const raw = (customer as Record<string, unknown>)[customerKey]
-          val = raw && typeof raw === 'string' ? raw : undefined
-        }
-        if (val) {
-          entry.fieldValues[field.form_field_id] = val
-          entry.autoFilledFieldIds[field.form_field_id] = true
-        }
-      }
+      autoFillEntryFromCustomer(entry)
     }
   }
 
@@ -517,6 +521,10 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
                 : (field.default_value || '')
           })
         }
+      }
+      // 양식 로드 완료 후 고객 자동채움 적용
+      if (selectedCustomer.value) {
+        autoFillEntryFromCustomer(entry)
       }
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message

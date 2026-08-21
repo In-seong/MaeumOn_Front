@@ -639,9 +639,13 @@ function goNext(): void {
       batchClaimStore.toggleCompany(entry.company)
     }
 
+    const batchQuery: Record<string, string> = { fromSelect: 'true' }
+    if (preselectedRequestId) {
+      batchQuery.requestId = preselectedRequestId
+    }
     router.push({
       name: 'agent-batch-claim-new',
-      query: { fromSelect: 'true' },
+      query: batchQuery,
     })
   }
 }

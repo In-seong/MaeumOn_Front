@@ -496,6 +496,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import api from '@shared/api'
 import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 import type { UnifiedField } from '../../stores/agentBatchClaimStore'
@@ -1021,11 +1022,50 @@ async function restoreDraft(batch: import('../../types').BatchClaim) {
 }
 
 // ===== Lifecycle =====
+async function autoAttachAssignmentFiles(): Promise<void> {
+  const requestId = route.query.requestId as string | undefined
+  if (!requestId) return
+  try {
+    const assignRes = await api.get<{ data: Array<{ request_id: number; files?: Array<{ file_id: number; file_name: string }> }> }>('/agent/claim-assignments')
+    const assignment = assignRes.data.data.find(a => a.request_id === Number(requestId))
+    if (assignment?.files && assignment.files.length > 0) {
+      const downloaded = await Promise.all(
+        assignment.files.map(async (file) => {
+          try {
+            const res = await api.get(`/agent/claim-request-files/${file.file_id}/download`, { responseType: 'blob' })
+            const ext = file.file_name.split('.').pop()?.toLowerCase() ?? ''
+            const mimeTypes: Record<string, string> = {
+              jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+              gif: 'image/gif', webp: 'image/webp', pdf: 'application/pdf',
+            }
+            const mime = mimeTypes[ext] ?? 'application/octet-stream'
+            const blob = new Blob([res.data as BlobPart], { type: mime })
+            return new File([blob], file.file_name, { type: mime })
+          } catch {
+            return null
+          }
+        })
+      )
+      const validFiles = downloaded.filter((f): f is File => f !== null)
+      for (const file of validFiles) {
+        batchStore.addCommonDocument(file)
+        if (file.type.startsWith('image/')) {
+          const lastDoc = batchStore.commonDocuments[batchStore.commonDocuments.length - 1]
+          if (lastDoc) {
+            filePreviewUrls.value[lastDoc.id] = URL.createObjectURL(file)
+          }
+        }
+      }
+    }
+  } catch { /* 파일 자동 첨부 실패 시 무시 */ }
+}
+
 onMounted(async () => {
   if (fromSelect.value) {
     await batchStore.loadInsuranceCompanies()
     wizardEntered.value = true
     initialLoaded.value = true
+    autoAttachAssignmentFiles()
     return
   }
   batchStore.resetBatchForm()
