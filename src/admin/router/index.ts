@@ -291,7 +291,7 @@ const router = createRouter({
 })
 
 // 인증 가드
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const isHospitalPortal = window.location.hostname === 'hospital.bohumon.co.kr'
 
   // hospital.bohumon.co.kr 접속 시 포털 라우트가 아니면 포털 로그인으로 이동
@@ -309,6 +309,13 @@ router.beforeEach((to, _from, next) => {
   } else if (to.name === 'login' && isLoggedIn) {
     next({ name: 'dashboard' })
   } else {
+    if (isLoggedIn) {
+      const { useAuthStore } = await import('../stores/authStore')
+      const authStore = useAuthStore()
+      if (!authStore.user) {
+        await authStore.fetchUser()
+      }
+    }
     next()
   }
 })
