@@ -118,7 +118,7 @@
               <button
                 @click="handleToggleActive(customer)"
                 class="relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none"
-                :class="customer.is_active ? 'bg-green-500' : 'bg-gray-300'"
+                :class="customer.is_active ? 'bg-[#FF7B22]' : 'bg-gray-300'"
               >
                 <span
                   class="inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200"
