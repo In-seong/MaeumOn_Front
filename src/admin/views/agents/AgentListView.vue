@@ -92,17 +92,18 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-[14px] font-medium" @click.stop>
               <router-link
-                :to="`/agents/${agent.agent_id}`"
-                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
-              >
-                상세
-              </router-link>
-              <router-link
                 :to="`/agents/${agent.agent_id}/edit`"
-                class="text-[#FF7B22] hover:text-[#E56D1E]"
+                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
               >
                 수정
               </router-link>
+              <button
+                v-if="!agent.is_active"
+                @click="handleDelete(agent)"
+                class="text-red-500 hover:text-red-600"
+              >
+                삭제
+              </button>
             </td>
           </tr>
           <tr v-if="store.agents.length === 0">
@@ -217,6 +218,17 @@ async function handleToggleActive(agent: AdminAgent) {
     await fetchData()
   } catch (e: any) {
     alert(e.response?.data?.message || `${action}에 실패했습니다.`)
+  }
+}
+
+async function handleDelete(agent: AdminAgent) {
+  if (!confirm(`"${agent.name}" 설계사를 완전 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return
+  if (!confirm('정말로 삭제하시겠습니까? 리스트에서 완전히 사라집니다.')) return
+  try {
+    await api.delete(`/admin/agents/${agent.agent_id}`)
+    await fetchData()
+  } catch (e: any) {
+    alert(e.response?.data?.message || '삭제에 실패했습니다.')
   }
 }
 

@@ -128,17 +128,18 @@
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px] font-medium" @click.stop>
               <router-link
-                :to="`/customers/${customer.customer_id}`"
-                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
-              >
-                상세
-              </router-link>
-              <router-link
                 :to="`/customers/${customer.customer_id}/edit`"
-                class="text-[#FF7B22] hover:text-[#E56D1E] hidden sm:inline"
+                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
               >
                 수정
               </router-link>
+              <button
+                v-if="!customer.is_active"
+                @click="handleDelete(customer)"
+                class="text-red-500 hover:text-red-600"
+              >
+                삭제
+              </button>
             </td>
           </tr>
           <tr v-if="store.customers.length === 0">
@@ -292,6 +293,17 @@ async function handleToggleActive(customer: AdminCustomer) {
     await fetchData()
   } catch (e: any) {
     alert(e.response?.data?.message || `${action}에 실패했습니다.`)
+  }
+}
+
+async function handleDelete(customer: AdminCustomer) {
+  if (!confirm(`"${customer.name}" 고객을 완전 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return
+  if (!confirm('정말로 삭제하시겠습니까? 리스트에서 완전히 사라집니다.')) return
+  try {
+    await api.delete(`/admin/customers/${customer.customer_id}`)
+    await fetchData()
+  } catch (e: any) {
+    alert(e.response?.data?.message || '삭제에 실패했습니다.')
   }
 }
 
