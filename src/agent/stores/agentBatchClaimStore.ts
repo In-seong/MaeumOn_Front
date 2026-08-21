@@ -12,6 +12,7 @@ import {
   fetchClaimForms as apiFetchClaimForms,
   fetchClaimFormDetail as apiFetchClaimFormDetail,
   fetchCustomers as apiFetchCustomers,
+  unmaskResidentNumber,
 } from '../services/agentApi'
 
 // ===== 자동 매핑 상수 =====
@@ -218,8 +219,17 @@ export const useAgentBatchClaimStore = defineStore('agentBatchClaim', () => {
     }
   }
 
-  function selectCustomer(customer: Customer): void {
+  async function selectCustomer(customer: Customer): Promise<void> {
     selectedCustomer.value = customer
+    // 주민번호는 API에서 마스킹 처리되므로 별도 로드
+    if (!customer.resident_number && customer.customer_id) {
+      try {
+        const res = await unmaskResidentNumber(customer.customer_id)
+        if (res.data.data.resident_number) {
+          selectedCustomer.value = { ...customer, resident_number: res.data.data.resident_number }
+        }
+      } catch { /* 주민번호 미등록 고객은 무시 */ }
+    }
     // 1차 자동 채움: customer_field 매핑
     autoFillFromCustomer()
   }

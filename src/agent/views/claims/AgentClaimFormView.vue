@@ -520,6 +520,7 @@ import type { ConsentTemplate } from '@shared/services/insuranceApi'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import api from '@shared/api'
 import type { ClaimRequestFile } from '../../types'
+import { unmaskResidentNumber } from '../../services/agentApi'
 
 const router = useRouter()
 const route = useRoute()
@@ -1469,6 +1470,15 @@ onMounted(async () => {
     // 고객 정보 로드 (대리 작성 시 필요)
     if (customerId.value) {
       await customerStore.loadCustomer(customerId.value)
+      // 주민번호는 show API에서 마스킹 처리되므로 별도 API로 평문 로드
+      if (customerStore.selectedCustomer && !customerStore.selectedCustomer.resident_number) {
+        try {
+          const rnRes = await unmaskResidentNumber(customerId.value)
+          if (rnRes.data.data.resident_number) {
+            customerStore.selectedCustomer.resident_number = rnRes.data.data.resident_number
+          }
+        } catch { /* 주민번호 미등록 고객은 무시 */ }
+      }
     }
 
     if (isEditMode.value) {
