@@ -142,6 +142,16 @@
                   <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
                 </select>
               </div>
+              <!-- 기타 -->
+              <div>
+                <label class="text-[13px] font-medium text-[#555] mb-1.5 block">기타</label>
+                <input
+                  v-model="form.acquisition_note"
+                  type="text"
+                  placeholder="가입경로 관련 메모"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                />
+              </div>
             </div>
           </CardSection>
 
@@ -199,6 +209,7 @@ interface CustomerForm {
   job: string
   telecom: string
   acquisition_channel: string
+  acquisition_note: string
 }
 
 const genderOptions = [
@@ -221,6 +232,7 @@ const form = reactive<CustomerForm>({
   job: '',
   telecom: '',
   acquisition_channel: '',
+  acquisition_note: '',
 })
 
 // 전화번호 자동 하이픈: 숫자만 입력 → 010-1234-5678 형태
@@ -271,6 +283,7 @@ async function handleSubmit(): Promise<void> {
       job: form.job || undefined,
       telecom: form.telecom || undefined,
       acquisition_channel: form.acquisition_channel || undefined,
+      acquisition_note: form.acquisition_note || undefined,
     })
 
     toast.showToast('고객이 등록되었습니다.')

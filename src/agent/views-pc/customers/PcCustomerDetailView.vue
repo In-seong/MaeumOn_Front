@@ -220,6 +220,15 @@
                 <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
               </select>
             </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">기타</label>
+              <input
+                v-model="editForm.acquisition_note"
+                type="text"
+                placeholder="가입경로 관련 메모"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+              />
+            </div>
           </div>
           <div class="flex justify-end gap-2 mt-5">
             <button
@@ -270,6 +279,7 @@
             <InfoRow label="직업" :value="customer.job ?? '-'" />
             <InfoRow label="통신사" :value="customer.telecom ?? '-'" />
             <InfoRow label="가입경로" :value="customer.acquisition_channel ?? '-'" />
+            <InfoRow label="기타" :value="customer.acquisition_note ?? '-'" />
             <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
           </div>
         </div>
@@ -813,6 +823,7 @@ const editForm = ref({
   job: '',
   telecom: '',
   acquisition_channel: '',
+  acquisition_note: '',
 })
 
 const genderOptions = [
@@ -911,6 +922,7 @@ function handleStartEdit(): void {
     job: customer.value.job ?? '',
     telecom: customer.value.telecom ?? '',
     acquisition_channel: customer.value.acquisition_channel ?? '',
+    acquisition_note: customer.value.acquisition_note ?? '',
   }
   isEditing.value = true
   activeTab.value = 'info'
@@ -966,6 +978,7 @@ async function handleSaveEdit(): Promise<void> {
       job: editForm.value.job || undefined,
       telecom: editForm.value.telecom || undefined,
       acquisition_channel: editForm.value.acquisition_channel || undefined,
+      acquisition_note: editForm.value.acquisition_note || undefined,
     })
     isEditing.value = false
     toast.showToast('고객 정보가 수정되었습니다.')

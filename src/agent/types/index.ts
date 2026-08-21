@@ -58,7 +58,8 @@ export interface Customer {
   detailed_address?: string
   job?: string               // 직업
   telecom?: string           // 통신사
-  acquisition_channel?: string // 가입경로
+  acquisition_channel?: string
+  acquisition_note?: string
   is_active: boolean
   created_at: string
   updated_at: string
