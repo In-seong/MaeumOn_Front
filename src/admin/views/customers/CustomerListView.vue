@@ -114,13 +114,17 @@
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(customer.phone) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">{{ calcAge(customer.birth_date) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden lg:table-cell">{{ customer.agent?.name || '-' }}</td>
-            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-              <span
-                :class="customer.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
-                class="px-2.5 py-1 text-[12px] font-medium rounded-full"
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap" @click.stop>
+              <button
+                @click="handleToggleActive(customer)"
+                class="relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none"
+                :class="customer.is_active ? 'bg-green-500' : 'bg-gray-300'"
               >
-                {{ customer.is_active ? '활성화' : '비활성화' }}
-              </span>
+                <span
+                  class="inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200"
+                  :class="customer.is_active ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-[14px] font-medium" @click.stop>
               <router-link
@@ -131,16 +135,10 @@
               </router-link>
               <router-link
                 :to="`/customers/${customer.customer_id}/edit`"
-                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3 hidden sm:inline"
+                class="text-[#FF7B22] hover:text-[#E56D1E] hidden sm:inline"
               >
                 수정
               </router-link>
-              <button
-                @click="handleToggleActive(customer)"
-                :class="customer.is_active ? 'text-amber-600 hover:text-amber-700' : 'text-green-600 hover:text-green-700'"
-              >
-                {{ customer.is_active ? '비활성화' : '활성화' }}
-              </button>
             </td>
           </tr>
           <tr v-if="store.customers.length === 0">

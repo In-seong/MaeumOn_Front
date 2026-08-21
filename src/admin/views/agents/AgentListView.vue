@@ -78,13 +78,17 @@
               >{{ agent.customers_count }}</button>
               <span v-else class="text-[#CCC]">0</span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                :class="agent.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
-                class="px-2.5 py-1 text-[12px] font-medium rounded-full"
+            <td class="px-6 py-4 whitespace-nowrap" @click.stop>
+              <button
+                @click="handleToggleActive(agent)"
+                class="relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none"
+                :class="agent.is_active ? 'bg-green-500' : 'bg-gray-300'"
               >
-                {{ agent.is_active ? '활성화' : '비활성화' }}
-              </span>
+                <span
+                  class="inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200"
+                  :class="agent.is_active ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-[14px] font-medium" @click.stop>
               <router-link
@@ -95,16 +99,10 @@
               </router-link>
               <router-link
                 :to="`/agents/${agent.agent_id}/edit`"
-                class="text-[#FF7B22] hover:text-[#E56D1E] mr-3"
+                class="text-[#FF7B22] hover:text-[#E56D1E]"
               >
                 수정
               </router-link>
-              <button
-                @click="handleToggleActive(agent)"
-                :class="agent.is_active ? 'text-amber-600 hover:text-amber-700' : 'text-green-600 hover:text-green-700'"
-              >
-                {{ agent.is_active ? '비활성화' : '활성화' }}
-              </button>
             </td>
           </tr>
           <tr v-if="store.agents.length === 0">
