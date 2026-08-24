@@ -243,6 +243,14 @@ export interface MedicalRecord {
   [key: string]: unknown
 }
 
+// ===== DisclosureCheck (알릴의무 체크) =====
+export interface DisclosureCheckResult {
+  hospital_visit_3months: boolean
+  hospitalization_surgery: Record<number, { hospitalization: number; surgery: number }>
+  critical_diseases: Record<string, { found: boolean; year: number | null }>
+  total_records: number
+}
+
 // ===== SatisfactionSurvey (만족도 조사) =====
 export interface SatisfactionSurvey {
   survey_id: number

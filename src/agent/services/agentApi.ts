@@ -6,7 +6,7 @@ import type {
   DashboardTask,
   Memo, StatisticsTrend, MessageTemplate,
   BatchClaim,
-  MedicalRecordFull, HealthCheckupRecord, HealthAgeRecord,
+  MedicalRecordFull, HealthCheckupRecord, HealthAgeRecord, DisclosureCheckResult,
   ApiResponse, LaravelPagination,
 } from '../types'
 import type {
@@ -377,6 +377,10 @@ export const fetchHealthAgeApi = (customerId: string, data: { loginTypeLevel: st
 
 export const confirmHealthAge = (customerId: string, data: Record<string, string>) =>
   api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/confirm`, data)
+
+// 알릴의무 체크
+export const getDisclosureCheck = (customerId: string) =>
+  api.get<ApiResponse<DisclosureCheckResult>>(`${BASE}/codef/${customerId}/disclosure-check`)
 
 // ===== FCM Token =====
 export const registerFcmToken = (data: { fcm_token: string; device_info?: string }) =>

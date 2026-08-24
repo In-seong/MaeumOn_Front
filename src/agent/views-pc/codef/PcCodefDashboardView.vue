@@ -105,6 +105,79 @@
         </div>
         <button class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('medical')">진료 조회</button>
       </div>
+
+      <!-- 알릴의무 체크 테이블 -->
+      <div v-if="store.disclosureCheck" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6 mb-5">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-[20px]">&#x1F4CB;</span>
+          <div>
+            <p class="text-[15px] font-semibold text-[#222]">입원/수술 보장 기간</p>
+            <p class="text-[12px] text-[#999]">보장 기간을 한눈에 확인하세요.</p>
+          </div>
+          <div class="ml-auto flex items-center gap-1.5 text-[12px] text-[#999]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>기간별 보장 내용을 확인할 수 있습니다.</span>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-[12px] border-collapse">
+            <thead>
+              <tr>
+                <th rowspan="2" class="border border-[#E8E8E8] bg-[#FFF3ED] text-[#FF7B22] px-3 py-2 text-center font-semibold whitespace-nowrap align-middle">
+                  3개월<br/>이내<span class="text-red-500">*</span>
+                </th>
+                <th colspan="11" class="border border-[#E8E8E8] bg-[#FFF3ED] text-[#FF7B22] px-3 py-1.5 text-center font-semibold">
+                  N년이내 입원/수술
+                </th>
+                <th rowspan="2" class="border border-[#E8E8E8] bg-[#FFE4EC] text-[#E91E63] px-3 py-2 text-center font-semibold whitespace-nowrap align-middle">
+                  N년이내<br/>중대질환
+                </th>
+              </tr>
+              <tr>
+                <th v-for="n in 11" :key="n" class="border border-[#E8E8E8] bg-[#FFF8F3] text-[#999] px-2 py-1.5 text-center font-medium min-w-[32px]">
+                  {{ n - 1 }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border border-[#E8E8E8] px-3 py-2.5 text-center font-bold text-[14px]"
+                  :class="store.disclosureCheck.hospital_visit_3months ? 'text-[#FF7B22] bg-[#FFF8F3]' : 'text-[#CCC]'">
+                  {{ store.disclosureCheck.hospital_visit_3months ? 'O' : 'X' }}
+                </td>
+                <td v-for="n in 11" :key="n" class="border border-[#E8E8E8] px-2 py-2.5 text-center text-[13px]"
+                  :class="getHospSurgeryTotal(n - 1) > 0 ? 'text-[#333] font-semibold bg-[#FFF8F3]' : 'text-[#CCC]'">
+                  {{ getHospSurgeryTotal(n - 1) || '' }}
+                </td>
+                <td class="border border-[#E8E8E8] px-3 py-2.5 text-center font-bold text-[13px]"
+                  :class="criticalDiseaseYearLabel ? 'text-[#E91E63] bg-[#FFF0F3]' : 'text-[#CCC]'">
+                  {{ criticalDiseaseYearLabel || 'X' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-[11px] text-red-400 mt-3">* '3개월 이내'는 입원/수술일 기준으로 산정됩니다.</p>
+        <p class="text-[11px] text-[#BBB] mt-0.5">※ 상세 보장 내용은 약관을 참고해 주세요.</p>
+
+        <!-- 중대질환 상세 -->
+        <div v-if="hasCriticalDisease" class="mt-4 pt-4 border-t border-[#F0F0F0]">
+          <p class="text-[13px] font-semibold text-[#E91E63] mb-2">중대질환 해당 항목</p>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="(info, key) in store.disclosureCheck.critical_diseases" :key="key"
+              :class="info.found ? 'bg-red-50 text-red-600 border-red-200' : 'bg-gray-50 text-[#CCC] border-[#E8E8E8]'"
+              class="px-3 py-1.5 text-[12px] rounded-full border font-medium">
+              {{ criticalDiseaseLabel(key as string) }}
+              <template v-if="info.found && info.year !== null">({{ info.year + 1 }}년)</template>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div v-else-if="store.disclosureCheckLoading" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-8 mb-5 text-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto" />
+        <p class="text-[13px] text-[#999] mt-2">알릴의무 체크 로딩 중...</p>
+      </div>
+
       <div v-if="filteredMedicalRecords.length === 0" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-16 text-center">
         <p class="text-[14px] text-[#999]">{{ medicalSubTab === 'hospital' ? '조회된 병원 진료 내역이 없습니다' : '조회된 약국 내역이 없습니다' }}</p>
       </div>
@@ -654,6 +727,44 @@ const twoWayPending = ref(false)
 
 const fetchLoading = ref(false)
 
+function getHospSurgeryTotal(n: number): number {
+  const data = store.disclosureCheck?.hospitalization_surgery?.[n]
+  if (!data) return 0
+  return data.hospitalization + data.surgery
+}
+
+const criticalDiseaseYearLabel = computed(() => {
+  const diseases = store.disclosureCheck?.critical_diseases
+  if (!diseases) return ''
+  let minYear: number | null = null
+  for (const info of Object.values(diseases)) {
+    if (info.found && info.year !== null) {
+      if (minYear === null || info.year < minYear) minYear = info.year
+    }
+  }
+  if (minYear === null) return ''
+  return `${minYear + 1}년`
+})
+
+const hasCriticalDisease = computed(() => {
+  const diseases = store.disclosureCheck?.critical_diseases
+  if (!diseases) return false
+  return Object.values(diseases).some(d => d.found)
+})
+
+function criticalDiseaseLabel(key: string): string {
+  const labels: Record<string, string> = {
+    cancer: '암',
+    stroke: '뇌졸중',
+    angina: '협심증',
+    myocardial_infarction: '심근경색',
+    heart_valve: '심장판막증',
+    liver_cirrhosis: '간경화',
+    chronic_kidney: '투석중인 만성신장질환',
+  }
+  return labels[key] ?? key
+}
+
 const filteredMedicalRecords = computed(() => {
   const isPharmacy = (rec: MedicalRecordFull) =>
     rec.hospital_name?.includes('약국') || rec.treatment_type === '약국'
@@ -714,7 +825,10 @@ function loadTabData() {
   const id = customerId.value
   if (!id) return
   if (activeTab.value === 'insurance') store.loadInsurance(id)
-  else if (activeTab.value === 'medical') store.loadMedical(id)
+  else if (activeTab.value === 'medical') {
+    store.loadMedical(id)
+    store.loadDisclosureCheck(id)
+  }
   else if (activeTab.value === 'checkup') store.loadCheckups(id)
   else if (activeTab.value === 'healthAge') store.loadHealthAge(id)
 }

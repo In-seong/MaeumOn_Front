@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type {
   CodefCustomerSync, MedicalRecordFull, HealthCheckupRecord, HealthAgeRecord,
+  DisclosureCheckResult,
 } from '../types'
 import type { InsuranceContract } from '@shared/types'
 import * as api from '../services/agentApi'
@@ -16,6 +17,8 @@ export const useCodefStore = defineStore('codef', () => {
   const medicalRecords = ref<MedicalRecordFull[]>([])
   const checkups = ref<HealthCheckupRecord[]>([])
   const healthAge = ref<HealthAgeRecord | null>(null)
+  const disclosureCheck = ref<DisclosureCheckResult | null>(null)
+  const disclosureCheckLoading = ref(false)
 
   const tabLoading = ref(false)
 
@@ -93,21 +96,35 @@ export const useCodefStore = defineStore('codef', () => {
     }
   }
 
+  async function loadDisclosureCheck(customerId: string) {
+    disclosureCheckLoading.value = true
+    try {
+      const res = await api.getDisclosureCheck(customerId)
+      disclosureCheck.value = res.data.data
+    } catch {
+      disclosureCheck.value = null
+    } finally {
+      disclosureCheckLoading.value = false
+    }
+  }
+
   function resetDetail() {
     insuranceList.value = []
     insuranceDetail.value = null
     medicalRecords.value = []
     checkups.value = []
     healthAge.value = null
+    disclosureCheck.value = null
   }
 
   return {
     customers, customersLoading, searchQuery,
     insuranceList, insuranceDetail,
     medicalRecords, checkups, healthAge,
+    disclosureCheck, disclosureCheckLoading,
     tabLoading,
     loadCustomers, loadInsurance, loadInsuranceDetail,
     loadMedical, loadCheckups, loadHealthAge,
-    resetDetail,
+    loadDisclosureCheck, resetDetail,
   }
 })
