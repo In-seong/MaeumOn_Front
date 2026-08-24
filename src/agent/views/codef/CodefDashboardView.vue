@@ -703,14 +703,14 @@ const customerId = computed(() => route.params.customerId as string)
 const customerName = ref('고객 조회')
 
 const tabs = [
-  { key: 'insurance', label: '보험' },
   { key: 'medical', label: '진료' },
   { key: 'checkup', label: '검진' },
   { key: 'healthAge', label: '건강나이' },
+  { key: 'insurance', label: '보험' },
 ] as const
 
 type TabKey = typeof tabs[number]['key']
-const activeTab = ref<TabKey>('insurance')
+const activeTab = ref<TabKey>('medical')
 
 const selectedInsurance = ref<InsuranceContract | null>(null)
 const showCreditModal = ref(false)
