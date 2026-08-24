@@ -138,7 +138,8 @@
           <tr
             v-for="(item, index) in store.claimAssignments"
             :key="item.request_id"
-            class="hover:bg-[#FAFAFA] transition-colors"
+            class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
+            @click="openClaimDetail(item)"
           >
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ rowNum(index, store.claimPagination) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">
@@ -188,6 +189,115 @@
         @change="goToPage"
       />
     </div>
+
+    <!-- 청구 배정 상세 모달 -->
+    <div v-if="claimDetailOpen" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" @click.self="claimDetailOpen = false">
+      <div class="bg-white rounded-[16px] w-full max-w-[640px] max-h-[90vh] overflow-y-auto shadow-xl">
+        <div class="px-6 py-4 border-b border-[#F0F0F0] flex items-center justify-between">
+          <h2 class="text-[18px] font-bold text-[#222]">청구 배정 상세</h2>
+          <button @click="claimDetailOpen = false" class="text-[#888] hover:text-[#333] text-[22px]">&times;</button>
+        </div>
+        <div v-if="claimDetailItem" class="px-6 py-5 space-y-4 text-[14px]">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">이름</p>
+              <p class="text-[#222] font-medium">{{ claimDetailItem.name }}</p>
+            </div>
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">전화번호</p>
+              <p class="text-[#222]">{{ formatPhone(claimDetailItem.phone) }}</p>
+            </div>
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">구분</p>
+              <span
+                :class="(claimDetailItem as any).source_type === 'resident' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'"
+                class="px-2 py-0.5 text-[11px] font-medium rounded-full"
+              >
+                {{ (claimDetailItem as any).source_type === 'resident' ? '상주' : '배분' }}
+              </span>
+            </div>
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">상태</p>
+              <span :class="statusClass(claimDetailItem.status)" class="px-2 py-1 text-[12px] font-medium rounded-full">
+                {{ statusLabel(claimDetailItem.status) }}
+              </span>
+            </div>
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">배정 설계사</p>
+              <p class="text-[#222]">{{ claimDetailItem.assigned_agent?.name || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">병원</p>
+              <p class="text-[#222]">{{ (claimDetailItem as any).hospital?.hospital_name || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-[12px] text-[#888] mb-1">배정일</p>
+              <p class="text-[#222]">{{ formatDate(claimDetailItem.updated_at) }}</p>
+            </div>
+          </div>
+
+          <div v-if="claimDetailItem.memo" class="bg-[#F8F8F8] rounded-[10px] p-4">
+            <p class="text-[12px] text-[#888] mb-1">메모</p>
+            <p class="text-[#333] whitespace-pre-wrap">{{ claimDetailItem.memo }}</p>
+          </div>
+
+          <!-- 첨부파일 -->
+          <div v-if="claimDetailItem.files && claimDetailItem.files.length > 0">
+            <p class="text-[12px] text-[#888] mb-2">첨부파일 ({{ claimDetailItem.files.length }}건)</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div v-for="f in claimDetailItem.files" :key="f.file_id"
+                class="border border-[#E8E8E8] rounded-[10px] overflow-hidden group cursor-pointer"
+                @click="isImageFile(f.file_name) ? openImageViewer(f) : openFileDownload(f)">
+                <div v-if="isImageFile(f.file_name) && f.file_download_url" class="aspect-square bg-[#F0F0F0] relative overflow-hidden">
+                  <img :src="f.file_download_url" :alt="f.file_name || '첨부 이미지'"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                  </div>
+                </div>
+                <div v-else class="aspect-square bg-[#F8F8F8] flex flex-col items-center justify-center gap-2">
+                  <svg class="w-10 h-10 text-[#BDBDBD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span class="text-[11px] text-[#999]">{{ getFileExt(f.file_name) }}</span>
+                </div>
+                <div class="px-2 py-1.5 border-t border-[#F0F0F0]">
+                  <p class="text-[11px] text-[#555] truncate">{{ f.file_name || '파일' }}</p>
+                  <p v-if="f.file_size" class="text-[10px] text-[#999]">{{ formatFileSize(f.file_size) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="bg-[#F8F8F8] rounded-[10px] p-4 text-center text-[13px] text-[#999]">
+            첨부파일이 없습니다.
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-[#F0F0F0] flex justify-end">
+          <button @click="claimDetailOpen = false" class="px-4 py-2 text-[#555] text-[14px] hover:text-[#222]">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이미지 뷰어 -->
+    <div v-if="imageViewerOpen" class="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center" @click.self="imageViewerOpen = false">
+      <button @click="imageViewerOpen = false" class="absolute top-4 right-4 text-white/80 hover:text-white text-[32px] z-10">&times;</button>
+      <button v-if="claimImageFiles.length > 1" @click="prevClaimImage"
+        class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-[20px]">
+        &lsaquo;
+      </button>
+      <button v-if="claimImageFiles.length > 1" @click="nextClaimImage"
+        class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-[20px]">
+        &rsaquo;
+      </button>
+      <img v-if="currentViewerFile?.file_download_url" :src="currentViewerFile.file_download_url" :alt="currentViewerFile.file_name || ''"
+        class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl" />
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 text-[13px] bg-black/40 px-3 py-1 rounded-full">
+        {{ currentViewerFile?.file_name || '이미지' }}
+        <span v-if="claimImageFiles.length > 1" class="ml-2">{{ imageViewerIndex + 1 }} / {{ claimImageFiles.length }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -196,7 +306,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAssignmentStore } from '../../stores/assignmentStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
-import type { Assignment } from '../../types'
+import type { Assignment, AdminClaimRequest, AdminClaimRequestFile } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
 const store = useAssignmentStore()
@@ -204,6 +314,66 @@ const branchStore = useBranchStore()
 const searchQuery = ref('')
 const activeTab = ref<'db' | 'claim'>('db')
 const { toggleSort, sortParams, sortIcon } = useSortable()
+
+// 청구 배정 상세 모달
+const claimDetailOpen = ref(false)
+const claimDetailItem = ref<AdminClaimRequest | null>(null)
+
+// 이미지 뷰어
+const imageViewerOpen = ref(false)
+const imageViewerIndex = ref(0)
+
+const claimImageFiles = computed(() =>
+  claimDetailItem.value?.files?.filter(f => isImageFile(f.file_name)) ?? []
+)
+
+const currentViewerFile = computed(() => {
+  const file = claimImageFiles.value[imageViewerIndex.value]
+  return file ?? null
+})
+
+function openClaimDetail(item: AdminClaimRequest) {
+  claimDetailItem.value = item
+  claimDetailOpen.value = true
+}
+
+function isImageFile(name?: string): boolean {
+  if (!name) return false
+  return /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(name)
+}
+
+function getFileExt(name?: string): string {
+  if (!name) return 'FILE'
+  const ext = name.split('.').pop()
+  return ext ? ext.toUpperCase() : 'FILE'
+}
+
+function formatFileSize(bytes?: number): string {
+  if (!bytes) return ''
+  if (bytes < 1024) return bytes + 'B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
+}
+
+function openImageViewer(file: AdminClaimRequestFile) {
+  imageViewerIndex.value = claimImageFiles.value.findIndex(f => f.file_id === file.file_id)
+  if (imageViewerIndex.value < 0) imageViewerIndex.value = 0
+  imageViewerOpen.value = true
+}
+
+function openFileDownload(file: AdminClaimRequestFile) {
+  if (file.file_download_url) {
+    window.open(file.file_download_url, '_blank')
+  }
+}
+
+function prevClaimImage() {
+  imageViewerIndex.value = (imageViewerIndex.value - 1 + claimImageFiles.value.length) % claimImageFiles.value.length
+}
+
+function nextClaimImage() {
+  imageViewerIndex.value = (imageViewerIndex.value + 1) % claimImageFiles.value.length
+}
 
 const tabs = [
   { key: 'db' as const, label: 'DB 배분' },
@@ -242,6 +412,7 @@ async function fetchData(page = 1) {
     await store.loadClaimAssignments({
       search: searchQuery.value || undefined,
       page,
+      per_page: 10,
       ...sortParams(),
       ...bp,
     })

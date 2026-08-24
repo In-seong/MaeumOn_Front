@@ -488,7 +488,8 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null
 // ===== Computed =====
 const selectedCustomer = computed(() => {
   if (!selectedCustomerId.value) return null
-  return customerStore.customers.find(c => c.customer_id === selectedCustomerId.value) ?? null
+  return customerStore.customers.find(c => c.customer_id === selectedCustomerId.value)
+    ?? (customerStore.selectedCustomer?.customer_id === selectedCustomerId.value ? customerStore.selectedCustomer : null)
 })
 
 const showCompanySection = computed(() => {
@@ -524,6 +525,9 @@ onMounted(async () => {
   if (preselectedCustomerId) {
     claimMode.value = 'customer'
     selectedCustomerId.value = preselectedCustomerId
+    if (!customerStore.customers.find(c => c.customer_id === preselectedCustomerId)) {
+      await customerStore.loadCustomer(preselectedCustomerId)
+    }
   }
 })
 

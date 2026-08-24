@@ -467,7 +467,8 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null
 // ===== Computed =====
 const selectedCustomer = computed(() => {
   if (!selectedCustomerId.value) return null
-  return customerStore.customers.find(c => c.customer_id === selectedCustomerId.value) ?? null
+  return customerStore.customers.find(c => c.customer_id === selectedCustomerId.value)
+    ?? (customerStore.selectedCustomer?.customer_id === selectedCustomerId.value ? customerStore.selectedCustomer : null)
 })
 
 const showCompanySection = computed(() => {
@@ -503,6 +504,10 @@ onMounted(async () => {
   if (preselectedCustomerId) {
     claimMode.value = 'customer'
     selectedCustomerId.value = preselectedCustomerId
+    // 페이지네이션된 목록에 없을 수 있으므로 개별 API로 로드
+    if (!customerStore.customers.find(c => c.customer_id === preselectedCustomerId)) {
+      await customerStore.loadCustomer(preselectedCustomerId)
+    }
   }
 })
 
