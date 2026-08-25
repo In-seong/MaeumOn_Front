@@ -27,22 +27,6 @@ const CUSTOMER_FIELD_MAP: Record<string, string> = {
   CONTRACTOR_PHONE: 'phone',
   CONTRACTOR_ADDRESS: 'address',
   CONTRACTOR_EMAIL: 'email',
-  // 피보험자
-  INSURED_NAME: 'name',
-  INSURED_RRN: 'resident_number',
-  INSURED_RRN_FRONT: 'resident_number_front',
-  INSURED_RRN_BACK: 'resident_number_back',
-  INSURED_PHONE: 'phone',
-  INSURED_ADDRESS: 'address',
-  INSURED_EMAIL: 'email',
-  // 수익자(수령인)
-  BENEFICIARY_NAME: 'name',
-  BENEFICIARY_RRN: 'resident_number',
-  BENEFICIARY_RRN_FRONT: 'resident_number_front',
-  BENEFICIARY_RRN_BACK: 'resident_number_back',
-  BENEFICIARY_PHONE: 'phone',
-  BENEFICIARY_ADDRESS: 'address',
-  BENEFICIARY_EMAIL: 'email',
   // 청구자
   CLAIMANT_NAME: 'name',
   CLAIMANT_RRN: 'resident_number',
