@@ -21,6 +21,7 @@ interface NavItem {
   icon: string
   to: string
   match?: string[]
+  superOnly?: boolean
 }
 
 interface NavGroup {
@@ -45,15 +46,15 @@ const navGroups: NavGroup[] = [
       { label: '고객 관리', icon: 'people', to: '/customers', match: ['/customers'] },
       { label: '설계사 관리', icon: 'badge', to: '/agents', match: ['/agents'] },
       { label: 'DB 배분', icon: 'swap_horiz', to: '/assignments', match: ['/assignments'] },
-      { label: '자동배분', icon: 'autorenew', to: '/distribution', match: ['/distribution'] },
+      { label: '자동배분', icon: 'autorenew', to: '/distribution', match: ['/distribution'], superOnly: true },
     ],
   },
   {
     title: '설계사 앱',
     collapsible: true,
     items: [
-      { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'] },
-      { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'] },
+      { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'], superOnly: true },
+      { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'], superOnly: true },
       { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims'] },
     ],
   },
@@ -61,11 +62,11 @@ const navGroups: NavGroup[] = [
     title: '사용자 앱',
     collapsible: true,
     items: [
-      { label: '병원 관리', icon: 'local_hospital', to: '/hospitals', match: ['/hospitals'] },
-      { label: '건강검진 센터', icon: 'health_and_safety', to: '/health-centers', match: ['/health-centers'] },
+      { label: '병원 관리', icon: 'local_hospital', to: '/hospitals', match: ['/hospitals'], superOnly: true },
+      { label: '건강검진 센터', icon: 'health_and_safety', to: '/health-centers', match: ['/health-centers'], superOnly: true },
       { label: '예약 관리', icon: 'event_note', to: '/reservations', match: ['/reservations'] },
       { label: '청구 신청 관리', icon: 'assignment', to: '/claim-requests', match: ['/claim-requests'] },
-      { label: '배너 관리', icon: 'image', to: '/banners', match: ['/banners'] },
+      { label: '배너 관리', icon: 'image', to: '/banners', match: ['/banners'], superOnly: true },
     ],
   },
   {
@@ -81,11 +82,11 @@ const navGroups: NavGroup[] = [
     title: '운영',
     collapsible: true,
     items: [
-      { label: '공지사항', icon: 'campaign', to: '/notices', match: ['/notices'] },
+      { label: '공지사항', icon: 'campaign', to: '/notices', match: ['/notices'], superOnly: true },
       { label: '알림 발송', icon: 'notifications_active', to: '/notifications', match: ['/notifications'] },
       { label: '상담 관리', icon: 'forum', to: '/consultations', match: ['/consultations'] },
-      { label: 'API 사용 로그', icon: 'api', to: '/codef-logs', match: ['/codef-logs'] },
-      { label: '설정', icon: 'settings', to: '/settings', match: ['/settings'] },
+      { label: 'API 사용 로그', icon: 'api', to: '/codef-logs', match: ['/codef-logs'], superOnly: true },
+      { label: '설정', icon: 'settings', to: '/settings', match: ['/settings'], superOnly: true },
     ],
   },
   {
@@ -99,6 +100,11 @@ const navGroups: NavGroup[] = [
   },
 ]
 
+function visibleItems(group: NavGroup): NavItem[] {
+  if (isSuperAdmin.value) return group.items
+  return group.items.filter(item => !item.superOnly)
+}
+
 function isActive(item: NavItem): boolean {
   const currentPath = route.path
   if (item.to === '/' && currentPath === '/') return true
@@ -107,7 +113,12 @@ function isActive(item: NavItem): boolean {
 }
 
 function groupHasActive(group: NavGroup): boolean {
-  return group.items.some(isActive)
+  return visibleItems(group).some(isActive)
+}
+
+function groupVisible(group: NavGroup): boolean {
+  if (group.superOnly && !isSuperAdmin.value) return false
+  return visibleItems(group).length > 0
 }
 
 const collapsed = ref<Record<number, boolean>>({})
@@ -157,11 +168,11 @@ function toggleGroup(gi: number) {
 
     <!-- 네비게이션 -->
     <nav class="flex-1 overflow-y-auto py-4 px-3">
-      <div v-for="(group, gi) in navGroups" :key="gi" class="mb-1" v-show="!group.superOnly || isSuperAdmin">
+      <div v-for="(group, gi) in navGroups" :key="gi" class="mb-1" v-show="groupVisible(group)">
         <!-- 접기 불가 그룹 (대시보드) -->
         <template v-if="!group.collapsible">
           <ul class="space-y-0.5 mb-3">
-            <li v-for="item in group.items" :key="item.to">
+            <li v-for="item in visibleItems(group)" :key="item.to">
               <router-link
                 :to="item.to"
                 :class="[
@@ -206,7 +217,7 @@ function toggleGroup(gi: number) {
             ]"
           >
             <ul class="space-y-0.5 mt-0.5 mb-2">
-              <li v-for="item in group.items" :key="item.to">
+              <li v-for="item in visibleItems(group)" :key="item.to">
                 <router-link
                   :to="item.to"
                   :class="[

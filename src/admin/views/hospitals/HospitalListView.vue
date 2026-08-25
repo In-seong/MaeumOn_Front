@@ -7,8 +7,8 @@
       </button>
     </div>
 
-    <!-- 검색 -->
-    <div class="mb-4">
+    <!-- 검색 + 지사 필터 -->
+    <div class="mb-4 flex items-center gap-3 flex-wrap">
       <input
         v-model="searchQuery"
         type="text"
@@ -16,6 +16,11 @@
         class="px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
         @input="debouncedSearch"
       />
+      <div v-if="filterBranchId" class="flex items-center gap-1.5 px-3 py-2 bg-[#FFF3ED] border border-[#FF7B22] rounded-[10px] text-[13px] text-[#FF7B22] font-medium">
+        <span class="material-symbols-outlined text-[16px]">apartment</span>
+        {{ filterBranchName }}
+        <button @click="clearBranchFilter" class="ml-1 hover:text-[#E66A1A]">&times;</button>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-10">
@@ -32,6 +37,7 @@
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden sm:table-cell">전화번호</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden lg:table-cell">진료과목</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase cursor-pointer select-none hover:text-[#333]" @click="handleSort('is_active')">상태 {{ sortIcon('is_active') }}</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden lg:table-cell">관할 지사</th>
             <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase">관리</th>
           </tr>
         </thead>
@@ -47,6 +53,17 @@
                 {{ h.is_active ? '활성' : '비활성' }}
               </span>
             </td>
+            <td class="px-4 lg:px-6 py-4 hidden lg:table-cell">
+              <button
+                v-if="h.branch"
+                class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-[12px] font-medium hover:bg-blue-100 transition-colors"
+                @click="setBranchFilter(h.branch!.branch_id, h.branch!.branch_name)"
+              >
+                <span class="material-symbols-outlined text-[14px]">apartment</span>
+                {{ h.branch.branch_name }}
+              </button>
+              <span v-else class="text-[12px] text-[#999]">-</span>
+            </td>
             <td class="px-4 lg:px-6 py-4 text-right space-x-2">
               <button @click="openForm(h)" class="px-3 py-1.5 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#E66A1A]">수정</button>
               <button v-if="h.is_active" @click="deactivate(h.hospital_id)" class="px-3 py-1.5 bg-red-500 text-white rounded-[8px] text-[13px] font-medium hover:bg-red-600">비활성</button>
@@ -55,7 +72,7 @@
             </td>
           </tr>
           <tr v-if="hospitals.length === 0">
-            <td colspan="7" class="px-4 lg:px-6 py-10 text-center text-[#999]">등록된 병원이 없습니다.</td>
+            <td colspan="8" class="px-4 lg:px-6 py-10 text-center text-[#999]">등록된 병원이 없습니다.</td>
           </tr>
         </tbody>
       </table>
@@ -164,6 +181,14 @@
               <input type="file" accept="image/*" class="hidden" :disabled="imageUploading" @change="onImageChange" />
             </label>
           </div>
+          <!-- 관할 지사 -->
+          <div>
+            <label class="text-[13px] font-medium text-[#555] mb-1 block">관할 지사</label>
+            <select v-model="formData.branch_id" class="w-full px-3 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] text-[#333]">
+              <option :value="null">없음</option>
+              <option v-for="b in branchList" :key="b.branch_id" :value="b.branch_id">{{ b.branch_name }}</option>
+            </select>
+          </div>
           <!-- 예약 시간 설정 -->
           <div class="border-t border-[#F0F0F0] pt-4">
             <div class="flex items-center justify-between mb-3">
@@ -229,7 +254,8 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
-import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, forceDeleteAdminHospital, activateAdminHospital, addHospitalImage, deleteHospitalImage, uploadHospitalThumbnail, deleteHospitalThumbnail } from '../../services/adminApi'
+import { fetchAdminHospitals, createAdminHospital, updateAdminHospital, deleteAdminHospital, forceDeleteAdminHospital, activateAdminHospital, addHospitalImage, deleteHospitalImage, uploadHospitalThumbnail, deleteHospitalThumbnail, fetchBranches } from '../../services/adminApi'
+import type { BranchData } from '../../services/adminApi'
 import { useSortable } from '../../composables/useSortable'
 import type { AdminHospital, LaravelPagination, ScheduleConfig } from '../../types'
 import ScheduleConfigEditor from '../../components/ScheduleConfigEditor.vue'
@@ -268,6 +294,10 @@ interface HospitalImageItem {
 }
 const hospitalImages = ref<HospitalImageItem[]>([])
 const imageUploading = ref(false)
+const branchList = ref<BranchData[]>([])
+const filterBranchId = ref<number | null>(null)
+const filterBranchName = ref('')
+
 const formData = reactive({
   hospital_name: '',
   address: '',
@@ -277,6 +307,7 @@ const formData = reactive({
   longitude: '' as string | number,
   business_hours: '',
   introduction: '',
+  branch_id: null as number | null,
   schedule_config: null as ScheduleConfig | null,
   reservation_enabled: true,
   portal_username: '',
@@ -297,13 +328,27 @@ function debouncedSearch() {
 async function fetchData(page = 1) {
   loading.value = true
   try {
-    const res = await fetchAdminHospitals({ search: searchQuery.value || undefined, page, ...sortParams() })
+    const params: Record<string, unknown> = { search: searchQuery.value || undefined, page, ...sortParams() }
+    if (filterBranchId.value) params.branch_id = filterBranchId.value
+    const res = await fetchAdminHospitals(params)
     const { data, ...pag } = res.data.data
     hospitals.value = data
     pagination.value = pag
   } finally {
     loading.value = false
   }
+}
+
+function setBranchFilter(branchId: number, branchName: string) {
+  filterBranchId.value = branchId
+  filterBranchName.value = branchName
+  fetchData()
+}
+
+function clearBranchFilter() {
+  filterBranchId.value = null
+  filterBranchName.value = ''
+  fetchData()
 }
 
 function handleSort(field: string) {
@@ -323,6 +368,7 @@ function openForm(hospital?: AdminHospital) {
       longitude: hospital.longitude || '',
       business_hours: hospital.business_hours || '',
       introduction: hospital.introduction || '',
+      branch_id: hospital.branch_id ?? null,
       schedule_config: hospital.schedule_config ? JSON.parse(JSON.stringify(hospital.schedule_config)) : null,
       reservation_enabled: hospital.reservation_enabled !== false,
       portal_username: hospital.accounts?.[0]?.username || '',
@@ -334,7 +380,7 @@ function openForm(hospital?: AdminHospital) {
     currentThumbnailUrl.value = (hospital as unknown as { thumbnail_url?: string | null }).thumbnail_url ?? null
   } else {
     editingId.value = null
-    Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', schedule_config: null, reservation_enabled: true, portal_username: '', portal_password: '', image_url: null })
+    Object.assign(formData, { hospital_name: '', address: '', contact_phone: '', specialties: '', latitude: '', longitude: '', business_hours: '', introduction: '', branch_id: null, schedule_config: null, reservation_enabled: true, portal_username: '', portal_password: '', image_url: null })
     hospitalImages.value = []
     existingAccount.value = ''
     currentThumbnailUrl.value = null
@@ -527,5 +573,11 @@ async function forceDelete(id: number) {
   }
 }
 
-onMounted(() => fetchData())
+onMounted(async () => {
+  fetchData()
+  try {
+    const res = await fetchBranches()
+    branchList.value = res.data.data
+  } catch { /* ignore */ }
+})
 </script>

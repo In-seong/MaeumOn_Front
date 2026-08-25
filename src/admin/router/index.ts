@@ -116,25 +116,25 @@ const router = createRouter({
       path: '/notices',
       name: 'notices',
       component: () => import('../views/notices/NoticeListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     {
       path: '/notices/create',
       name: 'notice-create',
       component: () => import('../views/notices/NoticeFormView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     {
       path: '/notices/:id',
       name: 'notice-detail',
       component: () => import('../views/notices/NoticeDetailView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     {
       path: '/notices/:id/edit',
       name: 'notice-edit',
       component: () => import('../views/notices/NoticeFormView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 알림 발송 (관리자 → 설계사)
     {
@@ -149,30 +149,30 @@ const router = createRouter({
       component: () => import('../views/notifications/NotificationHistoryView.vue'),
       meta: { requiresAuth: true },
     },
-    // 양식 템플릿 관리
+    // 양식 템플릿 관리 (슈퍼 관리자)
     {
       path: '/templates',
       name: 'templates',
       component: () => import('../views/templates/TemplateListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     {
       path: '/templates/create',
       name: 'template-create',
       component: () => import('../views/templates/TemplateFormView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     {
       path: '/templates/:id/edit',
       name: 'template-edit',
       component: () => import('../views/templates/TemplateFormView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     {
       path: '/templates/:id/editor',
       name: 'template-field-editor',
       component: () => import('../views/templates/TemplateFieldEditorView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 청구 관리
     {
@@ -187,12 +187,12 @@ const router = createRouter({
       component: () => import('../views/claims/ClaimDetailView.vue'),
       meta: { requiresAuth: true },
     },
-    // 동의서 관리
+    // 동의서 관리 (슈퍼 관리자)
     {
       path: '/consent-templates',
       name: 'consent-templates',
       component: () => import('../views/ConsentTemplateView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 상담 관리
     {
@@ -206,19 +206,19 @@ const router = createRouter({
       path: '/batch-claims',
       redirect: '/claims',
     },
-    // 병원 관리
+    // 병원 관리 (슈퍼 관리자)
     {
       path: '/hospitals',
       name: 'hospitals',
       component: () => import('../views/hospitals/HospitalListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
-    // 건강검진 센터 관리
+    // 건강검진 센터 관리 (슈퍼 관리자)
     {
       path: '/health-centers',
       name: 'health-centers',
       component: () => import('../views/health-centers/HealthCenterListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 예약 관리
     {
@@ -227,12 +227,12 @@ const router = createRouter({
       component: () => import('../views/reservations/ReservationListView.vue'),
       meta: { requiresAuth: true },
     },
-    // 배너 관리
+    // 배너 관리 (슈퍼 관리자)
     {
       path: '/banners',
       name: 'banners',
       component: () => import('../views/banners/BannerListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 청구 신청 관리
     {
@@ -241,40 +241,40 @@ const router = createRouter({
       component: () => import('../views/claim-requests/ClaimRequestListView.vue'),
       meta: { requiresAuth: true },
     },
-    // CODEF API 로그
+    // CODEF API 로그 (슈퍼 관리자)
     {
       path: '/codef-logs',
       name: 'codef-logs',
       component: () => import('../views/codef/CodefApiLogView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
-    // 사이트 설정
+    // 사이트 설정 (슈퍼 관리자)
     {
       path: '/settings',
       name: 'settings',
       component: () => import('../views/settings/SettingsView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 지사 관리 (슈퍼 관리자)
     {
       path: '/branches',
       name: 'branches',
       component: () => import('../views/branches/BranchListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
-    // 자동배분 관리
+    // 자동배분 관리 (슈퍼 관리자)
     {
       path: '/distribution',
       name: 'distribution',
       component: () => import('../views/distribution/DistributionView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // 관리자 계정 관리 (슈퍼 관리자)
     {
       path: '/admin-accounts',
       name: 'admin-accounts',
       component: () => import('../views/admin-accounts/AdminAccountListView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, superOnly: true },
     },
     // ========== 병원 포털 (별도 레이아웃, 관리자 인증 불필요) ==========
     {
@@ -314,6 +314,10 @@ router.beforeEach(async (to, _from, next) => {
       const authStore = useAuthStore()
       if (!authStore.user) {
         await authStore.fetchUser()
+      }
+      if (to.meta.superOnly && authStore.user?.admin?.admin_role !== 'SUPER') {
+        next({ name: 'dashboard' })
+        return
       }
     }
     next()

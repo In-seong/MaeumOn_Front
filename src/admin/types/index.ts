@@ -241,6 +241,8 @@ export interface AdminHospital {
   introduction?: string
   specialties?: string
   schedule_config?: ScheduleConfig | null
+  branch_id?: number | null
+  branch?: { branch_id: number; branch_name: string } | null
   reservation_enabled: boolean
   is_active: boolean
   accounts?: AdminHospitalAccount[]
@@ -259,6 +261,8 @@ export interface AdminHealthCenter {
   contact_phone?: string
   business_hours?: string
   introduction?: string
+  branch_id?: number | null
+  branch?: { branch_id: number; branch_name: string } | null
   schedule_config?: ScheduleConfig | null
   reservation_enabled: boolean
   is_active: boolean
