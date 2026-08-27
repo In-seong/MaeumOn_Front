@@ -106,6 +106,83 @@
         <button class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('medical')">진료 조회</button>
       </div>
 
+      <!-- 고지의무 분류 -->
+      <div v-if="store.disclosureCheck?.disclosure_classification" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6 mb-5">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="w-7 h-7 rounded-full bg-[#FFF3ED] flex items-center justify-center text-[14px]">&#x26A0;&#xFE0F;</span>
+          <div>
+            <p class="text-[15px] font-semibold text-[#222]">고지의무 분류</p>
+            <p class="text-[12px] text-[#999]">진료 데이터 기반 자동 분류</p>
+          </div>
+        </div>
+
+        <template v-for="(item, idx) in classificationItems" :key="item.key">
+          <p v-if="item.period" class="text-[11px] font-bold text-[#999] uppercase tracking-wider mb-1.5" :class="idx > 0 ? 'mt-3 pt-3 border-t border-[#F0F0F0]' : ''">
+            {{ item.period }}
+          </p>
+          <div @click="item.found ? toggleClassification(item.key) : undefined"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] mb-1 transition-colors"
+               :class="item.found ? 'bg-[#FFF8F3] cursor-pointer hover:bg-[#FFEFE0]' : ''">
+            <span class="text-[13px] flex-1 font-medium" :class="item.found ? 'text-[#333]' : 'text-[#BBB]'">
+              {{ item.label }}
+            </span>
+            <span class="w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0"
+              :class="item.found ? 'bg-[#FF7B22] text-white' : 'bg-[#E8E8E8] text-[#CCC]'">
+              {{ item.found ? 'O' : 'X' }}
+            </span>
+            <template v-if="item.found">
+              <span class="text-[12px] text-[#FF7B22] font-medium min-w-[32px] text-right">{{ item.count }}건</span>
+              <svg class="w-3.5 h-3.5 text-[#999] shrink-0 transition-transform" :class="expandedClassification === item.key ? 'rotate-90' : ''"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </template>
+          </div>
+
+          <div v-if="expandedClassification === item.key && item.found" class="px-3 pb-2 mt-1">
+            <template v-if="item.type === 'simple'">
+              <div v-for="rec in getClassificationRecords(item.key)" :key="rec.record_id"
+                   class="flex items-center gap-2 py-2 border-b border-[#F5F5F5] last:border-0 text-[12px]">
+                <span class="text-[#999] w-[80px] shrink-0">{{ rec.treatment_date }}</span>
+                <span class="text-[#333] flex-1 truncate">{{ rec.hospital_name }}</span>
+                <span class="text-[#888] truncate max-w-[120px]">{{ rec.diagnosis_name }}</span>
+              </div>
+            </template>
+
+            <template v-else-if="item.type === 'grouped'">
+              <div v-for="group in getClassificationGroups(item.key)" :key="group.diagnosis_code" class="mb-3 last:mb-0">
+                <div class="flex items-center gap-2 py-2 bg-[#FFF3ED] rounded-[8px] px-3">
+                  <span class="px-2 py-0.5 bg-[#FF7B22] text-white rounded text-[11px] font-medium shrink-0">{{ group.diagnosis_code }}</span>
+                  <span class="text-[13px] text-[#333] font-medium flex-1 truncate">{{ group.diagnosis_name }}</span>
+                  <span class="text-[13px] text-[#FF7B22] font-bold shrink-0">{{ group.displayValue }}</span>
+                </div>
+                <div v-for="rec in group.records.slice(0, 5)" :key="rec.record_id"
+                     class="flex items-center gap-2 py-1.5 pl-4 text-[11px] text-[#999]">
+                  <span class="w-[80px] shrink-0">{{ rec.treatment_date }}</span>
+                  <span class="flex-1 truncate">{{ rec.hospital_name }}</span>
+                </div>
+                <p v-if="group.records.length > 5" class="text-[11px] text-[#BBB] pl-4 py-0.5">
+                  외 {{ group.records.length - 5 }}건 더
+                </p>
+              </div>
+            </template>
+
+            <template v-else-if="item.type === 'critical'">
+              <div v-for="(recs, dKey) in getCriticalClassificationRecords()" :key="dKey" class="mb-3 last:mb-0">
+                <p class="text-[12px] font-semibold text-[#E91E63] py-1.5 px-1">{{ criticalDiseaseLabel(dKey as string) }}</p>
+                <div v-for="rec in recs.slice(0, 5)" :key="rec.record_id"
+                     class="flex items-center gap-2 py-1.5 pl-4 text-[11px] text-[#999]">
+                  <span class="w-[80px] shrink-0">{{ rec.treatment_date }}</span>
+                  <span class="flex-1 truncate">{{ rec.hospital_name }}</span>
+                  <span class="truncate max-w-[100px]">{{ rec.diagnosis_name }}</span>
+                </div>
+                <p v-if="recs.length > 5" class="text-[11px] text-[#BBB] pl-4 py-0.5">
+                  외 {{ recs.length - 5 }}건 더
+                </p>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+
       <!-- 알릴의무 체크 테이블 -->
       <div v-if="store.disclosureCheck" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6 mb-5">
         <div class="flex items-center gap-3 mb-4">
@@ -763,6 +840,62 @@ function criticalDiseaseLabel(key: string): string {
     chronic_kidney: '투석중인 만성신장질환',
   }
   return labels[key] ?? key
+}
+
+const expandedClassification = ref<string | null>(null)
+
+const classificationItems = computed(() => {
+  const dc = store.disclosureCheck?.disclosure_classification
+  if (!dc) return []
+  return [
+    { key: 'treatment_3months', period: '3개월 이내', label: '치료력', found: dc.treatment_3months.found, count: dc.treatment_3months.count, type: 'simple' },
+    { key: 'hospitalization_5years', period: '5년 이내', label: '입원', found: dc.hospitalization_5years.found, count: dc.hospitalization_5years.count, type: 'simple' },
+    { key: 'surgery_5years', period: null as string | null, label: '수술', found: dc.surgery_5years.found, count: dc.surgery_5years.count, type: 'simple' },
+    { key: 'frequent_visits', period: null as string | null, label: '7일 이상 통원', found: dc.frequent_visits.found, count: dc.frequent_visits.groups.length, type: 'grouped' },
+    { key: 'long_prescriptions', period: null as string | null, label: '30일 이상 처방', found: dc.long_prescriptions.found, count: dc.long_prescriptions.groups.length, type: 'grouped' },
+    { key: 'critical_disease_5years', period: null as string | null, label: '중대질환', found: dc.critical_disease_5years.found, count: Object.keys(dc.critical_disease_5years.diseases).length, type: 'critical' },
+  ]
+})
+
+function toggleClassification(key: string) {
+  expandedClassification.value = expandedClassification.value === key ? null : key
+}
+
+function getClassificationRecords(key: string) {
+  const dc = store.disclosureCheck?.disclosure_classification
+  if (!dc) return []
+  const map: Record<string, typeof dc.treatment_3months.records> = {
+    treatment_3months: dc.treatment_3months.records,
+    hospitalization_5years: dc.hospitalization_5years.records,
+    surgery_5years: dc.surgery_5years.records,
+  }
+  return map[key] ?? []
+}
+
+function getClassificationGroups(key: string) {
+  const dc = store.disclosureCheck?.disclosure_classification
+  if (!dc) return []
+  if (key === 'frequent_visits') {
+    return dc.frequent_visits.groups.map(g => ({
+      diagnosis_code: g.diagnosis_code,
+      diagnosis_name: g.diagnosis_name,
+      displayValue: g.count + '회',
+      records: g.records,
+    }))
+  }
+  if (key === 'long_prescriptions') {
+    return dc.long_prescriptions.groups.map(g => ({
+      diagnosis_code: g.diagnosis_code,
+      diagnosis_name: g.diagnosis_name,
+      displayValue: g.total_days + '일',
+      records: g.records,
+    }))
+  }
+  return []
+}
+
+function getCriticalClassificationRecords() {
+  return store.disclosureCheck?.disclosure_classification?.critical_disease_5years?.diseases ?? {}
 }
 
 const filteredMedicalRecords = computed(() => {

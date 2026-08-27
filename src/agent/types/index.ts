@@ -244,11 +244,62 @@ export interface MedicalRecord {
 }
 
 // ===== DisclosureCheck (알릴의무 체크) =====
+export interface BriefRecord {
+  record_id: number
+  treatment_date: string
+  hospital_name?: string
+  diagnosis_code?: string
+  diagnosis_name?: string
+  treatment_type?: string
+  visit_days?: number
+}
+
+export interface DisclosureClassification {
+  treatment_3months: {
+    found: boolean
+    count: number
+    records: BriefRecord[]
+  }
+  hospitalization_5years: {
+    found: boolean
+    count: number
+    records: BriefRecord[]
+  }
+  surgery_5years: {
+    found: boolean
+    count: number
+    records: BriefRecord[]
+  }
+  frequent_visits: {
+    found: boolean
+    groups: Array<{
+      diagnosis_code: string
+      diagnosis_name?: string
+      count: number
+      records: BriefRecord[]
+    }>
+  }
+  long_prescriptions: {
+    found: boolean
+    groups: Array<{
+      diagnosis_code: string
+      diagnosis_name?: string
+      total_days: number
+      records: BriefRecord[]
+    }>
+  }
+  critical_disease_5years: {
+    found: boolean
+    diseases: Record<string, BriefRecord[]>
+  }
+}
+
 export interface DisclosureCheckResult {
   hospital_visit_3months: boolean
   hospitalization_surgery: Record<number, { hospitalization: number; surgery: number }>
   critical_diseases: Record<string, { found: boolean; year: number | null }>
   total_records: number
+  disclosure_classification?: DisclosureClassification
 }
 
 // ===== SatisfactionSurvey (만족도 조사) =====
