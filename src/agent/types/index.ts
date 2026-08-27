@@ -357,6 +357,7 @@ export interface ClaimAssignment {
   status: string
   assigned_agent_id: string
   linked_claim_id?: number
+  source_type?: 'resident' | 'distribution'
   created_at: string
   updated_at: string
   hospital?: { hospital_id: number; hospital_name: string }

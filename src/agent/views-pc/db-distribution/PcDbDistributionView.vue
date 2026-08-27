@@ -24,6 +24,7 @@
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객명</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">연락처</th>
+                <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">DB구분</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">병원</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">메모</th>
@@ -39,6 +40,18 @@
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ index + 1 }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ item.name }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666]">{{ formatPhone(item.phone) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    v-if="item.source_type"
+                    :class="item.source_type === 'resident'
+                      ? 'bg-[#E8F5E9] text-[#2E7D32]'
+                      : 'bg-[#E3F2FD] text-[#1565C0]'"
+                    class="px-2 py-0.5 text-[12px] font-medium rounded-full"
+                  >
+                    {{ item.source_type === 'resident' ? '상주' : '배분' }}
+                  </span>
+                  <span v-else class="text-[14px] text-[#999]">-</span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ item.hospital?.hospital_name || '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span

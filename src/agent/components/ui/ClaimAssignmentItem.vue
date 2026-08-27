@@ -6,9 +6,20 @@
         <p class="text-[15px] font-semibold text-[#333]">{{ assignment.name }}</p>
         <p class="text-[13px] text-[#888] mt-0.5">{{ assignment.phone }}</p>
       </div>
-      <span class="text-[12px] text-white bg-[#FF7B22] px-2 py-0.5 rounded-full font-medium">
-        청구배정
-      </span>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <span
+          v-if="assignment.source_type"
+          :class="assignment.source_type === 'resident'
+            ? 'bg-[#E8F5E9] text-[#2E7D32]'
+            : 'bg-[#E3F2FD] text-[#1565C0]'"
+          class="text-[11px] px-2 py-0.5 rounded-full font-medium"
+        >
+          {{ assignment.source_type === 'resident' ? '상주' : '배분' }}
+        </span>
+        <span class="text-[12px] text-white bg-[#FF7B22] px-2 py-0.5 rounded-full font-medium">
+          청구배정
+        </span>
+      </div>
     </div>
 
     <!-- Hospital -->
