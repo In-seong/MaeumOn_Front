@@ -321,6 +321,34 @@ export interface AdminClaimRequestFile {
   file_download_url?: string
 }
 
+// 청구 신청 배정 통계
+export interface ClaimRequestStatAgentRow {
+  agent_id: string
+  agent_name: string
+  resident: number
+  distribution: number
+  total: number
+}
+
+export interface ClaimRequestStatSummary {
+  total_resident: number
+  total_distribution: number
+  total: number
+}
+
+export interface ClaimRequestStatHospital {
+  hospital_id: number
+  hospital_name: string
+}
+
+export interface ClaimRequestStatistics {
+  agents: ClaimRequestStatAgentRow[]
+  summary: ClaimRequestStatSummary
+  hospitals: ClaimRequestStatHospital[]
+  period: 'day' | 'week' | 'month'
+  start_date: string
+}
+
 // 예약 관리
 export interface AdminReservation {
   reservation_id: number

@@ -66,6 +66,7 @@ const navGroups: NavGroup[] = [
       { label: '건강검진 센터', icon: 'health_and_safety', to: '/health-centers', match: ['/health-centers'], superOnly: true },
       { label: '예약 관리', icon: 'event_note', to: '/reservations', match: ['/reservations'] },
       { label: '청구 신청 관리', icon: 'assignment', to: '/claim-requests', match: ['/claim-requests'] },
+      { label: '배정 통계', icon: 'leaderboard', to: '/claim-requests/statistics', match: ['/claim-requests/statistics'] },
       { label: '배너 관리', icon: 'image', to: '/banners', match: ['/banners'], superOnly: true },
     ],
   },

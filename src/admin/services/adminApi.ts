@@ -7,7 +7,7 @@ import type {
   DashboardSummary, AdminSentNotification,
   AdminConsultation, AdminBatchClaim,
   AdminHospital, AdminHealthCenter, AdminClaimRequest,
-  AdminReservation, ScheduleConfig,
+  AdminReservation, ScheduleConfig, ClaimRequestStatistics,
 } from '../types'
 
 const BASE = '/admin'
@@ -221,6 +221,9 @@ export const deleteHealthCenterThumbnail = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/health-centers/${id}/thumbnail`)
 
 // ===== Claim Requests (간편 청구 신청 관리) =====
+export const fetchClaimRequestStatistics = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<ClaimRequestStatistics>>(`${BASE}/claim-requests/statistics`, { params })
+
 export const fetchAdminClaimRequests = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminClaimRequest>>>(`${BASE}/claim-requests`, { params })
 

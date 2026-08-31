@@ -241,6 +241,12 @@ const router = createRouter({
       component: () => import('../views/claim-requests/ClaimRequestListView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/claim-requests/statistics',
+      name: 'claim-request-statistics',
+      component: () => import('../views/claim-requests/ClaimRequestStatisticsView.vue'),
+      meta: { requiresAuth: true },
+    },
     // CODEF API 로그 (슈퍼 관리자)
     {
       path: '/codef-logs',
