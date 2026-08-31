@@ -125,12 +125,44 @@
             <FileUploadSimple @update:files="onFilesChange" />
           </div>
 
-          <!-- 담당 설계사 -->
-          <FormInput
-            label="담당 설계사 (선택)"
-            v-model="form.agent_name"
-            placeholder="없음"
-          />
+          <!-- 담당 설계사 자동완성 -->
+          <div>
+            <p class="text-[13px] font-medium text-[#555] mb-2">담당 설계사 (선택)</p>
+            <div class="relative" ref="agentDropdownRef">
+              <div class="relative">
+                <input
+                  v-model="agentSearchQuery"
+                  type="text"
+                  placeholder="설계사 이름을 입력하세요"
+                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[15px] text-[#222] placeholder-[#999] focus:outline-none focus:border-[#FF7B22] transition-colors"
+                  @focus="agentDropdownOpen = true"
+                  @input="agentDropdownOpen = true"
+                />
+                <button
+                  v-if="form.agent_name"
+                  type="button"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-[#999] text-[18px]"
+                  @click="clearAgentSelection"
+                >
+                  &times;
+                </button>
+              </div>
+              <div
+                v-if="agentDropdownOpen && filteredAgents.length > 0"
+                class="absolute z-20 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[12px] shadow-lg max-h-[200px] overflow-y-auto"
+              >
+                <button
+                  v-for="agent in filteredAgents"
+                  :key="agent.agent_id"
+                  type="button"
+                  class="w-full text-left px-4 py-2.5 text-[14px] text-[#333] hover:bg-[#FFF3ED] transition-colors"
+                  @click="selectAgent(agent)"
+                >
+                  {{ agent.name }}<span v-if="agent.phone_last4" class="text-[#999]">({{ agent.phone_last4 }})</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
         </div>
 
@@ -188,15 +220,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useDialog } from '@user/composables/useDialog'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import FileUploadSimple from '@user/components/FileUploadSimple.vue'
 import SeniorBottomNav from '@user/components/SeniorBottomNav.vue'
-import { submitClaimRequest, fetchHospitals } from '@user/services/publicApi'
-import type { PartnerHospital } from '@user/services/publicApi'
+import { submitClaimRequest, fetchHospitals, fetchPublicAgents } from '@user/services/publicApi'
+import type { PartnerHospital, PublicAgent } from '@user/services/publicApi'
 
 const dialog = useDialog()
 const showGuide = ref(true)
@@ -211,6 +243,40 @@ const form = ref({
 const hospitals = ref<PartnerHospital[]>([])
 const hospitalPickerOpen = ref(false)
 const hospitalSearch = ref('')
+
+// 설계사 자동완성
+const agents = ref<PublicAgent[]>([])
+const agentSearchQuery = ref('')
+const agentDropdownOpen = ref(false)
+const agentDropdownRef = ref<HTMLElement | null>(null)
+
+const filteredAgents = computed(() => {
+  const q = agentSearchQuery.value.trim().toLowerCase()
+  if (!q) return agents.value
+  return agents.value.filter(a =>
+    a.name.toLowerCase().includes(q) ||
+    (a.phone_last4 && a.phone_last4.includes(q))
+  )
+})
+
+function selectAgent(agent: PublicAgent) {
+  form.value.agent_name = agent.name
+  agentSearchQuery.value = agent.phone_last4
+    ? `${agent.name}(${agent.phone_last4})`
+    : agent.name
+  agentDropdownOpen.value = false
+}
+
+function clearAgentSelection() {
+  form.value.agent_name = ''
+  agentSearchQuery.value = ''
+}
+
+function handleAgentClickOutside(e: MouseEvent) {
+  if (agentDropdownRef.value && !agentDropdownRef.value.contains(e.target as Node)) {
+    agentDropdownOpen.value = false
+  }
+}
 
 const selectedHospital = computed(() =>
   hospitals.value.find(h => h.hospital_id === form.value.hospital_id) ?? null
@@ -231,12 +297,19 @@ function selectHospital(h: PartnerHospital) {
 }
 
 onMounted(async () => {
+  document.addEventListener('click', handleAgentClickOutside)
   try {
-    const res = await fetchHospitals()
-    hospitals.value = res.data.data
+    const [hospRes, agentRes] = await Promise.all([fetchHospitals(), fetchPublicAgents()])
+    hospitals.value = hospRes.data.data
+    agents.value = agentRes.data.data
   } catch {
     hospitals.value = []
+    agents.value = []
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleAgentClickOutside)
 })
 
 const files = ref<File[]>([])

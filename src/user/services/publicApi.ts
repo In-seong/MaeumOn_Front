@@ -166,6 +166,7 @@ export const fetchBanners = () =>
 export interface PublicAgent {
   agent_id: string
   name: string
+  phone_last4?: string | null
 }
 
 export const fetchPublicAgents = () =>
