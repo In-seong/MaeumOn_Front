@@ -958,54 +958,66 @@ function scrollToTop() {
 
 // ===== 자동채움: Step 3 (고객 정보와 동일) =====
 // 자동채움 매핑 타입: customer 필드 키 + 분할 처리를 위한 특수 키
-type AutoFillKey = 'name' | 'phone' | 'email' | 'resident_front' | 'resident_back' | 'resident_full' | null
+type AutoFillKey = 'name' | 'phone' | 'email' | 'address' | 'resident_front' | 'resident_back' | 'resident_full' | null
+
+// standard_field_code 접미사 → AutoFillKey 매핑
+const STANDARD_CODE_SUFFIX_MAP: Record<string, AutoFillKey> = {
+  _NAME: 'name',
+  _PHONE: 'phone',
+  _EMAIL: 'email',
+  _ADDRESS: 'address',
+  _RRN: 'resident_full',
+  _RRN_FRONT: 'resident_front',
+  _RRN_BACK: 'resident_back',
+}
 
 function matchAutoFillKey(field: FormField): AutoFillKey {
+  // 1차: standard_field_code 기반 (가장 신뢰도 높음)
+  if (field.standard_field_code) {
+    for (const [suffix, key] of Object.entries(STANDARD_CODE_SUFFIX_MAP)) {
+      if (field.standard_field_code.endsWith(suffix)) return key
+    }
+  }
+
+  // 2차: field_type + field_name 기반 폴백
   const name = field.field_name.toLowerCase()
   const label = (field.field_label || '').toLowerCase()
   const type = field.field_type
 
-  // 주민번호 관련: field_name에 jumin, resident, rrn 포함 (생년월일이 아닌 것)
   if (name.includes('jumin') || name.includes('rrn') || (name.includes('resident') && !name.includes('birth'))) {
-    // label로 뒷자리 판별
     if (label.includes('뒷') || label.includes('후')) return 'resident_back'
-    // field_type으로 분리 입력 판별
     if (type === 'resident_number_back') return 'resident_back'
     if (type === 'resident_number_front') return 'resident_front'
-    // field_type이 resident_number면 전체 주민번호
     if (type === 'resident_number') return 'resident_full'
-    // 기본: 뒷자리로 간주 (birth 필드가 따로 있으므로)
     return 'resident_back'
   }
-  // 생년월일 (주민번호 앞 6자리): birth 키워드
   if (name.includes('birth') || label.includes('생년') || label.includes('생일')) {
     return 'resident_front'
   }
-  // 전화번호
   if (type === 'phone' || name.includes('phone') || name.includes('tel') || label.includes('휴대') || label.includes('전화') || label.includes('연락')) {
     return 'phone'
   }
-  // 이메일
   if (name.includes('email') || name.includes('mail') || label.includes('이메일')) {
     return 'email'
   }
-  // 이름
+  if (name.includes('address') || name.includes('addr') || label.includes('주소')) {
+    return 'address'
+  }
   if (name.includes('name') || label.includes('이름') || label.includes('성명')) {
     return 'name'
   }
   return null
 }
 
-function getCustomerValueByKey(customer: Pick<Customer, 'name' | 'phone' | 'email' | 'resident_number'>, key: AutoFillKey): string {
+function getCustomerValueByKey(customer: Pick<Customer, 'name' | 'phone' | 'email' | 'resident_number'> & { address?: string }, key: AutoFillKey): string {
   if (!key) return ''
-  const residentRaw = customer.resident_number || '' // DB에 숫자만 13자리 저장
+  const residentRaw = customer.resident_number || ''
 
   switch (key) {
     case 'name':
       return customer.name || ''
     case 'phone': {
       const p = customer.phone || ''
-      // 숫자만 저장된 경우 하이픈 포맷팅
       if (/^\d{10,11}$/.test(p)) {
         return p.length === 11
           ? `${p.slice(0, 3)}-${p.slice(3, 7)}-${p.slice(7)}`
@@ -1015,14 +1027,13 @@ function getCustomerValueByKey(customer: Pick<Customer, 'name' | 'phone' | 'emai
     }
     case 'email':
       return customer.email || ''
+    case 'address':
+      return customer.address || ''
     case 'resident_front':
-      // 주민번호 앞 6자리 (생년월일)
       return residentRaw.replace(/\D/g, '').slice(0, 6)
     case 'resident_back':
-      // 주민번호 뒷 7자리
       return residentRaw.replace(/\D/g, '').slice(6, 13)
     case 'resident_full':
-      // 전체 주민번호 (하이픈 포함)
       {
         const digits = residentRaw.replace(/\D/g, '')
         return digits.length === 13 ? `${digits.slice(0, 6)}-${digits.slice(6)}` : residentRaw
@@ -1054,7 +1065,7 @@ function handleAutoFillFromCustomer() {
 }
 
 // ===== 자동채움: Step 4 (계약자와 동일) =====
-// Step 3 필드에서 같은 AutoFillKey 값을 찾아 복사, 없으면 고객 정보 fallback
+// Step 3 필드에서 같은 AutoFillKey 값을 찾아 복사, 없으면 교차 매칭 + 고객 정보 fallback
 function getStep3ValueByKey(key: AutoFillKey): string {
   if (!key) return ''
   const step3Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 3)
@@ -1062,6 +1073,25 @@ function getStep3ValueByKey(key: AutoFillKey): string {
   if (match) {
     const val = claimStore.fieldValues[match.form_field_id] || ''
     if (val) return val
+  }
+  // 주민번호 교차 매칭: Step 3이 통합(resident_full)인데 Step 4가 분리(front/back)이거나 그 반대
+  if (key === 'resident_front' || key === 'resident_back') {
+    const fullMatch = step3Fields.find(f => matchAutoFillKey(f) === 'resident_full')
+    if (fullMatch) {
+      const fullVal = (claimStore.fieldValues[fullMatch.form_field_id] || '').replace(/\D/g, '')
+      if (fullVal.length >= 6) {
+        return key === 'resident_front' ? fullVal.slice(0, 6) : fullVal.slice(6, 13)
+      }
+    }
+  }
+  if (key === 'resident_full') {
+    const frontMatch = step3Fields.find(f => matchAutoFillKey(f) === 'resident_front')
+    const backMatch = step3Fields.find(f => matchAutoFillKey(f) === 'resident_back')
+    if (frontMatch && backMatch) {
+      const front = (claimStore.fieldValues[frontMatch.form_field_id] || '').replace(/\D/g, '')
+      const back = (claimStore.fieldValues[backMatch.form_field_id] || '').replace(/\D/g, '')
+      if (front && back) return `${front}-${back}`
+    }
   }
   // Step 3에 없으면 고객 정보에서 fallback
   const customer = customerStore.selectedCustomer
@@ -1094,10 +1124,30 @@ function autoFillFieldsFromStep3(fields: FormField[], fill: boolean) {
 // 피보험자 필드에서 값을 가져오기 (수익자 → 피보험자와 동일 용)
 function getInsuredValueByKey(key: AutoFillKey): string {
   if (!key) return ''
-  const match = insuredStepFields.value.find(f => matchAutoFillKey(f) === key)
+  const fields = insuredStepFields.value
+  const match = fields.find(f => matchAutoFillKey(f) === key)
   if (match) {
     const val = claimStore.fieldValues[match.form_field_id] || ''
     if (val) return val
+  }
+  // 주민번호 교차 매칭
+  if (key === 'resident_front' || key === 'resident_back') {
+    const fullMatch = fields.find(f => matchAutoFillKey(f) === 'resident_full')
+    if (fullMatch) {
+      const fullVal = (claimStore.fieldValues[fullMatch.form_field_id] || '').replace(/\D/g, '')
+      if (fullVal.length >= 6) {
+        return key === 'resident_front' ? fullVal.slice(0, 6) : fullVal.slice(6, 13)
+      }
+    }
+  }
+  if (key === 'resident_full') {
+    const frontMatch = fields.find(f => matchAutoFillKey(f) === 'resident_front')
+    const backMatch = fields.find(f => matchAutoFillKey(f) === 'resident_back')
+    if (frontMatch && backMatch) {
+      const front = (claimStore.fieldValues[frontMatch.form_field_id] || '').replace(/\D/g, '')
+      const back = (claimStore.fieldValues[backMatch.form_field_id] || '').replace(/\D/g, '')
+      if (front && back) return `${front}-${back}`
+    }
   }
   return ''
 }
