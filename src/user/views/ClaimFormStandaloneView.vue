@@ -42,25 +42,29 @@
           <div>
             <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">실손 의료비 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
-              <li>진료비 영수증</li>
+              <li>초진차트</li>
               <li>진료비 세부내역서</li>
-              <li>약제비 영수증 (카드영수증 제외)</li>
+              <li>병원/약국 영수증 (카드영수증 제외)</li>
             </ol>
           </div>
           <div>
             <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">입원 치료 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
-              <li>입·퇴원 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
-              <li>진단서</li>
-              <li>진료비 세부 내역서</li>
+              <li>초진차트</li>
+              <li>진료비 세부내역서</li>
+              <li>병원/약국 영수증 (카드영수증 제외)</li>
+              <li>입퇴원확인서 (질병분류코드 기재)</li>
             </ol>
+            <p class="text-[12px] text-[#888] mt-1.5 ml-1">*MRI 영상 찍었을때 - 판독지 추가</p>
           </div>
           <div>
             <p class="text-[14px] font-bold text-[#FF7B22] border-b border-[#FF7B22] pb-1 mb-2">수술 치료 청구 서류</p>
             <ol class="text-[13px] text-[#333] space-y-1 list-decimal list-inside">
-              <li>수술 확인서 및 진료 확인서<br/><span class="text-[#888] ml-4">(진단명 및 진단코드 기재)</span></li>
-              <li>진단서</li>
-              <li>진료비 세부 내역서</li>
+              <li>초진차트</li>
+              <li>진료비 세부내역서</li>
+              <li>병원/약국 영수증 (카드영수증 제외)</li>
+              <li>입퇴원확인서 (질병분류코드 기재)</li>
+              <li>수술확인서 (질병분류코드 기재)</li>
             </ol>
           </div>
           <div>
