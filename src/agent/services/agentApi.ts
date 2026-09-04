@@ -346,37 +346,37 @@ export const getInsuranceDetail = (customerId: string, insuranceId: number) =>
   api.get<ApiResponse<InsuranceContract>>(`${BASE}/codef/${customerId}/insurance/${insuranceId}`)
 
 export const fetchInsurance = (customerId: string, data: { id: string; password: string }) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/insurance/fetch`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/insurance/fetch`, data, { timeout: 300000 })
 
 export const confirmInsurance = (customerId: string, data: Record<string, string>) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/insurance/confirm`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/insurance/confirm`, data, { timeout: 300000 })
 
 export const getMedicalRecords = (customerId: string) =>
   api.get<ApiResponse<MedicalRecordFull[]>>(`${BASE}/codef/${customerId}/medical`)
 
 export const fetchMedical = (customerId: string, data: { loginTypeLevel: string; telecom: string }) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/medical/fetch`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/medical/fetch`, data, { timeout: 300000 })
 
 export const confirmMedical = (customerId: string, data: Record<string, string>) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/medical/confirm`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/medical/confirm`, data, { timeout: 300000 })
 
 export const getCheckups = (customerId: string) =>
   api.get<ApiResponse<HealthCheckupRecord[]>>(`${BASE}/codef/${customerId}/checkup`)
 
 export const fetchCheckup = (customerId: string, data: { loginTypeLevel: string; telecom: string }) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/checkup/fetch`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/checkup/fetch`, data, { timeout: 300000 })
 
 export const confirmCheckup = (customerId: string, data: Record<string, string>) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/checkup/confirm`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/checkup/confirm`, data, { timeout: 300000 })
 
 export const getHealthAge = (customerId: string) =>
   api.get<ApiResponse<HealthAgeRecord | null>>(`${BASE}/codef/${customerId}/health-age`)
 
 export const fetchHealthAgeApi = (customerId: string, data: { loginTypeLevel: string; telecom: string }) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/fetch`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/fetch`, data, { timeout: 300000 })
 
 export const confirmHealthAge = (customerId: string, data: Record<string, string>) =>
-  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/confirm`, data)
+  api.post<ApiResponse<unknown>>(`${BASE}/codef/${customerId}/health-age/confirm`, data, { timeout: 300000 })
 
 // 알릴의무 체크
 export const getDisclosureCheck = (customerId: string) =>
