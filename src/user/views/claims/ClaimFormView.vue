@@ -811,10 +811,11 @@ function autoFillFieldsFromUserDirect(fields: FormField[], fill: boolean) {
 }
 
 function handleAutoFillInsured() {
+  const targetFields = [...insuredStepFields.value, ...otherStep4Fields.value]
   if (hasContractorStep.value) {
-    autoFillFieldsFromStep3(insuredStepFields.value, autoFillInsuredFromContractor.value)
+    autoFillFieldsFromStep3(targetFields, autoFillInsuredFromContractor.value)
   } else {
-    autoFillFieldsFromUserDirect(insuredStepFields.value, autoFillInsuredFromContractor.value)
+    autoFillFieldsFromUserDirect(targetFields, autoFillInsuredFromContractor.value)
   }
 }
 
