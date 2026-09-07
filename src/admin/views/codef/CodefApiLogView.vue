@@ -67,7 +67,7 @@
         </tbody>
       </table>
       <div v-if="filteredSummary.length > 0" class="px-6 py-3 border-t border-[#F0F0F0] text-right text-[14px] text-[#999]">
-        전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * 100).toLocaleString() }}원</span>
+        전체 합계: <span class="font-bold text-[#333]">{{ filteredTotal }}건</span> · 총 사용료: <span class="font-bold text-[#FF7B22]">{{ (filteredTotal * unitPrice).toLocaleString() }}원</span>
       </div>
     </div>
 
@@ -81,7 +81,7 @@
             <div class="flex items-center justify-between px-6 py-5 border-b border-[#F0F0F0]">
               <div>
                 <h2 class="text-[18px] font-bold text-[#333]">{{ selectedAgent.agent_name }} — API 사용 상세</h2>
-                <p class="text-[13px] text-[#999] mt-0.5">{{ month || '전체 기간' }} · 총 {{ detailPagination?.total ?? 0 }}건 · 사용료 <span class="font-semibold text-[#FF7B22]">{{ ((detailPagination?.total ?? 0) * 100).toLocaleString() }}원</span></p>
+                <p class="text-[13px] text-[#999] mt-0.5">{{ month || '전체 기간' }} · 총 {{ detailPagination?.total ?? 0 }}건 · 사용료 <span class="font-semibold text-[#FF7B22]">{{ ((detailPagination?.total ?? 0) * unitPrice).toLocaleString() }}원</span></p>
               </div>
               <button @click="selectedAgent = null" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors">
                 <span class="material-symbols-outlined text-[22px] text-[#999]">close</span>
@@ -163,8 +163,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import api from '@shared/api'
+import { useBranchStore } from '../../stores/branchStore'
 import Pagination from '../../components/Pagination.vue'
 
 interface AgentSummary {
@@ -191,6 +192,8 @@ interface LogItem {
   error_message: string | null
   created_at: string
 }
+
+const branchStore = useBranchStore()
 
 const loading = ref(false)
 const detailLoading = ref(false)
@@ -263,7 +266,7 @@ function detailRowNum(index: number) {
 async function fetchSummary() {
   loading.value = true
   try {
-    const params: Record<string, string> = {}
+    const params: Record<string, string | number> = { ...branchStore.getBranchParam() as Record<string, string | number> }
     if (month.value) params.month = month.value
     const res = await api.get('/admin/codef-billing/summary', { params })
     summary.value = res.data.data.agents
@@ -434,6 +437,10 @@ function printInvoiceBatch() {
     .join('')
   openPrintWindow(pages)
 }
+
+watch(() => branchStore.selectedBranchId, () => {
+  fetchSummary()
+})
 
 onMounted(async () => {
   try {

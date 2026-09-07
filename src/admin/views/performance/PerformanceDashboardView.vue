@@ -80,7 +80,8 @@
             <tr
               v-for="agent in sortedAgentPerformances"
               :key="agent.agent_id"
-              class="hover:bg-[#FAFAFA] transition-colors"
+              class="hover:bg-[#FFF8F3] transition-colors cursor-pointer"
+              @click="openAgentDetail(agent)"
             >
               <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.agent_name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] text-right">{{ agent.db_assigned_count }}</td>
@@ -104,6 +105,55 @@
         />
       </div>
     </template>
+
+    <!-- 설계사 상세 실적 모달 -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="selectedAgent" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/40" @click="selectedAgent = null"></div>
+          <div class="relative bg-white rounded-[20px] shadow-2xl w-full max-w-[800px] max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-[#F0F0F0]">
+              <div>
+                <h2 class="text-[18px] font-bold text-[#333]">{{ selectedAgent.agent_name }} — 월별 실적 추이</h2>
+                <p class="text-[13px] text-[#999] mt-0.5">최근 12개월</p>
+              </div>
+              <button @click="selectedAgent = null" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors">
+                <span class="material-symbols-outlined text-[22px] text-[#999]">close</span>
+              </button>
+            </div>
+
+            <div class="flex-1 overflow-auto">
+              <div v-if="detailLoading" class="text-center py-10">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+              </div>
+              <table v-else class="min-w-full divide-y divide-[#E8E8E8]">
+                <thead class="bg-[#FAFAFA] sticky top-0">
+                  <tr>
+                    <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">기간</th>
+                    <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">DB배분</th>
+                    <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">계약 건수</th>
+                    <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">계약 금액</th>
+                    <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">상담 건수</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#F0F0F0]">
+                  <tr v-for="perf in store.selectedAgentPerformance" :key="`${perf.year}-${perf.month}`" class="hover:bg-[#FAFAFA] transition-colors">
+                    <td class="px-5 py-3.5 text-[14px] font-medium text-[#333]">{{ perf.year }}년 {{ perf.month }}월</td>
+                    <td class="px-5 py-3.5 text-[14px] text-[#999] text-right">{{ perf.db_assigned_count }}</td>
+                    <td class="px-5 py-3.5 text-[14px] text-[#999] text-right">{{ perf.contract_count }}</td>
+                    <td class="px-5 py-3.5 text-[14px] text-[#999] text-right">{{ formatAmount(perf.contract_amount) }}</td>
+                    <td class="px-5 py-3.5 text-[14px] text-[#999] text-right">{{ perf.consultation_count }}</td>
+                  </tr>
+                  <tr v-if="store.selectedAgentPerformance.length === 0">
+                    <td colspan="5" class="px-5 py-10 text-center text-[#999]">실적 데이터가 없습니다.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -120,6 +170,8 @@ const branchStore = useBranchStore()
 const summaryLoading = ref(false)
 const tableLoading = ref(false)
 
+const selectedAgent = ref<AgentPerformance | null>(null)
+const detailLoading = ref(false)
 const sortField = ref<string>('agent_name')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
@@ -199,6 +251,13 @@ function goToPage(page: number) {
   fetchAgentTable(page)
 }
 
+async function openAgentDetail(agent: AgentPerformance) {
+  selectedAgent.value = agent
+  detailLoading.value = true
+  await store.loadAgentDetail(agent.agent_id)
+  detailLoading.value = false
+}
+
 function formatAmount(amount?: number): string {
   if (amount === undefined || amount === null) return '-'
   return amount.toLocaleString('ko-KR')
@@ -226,3 +285,24 @@ onMounted(async () => {
   tableLoading.value = false
 })
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-enter-active > div:last-child,
+.modal-leave-active > div:last-child {
+  transition: transform 0.2s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from > div:last-child {
+  transform: scale(0.95);
+}
+.modal-leave-to > div:last-child {
+  transform: scale(0.95);
+}
+</style>
