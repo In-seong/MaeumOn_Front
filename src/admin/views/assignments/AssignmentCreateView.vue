@@ -766,6 +766,7 @@ async function handleCreateCustomer() {
     await createCustomer({
       name: newCustomer.value.name,
       phone: newCustomer.value.phone,
+      ...branchStore.getBranchParam(),
     })
     newCustomer.value = { name: '', phone: '' }
     showNewCustomerForm.value = false

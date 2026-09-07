@@ -276,6 +276,11 @@ async function handleSubmit() {
   if (form.value.acquisition_channel) payload.acquisition_channel = form.value.acquisition_channel
   if (form.value.agent_id) payload.agent_id = form.value.agent_id
 
+  if (!isEdit.value && !form.value.agent_id) {
+    const bp = branchStore.getBranchParam()
+    if (bp.branch_id) payload.branch_id = bp.branch_id
+  }
+
   try {
     if (isEdit.value) {
       const updated = await store.updateCustomer(route.params.id as string, payload)
