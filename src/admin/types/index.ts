@@ -151,6 +151,27 @@ export interface MonthlyPerformance {
   consultation_count: number
 }
 
+// 배분 통계
+export interface DistributionStatAgent {
+  agent_id: string
+  agent_name: string
+  resident_count: number
+  distribution_count: number
+  total_count: number
+}
+
+export interface DistributionStatSummary {
+  total_resident: number
+  total_distribution: number
+  total_all: number
+  agent_count: number
+}
+
+export interface DistributionStatistics {
+  summary: DistributionStatSummary
+  agents: DistributionStatAgent[]
+}
+
 // 관리자 알림 발송
 export interface AdminSentNotification {
   notification_id: number

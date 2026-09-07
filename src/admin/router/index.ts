@@ -104,6 +104,13 @@ const router = createRouter({
       component: () => import('../views/additional-contracts/AdditionalContractListView.vue'),
       meta: { requiresAuth: true },
     },
+    // 배분 통계
+    {
+      path: '/distribution-statistics',
+      name: 'distribution-statistics',
+      component: () => import('../views/distribution-statistics/DistributionStatisticsView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 실적 현황 (SFR-043)
     {
       path: '/performance',

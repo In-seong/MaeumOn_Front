@@ -75,6 +75,7 @@ const navGroups: NavGroup[] = [
     collapsible: true,
     items: [
       { label: '추가계약 발굴', icon: 'person_search', to: '/additional-contracts', match: ['/additional-contracts'] },
+      { label: '배분 통계', icon: 'analytics', to: '/distribution-statistics', match: ['/distribution-statistics'] },
       { label: '실적 현황', icon: 'bar_chart', to: '/performance', match: ['/performance'] },
       { label: '기업용 보험', icon: 'business', to: '/corporate-inquiries', match: ['/corporate-inquiries'] },
     ],
