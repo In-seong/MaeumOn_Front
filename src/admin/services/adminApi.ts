@@ -3,7 +3,8 @@ import type {
   ApiResponse, LaravelPagination,
   AdminCustomer, AdminAgent, AdminNotice, Memo,
   Assignment, AdditionalContractResult,
-  PerformanceSummary, AgentPerformance, MonthlyPerformance, DistributionStatistics,
+  PerformanceSummary, AgentPerformance, MonthlyPerformance,
+  PerformanceAssignmentDetail, PerformanceContractDetail, DistributionStatistics,
   DashboardSummary, AdminSentNotification,
   AdminConsultation, AdminBatchClaim,
   AdminHospital, AdminHealthCenter, AdminClaimRequest,
@@ -100,6 +101,9 @@ export const fetchAgentPerformances = (params?: Record<string, unknown>) =>
 
 export const fetchAgentPerformanceDetail = (agentId: string, params?: Record<string, unknown>) =>
   api.get<ApiResponse<MonthlyPerformance[]>>(`${BASE}/performance/agents/${agentId}`, { params })
+
+export const fetchPerformanceDetails = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<PerformanceAssignmentDetail | PerformanceContractDetail>>>(`${BASE}/performance/details`, { params })
 
 // ===== Notices (SFR-044) =====
 export const fetchNotices = (params?: Record<string, unknown>) =>

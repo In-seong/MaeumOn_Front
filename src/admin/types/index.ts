@@ -151,6 +151,31 @@ export interface MonthlyPerformance {
   consultation_count: number
 }
 
+// 실적 상세 — DB배분 내역
+export interface PerformanceAssignmentDetail {
+  id: number
+  agent_name: string
+  customer_name: string
+  customer_phone: string
+  assignment_type: string
+  assignment_date: string | null
+  notes: string | null
+  created_at: string
+}
+
+// 실적 상세 — 계약 내역
+export interface PerformanceContractDetail {
+  id: number
+  agent_name: string
+  customer_name: string
+  customer_phone: string
+  company_name: string
+  insurance_product: string
+  contract_amount: number
+  contract_date: string | null
+  contract_status: string | null
+}
+
 // 배분 통계
 export interface DistributionStatAgent {
   agent_id: string

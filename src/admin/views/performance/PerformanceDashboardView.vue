@@ -28,14 +28,23 @@
     </div>
 
     <template v-else>
-      <!-- 요약 카드 -->
+      <!-- 요약 카드 (클릭 가능) -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 mb-6">
         <div
           v-for="card in summaryCards"
           :key="card.label"
-          class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5"
+          :class="[
+            'bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5 transition-all',
+            card.detailType
+              ? 'cursor-pointer hover:shadow-[0_0_16px_rgba(255,123,34,0.15)] hover:border-[#FF7B22] border border-transparent active:scale-[0.98]'
+              : ''
+          ]"
+          @click="card.detailType ? openDetailModal(card) : undefined"
         >
-          <p class="text-[13px] text-[#999] mb-2">{{ card.label }}</p>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-[13px] text-[#999]">{{ card.label }}</p>
+            <span v-if="card.detailType" class="material-symbols-outlined text-[16px] text-[#CCC]">open_in_new</span>
+          </div>
           <p class="text-[22px] font-bold text-[#333]">{{ card.value }}</p>
           <p v-if="card.unit" class="text-[12px] text-[#999] mt-1">{{ card.unit }}</p>
         </div>
@@ -154,13 +163,119 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- 카드 상세 내역 모달 -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="cardDetail.visible" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/40" @click="closeCardDetail"></div>
+          <div class="relative bg-white rounded-[20px] shadow-2xl w-full max-w-[900px] max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-[#F0F0F0]">
+              <div>
+                <h2 class="text-[18px] font-bold text-[#333]">{{ cardDetail.title }} 상세 내역</h2>
+                <p class="text-[13px] text-[#999] mt-0.5">{{ periodLabel }} 기준</p>
+              </div>
+              <button @click="closeCardDetail" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors">
+                <span class="material-symbols-outlined text-[22px] text-[#999]">close</span>
+              </button>
+            </div>
+
+            <div class="flex-1 overflow-auto">
+              <div v-if="cardDetail.loading" class="text-center py-10">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+              </div>
+
+              <!-- DB배분 내역 테이블 -->
+              <template v-else-if="cardDetail.type === 'assignments'">
+                <table class="min-w-full divide-y divide-[#E8E8E8]">
+                  <thead class="bg-[#FAFAFA] sticky top-0">
+                    <tr>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">설계사</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객명</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">연락처</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">배분유형</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">배분일시</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#F0F0F0]">
+                    <tr v-for="(item, idx) in cardDetail.items" :key="item.id" class="hover:bg-[#FAFAFA] transition-colors">
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ ((cardDetail.currentPage - 1) * 20) + idx + 1 }}</td>
+                      <td class="px-5 py-3 text-[14px] font-medium text-[#333]">{{ item.agent_name }}</td>
+                      <td class="px-5 py-3 text-[14px] text-[#333]">{{ item.customer_name }}</td>
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ item.customer_phone }}</td>
+                      <td class="px-5 py-3 text-[13px]">
+                        <span :class="assignmentTypeBadge(item.assignment_type)">
+                          {{ assignmentTypeLabel(item.assignment_type) }}
+                        </span>
+                      </td>
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ item.created_at }}</td>
+                    </tr>
+                    <tr v-if="cardDetail.items.length === 0">
+                      <td colspan="6" class="px-5 py-10 text-center text-[#999]">데이터가 없습니다.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </template>
+
+              <!-- 계약 내역 테이블 -->
+              <template v-else-if="cardDetail.type === 'contracts'">
+                <table class="min-w-full divide-y divide-[#E8E8E8]">
+                  <thead class="bg-[#FAFAFA] sticky top-0">
+                    <tr>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">설계사</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객명</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">보험사</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">보험상품</th>
+                      <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">계약금액</th>
+                      <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">계약일</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#F0F0F0]">
+                    <tr v-for="(item, idx) in cardDetail.items" :key="item.id" class="hover:bg-[#FAFAFA] transition-colors">
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ ((cardDetail.currentPage - 1) * 20) + idx + 1 }}</td>
+                      <td class="px-5 py-3 text-[14px] font-medium text-[#333]">{{ item.agent_name }}</td>
+                      <td class="px-5 py-3 text-[14px] text-[#333]">{{ item.customer_name }}</td>
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ item.company_name }}</td>
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ item.insurance_product }}</td>
+                      <td class="px-5 py-3 text-[14px] text-[#333] text-right">{{ formatAmount(item.contract_amount) }}원</td>
+                      <td class="px-5 py-3 text-[13px] text-[#999]">{{ item.contract_date }}</td>
+                    </tr>
+                    <tr v-if="cardDetail.items.length === 0">
+                      <td colspan="7" class="px-5 py-10 text-center text-[#999]">데이터가 없습니다.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </template>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div v-if="cardDetail.lastPage > 1" class="px-6 py-4 border-t border-[#F0F0F0] flex items-center justify-center gap-2">
+              <button
+                :disabled="cardDetail.currentPage <= 1"
+                @click="loadCardDetailPage(cardDetail.currentPage - 1)"
+                class="px-3 py-1.5 text-[13px] rounded-[8px] border border-[#E0E0E0] disabled:opacity-40 hover:bg-[#F8F8F8] transition-colors"
+              >이전</button>
+              <span class="text-[13px] text-[#999]">{{ cardDetail.currentPage }} / {{ cardDetail.lastPage }}</span>
+              <button
+                :disabled="cardDetail.currentPage >= cardDetail.lastPage"
+                @click="loadCardDetailPage(cardDetail.currentPage + 1)"
+                class="px-3 py-1.5 text-[13px] rounded-[8px] border border-[#E0E0E0] disabled:opacity-40 hover:bg-[#F8F8F8] transition-colors"
+              >다음</button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { usePerformanceStore } from '../../stores/performanceStore'
 import { useBranchStore } from '../../stores/branchStore'
+import { fetchPerformanceDetails } from '../../services/adminApi'
 import type { AgentPerformance } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
@@ -189,7 +304,14 @@ const columns = [
   { key: 'consultation_count', label: '상담 건수', align: 'right' },
 ]
 
-const summaryCards = computed(() => {
+interface SummaryCard {
+  label: string
+  value: string
+  unit?: string
+  detailType?: 'assignments' | 'contracts'
+}
+
+const summaryCards = computed<SummaryCard[]>(() => {
   const s = store.summary
   if (!s) {
     return [
@@ -201,13 +323,82 @@ const summaryCards = computed(() => {
     ]
   }
   return [
-    { label: 'DB배분 건수', value: s.total_assignments.toLocaleString(), unit: '건' },
-    { label: '계약 건수', value: s.total_contracts.toLocaleString(), unit: '건' },
-    { label: '계약 금액', value: formatAmount(s.total_contract_amount), unit: '원' },
-    { label: 'DB처리율', value: `${s.db_processing_rate}%` },
-    { label: '전환율', value: `${s.conversion_rate}%` },
+    { label: 'DB배분 건수', value: s.total_assignments.toLocaleString(), unit: '건', detailType: 'assignments' },
+    { label: '계약 건수', value: s.total_contracts.toLocaleString(), unit: '건', detailType: 'contracts' },
+    { label: '계약 금액', value: formatAmount(s.total_contract_amount), unit: '원', detailType: 'contracts' },
+    { label: 'DB처리율', value: `${s.db_processing_rate}%`, detailType: 'assignments' },
+    { label: '전환율', value: `${s.conversion_rate}%`, detailType: 'contracts' },
   ]
 })
+
+const periodLabel = computed(() => {
+  const map: Record<string, string> = { day: '일간', week: '주간', month: '월간' }
+  return map[store.period] ?? '월간'
+})
+
+// 카드 상세 모달 상태
+const cardDetail = reactive({
+  visible: false,
+  loading: false,
+  title: '',
+  type: '' as 'assignments' | 'contracts',
+  items: [] as any[],
+  currentPage: 1,
+  lastPage: 1,
+})
+
+async function openDetailModal(card: SummaryCard) {
+  if (!card.detailType) return
+  cardDetail.visible = true
+  cardDetail.title = card.label
+  cardDetail.type = card.detailType
+  cardDetail.items = []
+  cardDetail.currentPage = 1
+  cardDetail.lastPage = 1
+  await loadCardDetailPage(1)
+}
+
+async function loadCardDetailPage(page: number) {
+  cardDetail.loading = true
+  try {
+    const response = await fetchPerformanceDetails({
+      type: cardDetail.type,
+      period: store.period,
+      page,
+      per_page: 20,
+      ...branchStore.getBranchParam(),
+    })
+    const paginatedData = response.data.data
+    cardDetail.items = paginatedData.data
+    cardDetail.currentPage = paginatedData.current_page
+    cardDetail.lastPage = paginatedData.last_page
+  } catch {
+    cardDetail.items = []
+  } finally {
+    cardDetail.loading = false
+  }
+}
+
+function closeCardDetail() {
+  cardDetail.visible = false
+}
+
+function assignmentTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    NEW: '상주',
+    auto_distribute: '자동배분',
+    auto_timeout_reassign: '타임아웃 재배분',
+    manual: '수동',
+  }
+  return map[type] ?? type
+}
+
+function assignmentTypeBadge(type: string): string {
+  if (type === 'NEW') return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-blue-50 text-blue-600'
+  if (type === 'auto_distribute') return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-green-50 text-green-600'
+  if (type === 'auto_timeout_reassign') return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-orange-50 text-orange-600'
+  return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-gray-50 text-gray-600'
+}
 
 const sortedAgentPerformances = computed(() => {
   const list = [...store.agentPerformances]
