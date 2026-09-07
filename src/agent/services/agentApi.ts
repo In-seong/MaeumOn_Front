@@ -335,6 +335,19 @@ export const sendBatchFax = (id: number, claimIds?: number[]) =>
     { timeout: 120000 },
   )
 
+// ===== 고객 CODEF 조회 이력 =====
+export interface CodefLogEntry {
+  log_id: number
+  api_type: string
+  api_action: string
+  status: string
+  result_count: number | null
+  created_at: string
+}
+
+export const fetchCustomerCodefLogs = (customerId: string) =>
+  api.get<ApiResponse<CodefLogEntry[]>>(`${BASE}/customers/${customerId}/codef-logs`)
+
 // ===== CODEF 보험·건강 조회 =====
 export const fetchCodefCustomers = (params?: { search?: string }) =>
   api.get<ApiResponse<Array<Customer & { insurance_synced_at?: string | null; medical_synced_at?: string | null; checkup_synced_at?: string | null; health_age_synced_at?: string | null }>>>(`${BASE}/codef/customers`, { params })

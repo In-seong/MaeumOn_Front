@@ -522,6 +522,49 @@
         </div>
       </div>
 
+      <!-- ==================== 보험조회 탭 ==================== -->
+      <div v-if="activeTab === 'inquiries'">
+        <div v-if="codefLogsLoading" class="flex items-center justify-center py-20">
+          <p class="text-[14px] text-[#BBB]">불러오는 중...</p>
+        </div>
+
+        <template v-else>
+          <div v-if="codefLogs.length === 0" class="flex items-center justify-center py-20">
+            <p class="text-[14px] text-[#AAAAAA]">조회 이력이 없습니다</p>
+          </div>
+
+          <div v-else class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-[#FAFAFA] border-b border-[#E8E8E8]">
+                  <th class="px-4 py-3 text-left text-[12px] font-semibold text-[#888]">조회 유형</th>
+                  <th class="px-4 py-3 text-left text-[12px] font-semibold text-[#888]">상태</th>
+                  <th class="px-4 py-3 text-left text-[12px] font-semibold text-[#888]">조회 건수</th>
+                  <th class="px-4 py-3 text-left text-[12px] font-semibold text-[#888]">조회일시</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="log in codefLogs"
+                  :key="log.log_id"
+                  class="border-b border-[#F5F5F5] last:border-0"
+                >
+                  <td class="px-4 py-3 text-[13px] text-[#333] font-medium">{{ codefApiTypeLabel(log.api_type) }}</td>
+                  <td class="px-4 py-3">
+                    <StatusBadge
+                      :label="codefStatusLabel(log.status)"
+                      :variant="codefStatusVariant(log.status)"
+                    />
+                  </td>
+                  <td class="px-4 py-3 text-[13px] text-[#666]">{{ log.result_count != null ? log.result_count + '건' : '-' }}</td>
+                  <td class="px-4 py-3 text-[13px] text-[#888]">{{ formatDateTime(log.created_at) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </div>
+
       <!-- ==================== 메모 탭 ==================== -->
       <div v-if="activeTab === 'memos'">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -668,11 +711,12 @@ import InfoRow from '@user/components/ui/InfoRow.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useToast } from '../../composables/useToast'
-import { fetchInsuranceCompanies, unmaskResidentNumber } from '../../services/agentApi'
+import { fetchInsuranceCompanies, unmaskResidentNumber, fetchCustomerCodefLogs } from '../../services/agentApi'
+import type { CodefLogEntry } from '../../services/agentApi'
 import type { Memo, Contract } from '../../types'
 import type { InsuranceCompany } from '@shared/types'
 
-type TabKey = 'info' | 'contracts' | 'claims' | 'memos'
+type TabKey = 'info' | 'contracts' | 'claims' | 'inquiries' | 'memos'
 
 interface Tab {
   key: TabKey
@@ -689,6 +733,11 @@ const showRrn = ref(false)
 const fullRrnData = ref<string | null>(null)
 const rrnLoading = ref(false)
 const memoSortOrder = ref<'desc' | 'asc'>('desc')
+
+// ===== 보험조회 이력 =====
+const codefLogs = ref<CodefLogEntry[]>([])
+const codefLogsLoading = ref(false)
+const codefLogsLoaded = ref(false)
 
 // ===== 메모 추가 =====
 const newMemoTitle = ref('')
@@ -838,6 +887,7 @@ const tabs: Tab[] = [
   { key: 'info', label: '기본정보' },
   { key: 'contracts', label: '가입보험' },
   { key: 'claims', label: '청구이력' },
+  { key: 'inquiries', label: '보험조회' },
   { key: 'memos', label: '메모' },
 ]
 
@@ -903,6 +953,8 @@ watch(() => route.params.id, async (newId) => {
     fullRrnData.value = null
     isEditing.value = false
     editingMemoId.value = null
+    codefLogs.value = []
+    codefLogsLoaded.value = false
     await store.loadCustomer(String(newId))
   }
 })
@@ -1053,6 +1105,53 @@ async function handleDeleteMemo(memoId: number): Promise<void> {
   } catch {
     toast.showToast(store.error ?? '메모 삭제에 실패했습니다.', 'error')
   }
+}
+
+// ===== 보험조회 이력 =====
+async function loadCodefLogs(): Promise<void> {
+  if (codefLogsLoaded.value) return
+  codefLogsLoading.value = true
+  try {
+    const res = await fetchCustomerCodefLogs(customerId.value)
+    codefLogs.value = res.data.data
+    codefLogsLoaded.value = true
+  } catch {
+    toast.showToast('조회 이력을 불러오지 못했습니다.', 'error')
+  } finally {
+    codefLogsLoading.value = false
+  }
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'inquiries') loadCodefLogs()
+})
+
+function codefApiTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    insurance: '보험 계약 조회',
+    medical: '진료 내역 조회',
+    checkup: '건강검진 조회',
+    health_age: '건강나이 조회',
+  }
+  return map[type] ?? type
+}
+
+function codefStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    success: '성공',
+    failed: '실패',
+    two_way: '추가인증',
+  }
+  return map[status] ?? status
+}
+
+function codefStatusVariant(status: string): 'success' | 'warning' | 'danger' | 'default' {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'default'> = {
+    success: 'success',
+    failed: 'danger',
+    two_way: 'warning',
+  }
+  return map[status] ?? 'default'
 }
 
 // ===== Helpers =====

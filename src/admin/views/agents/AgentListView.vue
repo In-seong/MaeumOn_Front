@@ -52,6 +52,7 @@
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">로그인 ID</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">전화번호</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">이메일</th>
+            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">소속 지사</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">담당고객수</th>
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
             <th class="px-4 lg:px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
@@ -70,6 +71,7 @@
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ agent.account?.username || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatPhone(agent.phone) }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">{{ agent.email || '-' }}</td>
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden lg:table-cell">{{ agent.branches?.map(b => b.branch_name).join(', ') || '-' }}</td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]" @click.stop>
               <button
                 v-if="(agent.customers_count ?? 0) > 0"
@@ -107,7 +109,7 @@
             </td>
           </tr>
           <tr v-if="store.agents.length === 0">
-            <td colspan="9" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="10" class="px-6 py-10 text-center text-[#999]">
               등록된 설계사가 없습니다.
             </td>
           </tr>
