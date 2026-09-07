@@ -427,15 +427,83 @@ function printInvoiceSingle(agent: AgentSummary) {
   openPrintWindow(buildInvoiceHtml(agent))
 }
 
+function buildBatchCoverHtml(agents: AgentSummary[]): string {
+  const price = unitPrice.value
+  const totalCount = agents.reduce((s, a) => s + a.total_count, 0)
+  const totalCost = totalCount * price
+
+  const rows = agents.map((a, i) => `
+    <tr>
+      <td style="padding:8px 16px;border-bottom:1px solid #eee;text-align:center;">${i + 1}</td>
+      <td style="padding:8px 16px;border-bottom:1px solid #eee;">${a.agent_name}</td>
+      <td style="padding:8px 16px;border-bottom:1px solid #eee;text-align:right;">${a.total_count.toLocaleString()}건</td>
+      <td style="padding:8px 16px;border-bottom:1px solid #eee;text-align:right;">${(a.total_count * price).toLocaleString()}원</td>
+    </tr>
+  `).join('')
+
+  return `
+    <div style="max-width:680px;margin:0 auto;padding:48px 40px;font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;color:#222;">
+      <div style="text-align:center;margin-bottom:36px;">
+        <h1 style="font-size:26px;font-weight:800;margin:0 0 6px;">API 사용료 청구 총괄표</h1>
+        <p style="font-size:13px;color:#999;margin:0;">Monthly Summary</p>
+      </div>
+
+      <div style="background:#FFF8F3;border:2px solid #FF7B22;border-radius:12px;padding:24px 28px;text-align:center;margin-bottom:28px;">
+        <p style="margin:0 0 6px;font-size:13px;color:#999;">${formatMonth(month.value)} 총 합계 비용</p>
+        <p style="margin:0;font-size:32px;font-weight:800;color:#FF7B22;">${totalCost.toLocaleString()}원</p>
+        <p style="margin:8px 0 0;font-size:14px;color:#666;">총 ${totalCount.toLocaleString()}건 · ${agents.length}명 · 건당 ${price.toLocaleString()}원</p>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-bottom:20px;font-size:14px;">
+        <div>
+          <p style="margin:0 0 4px;color:#999;font-size:12px;">서비스 기간</p>
+          <p style="margin:0;font-weight:600;">${formatMonth(month.value)}</p>
+        </div>
+        <div style="text-align:right;">
+          <p style="margin:0 0 4px;color:#999;font-size:12px;">발행일</p>
+          <p style="margin:0;font-weight:600;">${todayString()}</p>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+        <thead>
+          <tr style="background:#f8f8f8;">
+            <th style="padding:10px 16px;text-align:center;font-weight:600;border-bottom:2px solid #ddd;width:50px;">No.</th>
+            <th style="padding:10px 16px;text-align:left;font-weight:600;border-bottom:2px solid #ddd;">설계사</th>
+            <th style="padding:10px 16px;text-align:right;font-weight:600;border-bottom:2px solid #ddd;">건수</th>
+            <th style="padding:10px 16px;text-align:right;font-weight:600;border-bottom:2px solid #ddd;">금액</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr style="background:#FFF8F3;">
+            <td colspan="2" style="padding:12px 16px;font-weight:700;border-top:2px solid #FF7B22;">합계</td>
+            <td style="padding:12px 16px;text-align:right;font-weight:700;border-top:2px solid #FF7B22;">${totalCount.toLocaleString()}건</td>
+            <td style="padding:12px 16px;text-align:right;font-weight:800;font-size:16px;color:#FF7B22;border-top:2px solid #FF7B22;">${totalCost.toLocaleString()}원</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div style="text-align:center;border-top:1px solid #eee;padding-top:24px;font-size:13px;color:#999;">
+        <p style="margin:0;font-weight:600;color:#555;">보험ON (MaeumON)</p>
+        <p style="margin:4px 0 0;">본 청구서는 전산 발행되었습니다.</p>
+      </div>
+    </div>
+  `
+}
+
 function printInvoiceBatch() {
-  const pages = filteredSummary.value
-    .filter(a => a.total_count > 0)
+  const agents = filteredSummary.value.filter(a => a.total_count > 0)
+  if (agents.length === 0) return
+
+  const coverPage = `<div class="page-break">${buildBatchCoverHtml(agents)}</div>`
+  const detailPages = agents
     .map((a, i, arr) => {
       const html = buildInvoiceHtml(a)
       return i < arr.length - 1 ? `<div class="page-break">${html}</div>` : `<div>${html}</div>`
     })
     .join('')
-  openPrintWindow(pages)
+  openPrintWindow(coverPage + detailPages)
 }
 
 watch(() => branchStore.selectedBranchId, () => {
