@@ -17,20 +17,17 @@
         </div>
 
         <div v-else class="flex flex-col gap-3">
-          <!-- Claim Assignments -->
-          <ClaimAssignmentItem
-            v-for="item in store.claimAssignments"
-            :key="'claim-' + item.request_id"
-            :assignment="item"
-          />
-
-          <!-- Distribution List -->
-          <DbDistributionItem
-            v-for="item in store.distributions"
-            :key="item.assignment_id"
-            :distribution="item"
-            @edit="openEditForm"
-          />
+          <template v-for="item in mergedList" :key="item.key">
+            <ClaimAssignmentItem
+              v-if="item.type === 'claim'"
+              :assignment="item.data"
+            />
+            <DbDistributionItem
+              v-else
+              :distribution="item.data"
+              @edit="openEditForm"
+            />
+          </template>
         </div>
 
         <div v-if="!store.loading && store.distributions.length === 0 && store.claimAssignments.length === 0" class="text-center py-12">
@@ -74,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useDbDistributionStore } from '../../stores/dbDistributionStore'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
@@ -84,6 +81,22 @@ import FormTextarea from '@user/components/form/FormTextarea.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 
 const store = useDbDistributionStore()
+
+const mergedList = computed(() => {
+  const claims = store.claimAssignments.map(c => ({
+    type: 'claim' as const,
+    key: `claim-${c.request_id}`,
+    date: new Date(c.created_at ?? 0).getTime(),
+    data: c,
+  }))
+  const dists = store.distributions.map(d => ({
+    type: 'dist' as const,
+    key: `dist-${d.assignment_id}`,
+    date: new Date(d.assignment_date ?? d.created_at ?? 0).getTime(),
+    data: d,
+  }))
+  return [...claims, ...dists].sort((a, b) => b.date - a.date)
+})
 
 const editingId = ref<number | null>(null)
 const editNotes = ref('')
