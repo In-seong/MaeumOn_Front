@@ -1366,7 +1366,7 @@ function formatFieldInput(fieldId: number, fieldType: string, event: Event) {
 
 // ===== 파일 관리 =====
 const MAX_FILE_COUNT = 20
-const MAX_FILE_SIZE_MB = 20
+const MAX_FILE_SIZE_MB = 50
 
 async function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement

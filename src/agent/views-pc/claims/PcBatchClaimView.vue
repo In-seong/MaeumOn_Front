@@ -731,7 +731,7 @@ watch(autoTransferAccount, (useAuto) => {
 
 // ===== File Upload =====
 const MAX_FILE_COUNT = 20
-const MAX_FILE_SIZE_MB = 20
+const MAX_FILE_SIZE_MB = 50
 const filePreviewUrls = ref<Record<string, string>>({})
 
 async function handleCommonFileSelect(event: Event) {
