@@ -245,15 +245,14 @@
                   <p class="text-[13px] text-[#333] truncate">{{ doc.document_file_name }}</p>
                   <p v-if="doc.document_file_size" class="text-[11px] text-[#999]">{{ formatFileSize(doc.document_file_size) }}</p>
                 </div>
-                <a
+                <button
                   v-if="doc.document_url"
-                  :href="doc.document_url"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  type="button"
                   class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0"
+                  @click="openDocViewer(doc)"
                 >
                   보기
-                </a>
+                </button>
               </div>
             </CardSection>
           </div>
@@ -386,9 +385,9 @@
         </button>
       </div>
       <!-- 이미지 영역 -->
-      <div class="flex-1 relative overflow-auto flex items-start justify-center"
-        @touchstart="onViewerTouchStart"
-        @touchmove="onViewerTouchMove"
+      <div class="flex-1 relative overflow-auto flex items-start justify-center touch-none"
+        @touchstart.prevent="onViewerTouchStart"
+        @touchmove.prevent="onViewerTouchMove"
         @touchend="onViewerTouchEnd"
       >
         <img
@@ -472,6 +471,19 @@ function viewerGo(delta: number) {
   viewerIndex.value = next
   viewerImageUrl.value = img.url
   viewerScale.value = VIEWER_DEFAULT_SCALE
+}
+
+function openDocViewer(doc: { document_url?: string; document_file_name?: string }) {
+  if (!doc.document_url) return
+  const name = (doc.document_file_name ?? '').toLowerCase()
+  if (name.endsWith('.pdf')) {
+    window.open(doc.document_url, '_blank')
+    return
+  }
+  viewerIndex.value = 0
+  viewerImageUrl.value = doc.document_url
+  viewerScale.value = VIEWER_DEFAULT_SCALE
+  viewerOpen.value = true
 }
 
 function onViewerTouchStart(e: TouchEvent) {
