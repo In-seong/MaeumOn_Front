@@ -17,7 +17,7 @@
         <line x1="8" y1="2" x2="8" y2="6" />
         <line x1="3" y1="10" x2="21" y2="10" />
       </svg>
-      <span>{{ distribution.assignment_date ?? distribution.created_at }}</span>
+      <span>{{ formatDate(distribution.assignment_date ?? distribution.created_at) }}</span>
     </div>
 
     <p v-if="distribution.notes" class="text-[12px] text-[#666] mt-2 line-clamp-2">{{ distribution.notes }}</p>
@@ -39,6 +39,15 @@ interface Props {
 }
 
 defineProps<Props>()
+
+function formatDate(raw: string): string {
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return raw
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
 
 defineEmits<{
   edit: [id: number, notes?: string]

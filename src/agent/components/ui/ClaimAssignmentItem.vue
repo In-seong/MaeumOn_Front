@@ -38,7 +38,7 @@
         <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
         <line x1="3" y1="10" x2="21" y2="10" />
       </svg>
-      <span>{{ assignment.created_at }}</span>
+      <span>{{ formatDate(assignment.created_at) }}</span>
     </div>
 
     <!-- Memo -->
@@ -212,6 +212,15 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+
+function formatDate(raw: string): string {
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return raw
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']
 
