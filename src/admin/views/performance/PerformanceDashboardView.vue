@@ -18,21 +18,29 @@
         </button>
       </div>
 
-      <!-- 기간 토글 -->
-      <div class="flex bg-[#F8F8F8] rounded-[12px] p-1 shrink-0">
-        <button
-          v-for="option in periodOptions"
-          :key="option.value"
-          @click="changePeriod(option.value as 'day' | 'week' | 'month')"
-          :class="[
-            'px-4 py-2 text-[13px] font-medium rounded-[10px] transition-colors',
-            store.period === option.value
-              ? 'bg-[#FF7B22] text-white shadow-sm'
-              : 'text-[#999] hover:text-[#333]'
-          ]"
-        >
-          {{ option.label }}
-        </button>
+      <!-- 기간 선택 -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex bg-[#F8F8F8] rounded-[12px] p-1">
+          <button
+            v-for="preset in datePresets"
+            :key="preset.value"
+            @click="onPreset(preset.value)"
+            :class="[
+              'px-3 py-2 text-[13px] font-medium rounded-[10px] transition-colors',
+              activePreset === preset.value
+                ? 'bg-[#FF7B22] text-white shadow-sm'
+                : 'text-[#999] hover:text-[#333]'
+            ]"
+          >
+            {{ preset.label }}
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="date" v-model="dateFrom" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+          <span class="text-[#999] text-[13px]">~</span>
+          <input type="date" v-model="dateTo" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+          <button @click="onSearchDate" class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[13px] font-medium hover:bg-[#E56D1E] transition-colors">조회</button>
+        </div>
       </div>
     </div>
 
@@ -292,11 +300,13 @@ import { usePerformanceStore } from '../../stores/performanceStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { fetchPerformanceDetails } from '../../services/adminApi'
 import { exportToExcel } from '../../utils/exportExcel'
+import { useDateRange } from '../../composables/useDateRange'
 import type { AgentPerformance } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
 const store = usePerformanceStore()
 const branchStore = useBranchStore()
+const { dateFrom, dateTo, activePreset, applyPreset, clearPreset, datePresets } = useDateRange('month')
 
 const summaryLoading = ref(false)
 const tableLoading = ref(false)
@@ -305,12 +315,6 @@ const selectedAgent = ref<AgentPerformance | null>(null)
 const detailLoading = ref(false)
 const sortField = ref<string>('agent_name')
 const sortDirection = ref<'asc' | 'desc'>('asc')
-
-const periodOptions = [
-  { label: '일간', value: 'day' },
-  { label: '주간', value: 'week' },
-  { label: '월간', value: 'month' },
-]
 
 const columns = [
   { key: 'agent_name', label: '설계사명', align: 'left' },
@@ -348,8 +352,10 @@ const summaryCards = computed<SummaryCard[]>(() => {
 })
 
 const periodLabel = computed(() => {
-  const map: Record<string, string> = { day: '일간', week: '주간', month: '월간' }
-  return map[store.period] ?? '월간'
+  if (activePreset.value === 'day') return '일간'
+  if (activePreset.value === 'week') return '주간'
+  if (activePreset.value === 'month') return '월간'
+  return `${dateFrom.value} ~ ${dateTo.value}`
 })
 
 // 카드 상세 모달 상태
@@ -379,7 +385,8 @@ async function loadCardDetailPage(page: number) {
   try {
     const response = await fetchPerformanceDetails({
       type: cardDetail.type,
-      period: store.period,
+      date_from: dateFrom.value,
+      date_to: dateTo.value,
       page,
       per_page: 20,
       ...branchStore.getBranchParam(),
@@ -469,10 +476,20 @@ function toggleSort(key: string) {
   }
 }
 
-async function changePeriod(newPeriod: 'day' | 'week' | 'month') {
+async function reloadSummary() {
+  store.setDateRange(dateFrom.value, dateTo.value)
   summaryLoading.value = true
-  await store.loadSummary(newPeriod, branchStore.getBranchParam())
+  await store.loadSummary(branchStore.getBranchParam())
   summaryLoading.value = false
+}
+
+function onPreset(preset: string) {
+  applyPreset(preset)
+  reloadSummary()
+}
+
+function onSearchDate() {
+  reloadSummary()
 }
 
 async function fetchAgentTable(page = 1) {
@@ -498,10 +515,11 @@ function formatAmount(amount?: number): string {
 }
 
 watch(() => branchStore.selectedBranchId, async () => {
+  store.setDateRange(dateFrom.value, dateTo.value)
   summaryLoading.value = true
   tableLoading.value = true
   await Promise.all([
-    store.loadSummary(undefined, branchStore.getBranchParam()),
+    store.loadSummary(branchStore.getBranchParam()),
     store.loadAgentPerformances({ ...branchStore.getBranchParam() }),
   ])
   summaryLoading.value = false
@@ -509,10 +527,11 @@ watch(() => branchStore.selectedBranchId, async () => {
 })
 
 onMounted(async () => {
+  store.setDateRange(dateFrom.value, dateTo.value)
   summaryLoading.value = true
   tableLoading.value = true
   await Promise.all([
-    store.loadSummary(undefined, branchStore.getBranchParam()),
+    store.loadSummary(branchStore.getBranchParam()),
     store.loadAgentPerformances({ ...branchStore.getBranchParam() }),
   ])
   summaryLoading.value = false

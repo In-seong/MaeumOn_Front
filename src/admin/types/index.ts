@@ -393,6 +393,7 @@ export interface ClaimRequestStatistics {
   hospitals: ClaimRequestStatHospital[]
   period: 'day' | 'week' | 'month'
   start_date: string
+  end_date: string
 }
 
 // 예약 관리

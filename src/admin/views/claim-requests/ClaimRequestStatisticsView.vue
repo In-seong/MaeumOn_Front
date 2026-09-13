@@ -17,14 +17,20 @@
       </button>
     </div>
 
-    <div class="mb-4 flex flex-wrap gap-3">
-      <div class="flex bg-[#F8F8F8] rounded-[12px] border border-[#E8E8E8] overflow-hidden">
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <div class="flex bg-[#F8F8F8] rounded-[12px] p-1">
         <button
-          v-for="opt in periodOptions" :key="opt.value"
-          class="px-4 py-2.5 text-[14px] transition-colors"
-          :class="store.period === opt.value ? 'bg-[#FF7B22] text-white font-medium' : 'text-[#666] hover:bg-[#F0F0F0]'"
-          @click="store.setPeriod(opt.value)"
-        >{{ opt.label }}</button>
+          v-for="preset in datePresets" :key="preset.value"
+          class="px-3 py-2 text-[13px] font-medium rounded-[10px] transition-colors"
+          :class="activePreset === preset.value ? 'bg-[#FF7B22] text-white shadow-sm' : 'text-[#999] hover:text-[#333]'"
+          @click="onPreset(preset.value)"
+        >{{ preset.label }}</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="date" v-model="dateFrom" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+        <span class="text-[#999] text-[13px]">~</span>
+        <input type="date" v-model="dateTo" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+        <button @click="onSearch" class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[13px] font-medium hover:bg-[#E56D1E] transition-colors">조회</button>
       </div>
 
       <select
@@ -51,7 +57,7 @@
         <div class="text-[24px] font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</div>
       </div>
       <div class="bg-[#F8F8F8] rounded-[12px] px-5 py-4 flex items-center">
-        <span class="text-[13px] text-[#999]">기간: {{ store.startDate }} ~</span>
+        <span class="text-[13px] text-[#999]">기간: {{ dateFrom }} ~ {{ dateTo }}</span>
       </div>
     </div>
 
@@ -100,15 +106,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useClaimRequestStatStore } from '../../stores/claimRequestStatStore'
+import { useDateRange } from '../../composables/useDateRange'
 import { exportToExcel } from '../../utils/exportExcel'
 
 const store = useClaimRequestStatStore()
+const { dateFrom, dateTo, activePreset, applyPreset, clearPreset, datePresets } = useDateRange('month')
 
-const periodOptions = [
-  { value: 'day' as const, label: '오늘' },
-  { value: 'week' as const, label: '이번 주' },
-  { value: 'month' as const, label: '이번 달' },
-]
+function onPreset(preset: string) {
+  applyPreset(preset)
+  store.setDateRange(dateFrom.value, dateTo.value)
+}
+
+function onSearch() {
+  store.setDateRange(dateFrom.value, dateTo.value)
+}
 
 function onHospitalChange(e: Event) {
   const target = e.target as HTMLSelectElement
@@ -142,6 +153,6 @@ function downloadExcel() {
 }
 
 onMounted(() => {
-  store.loadStatistics()
+  store.setDateRange(dateFrom.value, dateTo.value)
 })
 </script>

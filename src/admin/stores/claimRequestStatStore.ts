@@ -7,8 +7,8 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
   const agents = ref<ClaimRequestStatAgentRow[]>([])
   const summary = ref<ClaimRequestStatSummary>({ total_resident: 0, total_distribution: 0, total: 0 })
   const hospitals = ref<ClaimRequestStatHospital[]>([])
-  const period = ref<'day' | 'week' | 'month'>('month')
-  const startDate = ref('')
+  const dateFrom = ref('')
+  const dateTo = ref('')
   const selectedHospitalId = ref<number | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -18,7 +18,11 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
     error.value = null
 
     try {
-      const params: Record<string, unknown> = { period: period.value }
+      const params: Record<string, unknown> = {}
+      if (dateFrom.value && dateTo.value) {
+        params.date_from = dateFrom.value
+        params.date_to = dateTo.value
+      }
       if (selectedHospitalId.value) {
         params.hospital_id = selectedHospitalId.value
       }
@@ -27,7 +31,12 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
       agents.value = data.agents
       summary.value = data.summary
       hospitals.value = data.hospitals
-      startDate.value = data.start_date
+      if (data.start_date && !dateFrom.value) {
+        dateFrom.value = data.start_date
+      }
+      if (data.end_date && !dateTo.value) {
+        dateTo.value = data.end_date
+      }
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } }
       error.value = err.response?.data?.message || '통계를 불러오는데 실패했습니다.'
@@ -36,8 +45,9 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
     }
   }
 
-  function setPeriod(p: 'day' | 'week' | 'month') {
-    period.value = p
+  function setDateRange(from: string, to: string) {
+    dateFrom.value = from
+    dateTo.value = to
     loadStatistics()
   }
 
@@ -50,13 +60,13 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
     agents,
     summary,
     hospitals,
-    period,
-    startDate,
+    dateFrom,
+    dateTo,
     selectedHospitalId,
     loading,
     error,
     loadStatistics,
-    setPeriod,
+    setDateRange,
     setHospital,
   }
 })

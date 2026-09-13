@@ -20,6 +20,24 @@
       <p class="text-[13px] text-[#999] mt-1">외부 사이트에서 접수된 기업 보험 상담 문의를 관리합니다.</p>
     </div>
 
+    <!-- 기간 선택 -->
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+      <div class="flex bg-[#F8F8F8] rounded-[12px] p-1">
+        <button
+          v-for="preset in datePresets" :key="preset.value"
+          @click="onPreset(preset.value)"
+          :class="['px-3 py-2 text-[13px] font-medium rounded-[10px] transition-colors',
+            activePreset === preset.value ? 'bg-[#FF7B22] text-white shadow-sm' : 'text-[#999] hover:text-[#333]']"
+        >{{ preset.label }}</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="date" v-model="dateFrom" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+        <span class="text-[#999] text-[13px]">~</span>
+        <input type="date" v-model="dateTo" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+        <button @click="loadData()" class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[13px] font-medium hover:bg-[#E56D1E] transition-colors">조회</button>
+      </div>
+    </div>
+
     <!-- 필터 + 검색 -->
     <div class="flex flex-col lg:flex-row gap-3 mb-4">
       <div class="flex border-b border-[#E8E8E8]">
@@ -109,6 +127,7 @@ import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
+import { useDateRange } from '../../composables/useDateRange'
 import { fetchCorporateInquiries } from '../../services/adminApi'
 import { exportToExcel } from '../../utils/exportExcel'
 import Pagination from '../../components/Pagination.vue'
@@ -116,6 +135,7 @@ import Pagination from '../../components/Pagination.vue'
 const router = useRouter()
 const store = useCorporateInquiryStore()
 const branchStore = useBranchStore()
+const { dateFrom, dateTo, activePreset, applyPreset, clearPreset, datePresets } = useDateRange('month')
 
 const search = ref('')
 const filterStatus = ref('')
@@ -146,12 +166,19 @@ function changePage(page: number) {
   fetchData()
 }
 
+function onPreset(preset: string) {
+  applyPreset(preset)
+  loadData()
+}
+
 function fetchData() {
   store.loadInquiries({
     page: currentPage.value,
     per_page: perPage,
     search: search.value || undefined,
     status: filterStatus.value || undefined,
+    date_from: dateFrom.value,
+    date_to: dateTo.value,
     ...sortParams(),
     ...branchStore.getBranchParam(),
   })
@@ -193,6 +220,8 @@ async function downloadExcel() {
     const res = await fetchCorporateInquiries({
       search: search.value || undefined,
       status: filterStatus.value || undefined,
+      date_from: dateFrom.value,
+      date_to: dateTo.value,
       per_page: 9999,
       ...sortParams(),
       ...branchStore.getBranchParam(),
