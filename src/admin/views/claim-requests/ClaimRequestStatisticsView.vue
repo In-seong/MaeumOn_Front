@@ -18,18 +18,10 @@
     </div>
 
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <div class="flex bg-[#F8F8F8] rounded-[12px] p-1">
-        <button
-          v-for="preset in datePresets" :key="preset.value"
-          class="px-3 py-2 text-[13px] font-medium rounded-[10px] transition-colors"
-          :class="activePreset === preset.value ? 'bg-[#FF7B22] text-white shadow-sm' : 'text-[#999] hover:text-[#333]'"
-          @click="onPreset(preset.value)"
-        >{{ preset.label }}</button>
-      </div>
       <div class="flex items-center gap-2">
-        <input type="date" v-model="dateFrom" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+        <input type="date" v-model="dateFrom" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
         <span class="text-[#999] text-[13px]">~</span>
-        <input type="date" v-model="dateTo" @change="clearPreset()" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
+        <input type="date" v-model="dateTo" class="px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] focus:outline-none focus:border-[#FF7B22]" />
         <button @click="onSearch" class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[13px] font-medium hover:bg-[#E56D1E] transition-colors">조회</button>
       </div>
 
@@ -110,12 +102,7 @@ import { useDateRange } from '../../composables/useDateRange'
 import { exportToExcel } from '../../utils/exportExcel'
 
 const store = useClaimRequestStatStore()
-const { dateFrom, dateTo, activePreset, applyPreset, clearPreset, datePresets } = useDateRange('month')
-
-function onPreset(preset: string) {
-  applyPreset(preset)
-  store.setDateRange(dateFrom.value, dateTo.value)
-}
+const { dateFrom, dateTo } = useDateRange('month')
 
 function onSearch() {
   store.setDateRange(dateFrom.value, dateTo.value)
