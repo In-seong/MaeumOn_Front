@@ -443,11 +443,11 @@
               </div>
               <div class="flex items-center justify-between text-[12px]">
                 <span class="text-[#AAAAAA]">체결일</span>
-                <span class="text-[#666]">{{ contract.contract_date ?? '-' }}</span>
+                <span class="text-[#666]">{{ contract.contract_date ? formatDate(contract.contract_date) : '-' }}</span>
               </div>
               <div v-if="contract.expiration_date" class="flex items-center justify-between text-[12px] mt-1">
                 <span class="text-[#AAAAAA]">만기일</span>
-                <span class="text-[#666]">{{ contract.expiration_date }}</span>
+                <span class="text-[#666]">{{ formatDate(contract.expiration_date) }}</span>
               </div>
               <div v-if="contract.payment_method" class="flex items-center justify-between text-[12px] mt-1">
                 <span class="text-[#AAAAAA]">납입방법</span>
@@ -788,8 +788,8 @@ function startContractEdit(contract: Contract): void {
     insurance_product: contract.insurance_product ?? '',
     contract_number: contract.contract_number ?? '',
     contract_amount: contract.contract_amount ?? '',
-    contract_date: contract.contract_date ?? '',
-    expiration_date: contract.expiration_date ?? '',
+    contract_date: (contract.contract_date ?? '').slice(0, 10),
+    expiration_date: (contract.expiration_date ?? '').slice(0, 10),
     contract_status: contract.contract_status ?? 'active',
     payment_method: contract.payment_method ?? '',
     notes: contract.notes ?? '',

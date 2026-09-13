@@ -175,12 +175,43 @@
               현재: <span class="font-medium text-[#333]">{{ activeItem.assigned_agent.name }} ({{ activeItem.assigned_agent_id }})</span>
             </p>
             <div class="flex gap-2">
-              <select v-model="selectedAgentId" class="flex-1 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]">
-                <option value="">설계사 선택</option>
-                <option v-for="a in agents" :key="a.agent_id" :value="a.agent_id">{{ a.name }} ({{ a.agent_id }})</option>
-              </select>
+              <div class="relative flex-1 agent-search-dropdown">
+                <input
+                  v-model="agentSearchQuery"
+                  type="text"
+                  placeholder="설계사 이름으로 검색"
+                  class="w-full px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] placeholder-[#999]"
+                  @focus="agentDropdownOpen = true"
+                  @input="agentDropdownOpen = true"
+                />
+                <button
+                  v-if="selectedAgentId"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#666] text-[18px]"
+                  @click="clearAgentSelection"
+                >&times;</button>
+                <div
+                  v-if="agentDropdownOpen && filteredAgentOptions.length > 0"
+                  class="absolute z-10 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[10px] shadow-lg max-h-[200px] overflow-y-auto"
+                >
+                  <button
+                    v-for="a in filteredAgentOptions"
+                    :key="a.agent_id"
+                    class="w-full text-left px-3 py-2 text-[14px] hover:bg-[#FFF3ED] transition-colors first:rounded-t-[10px] last:rounded-b-[10px]"
+                    :class="selectedAgentId === a.agent_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium' : 'text-[#333]'"
+                    @click="selectAgent(a)"
+                  >
+                    {{ a.name }} ({{ a.agent_id }})
+                  </button>
+                </div>
+                <div
+                  v-if="agentDropdownOpen && agentSearchQuery && filteredAgentOptions.length === 0"
+                  class="absolute z-10 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[10px] shadow-lg px-3 py-2 text-[13px] text-[#999]"
+                >
+                  검색 결과가 없습니다.
+                </div>
+              </div>
               <button @click="submitAssign" :disabled="!selectedAgentId || submitting"
-                class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:opacity-50 hover:bg-[#E66A1A]">
+                class="px-4 py-2 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:opacity-50 hover:bg-[#E66A1A] shrink-0">
                 {{ submitting ? '처리 중...' : activeItem.status === 'assigned' ? '변경' : '배정' }}
               </button>
             </div>
@@ -215,7 +246,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { fetchAdminClaimRequests, assignClaimRequest, fetchAgents } from '../../services/adminApi'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
@@ -233,7 +264,26 @@ const modalOpen = ref(false)
 const activeItem = ref<AdminClaimRequest | null>(null)
 const agents = ref<AdminAgent[]>([])
 const selectedAgentId = ref('')
+const agentSearchQuery = ref('')
+const agentDropdownOpen = ref(false)
 const submitting = ref(false)
+
+const filteredAgentOptions = computed(() => {
+  const q = agentSearchQuery.value.trim().toLowerCase()
+  if (!q) return agents.value
+  return agents.value.filter(a => a.name.toLowerCase().includes(q) || a.agent_id.toLowerCase().includes(q))
+})
+
+function selectAgent(agent: AdminAgent) {
+  selectedAgentId.value = agent.agent_id
+  agentSearchQuery.value = agent.name
+  agentDropdownOpen.value = false
+}
+
+function clearAgentSelection() {
+  selectedAgentId.value = ''
+  agentSearchQuery.value = ''
+}
 
 // 이미지 뷰어
 const viewerOpen = ref(false)
@@ -351,6 +401,8 @@ function downloadFile(file: AdminClaimRequestFile) {
 async function openDetail(item: AdminClaimRequest) {
   activeItem.value = item
   selectedAgentId.value = item.assigned_agent_id || ''
+  agentSearchQuery.value = item.assigned_agent?.name || ''
+  agentDropdownOpen.value = false
   modalOpen.value = true
   if (agents.value.length === 0) {
     try { const res = await fetchAgents({ per_page: 200 }); agents.value = res.data.data.data ?? [] } catch { /* ignore */ }
@@ -373,5 +425,19 @@ async function submitAssign() {
 }
 
 watch(() => branchStore.selectedBranchId, () => fetchData())
-onMounted(() => fetchData())
+function handleClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (!target.closest('.agent-search-dropdown')) {
+    agentDropdownOpen.value = false
+  }
+}
+
+onMounted(() => {
+  fetchData()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>

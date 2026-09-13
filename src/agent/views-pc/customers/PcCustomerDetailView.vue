@@ -431,8 +431,8 @@
                 <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ contract.insurance_company?.company_name ?? '-' }}</td>
                 <td class="px-5 py-3.5 text-[13px] text-[#666] hidden md:table-cell">{{ contract.contract_number ?? '-' }}</td>
                 <td class="px-5 py-3.5 text-[13px] font-semibold text-[#333] text-right">{{ contract.contract_amount ? formatCurrency(contract.contract_amount) + '원' : '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden lg:table-cell">{{ contract.contract_date ?? '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden lg:table-cell">{{ contract.expiration_date ?? '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden lg:table-cell">{{ contract.contract_date ? formatDate(contract.contract_date) : '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden lg:table-cell">{{ contract.expiration_date ? formatDate(contract.expiration_date) : '-' }}</td>
                 <td class="px-5 py-3.5 text-center">
                   <StatusBadge
                     v-if="contract.contract_status"
@@ -801,8 +801,8 @@ function startContractEdit(contract: Contract): void {
     insurance_product: contract.insurance_product ?? '',
     contract_number: contract.contract_number ?? '',
     contract_amount: contract.contract_amount ?? '',
-    contract_date: contract.contract_date ?? '',
-    expiration_date: contract.expiration_date ?? '',
+    contract_date: (contract.contract_date ?? '').slice(0, 10),
+    expiration_date: (contract.expiration_date ?? '').slice(0, 10),
     contract_status: contract.contract_status ?? 'active',
     payment_method: contract.payment_method ?? '',
     notes: contract.notes ?? '',
