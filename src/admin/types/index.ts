@@ -373,12 +373,14 @@ export interface ClaimRequestStatAgentRow {
   agent_name: string
   resident: number
   distribution: number
+  corporate: number
   total: number
 }
 
 export interface ClaimRequestStatSummary {
   total_resident: number
   total_distribution: number
+  total_corporate: number
   total: number
 }
 

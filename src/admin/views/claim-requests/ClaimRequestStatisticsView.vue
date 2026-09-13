@@ -48,6 +48,10 @@
         <div class="text-[12px] text-[#999] mb-1">배분 DB</div>
         <div class="text-[24px] font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</div>
       </div>
+      <div class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]">
+        <div class="text-[12px] text-[#999] mb-1">기업 DB</div>
+        <div class="text-[24px] font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</div>
+      </div>
       <div class="bg-[#F8F8F8] rounded-[12px] px-5 py-4 flex items-center">
         <span class="text-[13px] text-[#999]">기간: {{ dateFrom }} ~ {{ dateTo }}</span>
       </div>
@@ -69,6 +73,7 @@
             <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">설계사</th>
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상주 DB</th>
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">배분 DB</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">기업 DB</th>
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">합계</th>
           </tr>
         </thead>
@@ -78,6 +83,7 @@
             <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ row.agent_name }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#4CAF50] font-medium">{{ row.corporate }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center font-bold text-[#333]">{{ row.total }}</td>
           </tr>
         </tbody>
@@ -87,6 +93,7 @@
             <td class="px-4 lg:px-6 py-3 text-[13px] font-bold text-[#333]">합계</td>
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#2196F3]">{{ store.summary.total_resident }}</td>
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</td>
+            <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</td>
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#333]">{{ store.summary.total }}</td>
           </tr>
         </tfoot>
@@ -123,6 +130,7 @@ function downloadExcel() {
       agent_name: row.agent_name,
       resident: row.resident,
       distribution: row.distribution,
+      corporate: row.corporate,
       total: row.total,
     }))
     exportToExcel(rows, [
@@ -130,6 +138,7 @@ function downloadExcel() {
       { key: 'agent_name', label: '설계사 이름' },
       { key: 'resident', label: '상주 DB' },
       { key: 'distribution', label: '배분 DB' },
+      { key: 'corporate', label: '기업 DB' },
       { key: 'total', label: '합계' },
     ], '배정통계')
   } catch {

@@ -5,7 +5,7 @@ import { fetchClaimRequestStatistics } from '../services/adminApi'
 
 export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
   const agents = ref<ClaimRequestStatAgentRow[]>([])
-  const summary = ref<ClaimRequestStatSummary>({ total_resident: 0, total_distribution: 0, total: 0 })
+  const summary = ref<ClaimRequestStatSummary>({ total_resident: 0, total_distribution: 0, total_corporate: 0, total: 0 })
   const hospitals = ref<ClaimRequestStatHospital[]>([])
   const dateFrom = ref('')
   const dateTo = ref('')
