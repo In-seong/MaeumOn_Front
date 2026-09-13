@@ -1,7 +1,22 @@
 <template>
   <div class="p-4 lg:p-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">실적 현황</h1>
+      <div class="flex items-center gap-3">
+        <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">실적 현황</h1>
+        <button
+          @click="downloadExcel"
+          :disabled="excelLoading"
+          class="w-9 h-9 flex items-center justify-center rounded-[10px] border border-[#E0E0E0] hover:bg-[#F8F8F8] hover:border-[#CCC] transition-colors disabled:opacity-50"
+          title="엑셀 다운로드"
+        >
+          <svg v-if="!excelLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+        </button>
+      </div>
 
       <!-- 기간 토글 -->
       <div class="flex bg-[#F8F8F8] rounded-[12px] p-1 shrink-0">
@@ -276,6 +291,7 @@ import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { usePerformanceStore } from '../../stores/performanceStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { fetchPerformanceDetails } from '../../services/adminApi'
+import { exportToExcel } from '../../utils/exportExcel'
 import type { AgentPerformance } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
@@ -398,6 +414,33 @@ function assignmentTypeBadge(type: string): string {
   if (type === 'auto_distribute') return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-green-50 text-green-600'
   if (type === 'auto_timeout_reassign') return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-orange-50 text-orange-600'
   return 'inline-block px-2 py-0.5 rounded-full text-[12px] bg-gray-50 text-gray-600'
+}
+
+const excelLoading = ref(false)
+
+function downloadExcel() {
+  excelLoading.value = true
+  try {
+    const rows = sortedAgentPerformances.value.map(a => ({
+      agent_name: a.agent_name,
+      db_assigned_count: a.db_assigned_count,
+      contract_count: a.contract_count,
+      contract_amount: formatAmount(a.contract_amount),
+      consultation_count: a.consultation_count,
+    }))
+    exportToExcel(rows, [
+      { key: '__index__', label: '번호' },
+      { key: 'agent_name', label: '설계사 이름' },
+      { key: 'db_assigned_count', label: 'DB 배분' },
+      { key: 'contract_count', label: '계약 건수' },
+      { key: 'contract_amount', label: '계약 금액' },
+      { key: 'consultation_count', label: '상담 건수' },
+    ], '실적현황')
+  } catch {
+    alert('엑셀 다운로드에 실패했습니다.')
+  } finally {
+    excelLoading.value = false
+  }
 }
 
 const sortedAgentPerformances = computed(() => {

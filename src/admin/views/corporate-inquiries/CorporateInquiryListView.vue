@@ -1,7 +1,22 @@
 <template>
   <div class="p-4 lg:p-6">
     <div class="mb-6">
-      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">기업용 보험</h1>
+      <div class="flex items-center gap-3">
+        <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">기업용 보험</h1>
+        <button
+          @click="downloadExcel"
+          :disabled="excelLoading"
+          class="w-9 h-9 flex items-center justify-center rounded-[10px] border border-[#E0E0E0] hover:bg-[#F8F8F8] hover:border-[#CCC] transition-colors disabled:opacity-50"
+          title="엑셀 다운로드"
+        >
+          <svg v-if="!excelLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+        </button>
+      </div>
       <p class="text-[13px] text-[#999] mt-1">외부 사이트에서 접수된 기업 보험 상담 문의를 관리합니다.</p>
     </div>
 
@@ -94,6 +109,8 @@ import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
+import { fetchCorporateInquiries } from '../../services/adminApi'
+import { exportToExcel } from '../../utils/exportExcel'
 import Pagination from '../../components/Pagination.vue'
 
 const router = useRouter()
@@ -167,6 +184,49 @@ watch(() => branchStore.selectedBranchId, () => {
   currentPage.value = 1
   fetchData()
 })
+
+const excelLoading = ref(false)
+
+async function downloadExcel() {
+  excelLoading.value = true
+  try {
+    const res = await fetchCorporateInquiries({
+      search: search.value || undefined,
+      status: filterStatus.value || undefined,
+      per_page: 9999,
+      ...sortParams(),
+      ...branchStore.getBranchParam(),
+    })
+    const items = res.data.data.data
+    const rows = items.map(item => ({
+      company_name: item.company_name,
+      ceo_name: item.ceo_name,
+      phone: item.phone,
+      annual_revenue: item.annual_revenue ?? '',
+      industry: item.industry ?? '',
+      consultation_field: item.consultation_field ?? '',
+      agent_name: item.agent?.name ?? '',
+      created_at: item.created_at ? item.created_at.slice(0, 16).replace('T', ' ') : '',
+      notes: item.notes ?? '',
+    }))
+    exportToExcel(rows, [
+      { key: '__index__', label: '번호' },
+      { key: 'company_name', label: '업체명' },
+      { key: 'ceo_name', label: '대표자명' },
+      { key: 'phone', label: '연락처' },
+      { key: 'annual_revenue', label: '연매출' },
+      { key: 'industry', label: '업종' },
+      { key: 'consultation_field', label: '상담분야' },
+      { key: 'agent_name', label: '담당 설계사' },
+      { key: 'created_at', label: '접수일시' },
+      { key: 'notes', label: '메모' },
+    ], '기업용보험')
+  } catch {
+    alert('엑셀 다운로드에 실패했습니다.')
+  } finally {
+    excelLoading.value = false
+  }
+}
 
 onMounted(() => fetchData())
 </script>

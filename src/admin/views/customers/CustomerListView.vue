@@ -1,7 +1,22 @@
 <template>
   <div class="p-4 lg:p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">고객 관리</h1>
+      <div class="flex items-center gap-3">
+        <h1 class="text-[20px] lg:text-[22px] font-bold text-[#333]">고객 관리</h1>
+        <button
+          @click="downloadExcel"
+          :disabled="excelLoading"
+          class="w-9 h-9 flex items-center justify-center rounded-[10px] border border-[#E0E0E0] hover:bg-[#F8F8F8] hover:border-[#CCC] transition-colors disabled:opacity-50"
+          title="엑셀 다운로드"
+        >
+          <svg v-if="!excelLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+        </button>
+      </div>
       <router-link
         to="/customers/create"
         class="px-3 lg:px-4 py-2 lg:py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] transition-colors text-[13px] lg:text-[14px] font-medium"
@@ -166,9 +181,10 @@ import { useRouter } from 'vue-router'
 import api from '@shared/api'
 import { useCustomerStore } from '../../stores/customerStore'
 import { useBranchStore } from '../../stores/branchStore'
-import { fetchAgents } from '../../services/adminApi'
+import { fetchAgents, fetchCustomers } from '../../services/adminApi'
 import Pagination from '../../components/Pagination.vue'
 import { useSortable } from '../../composables/useSortable'
+import { exportToExcel } from '../../utils/exportExcel'
 import type { AdminCustomer, AdminAgent } from '../../types'
 
 const router = useRouter()
@@ -304,6 +320,50 @@ async function handleDelete(customer: AdminCustomer) {
     await fetchData()
   } catch (e: any) {
     alert(e.response?.data?.message || '삭제에 실패했습니다.')
+  }
+}
+
+const excelLoading = ref(false)
+
+async function downloadExcel() {
+  excelLoading.value = true
+  try {
+    const res = await fetchCustomers({
+      search: searchQuery.value || undefined,
+      is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
+      agent_id: agentFilter.value || undefined,
+      per_page: 9999,
+      ...sortParams(),
+      ...branchStore.getBranchParam(),
+    })
+    const customers = res.data.data.data as AdminCustomer[]
+    const rows = customers.map(c => ({
+      name: c.name,
+      gender: c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : c.gender ?? '',
+      age: calcAge(c.birth_date),
+      phone: formatPhone(c.phone),
+      address: [c.address, c.detailed_address].filter(Boolean).join(' '),
+      agent_name: c.agent?.name ?? '',
+      hospital: '',
+      created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
+      memo: '',
+    }))
+    exportToExcel(rows, [
+      { key: '__index__', label: '번호' },
+      { key: 'name', label: '이름' },
+      { key: 'gender', label: '성별' },
+      { key: 'age', label: '나이' },
+      { key: 'phone', label: '휴대전화' },
+      { key: 'address', label: '주소' },
+      { key: 'agent_name', label: '담당 설계사' },
+      { key: 'hospital', label: '병원' },
+      { key: 'created_at', label: '등록일시' },
+      { key: 'memo', label: '메모' },
+    ], '고객관리')
+  } catch {
+    alert('엑셀 다운로드에 실패했습니다.')
+  } finally {
+    excelLoading.value = false
   }
 }
 
