@@ -184,12 +184,7 @@ const router = createRouter({
     },
     {
       path: '/corporate-inquiries',
-      name: 'corporate-inquiries',
-      component: adaptiveView(
-        () => import('../views/corporate-inquiries/CorporateInquiryListView.vue'),
-        () => import('../views-pc/corporate-inquiries/PcCorporateInquiryListView.vue')
-      ),
-      meta: { requiresAuth: true },
+      redirect: '/db-distribution',
     },
     {
       path: '/alert-duty',
