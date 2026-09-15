@@ -546,6 +546,24 @@ export interface CodefCustomerSync {
   health_age_synced_at?: string | null
 }
 
+// ===== CorporateInquiry (기업 배분) =====
+export interface CorporateInquiry {
+  id: number
+  company_name: string
+  address?: string
+  ceo_name?: string
+  phone?: string
+  annual_revenue?: string
+  industry?: string
+  consultation_field?: string
+  status: string
+  agent_id: string
+  assigned_at?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
 // ===== MessageTemplate (카카오 알림톡 템플릿) - Backend 미구현, 로컬 유지 =====
 export interface MessageTemplate {
   template_id: string

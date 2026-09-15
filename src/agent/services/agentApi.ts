@@ -395,6 +395,16 @@ export const confirmHealthAge = (customerId: string, data: Record<string, string
 export const getDisclosureCheck = (customerId: string) =>
   api.get<ApiResponse<DisclosureCheckResult>>(`${BASE}/codef/${customerId}/disclosure-check`)
 
+// ===== Corporate Inquiries (기업 배분) =====
+export const fetchCorporateInquiries = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<import('../types').CorporateInquiry>>>(`${BASE}/corporate-inquiries`, { params })
+
+export const fetchCorporateInquiry = (id: number) =>
+  api.get<ApiResponse<import('../types').CorporateInquiry>>(`${BASE}/corporate-inquiries/${id}`)
+
+export const updateCorporateInquiryNotes = (id: number, data: { notes?: string }) =>
+  api.put<ApiResponse<import('../types').CorporateInquiry>>(`${BASE}/corporate-inquiries/${id}/notes`, data)
+
 // ===== FCM Token =====
 export const registerFcmToken = (data: { fcm_token: string; device_info?: string }) =>
   api.post<ApiResponse<null>>(`${BASE}/fcm-token`, data)

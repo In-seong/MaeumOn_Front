@@ -183,6 +183,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/corporate-inquiries',
+      name: 'corporate-inquiries',
+      component: adaptiveView(
+        () => import('../views/corporate-inquiries/CorporateInquiryListView.vue'),
+        () => import('../views-pc/corporate-inquiries/PcCorporateInquiryListView.vue')
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/alert-duty',
       name: 'alert-duty',
       component: adaptiveView(

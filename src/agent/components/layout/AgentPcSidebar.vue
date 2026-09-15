@@ -44,6 +44,7 @@ const navGroups = computed<NavGroup[]>(() => {
         { label: '고객 목록', icon: 'people', to: '/customers' },
         { label: '상담 요청', icon: 'forum', to: '/consultations' },
         { label: 'DB 배분', icon: 'swap_horiz', to: '/db-distribution' },
+        { label: '기업 배분', icon: 'business', to: '/corporate-inquiries' },
       ],
     },
   ]

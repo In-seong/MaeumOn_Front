@@ -51,6 +51,21 @@
             <circle cx="32" cy="10" r="5" fill="#FF7B22"/>
             <text x="32" y="13.5" text-anchor="middle" font-size="8" font-weight="bold" fill="white">N</text>
           </svg>
+          <!-- 기업배분: 빌딩 아이콘 -->
+          <svg v-else-if="item.icon === 'corporate'" width="45" height="45" viewBox="0 0 40 40" fill="none">
+            <rect x="8" y="10" width="14" height="24" rx="2" fill="white" stroke="#4CAF50" stroke-width="1.5"/>
+            <rect x="18" y="16" width="14" height="18" rx="2" fill="white" stroke="#4CAF50" stroke-width="1.5"/>
+            <rect x="11" y="14" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="16" y="14" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="11" y="20" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="21" y="20" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="27" y="20" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="21" y="26" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="27" y="26" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="11" y="26" width="3" height="3" rx="0.5" fill="#4CAF50" opacity="0.4"/>
+            <rect x="13" y="30" width="4" height="4" rx="0.5" fill="#4CAF50"/>
+            <line x1="5" y1="34" x2="35" y2="34" stroke="#4CAF50" stroke-width="1.5"/>
+          </svg>
           <!-- DB배분: 초록 하이라이트 유지 -->
           <svg v-else-if="item.icon === 'db'" width="45" height="45" viewBox="0 0 40 40" fill="none">
             <ellipse cx="20" cy="10" rx="13" ry="5" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
@@ -91,6 +106,7 @@ const allMenuItems = [
   { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new', bgClass: 'bg-[#FFF3ED]', review: false },
   { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', bgClass: 'bg-[#FFF3ED]', review: true },
   { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]', review: true },
+  { icon: 'corporate', label: '기업배분', sub: '기업 고객 배분', path: '/corporate-inquiries', bgClass: 'bg-[#E8F5E9]', review: true },
   { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]', review: false },
 ]
 
