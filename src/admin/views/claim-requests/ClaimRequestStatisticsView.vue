@@ -175,23 +175,38 @@ function onHospitalChange(e: Event) {
 
 const excelLoading = ref(false)
 
-function downloadExcel() {
+async function downloadExcel() {
   excelLoading.value = true
   try {
-    const rows = store.agents.map(row => ({
-      agent_name: row.agent_name,
-      resident: row.resident,
-      distribution: row.distribution,
-      corporate: row.corporate,
-      total: row.total,
+    const res = await fetchClaimRequestStatDetails({
+      date_from: dateFrom.value,
+      date_to: dateTo.value,
+      hospital_id: store.selectedHospitalId || undefined,
+    })
+    const details = res.data.data.details as Array<{
+      agent_name?: string
+      customer_name: string
+      db_type: string
+      hospital_name: string | null
+      assigned_at: string | null
+      memo: string | null
+    }>
+    const rows = details.map(d => ({
+      agent_name: d.agent_name ?? '',
+      customer_name: d.customer_name,
+      hospital_name: d.hospital_name ?? '',
+      db_type: dbTypeLabel(d.db_type),
+      assigned_at: d.assigned_at ?? '',
+      memo: d.memo ?? '',
     }))
     exportToExcel(rows, [
       { key: '__index__', label: '번호' },
       { key: 'agent_name', label: '설계사 이름' },
-      { key: 'resident', label: '상주 DB' },
-      { key: 'distribution', label: '배분 DB' },
-      { key: 'corporate', label: '기업 DB' },
-      { key: 'total', label: '합계' },
+      { key: 'customer_name', label: '고객명' },
+      { key: 'hospital_name', label: '병원' },
+      { key: 'db_type', label: 'DB' },
+      { key: 'assigned_at', label: '배분일시' },
+      { key: 'memo', label: '메모' },
     ], '배정통계')
   } catch {
     alert('엑셀 다운로드에 실패했습니다.')

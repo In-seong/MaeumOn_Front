@@ -413,7 +413,12 @@ function downloadExcel() {
       db_assigned_count: a.db_assigned_count,
       contract_count: a.contract_count,
       contract_amount: formatAmount(a.contract_amount),
-      consultation_count: a.consultation_count,
+      processing_rate: a.db_assigned_count > 0
+        ? ((a.consultation_count / a.db_assigned_count) * 100).toFixed(1) + '%'
+        : '0%',
+      conversion_rate: a.db_assigned_count > 0
+        ? ((a.contract_count / a.db_assigned_count) * 100).toFixed(1) + '%'
+        : '0%',
     }))
     exportToExcel(rows, [
       { key: '__index__', label: '번호' },
@@ -421,7 +426,8 @@ function downloadExcel() {
       { key: 'db_assigned_count', label: 'DB 배분' },
       { key: 'contract_count', label: '계약 건수' },
       { key: 'contract_amount', label: '계약 금액' },
-      { key: 'consultation_count', label: '상담 건수' },
+      { key: 'processing_rate', label: 'DB 처리율' },
+      { key: 'conversion_rate', label: '전환율' },
     ], '실적현황')
   } catch {
     alert('엑셀 다운로드에 실패했습니다.')
