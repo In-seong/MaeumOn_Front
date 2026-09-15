@@ -9,6 +9,7 @@ import type {
   AdminConsultation, AdminBatchClaim,
   AdminHospital, AdminHealthCenter, AdminClaimRequest,
   AdminReservation, ScheduleConfig, ClaimRequestStatistics,
+  ClaimRequestStatDetail,
 } from '../types'
 
 const BASE = '/admin'
@@ -231,6 +232,9 @@ export const deleteHealthCenterThumbnail = (id: number) =>
 // ===== Claim Requests (간편 청구 신청 관리) =====
 export const fetchClaimRequestStatistics = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<ClaimRequestStatistics>>(`${BASE}/claim-requests/statistics`, { params })
+
+export const fetchClaimRequestStatDetails = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<{ agent_name: string; details: ClaimRequestStatDetail[] }>>(`${BASE}/claim-requests/statistics/details`, { params })
 
 export const fetchAdminClaimRequests = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminClaimRequest>>>(`${BASE}/claim-requests`, { params })

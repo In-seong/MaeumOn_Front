@@ -80,7 +80,7 @@
         <tbody class="divide-y divide-[#F0F0F0]">
           <tr v-for="(row, index) in store.agents" :key="row.agent_id" class="hover:bg-[#FAFAFA] transition-colors">
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ index + 1 }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333]">{{ row.agent_name }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#FF7B22] cursor-pointer hover:underline" @click="openDetail(row)">{{ row.agent_name }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#4CAF50] font-medium">{{ row.corporate }}</td>
@@ -99,6 +99,56 @@
         </tfoot>
       </table>
     </div>
+
+    <!-- 상세 모달 -->
+    <div v-if="showDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="closeDetail">
+      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="relative bg-white rounded-[16px] shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-[#F0F0F0]">
+          <h2 class="text-[18px] font-bold text-[#333]">{{ detailAgentName }} 배정 상세</h2>
+          <button @click="closeDetail" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-auto">
+          <div v-if="detailLoading" class="text-center py-10">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+          </div>
+
+          <div v-else-if="detailItems.length === 0" class="text-center py-10 text-[#999] text-[14px]">
+            배정 내역이 없습니다.
+          </div>
+
+          <table v-else class="min-w-full divide-y divide-[#E8E8E8]">
+            <thead class="bg-[#FAFAFA] sticky top-0">
+              <tr>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase w-[50px]">No.</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객명</th>
+                <th class="px-4 py-3 text-center text-[12px] font-medium text-[#999] uppercase">DB</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">병원</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">배분일시</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">메모</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#F0F0F0]">
+              <tr v-for="(item, idx) in detailItems" :key="idx" class="hover:bg-[#FAFAFA] transition-colors">
+                <td class="px-4 py-3 text-[13px] text-[#999]">{{ idx + 1 }}</td>
+                <td class="px-4 py-3 text-[13px] font-medium text-[#333]">{{ item.customer_name }}</td>
+                <td class="px-4 py-3 text-center">
+                  <span :class="dbTypeColor(item.db_type)" class="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-full">
+                    {{ dbTypeLabel(item.db_type) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-[13px] text-[#666]">{{ item.hospital_name || '-' }}</td>
+                <td class="px-4 py-3 text-[13px] text-[#999]">{{ formatDateTime(item.assigned_at) }}</td>
+                <td class="px-4 py-3 text-[13px] text-[#666] max-w-[200px] truncate">{{ item.memo || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -107,6 +157,8 @@ import { ref, onMounted } from 'vue'
 import { useClaimRequestStatStore } from '../../stores/claimRequestStatStore'
 import { useDateRange } from '../../composables/useDateRange'
 import { exportToExcel } from '../../utils/exportExcel'
+import { fetchClaimRequestStatDetails } from '../../services/adminApi'
+import type { ClaimRequestStatDetail, ClaimRequestStatAgentRow } from '../../types'
 
 const store = useClaimRequestStatStore()
 const { dateFrom, dateTo } = useDateRange('month')
@@ -146,6 +198,54 @@ function downloadExcel() {
   } finally {
     excelLoading.value = false
   }
+}
+
+// 상세 모달
+const showDetailModal = ref(false)
+const detailAgentName = ref('')
+const detailLoading = ref(false)
+const detailItems = ref<ClaimRequestStatDetail[]>([])
+
+async function openDetail(row: ClaimRequestStatAgentRow) {
+  showDetailModal.value = true
+  detailAgentName.value = row.agent_name
+  detailLoading.value = true
+  try {
+    const res = await fetchClaimRequestStatDetails({
+      agent_id: row.agent_id,
+      date_from: dateFrom.value,
+      date_to: dateTo.value,
+      hospital_id: store.selectedHospitalId || undefined,
+    })
+    detailItems.value = res.data.data.details
+  } catch {
+    detailItems.value = []
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+function closeDetail() {
+  showDetailModal.value = false
+}
+
+function dbTypeLabel(type: string) {
+  if (type === 'resident') return '상주'
+  if (type === 'distribution') return '배분'
+  if (type === 'corporate') return '기업'
+  return type
+}
+
+function dbTypeColor(type: string) {
+  if (type === 'resident') return 'bg-blue-50 text-[#2196F3]'
+  if (type === 'distribution') return 'bg-[#FFF3ED] text-[#FF7B22]'
+  if (type === 'corporate') return 'bg-green-50 text-[#4CAF50]'
+  return 'bg-gray-50 text-gray-600'
+}
+
+function formatDateTime(dt: string) {
+  if (!dt) return '-'
+  return dt.slice(0, 16).replace('T', ' ')
 }
 
 onMounted(() => {

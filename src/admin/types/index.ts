@@ -398,6 +398,14 @@ export interface ClaimRequestStatistics {
   end_date: string
 }
 
+export interface ClaimRequestStatDetail {
+  customer_name: string
+  db_type: 'resident' | 'distribution' | 'corporate'
+  hospital_name: string | null
+  assigned_at: string
+  memo: string | null
+}
+
 // 예약 관리
 export interface AdminReservation {
   reservation_id: number
