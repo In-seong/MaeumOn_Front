@@ -127,9 +127,11 @@ function eventTypeLabel(event: CalendarEvent): string {
 }
 
 function daysUntil(dateStr: string): string {
+  if (!dateStr) return '-'
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
+  if (isNaN(target.getTime())) return '-'
   const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
   if (diff === 0) return '오늘'
   if (diff === 1) return '내일'
@@ -138,9 +140,11 @@ function daysUntil(dateStr: string): string {
 }
 
 function daysUntilVariant(dateStr: string): string {
+  if (!dateStr) return 'text-[#999]'
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
+  if (isNaN(target.getTime())) return 'text-[#999]'
   const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
   if (diff <= 1) return 'text-[#FF4444] font-semibold'
   if (diff <= 7) return 'text-[#FF7B22] font-semibold'

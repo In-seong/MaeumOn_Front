@@ -214,6 +214,15 @@
                 </select>
               </div>
               <div>
+                <label class="text-[12px] text-[#888] mb-1 block">병원</label>
+                <input
+                  v-model="editForm.hospital"
+                  type="text"
+                  placeholder="병원명 입력"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                />
+              </div>
+              <div>
                 <label class="text-[12px] text-[#888] mb-1 block">가입경로</label>
                 <select
                   v-model="editForm.acquisition_channel"
@@ -276,6 +285,7 @@
             <InfoRow label="상세주소" :value="customer.detailed_address ?? '-'" />
             <InfoRow label="직업" :value="customer.job ?? '-'" />
             <InfoRow label="통신사" :value="customer.telecom ?? '-'" />
+            <InfoRow label="병원" :value="customer.hospital ?? '-'" />
             <InfoRow label="가입경로" :value="customer.acquisition_channel ?? '-'" />
             <InfoRow label="기타" :value="customer.acquisition_note ?? '-'" />
             <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
@@ -858,6 +868,7 @@ const editForm = ref({
   detailed_address: '',
   job: '',
   telecom: '',
+  hospital: '',
   acquisition_channel: '',
   acquisition_note: '',
 })
@@ -961,6 +972,7 @@ function handleStartEdit(): void {
     detailed_address: customer.value.detailed_address ?? '',
     job: customer.value.job ?? '',
     telecom: customer.value.telecom ?? '',
+    hospital: customer.value.hospital ?? '',
     acquisition_channel: customer.value.acquisition_channel ?? '',
     acquisition_note: customer.value.acquisition_note ?? '',
   }
@@ -1017,6 +1029,7 @@ async function handleSaveEdit(): Promise<void> {
       detailed_address: editForm.value.detailed_address || undefined,
       job: editForm.value.job || undefined,
       telecom: editForm.value.telecom || undefined,
+      hospital: editForm.value.hospital || undefined,
       acquisition_channel: editForm.value.acquisition_channel || undefined,
       acquisition_note: editForm.value.acquisition_note || undefined,
     })

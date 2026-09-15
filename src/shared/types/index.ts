@@ -66,6 +66,9 @@ export interface Customer {
   address?: string
   detailed_address?: string
   job?: string
+  telecom?: string
+  hospital?: string
+  acquisition_channel?: string
   is_active: boolean
   created_at?: string
   updated_at?: string

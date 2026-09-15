@@ -344,7 +344,7 @@ async function downloadExcel() {
       phone: formatPhone(c.phone),
       address: [c.address, c.detailed_address].filter(Boolean).join(' '),
       agent_name: c.agent?.name ?? '',
-      hospital: '',
+      hospital: c.hospital ?? '',
       created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
       memo: '',
     }))
