@@ -130,19 +130,48 @@
               <!-- 8. 담당설계사 -->
               <div>
                 <label class="block text-[12px] font-medium text-[#666] mb-1">담당설계사</label>
-                <select
-                  v-model="newInquiry.agent_id"
-                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
-                >
-                  <option value="">미배정</option>
-                  <option
-                    v-for="agent in store.agentOptions"
-                    :key="agent.agent_id"
-                    :value="agent.agent_id"
+                <div class="relative" ref="formAgentDropdownRef">
+                  <input
+                    v-model="formAgentSearchQuery"
+                    type="text"
+                    placeholder="설계사 이름 검색"
+                    class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                    @focus="formAgentDropdownOpen = true"
+                    @input="formAgentDropdownOpen = true"
+                  />
+                  <button
+                    v-if="newInquiry.agent_id"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#666] text-[16px]"
+                    @click="clearFormAgentSelection"
+                  >&times;</button>
+                  <div
+                    v-if="formAgentDropdownOpen && filteredFormAgentOptions.length > 0"
+                    class="absolute z-20 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[8px] shadow-lg max-h-[200px] overflow-y-auto"
                   >
-                    {{ agent.name }} ({{ agent.agent_id }})
-                  </option>
-                </select>
+                    <button
+                      class="w-full text-left px-3 py-2 text-[13px] hover:bg-[#F8F8F8] transition-colors first:rounded-t-[8px]"
+                      :class="!newInquiry.agent_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium' : 'text-[#999]'"
+                      @click="selectFormAgent('', '미배정')"
+                    >
+                      미배정
+                    </button>
+                    <button
+                      v-for="agent in filteredFormAgentOptions"
+                      :key="agent.agent_id"
+                      class="w-full text-left px-3 py-2 text-[13px] hover:bg-[#FFF3ED] transition-colors last:rounded-b-[8px]"
+                      :class="newInquiry.agent_id === agent.agent_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium' : 'text-[#333]'"
+                      @click="selectFormAgent(agent.agent_id, agent.name)"
+                    >
+                      {{ agent.name }}
+                    </button>
+                  </div>
+                  <div
+                    v-if="formAgentDropdownOpen && formAgentSearchQuery && filteredFormAgentOptions.length === 0"
+                    class="absolute z-20 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[8px] shadow-lg px-3 py-2 text-[12px] text-[#999]"
+                  >
+                    검색 결과가 없습니다.
+                  </div>
+                </div>
               </div>
             </div>
             <div class="flex justify-end mt-3">
@@ -220,19 +249,41 @@
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
         <div class="px-4 lg:px-6 py-4 border-b border-[#E8E8E8]">
           <h2 class="text-[16px] font-bold text-[#333] mb-3">배분 대상 설계사</h2>
-          <select
-            v-model="selectedAgentId"
-            class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
-          >
-            <option value="">설계사를 선택하세요</option>
-            <option
-              v-for="agent in store.agentOptions"
-              :key="agent.agent_id"
-              :value="agent.agent_id"
+          <div class="relative" ref="agentDropdownRef">
+            <input
+              v-model="agentSearchQuery"
+              type="text"
+              placeholder="설계사 이름으로 검색"
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+              @focus="agentDropdownOpen = true"
+              @input="agentDropdownOpen = true"
+            />
+            <button
+              v-if="selectedAgentId"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#666] text-[18px]"
+              @click="clearAgentSelection"
+            >&times;</button>
+            <div
+              v-if="agentDropdownOpen && filteredAgentOptions.length > 0"
+              class="absolute z-10 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[12px] shadow-lg max-h-[240px] overflow-y-auto"
             >
-              {{ agent.name }} ({{ agent.agent_id }})
-            </option>
-          </select>
+              <button
+                v-for="agent in filteredAgentOptions"
+                :key="agent.agent_id"
+                class="w-full text-left px-4 py-2.5 text-[14px] hover:bg-[#FFF3ED] transition-colors first:rounded-t-[12px] last:rounded-b-[12px]"
+                :class="selectedAgentId === agent.agent_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium' : 'text-[#333]'"
+                @click="selectAgent(agent)"
+              >
+                {{ agent.name }} ({{ agent.agent_id }})
+              </button>
+            </div>
+            <div
+              v-if="agentDropdownOpen && agentSearchQuery && filteredAgentOptions.length === 0"
+              class="absolute z-10 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[12px] shadow-lg px-4 py-3 text-[13px] text-[#999]"
+            >
+              검색 결과가 없습니다.
+            </div>
+          </div>
         </div>
 
         <!-- 선택된 설계사 정보 -->
@@ -365,7 +416,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 import { useBranchStore } from '../../stores/branchStore'
@@ -378,6 +429,12 @@ const branchStore = useBranchStore()
 const inquirySearch = ref('')
 const selectedIds = ref<Set<number>>(new Set())
 const selectedAgentId = ref('')
+const agentSearchQuery = ref('')
+const agentDropdownOpen = ref(false)
+const agentDropdownRef = ref<HTMLElement | null>(null)
+const formAgentSearchQuery = ref('')
+const formAgentDropdownOpen = ref(false)
+const formAgentDropdownRef = ref<HTMLElement | null>(null)
 const notes = ref('')
 const inquiriesLoading = ref(false)
 const detailInquiry = ref<CorporateInquiry | null>(null)
@@ -415,6 +472,53 @@ const selectedAgent = computed(() => {
   if (!selectedAgentId.value) return null
   return store.agentOptions.find(a => a.agent_id === selectedAgentId.value) || null
 })
+
+const filteredAgentOptions = computed(() => {
+  const q = agentSearchQuery.value.trim().toLowerCase()
+  if (!q) return store.agentOptions
+  return store.agentOptions.filter(a =>
+    a.name.toLowerCase().includes(q) || a.agent_id.toLowerCase().includes(q)
+  )
+})
+
+const filteredFormAgentOptions = computed(() => {
+  const q = formAgentSearchQuery.value.trim().toLowerCase()
+  if (!q) return store.agentOptions
+  return store.agentOptions.filter(a =>
+    a.name.toLowerCase().includes(q) || a.agent_id.toLowerCase().includes(q)
+  )
+})
+
+function selectAgent(agent: { agent_id: string; name: string }) {
+  selectedAgentId.value = agent.agent_id
+  agentSearchQuery.value = agent.name
+  agentDropdownOpen.value = false
+}
+
+function clearAgentSelection() {
+  selectedAgentId.value = ''
+  agentSearchQuery.value = ''
+}
+
+function selectFormAgent(agentId: string, name: string) {
+  newInquiry.value.agent_id = agentId
+  formAgentSearchQuery.value = agentId ? name : ''
+  formAgentDropdownOpen.value = false
+}
+
+function clearFormAgentSelection() {
+  newInquiry.value.agent_id = ''
+  formAgentSearchQuery.value = ''
+}
+
+function handleClickOutside(e: MouseEvent) {
+  if (agentDropdownRef.value && !agentDropdownRef.value.contains(e.target as Node)) {
+    agentDropdownOpen.value = false
+  }
+  if (formAgentDropdownRef.value && !formAgentDropdownRef.value.contains(e.target as Node)) {
+    formAgentDropdownOpen.value = false
+  }
+}
 
 const isAllSelected = computed(() => {
   return filteredInquiries.value.length > 0 &&
@@ -507,6 +611,7 @@ async function handleCreateInquiry() {
       company_name: '', address: '', ceo_name: '', phone: '',
       industry: '', annual_revenue: '', consultation_field: '', agent_id: '',
     }
+    formAgentSearchQuery.value = ''
     showNewForm.value = false
     await loadUnassigned()
     alert('기업 고객이 등록되었습니다.')
@@ -535,6 +640,7 @@ async function handleSubmit() {
 }
 
 onMounted(async () => {
+  document.addEventListener('click', handleClickOutside)
   inquiriesLoading.value = true
   try {
     await Promise.all([
@@ -544,5 +650,9 @@ onMounted(async () => {
   } finally {
     inquiriesLoading.value = false
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
