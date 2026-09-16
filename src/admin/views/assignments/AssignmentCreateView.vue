@@ -304,6 +304,13 @@
             >
               <span class="material-symbols-outlined text-[18px] text-[#999]">info</span>
             </button>
+            <button
+              @click.stop="handleDeleteCustomer(customer)"
+              class="p-1.5 rounded-[8px] hover:bg-red-50 transition-colors shrink-0"
+              title="삭제"
+            >
+              <span class="material-symbols-outlined text-[18px] text-red-400">delete</span>
+            </button>
           </div>
           <div v-if="filteredCustomers.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
             미배정 고객이 없습니다.
@@ -337,6 +344,13 @@
               title="상세보기"
             >
               <span class="material-symbols-outlined text-[18px] text-[#999]">info</span>
+            </button>
+            <button
+              @click.stop="handleDeleteClaim(claim)"
+              class="p-1.5 rounded-[8px] hover:bg-red-50 transition-colors shrink-0"
+              title="삭제"
+            >
+              <span class="material-symbols-outlined text-[18px] text-red-400">delete</span>
             </button>
             <div class="text-[11px] text-[#BBB] shrink-0">
               {{ formatDate(claim.created_at) }}
@@ -583,7 +597,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAssignmentStore } from '../../stores/assignmentStore'
 import { useBranchStore } from '../../stores/branchStore'
-import { createCustomer, fetchAdminClaimRequest, fetchAdminHospitals } from '../../services/adminApi'
+import { createCustomer, fetchAdminClaimRequest, fetchAdminHospitals, deleteCustomer, deleteClaimRequest } from '../../services/adminApi'
 import type { AdminCustomer, AdminClaimRequest, AdminHospital } from '../../types'
 
 const router = useRouter()
@@ -811,6 +825,28 @@ async function showClaimDetail(requestId: number) {
 function isImageFile(fileName?: string): boolean {
   if (!fileName) return false
   return /\.(jpg|jpeg|png|gif|webp|bmp|heic)$/i.test(fileName)
+}
+
+async function handleDeleteCustomer(customer: AdminCustomer) {
+  if (!confirm(`"${customer.name}" 고객을 삭제하시겠습니까?`)) return
+  try {
+    await deleteCustomer(customer.customer_id)
+    selectedIds.value.delete(customer.customer_id)
+    await loadUnassigned()
+  } catch (e: any) {
+    alert(e.response?.data?.message || '삭제에 실패했습니다.')
+  }
+}
+
+async function handleDeleteClaim(claim: AdminClaimRequest) {
+  if (!confirm(`"${claim.name}" 청구 신청을 삭제하시겠습니까?`)) return
+  try {
+    await deleteClaimRequest(claim.request_id)
+    selectedIds.value.delete(String(claim.request_id))
+    await loadClaimRequests()
+  } catch (e: any) {
+    alert(e.response?.data?.message || '삭제에 실패했습니다.')
+  }
 }
 
 async function handleCreateCustomer() {

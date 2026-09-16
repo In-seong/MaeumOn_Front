@@ -238,6 +238,13 @@
             >
               <span class="material-symbols-outlined text-[18px] text-[#999]">info</span>
             </button>
+            <button
+              @click.stop="handleDeleteInquiry(inquiry)"
+              class="p-1.5 rounded-[8px] hover:bg-red-50 transition-colors shrink-0"
+              title="삭제"
+            >
+              <span class="material-symbols-outlined text-[18px] text-red-400">delete</span>
+            </button>
           </div>
           <div v-if="filteredInquiries.length === 0" class="px-4 lg:px-6 py-10 text-center text-[#999] text-[14px]">
             미배분 기업 문의가 없습니다.
@@ -420,7 +427,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 import { useBranchStore } from '../../stores/branchStore'
-import { createCorporateInquiry, type CorporateInquiry } from '../../services/adminApi'
+import { createCorporateInquiry, deleteCorporateInquiry, type CorporateInquiry } from '../../services/adminApi'
 
 const router = useRouter()
 const store = useCorporateInquiryStore()
@@ -572,6 +579,17 @@ async function loadUnassigned() {
     })
   } finally {
     inquiriesLoading.value = false
+  }
+}
+
+async function handleDeleteInquiry(inquiry: CorporateInquiry) {
+  if (!confirm(`"${inquiry.company_name}" 기업 문의를 삭제하시겠습니까?`)) return
+  try {
+    await deleteCorporateInquiry(inquiry.id)
+    selectedIds.value.delete(inquiry.id)
+    await loadUnassigned()
+  } catch (e: any) {
+    alert(e.response?.data?.message || '삭제에 실패했습니다.')
   }
 }
 

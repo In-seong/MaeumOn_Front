@@ -82,6 +82,12 @@ export const bulkAssignment = (data: { assignments: Array<{ customer_id: string;
 export const deleteAssignment = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/assignments/${id}`)
 
+export const deleteClaimRequest = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/claim-requests/${id}`)
+
+export const deleteCorporateInquiry = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/corporate-inquiries/${id}`)
+
 export const fetchClaimAssignments = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<AdminClaimRequest>>>(`${BASE}/assignments/claim`, { params })
 
