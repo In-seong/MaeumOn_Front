@@ -164,19 +164,48 @@
               </div>
               <div>
                 <label class="block text-[12px] font-medium text-[#666] mb-1">설계사 배정</label>
-                <select
-                  v-model="newClaim.agent_id"
-                  class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] focus:outline-none focus:border-[#FF7B22]"
-                >
-                  <option value="">미배정</option>
-                  <option
-                    v-for="agent in store.agentOptions"
-                    :key="agent.agent_id"
-                    :value="agent.agent_id"
+                <div class="relative" ref="claimAgentDropdownRef">
+                  <input
+                    v-model="claimAgentSearchQuery"
+                    type="text"
+                    placeholder="설계사 이름 검색"
+                    class="w-full px-3 py-2 bg-white border border-[#E8E8E8] rounded-[8px] text-[13px] text-[#333] placeholder-[#BBB] focus:outline-none focus:border-[#FF7B22]"
+                    @focus="claimAgentDropdownOpen = true"
+                    @input="claimAgentDropdownOpen = true"
+                  />
+                  <button
+                    v-if="newClaim.agent_id"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#666] text-[16px]"
+                    @click="clearClaimAgentSelection"
+                  >&times;</button>
+                  <div
+                    v-if="claimAgentDropdownOpen && filteredClaimAgentOptions.length > 0"
+                    class="absolute z-20 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[8px] shadow-lg max-h-[200px] overflow-y-auto"
                   >
-                    {{ agent.name }}
-                  </option>
-                </select>
+                    <button
+                      class="w-full text-left px-3 py-2 text-[13px] hover:bg-[#F8F8F8] transition-colors first:rounded-t-[8px]"
+                      :class="!newClaim.agent_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium' : 'text-[#999]'"
+                      @click="selectClaimAgent('', '미배정')"
+                    >
+                      미배정
+                    </button>
+                    <button
+                      v-for="agent in filteredClaimAgentOptions"
+                      :key="agent.agent_id"
+                      class="w-full text-left px-3 py-2 text-[13px] hover:bg-[#FFF3ED] transition-colors last:rounded-b-[8px]"
+                      :class="newClaim.agent_id === agent.agent_id ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium' : 'text-[#333]'"
+                      @click="selectClaimAgent(agent.agent_id, agent.name)"
+                    >
+                      {{ agent.name }}
+                    </button>
+                  </div>
+                  <div
+                    v-if="claimAgentDropdownOpen && claimAgentSearchQuery && filteredClaimAgentOptions.length === 0"
+                    class="absolute z-20 w-full mt-1 bg-white border border-[#E8E8E8] rounded-[8px] shadow-lg px-3 py-2 text-[12px] text-[#999]"
+                  >
+                    검색 결과가 없습니다.
+                  </div>
+                </div>
               </div>
             </div>
             <div class="mt-3">
@@ -581,6 +610,9 @@ const newClaim = ref({ name: '', phone: '', hospital_id: '', agent_id: '', memo:
 const newClaimFiles = ref<File[]>([])
 const claimFileInput = ref<HTMLInputElement | null>(null)
 const hospitalOptions = ref<AdminHospital[]>([])
+const claimAgentSearchQuery = ref('')
+const claimAgentDropdownOpen = ref(false)
+const claimAgentDropdownRef = ref<HTMLElement | null>(null)
 
 const detailCustomer = ref<AdminCustomer | null>(null)
 const detailClaim = ref<AdminClaimRequest | null>(null)
@@ -651,6 +683,28 @@ function handleClickOutside(e: MouseEvent) {
   if (agentDropdownRef.value && !agentDropdownRef.value.contains(e.target as Node)) {
     agentDropdownOpen.value = false
   }
+  if (claimAgentDropdownRef.value && !claimAgentDropdownRef.value.contains(e.target as Node)) {
+    claimAgentDropdownOpen.value = false
+  }
+}
+
+const filteredClaimAgentOptions = computed(() => {
+  const q = claimAgentSearchQuery.value.trim().toLowerCase()
+  if (!q) return store.agentOptions
+  return store.agentOptions.filter(a =>
+    a.name.toLowerCase().includes(q) || a.agent_id.toLowerCase().includes(q)
+  )
+})
+
+function selectClaimAgent(agentId: string, name: string) {
+  newClaim.value.agent_id = agentId
+  claimAgentSearchQuery.value = agentId ? name : ''
+  claimAgentDropdownOpen.value = false
+}
+
+function clearClaimAgentSelection() {
+  newClaim.value.agent_id = ''
+  claimAgentSearchQuery.value = ''
 }
 
 const isAllSelected = computed(() => {
@@ -812,6 +866,7 @@ async function handleCreateClaim() {
     await store.createClaimRequest(formData)
     newClaim.value = { name: '', phone: '', hospital_id: '', agent_id: '', memo: '', source_type: 'resident' }
     newClaimFiles.value = []
+    claimAgentSearchQuery.value = ''
     showNewClaimForm.value = false
     await loadClaimRequests()
     alert('청구 신청이 등록되었습니다.')
