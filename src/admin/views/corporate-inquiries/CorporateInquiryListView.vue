@@ -119,7 +119,7 @@ import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
 import { useDateRange } from '../../composables/useDateRange'
 import { fetchCorporateInquiries } from '../../services/adminApi'
-import { exportToExcel } from '../../utils/exportExcel'
+import { exportToExcel } from '@shared/utils/exportExcel'
 import Pagination from '../../components/Pagination.vue'
 
 const router = useRouter()

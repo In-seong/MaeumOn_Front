@@ -156,7 +156,7 @@
 import { ref, onMounted } from 'vue'
 import { useClaimRequestStatStore } from '../../stores/claimRequestStatStore'
 import { useDateRange } from '../../composables/useDateRange'
-import { exportToExcel } from '../../utils/exportExcel'
+import { exportToExcel } from '@shared/utils/exportExcel'
 import { fetchClaimRequestStatDetails } from '../../services/adminApi'
 import type { ClaimRequestStatDetail, ClaimRequestStatAgentRow } from '../../types'
 

@@ -96,12 +96,22 @@
               약국
             </button>
           </div>
-          <button
-            class="px-3 py-1.5 bg-[#FF7B22] text-white text-[12px] font-medium rounded-[8px] active:scale-95 transition-transform"
-            @click="startSimpleAuth('medical')"
-          >
-            진료 조회
-          </button>
+          <div class="flex items-center gap-1.5">
+            <button
+              v-if="store.medicalRecords.length > 0"
+              class="px-2.5 py-1.5 bg-[#1D6F42] text-white text-[12px] font-medium rounded-[8px] active:scale-95 transition-transform flex items-center gap-1"
+              @click="downloadMedicalExcel"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              엑셀
+            </button>
+            <button
+              class="px-3 py-1.5 bg-[#FF7B22] text-white text-[12px] font-medium rounded-[8px] active:scale-95 transition-transform"
+              @click="startSimpleAuth('medical')"
+            >
+              진료 조회
+            </button>
+          </div>
         </div>
 
         <!-- 고지의무 분류 -->
@@ -779,6 +789,7 @@ import { useToast } from '../../composables/useToast'
 import * as api from '../../services/agentApi'
 import type { MedicalRecordFull, HealthCheckupRecord } from '../../types'
 import type { InsuranceContract } from '@shared/types'
+import { exportToExcel } from '@shared/utils/exportExcel'
 
 const route = useRoute()
 const store = useCodefStore()
@@ -965,6 +976,41 @@ function hasSurgery(rec: any): boolean {
 }
 
 const selectedHasSurgery = computed(() => hasSurgery(selectedMedical.value))
+
+function downloadMedicalExcel() {
+  const records = store.medicalRecords
+  if (records.length === 0) return
+
+  const rows = records.map(rec => ({
+    treatment_date: rec.treatment_date ?? '',
+    hospital_name: rec.hospital_name ?? '',
+    department: rec.department ?? '',
+    diagnosis_name: rec.diagnosis_name ?? '',
+    diagnosis_code: rec.diagnosis_code ?? '',
+    treatment_type: rec.treatment_type ?? '',
+    visit_days: rec.visit_days ?? '',
+    total_amount: rec.total_amount ?? '',
+    public_charge: rec.public_charge ?? '',
+    deductible_amt: rec.deductible_amt ?? '',
+    surgery: hasSurgery(rec) ? 'O' : 'X',
+  })) as Record<string, unknown>[]
+
+  const name = customerName.value || '고객'
+  exportToExcel(rows, [
+    { key: '__index__', label: 'No.' },
+    { key: 'treatment_date', label: '진료일자' },
+    { key: 'hospital_name', label: '병원/약국명' },
+    { key: 'department', label: '진료과' },
+    { key: 'diagnosis_name', label: '진단명' },
+    { key: 'diagnosis_code', label: '질병코드' },
+    { key: 'treatment_type', label: '진료유형' },
+    { key: 'visit_days', label: '내원일수' },
+    { key: 'total_amount', label: '총진료비' },
+    { key: 'public_charge', label: '공단부담' },
+    { key: 'deductible_amt', label: '본인부담' },
+    { key: 'surgery', label: '수술여부' },
+  ], `${name}_진료내역`)
+}
 
 const authTargetLabel = computed(() => {
   const m: Record<string, string> = { medical: '진료내역', checkup: '건강검진', healthAge: '건강나이' }

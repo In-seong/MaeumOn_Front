@@ -184,7 +184,7 @@ import { useBranchStore } from '../../stores/branchStore'
 import { fetchAgents, fetchCustomers } from '../../services/adminApi'
 import Pagination from '../../components/Pagination.vue'
 import { useSortable } from '../../composables/useSortable'
-import { exportToExcel } from '../../utils/exportExcel'
+import { exportToExcel } from '@shared/utils/exportExcel'
 import type { AdminCustomer, AdminAgent } from '../../types'
 
 const router = useRouter()
