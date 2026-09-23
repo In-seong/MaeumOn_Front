@@ -392,7 +392,7 @@
     </div>
 
     <!-- 내보험다보여 인증 모달 -->
-    <div v-if="showCreditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showCreditModal = false">
+    <div v-if="showCreditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div class="bg-white rounded-[16px] w-[90%] max-w-[360px] p-5">
         <h3 class="text-[16px] font-bold text-[#222] mb-4">내보험다보여 로그인</h3>
         <div class="space-y-3">
@@ -444,7 +444,7 @@
     </div>
 
     <!-- 간편인증 모달 -->
-    <div v-if="showAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showAuthModal = false">
+    <div v-if="showAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div class="bg-white rounded-[16px] w-[90%] max-w-[360px] p-5">
         <h3 class="text-[16px] font-bold text-[#222] mb-4">간편인증 ({{ authTargetLabel }})</h3>
 
@@ -514,7 +514,7 @@
     </div>
 
     <!-- 2-Way 모달 (내보험다보여 SMS) -->
-    <div v-if="showCreditTwoWay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showCreditTwoWay = false">
+    <div v-if="showCreditTwoWay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div class="bg-white rounded-[16px] w-[90%] max-w-[360px] p-5">
         <h3 class="text-[16px] font-bold text-[#222] mb-4">추가 인증</h3>
         <p class="text-[13px] text-[#666] mb-3">SMS 인증번호를 입력해주세요</p>
