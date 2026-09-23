@@ -450,12 +450,20 @@
 
         <!-- 2-Way 대기 상태 -->
         <div v-if="twoWayPending">
-          <p class="text-[14px] text-[#555] text-center py-6">
+          <div class="flex justify-center py-4">
+            <div class="w-12 h-12 border-4 border-[#F0F0F0] border-t-[#FF7B22] rounded-full animate-spin" />
+          </div>
+          <p class="text-[14px] text-[#555] text-center mt-2">
             고객 휴대폰에서<br/>간편인증을 완료해주세요
           </p>
-          <p class="text-[12px] text-[#999] text-center mb-4">카카오톡 또는 PASS 앱 확인</p>
-          <p v-if="authError" class="text-[13px] text-red-500 text-center mb-3 px-1">{{ authError }}</p>
-          <div class="flex gap-2">
+          <p class="text-[12px] text-[#999] text-center mt-2">카카오톡 또는 PASS 앱 확인</p>
+          <div class="bg-[#FFF8F3] border border-[#FFE0C8] rounded-[10px] px-3 py-2.5 mt-4">
+            <p class="text-[12px] text-[#B85A00] text-center leading-[18px]">
+              인증 확인까지 최대 2분 소요될 수 있습니다.<br/>화면을 닫지 말고 잠시 기다려주세요.
+            </p>
+          </div>
+          <p v-if="authError" class="text-[13px] text-red-500 text-center mt-3 px-1">{{ authError }}</p>
+          <div class="flex gap-2 mt-4">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px]" @click="showAuthModal = false">취소</button>
             <button
               class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] disabled:opacity-50"
