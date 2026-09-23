@@ -385,6 +385,7 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import api from '@shared/api'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
+import { uploadAgentClaimDocument } from '../../services/agentApi'
 import type { UnifiedField } from '../../stores/agentBatchClaimStore'
 import type { FormField } from '@shared/types'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
@@ -902,20 +903,40 @@ async function handleSaveDraft() {
 async function handleSubmit() {
   if (!canProceed.value) return
 
+  let resultBatch: import('../../types').BatchClaim | null = null
+
   if (batchStore.currentBatch) {
     const batch = await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
     if (batch && !batchStore.error) {
       const result = await batchStore.submitDraft(batch.batch_claim_id)
-      if (result) {
-        router.replace(`/batch-claims/${batch.batch_claim_id}`)
-      }
+      if (result) resultBatch = result
     }
   } else {
-    // createBatch()는 STATUS_PENDING으로 생성 + PDF까지 완료하므로 submitDraft 불필요
     const batch = await batchStore.createBatch()
-    if (batch && !batchStore.error) {
-      router.replace(`/batch-claims/${batch.batch_claim_id}`)
+    if (batch && !batchStore.error) resultBatch = batch
+  }
+
+  if (resultBatch && resultBatch.claims && batchStore.commonDocuments.length > 0) {
+    const claimIds = resultBatch.claims.map(c => c.claim_id)
+    const failedFiles: string[] = []
+    for (const doc of batchStore.commonDocuments) {
+      for (const claimId of claimIds) {
+        try {
+          const res = await uploadAgentClaimDocument(claimId, doc.file)
+          if (!res.data.success) failedFiles.push(doc.name)
+        } catch {
+          failedFiles.push(doc.name)
+        }
+      }
     }
+    if (failedFiles.length > 0) {
+      const unique = [...new Set(failedFiles)]
+      alert(`다음 파일 업로드에 실패했습니다:\n${unique.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
+    }
+  }
+
+  if (resultBatch) {
+    router.replace(`/batch-claims/${resultBatch.batch_claim_id}`)
   }
   if (batchStore.error) alert(batchStore.error)
 }
