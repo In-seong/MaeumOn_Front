@@ -20,7 +20,14 @@
           <div class="flex flex-col gap-2.5">
             <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">청구번호</span><span class="text-[13px] text-[#333]">{{ claim.claim_number || '-' }}</span></div>
             <div class="flex items-center"><span class="text-[13px] text-[#888] w-[100px]">상태</span><span :class="getStatusClass(claim.claim_status)" class="px-2 py-0.5 text-[12px] font-medium rounded-full">{{ getStatusLabel(claim.claim_status) }}</span></div>
-            <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">고객</span><span class="text-[13px] text-[#333]">{{ claim.customer?.name || '-' }} ({{ claim.customer?.phone || '-' }})</span></div>
+            <div class="flex items-center">
+              <span class="text-[13px] text-[#888] w-[100px]">고객</span>
+              <span class="text-[13px] text-[#333]">
+                {{ claim.customer?.name || (claim as any).form_customer_name || '-' }}
+                <template v-if="claim.customer?.phone"> ({{ claim.customer.phone }})</template>
+              </span>
+              <span v-if="claim.customer?.name" class="ml-1.5 text-[10px] text-white bg-[#FF7B22] px-1.5 py-0.5 rounded-full font-medium">등록</span>
+            </div>
             <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">담당 설계사</span><span class="text-[13px] text-[#333]">{{ (claim as any).agent?.name || '-' }}</span></div>
             <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">보험사</span><span class="text-[13px] text-[#333]">{{ claim.claim_form?.insurance_company?.company_name || '-' }}</span></div>
             <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">양식</span><span class="text-[13px] text-[#333]">{{ claim.claim_form?.form_name || '-' }}</span></div>

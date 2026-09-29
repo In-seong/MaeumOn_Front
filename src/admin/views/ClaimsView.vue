@@ -58,7 +58,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="(claim, index) in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors">
+          <tr v-for="(claim, index) in claims" :key="claim.claim_id" class="hover:bg-[#FAFAFA] transition-colors cursor-pointer" @click="goToDetail($event, claim.claim_id)">
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px]">
               <router-link :to="`/claims/${claim.claim_id}`" class="text-[#FF7B22] hover:underline font-medium">{{ rowNum(index) }}</router-link>
             </td>
@@ -189,6 +189,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { claimApi } from '@shared/services/insuranceApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import { useBranchStore } from '../stores/branchStore'
@@ -200,6 +201,7 @@ const claims = ref<InsuranceClaim[]>([])
 const pagination = ref<Omit<PaginatedResponse<InsuranceClaim>, 'data'> | null>(null)
 const loading = ref(false)
 
+const router = useRouter()
 const branchStore = useBranchStore()
 const statusOptions = CLAIM_STATUS_OPTIONS
 const { toggleSort, sortParams, sortIcon } = useSortable()
@@ -220,6 +222,12 @@ let searchTimeout: ReturnType<typeof setTimeout>
 function rowNum(index: number): number {
   const p = pagination.value
   return ((p?.current_page ?? 1) - 1) * (p?.per_page ?? 15) + index + 1
+}
+
+function goToDetail(event: MouseEvent, claimId: number) {
+  const target = event.target as HTMLElement
+  if (target.closest('select, a, button')) return
+  router.push(`/claims/${claimId}`)
 }
 
 function debouncedSearch() {
