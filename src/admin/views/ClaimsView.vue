@@ -64,12 +64,15 @@
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <template v-if="claim.customer?.name">
-                <div class="text-[14px] font-medium text-[#333]">{{ claim.customer.name }}</div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[14px] font-medium text-[#333]">{{ claim.customer.name }}</span>
+                  <span class="text-[10px] text-white bg-[#FF7B22] px-1.5 py-0.5 rounded-full font-medium">등록</span>
+                </div>
                 <div class="text-[12px] text-[#999]">{{ claim.agent?.name || '' }}</div>
               </template>
               <template v-else-if="claim.form_customer_name">
-                <div class="text-[14px] font-medium text-[#FF7B22]">{{ claim.form_customer_name }}</div>
-                <div class="text-[12px] text-[#999]">{{ claim.agent?.name || '' }} <span class="text-[10px] text-[#BBB] bg-[#F5F5F5] px-1 rounded">폼</span></div>
+                <div class="text-[14px] font-medium text-[#333]">{{ claim.form_customer_name }}</div>
+                <div class="text-[12px] text-[#999]">{{ claim.agent?.name || '' }}</div>
               </template>
               <template v-else>
                 <div class="text-[14px] text-[#999]">-</div>
