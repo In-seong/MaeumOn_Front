@@ -267,6 +267,8 @@ export interface InsuranceClaim {
   field_values?: ClaimFieldValue[]
   documents?: ClaimDocument[]
   batch_claim?: { batch_claim_id: number; total_count: number } | null
+  agent?: { agent_id: string; name: string }
+  form_customer_name?: string | null
   created_at?: string
   updated_at?: string
 }

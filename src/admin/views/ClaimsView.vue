@@ -63,8 +63,18 @@
               <router-link :to="`/claims/${claim.claim_id}`" class="text-[#FF7B22] hover:underline font-medium">{{ rowNum(index) }}</router-link>
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-              <div class="text-[14px] font-medium text-[#333]">{{ claim.customer?.name }}</div>
-              <div class="text-[12px] text-[#999]">{{ claim.customer?.email }}</div>
+              <template v-if="claim.customer?.name">
+                <div class="text-[14px] font-medium text-[#333]">{{ claim.customer.name }}</div>
+                <div class="text-[12px] text-[#999]">{{ claim.agent?.name || '' }}</div>
+              </template>
+              <template v-else-if="claim.form_customer_name">
+                <div class="text-[14px] font-medium text-[#FF7B22]">{{ claim.form_customer_name }}</div>
+                <div class="text-[12px] text-[#999]">{{ claim.agent?.name || '' }} <span class="text-[10px] text-[#BBB] bg-[#F5F5F5] px-1 rounded">폼</span></div>
+              </template>
+              <template v-else>
+                <div class="text-[14px] text-[#999]">-</div>
+                <div class="text-[12px] text-[#999]">{{ claim.agent?.name || '' }}</div>
+              </template>
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
               <div class="text-[14px] text-[#333]">{{ claim.claim_form?.insurance_company?.company_name }}</div>
@@ -94,10 +104,11 @@
               </span>
               <span v-else class="text-[#999]">-</span>
             </td>
-            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden md:table-cell">
+            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] hidden md:table-cell">
               <span v-if="claim.fax_status === 'sent'" class="text-green-600">발송완료</span>
-              <span v-else-if="claim.fax_status === 'failed'" class="text-red-500">발송실패</span>
-              <span v-else>-</span>
+              <span v-else-if="claim.fax_status === 'failed' || claim.fax_result_code === '2'" class="text-red-500 cursor-help" :title="faxErrorMessage(claim.fax_result_code ?? null)">전송실패</span>
+              <span v-else-if="claim.fax_status === 'sending'" class="text-blue-500">발송중</span>
+              <span v-else class="text-[#999]">-</span>
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
               {{ formatDate(claim.created_at ?? '') }}
@@ -245,6 +256,15 @@ function goToPage(page: number) {
 function formatDate(dateStr: string) {
   if (!dateStr) return '-'
   return new Date(dateStr).toLocaleString('ko-KR')
+}
+
+function faxErrorMessage(code: string | null): string {
+  switch (code) {
+    case '2': return '연결 끊김 또는 일반 전화'
+    case '3': return '응답 없음'
+    case '4': return '통화 중'
+    default: return '전송 실패'
+  }
 }
 
 function getStatusClass(status: string) {
