@@ -95,6 +95,11 @@
             </div>
             <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">발송번호</span><span class="text-[13px] text-[#333]">{{ claim.fax_number_sent || '-' }}</span></div>
             <div class="flex"><span class="text-[13px] text-[#888] w-[100px]">발송일시</span><span class="text-[13px] text-[#333]">{{ claim.fax_sent_at ? formatDate(claim.fax_sent_at) : '-' }}</span></div>
+            <div class="flex items-center">
+              <span class="text-[13px] text-[#888] w-[100px]">보험사 팩스</span>
+              <span class="text-[13px] text-[#333]">{{ (claim as any).company_fax_number || '-' }}</span>
+              <span v-if="(claim as any).company_fax_number && !(claim as any).company_fax_valid" class="ml-1.5 text-[10px] text-white bg-red-500 px-1.5 py-0.5 rounded-full font-medium">번호 오류</span>
+            </div>
             <div v-if="claim.fax_result_code" class="flex">
               <span class="text-[13px] text-[#888] w-[100px]">결과코드</span>
               <span class="text-[13px] text-[#333]">{{ claim.fax_result_code }}</span>
