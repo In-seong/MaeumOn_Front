@@ -24,6 +24,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
   const selectedClaim = ref<AgentClaim | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const errorCode = ref<string | null>(null)
   const currentPage = ref(1)
   const lastPage = ref(1)
   const total = ref(0)
@@ -379,6 +380,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
   async function updateDraftClaim(claimId: number): Promise<InsuranceClaim | null> {
     loading.value = true
     error.value = null
+    errorCode.value = null
     try {
       const fields = Object.entries(fieldValues.value).map(([formFieldId, value]) => ({
         form_field_id: parseInt(formFieldId),
@@ -393,8 +395,9 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
       }
       return null
     } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-      error.value = msg || '임시저장 갱신에 실패했습니다.'
+      const res = (e as { response?: { data?: { message?: string; error_code?: string } } })?.response
+      error.value = res?.data?.message || '임시저장 갱신에 실패했습니다.'
+      errorCode.value = res?.data?.error_code || null
       return null
     } finally {
       loading.value = false
@@ -404,6 +407,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
   async function submitDraftClaim(claimId: number, customerId?: string): Promise<InsuranceClaim | null> {
     loading.value = true
     error.value = null
+    errorCode.value = null
     try {
       const response = await apiSubmitDraft(claimId, customerId ? { customer_id: customerId } : undefined)
 
@@ -413,8 +417,9 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
       }
       return null
     } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-      error.value = msg || '청구서 제출에 실패했습니다.'
+      const res = (e as { response?: { data?: { message?: string; error_code?: string } } })?.response
+      error.value = res?.data?.message || '청구서 제출에 실패했습니다.'
+      errorCode.value = res?.data?.error_code || null
       return null
     } finally {
       loading.value = false
@@ -447,6 +452,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
     fieldValues.value = {}
     currentClaim.value = null
     error.value = null
+    errorCode.value = null
   }
 
   return {
@@ -457,6 +463,7 @@ export const useAgentClaimStore = defineStore('agentClaim', () => {
     searchQuery,
     loading,
     error,
+    errorCode,
     currentPage,
     lastPage,
     total,

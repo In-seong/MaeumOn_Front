@@ -1426,19 +1426,41 @@ async function handleSubmitDraft() {
       customerId.value || undefined,
     )
     if (result) {
-      // 첨부파일 업로드
-      const failedFiles: string[] = []
-      for (const file of attachedFiles.value) {
-        const doc = await claimStore.uploadDocument(result.claim_id, file)
-        if (!doc) failedFiles.push(file.name)
-      }
-      if (failedFiles.length > 0) {
-        alert(`다음 파일 업로드에 실패했습니다:\n${failedFiles.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
-      }
+      await uploadAttachedFiles(result.claim_id)
       router.push(`/claims/${result.claim_id}`)
+    } else if (claimStore.errorCode === 'DRAFT_NOT_FOUND' || claimStore.errorCode === 'DRAFT_ALREADY_SUBMITTED') {
+      const retry = confirm(
+        (claimStore.error || '임시저장된 청구서를 찾을 수 없습니다.') +
+        '\n\n현재 작성한 내용으로 새로 제출하시겠습니까?'
+      )
+      if (retry) {
+        await recoverAndSubmit()
+      }
     }
   } finally {
     submitting.value = false
+  }
+}
+
+async function recoverAndSubmit() {
+  claimStore.error = null
+  claimStore.errorCode = null
+  claimStore.currentClaim = null
+  const claim = await claimStore.createClaim(customerId.value || undefined)
+  if (claim) {
+    await uploadAttachedFiles(claim.claim_id)
+    router.push(`/claims/${claim.claim_id}`)
+  }
+}
+
+async function uploadAttachedFiles(claimId: number) {
+  const failedFiles: string[] = []
+  for (const file of attachedFiles.value) {
+    const doc = await claimStore.uploadDocument(claimId, file)
+    if (!doc) failedFiles.push(file.name)
+  }
+  if (failedFiles.length > 0) {
+    alert(`다음 파일 업로드에 실패했습니다:\n${failedFiles.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
   }
 }
 
@@ -1455,17 +1477,7 @@ async function handleSubmit() {
       claim = await claimStore.createClaim(customerId.value || undefined)
     }
     if (claim) {
-      // 첨부파일 업로드 (실패 시 사용자에게 알림)
-      const failedFiles: string[] = []
-      for (const file of attachedFiles.value) {
-        const result = await claimStore.uploadDocument(claim.claim_id, file)
-        if (!result) {
-          failedFiles.push(file.name)
-        }
-      }
-      if (failedFiles.length > 0) {
-        alert(`다음 파일 업로드에 실패했습니다:\n${failedFiles.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
-      }
+      await uploadAttachedFiles(claim.claim_id)
       router.push(`/claims/${claim.claim_id}`)
     }
   } finally {
