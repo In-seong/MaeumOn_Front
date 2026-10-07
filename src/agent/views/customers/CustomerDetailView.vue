@@ -157,7 +157,7 @@
                     type="button"
                     class="flex-1 py-2.5 rounded-[10px] text-[13px] font-medium border transition-all"
                     :class="editForm.gender === g.value ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
-                    @click="editForm.gender = editForm.gender === g.value ? '' : g.value"
+                    @click="editForm.gender = editForm.gender === g.value ? '' : g.value; autoFilledFromRrn.gender = false"
                   >
                     {{ g.label }}
                   </button>
@@ -169,6 +169,7 @@
                   v-model="editForm.birth_date"
                   type="date"
                   class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  @change="autoFilledFromRrn.birth_date = false"
                 />
               </div>
               <div>
@@ -695,7 +696,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import BackHeader from '@user/components/layout/BackHeader.vue'
@@ -1004,11 +1005,42 @@ function handleEditPhoneInput(e: Event): void {
   input.value = formatted
 }
 
+const autoFilledFromRrn = reactive({ gender: false, birth_date: false })
+
+function parseResidentNumber(rrn: string): { gender: string; birthDate: string } | null {
+  const digits = rrn.replace(/\D/g, '')
+  if (digits.length < 7) return null
+  const genderCode = digits[6]
+  if (!genderCode) return null
+  const gender = genderCode === '1' || genderCode === '3' ? 'M' : genderCode === '2' || genderCode === '4' ? 'F' : ''
+  const yy = digits.slice(0, 2)
+  const mm = digits.slice(2, 4)
+  const dd = digits.slice(4, 6)
+  const century = genderCode === '1' || genderCode === '2' ? '19' : '20'
+  const birthDate = `${century}${yy}-${mm}-${dd}`
+  return { gender, birthDate }
+}
+
 function handleEditRrnInput(e: Event): void {
   const input = e.target as HTMLInputElement
   const formatted = formatResidentNumber(input.value)
   editForm.value.resident_number = formatted
   input.value = formatted
+
+  const parsed = parseResidentNumber(formatted)
+  if (parsed) {
+    if (parsed.gender && (!editForm.value.gender || autoFilledFromRrn.gender)) {
+      editForm.value.gender = parsed.gender
+      autoFilledFromRrn.gender = true
+    }
+    if (parsed.birthDate && (!editForm.value.birth_date || autoFilledFromRrn.birth_date)) {
+      editForm.value.birth_date = parsed.birthDate
+      autoFilledFromRrn.birth_date = true
+    }
+  } else {
+    if (autoFilledFromRrn.gender) { editForm.value.gender = ''; autoFilledFromRrn.gender = false }
+    if (autoFilledFromRrn.birth_date) { editForm.value.birth_date = ''; autoFilledFromRrn.birth_date = false }
+  }
 }
 
 async function handleSaveEdit(): Promise<void> {

@@ -73,7 +73,7 @@
                   type="button"
                   class="flex-1 py-2.5 rounded-[12px] text-[14px] font-medium border transition-all hover:opacity-80"
                   :class="form.gender === g.value ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
-                  @click="form.gender = form.gender === g.value ? '' : g.value"
+                  @click="form.gender = form.gender === g.value ? '' : g.value; autoFilledFromRrn.gender = false"
                 >
                   {{ g.label }}
                 </button>
@@ -86,6 +86,7 @@
                 v-model="form.birth_date"
                 type="date"
                 class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                @change="autoFilledFromRrn.birth_date = false"
               />
             </div>
           </div>
@@ -119,6 +120,12 @@
               v-model="form.job"
               label="직업"
               placeholder="직업을 입력하세요"
+            />
+
+            <FormInput
+              v-model="form.hospital"
+              label="병원"
+              placeholder="병원명을 입력하세요"
             />
 
             <div>
@@ -211,6 +218,7 @@ interface CustomerForm {
   address: string
   detailed_address: string
   job: string
+  hospital: string
   telecom: string
   acquisition_channel: string
   acquisition_note: string
@@ -234,6 +242,7 @@ const form = reactive<CustomerForm>({
   address: '',
   detailed_address: '',
   job: '',
+  hospital: '',
   telecom: '',
   acquisition_channel: '',
   acquisition_note: '',
@@ -254,6 +263,8 @@ function handlePhoneInput(e: Event): void {
   input.value = formatted
 }
 
+const autoFilledFromRrn = reactive({ gender: false, birth_date: false })
+
 // 주민등록번호 자동 하이픈: 숫자만 입력 → 000000-0000000 형태
 function formatResidentNumber(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 13)
@@ -261,11 +272,40 @@ function formatResidentNumber(value: string): string {
   return `${digits.slice(0, 6)}-${digits.slice(6)}`
 }
 
+function parseResidentNumber(rrn: string): { gender: string; birthDate: string } | null {
+  const digits = rrn.replace(/\D/g, '')
+  if (digits.length < 7) return null
+  const genderCode = digits[6]
+  if (!genderCode) return null
+  const gender = genderCode === '1' || genderCode === '3' ? 'M' : genderCode === '2' || genderCode === '4' ? 'F' : ''
+  const yy = digits.slice(0, 2)
+  const mm = digits.slice(2, 4)
+  const dd = digits.slice(4, 6)
+  const century = genderCode === '1' || genderCode === '2' ? '19' : '20'
+  const birthDate = `${century}${yy}-${mm}-${dd}`
+  return { gender, birthDate }
+}
+
 function handleResidentNumberInput(e: Event): void {
   const input = e.target as HTMLInputElement
   const formatted = formatResidentNumber(input.value)
   form.resident_number = formatted
   input.value = formatted
+
+  const parsed = parseResidentNumber(formatted)
+  if (parsed) {
+    if (parsed.gender && (!form.gender || autoFilledFromRrn.gender)) {
+      form.gender = parsed.gender
+      autoFilledFromRrn.gender = true
+    }
+    if (parsed.birthDate && (!form.birth_date || autoFilledFromRrn.birth_date)) {
+      form.birth_date = parsed.birthDate
+      autoFilledFromRrn.birth_date = true
+    }
+  } else {
+    if (autoFilledFromRrn.gender) { form.gender = ''; autoFilledFromRrn.gender = false }
+    if (autoFilledFromRrn.birth_date) { form.birth_date = ''; autoFilledFromRrn.birth_date = false }
+  }
 }
 
 async function handleSubmit(): Promise<void> {
@@ -285,6 +325,7 @@ async function handleSubmit(): Promise<void> {
       address: form.address || undefined,
       detailed_address: form.detailed_address || undefined,
       job: form.job || undefined,
+      hospital: form.hospital || undefined,
       telecom: form.telecom || undefined,
       acquisition_channel: form.acquisition_channel || undefined,
       acquisition_note: form.acquisition_note || undefined,
