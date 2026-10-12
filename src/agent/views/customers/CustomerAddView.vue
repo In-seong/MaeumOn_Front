@@ -86,7 +86,7 @@
                 <input
                   v-model="form.birth_date"
                   type="date"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full min-w-0 bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
                   @change="autoFilledFromRrn.birth_date = false"
                 />
               </div>

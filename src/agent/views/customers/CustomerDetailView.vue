@@ -351,12 +351,12 @@
                     class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
                   />
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 min-w-0">
                   <label class="text-[12px] text-[#888] mb-1 block">체결일</label>
                   <input
                     v-model="contractForm.contract_date"
                     type="date"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
                   />
                 </div>
               </div>
@@ -365,7 +365,7 @@
                 <input
                   v-model="contractForm.expiration_date"
                   type="date"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
                 />
               </div>
               <div class="flex gap-2">
