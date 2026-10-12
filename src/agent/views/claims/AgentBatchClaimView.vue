@@ -390,6 +390,7 @@ import type { UnifiedField } from '../../stores/agentBatchClaimStore'
 import type { FormField } from '@shared/types'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import ClaimFieldInput from '@shared/components/claim/ClaimFieldInput.vue'
+import { compressImages } from '@shared/utils/compressImage'
 
 const router = useRouter()
 const route = useRoute()
@@ -631,18 +632,16 @@ watch(autoTransferAccount, (useAuto) => {
 // ===== File Upload (Step 7) =====
 const filePreviewUrls = ref<Record<string, string>>({})
 
-function handleFileUpload(event: Event) {
+async function handleFileUpload(event: Event) {
   const input = event.target as HTMLInputElement
   if (!input.files) return
-  for (let i = 0; i < input.files.length; i++) {
-    const file = input.files[i]
-    if (file) {
-      batchStore.addCommonDocument(file)
-      if (file.type.startsWith('image/')) {
-        const lastDoc = batchStore.commonDocuments[batchStore.commonDocuments.length - 1]
-        if (lastDoc) {
-          filePreviewUrls.value[lastDoc.id] = URL.createObjectURL(file)
-        }
+  const processed = await compressImages(Array.from(input.files))
+  for (const file of processed) {
+    batchStore.addCommonDocument(file)
+    if (file.type.startsWith('image/')) {
+      const lastDoc = batchStore.commonDocuments[batchStore.commonDocuments.length - 1]
+      if (lastDoc) {
+        filePreviewUrls.value[lastDoc.id] = URL.createObjectURL(file)
       }
     }
   }

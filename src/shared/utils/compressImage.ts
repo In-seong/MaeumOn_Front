@@ -2,8 +2,10 @@
  * 클라이언트 이미지 압축 유틸리티
  * - 모바일 고해상도 사진(10MB+)을 자동 압축
  * - Canvas API로 리사이즈 + JPEG 변환
- * - PDF는 압축 없이 통과
+ * - PDF는 페이지별 이미지로 자동 변환 후 압축
  */
+
+import { pdfToImages } from './pdfToImages'
 
 interface CompressOptions {
   /** 긴 변 최대 픽셀 (기본: 1920) */
@@ -117,8 +119,22 @@ export async function compressImage(file: File, options?: CompressOptions): Prom
 }
 
 /**
- * 여러 파일을 병렬 압축
+ * 여러 파일을 처리 (PDF → 페이지별 이미지 변환 + 이미지 압축)
  */
 export async function compressImages(files: File[], options?: CompressOptions): Promise<File[]> {
-  return Promise.all(files.map(f => compressImage(f, options)))
+  const results: File[] = []
+  for (const f of files) {
+    if (f.type === 'application/pdf') {
+      try {
+        const pageImages = await pdfToImages(f)
+        const compressed = await Promise.all(pageImages.map(img => compressImage(img, options)))
+        results.push(...compressed)
+      } catch {
+        results.push(f)
+      }
+    } else {
+      results.push(await compressImage(f, options))
+    }
+  }
+  return results
 }

@@ -1373,13 +1373,6 @@ async function handleFileSelect(event: Event) {
   if (input.files) {
     const files = Array.from(input.files)
 
-    // 장수 제한
-    if (attachedFiles.value.length + files.length > MAX_FILE_COUNT) {
-      alert(`첨부파일은 최대 ${MAX_FILE_COUNT}장까지 가능합니다.`)
-      input.value = ''
-      return
-    }
-
     // 개별 파일 크기 제한
     const oversized = files.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
     if (oversized) {
@@ -1389,6 +1382,14 @@ async function handleFileSelect(event: Event) {
     }
 
     const compressed = await compressImages(files)
+
+    // PDF 페이지 분리 후 장수 제한 체크
+    if (attachedFiles.value.length + compressed.length > MAX_FILE_COUNT) {
+      alert(`첨부파일은 최대 ${MAX_FILE_COUNT}장까지 가능합니다. (PDF는 페이지별로 분리됩니다)`)
+      input.value = ''
+      return
+    }
+
     for (const file of compressed) {
       attachedFiles.value.push(file)
     }
