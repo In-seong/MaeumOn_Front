@@ -385,9 +385,9 @@
         </button>
       </div>
       <!-- 이미지 영역 -->
-      <div class="flex-1 relative overflow-auto flex items-start justify-center touch-none"
-        @touchstart.prevent="onViewerTouchStart"
-        @touchmove.prevent="onViewerTouchMove"
+      <div class="flex-1 relative overflow-auto flex items-start justify-center"
+        @touchstart="onViewerTouchStart"
+        @touchmove="onViewerTouchMove"
         @touchend="onViewerTouchEnd"
       >
         <img
@@ -396,16 +396,16 @@
           class="max-w-none"
           :style="{ transform: `scale(${viewerScale})`, transformOrigin: 'top center' }"
         />
-        <!-- 좌우 화살표 -->
-        <button v-if="viewerIndex > 0" @click="viewerGo(-1)"
-          class="fixed left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center active:bg-black/60 z-10">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <button v-if="claimImageUrls && viewerIndex < claimImageUrls.length - 1" @click="viewerGo(1)"
-          class="fixed right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center active:bg-black/60 z-10">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
       </div>
+      <!-- 좌우 화살표 (터치 컨테이너 바깥) -->
+      <button v-if="viewerIndex > 0" @click="viewerGo(-1)"
+        class="fixed left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center active:bg-black/60 z-10">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button v-if="claimImageUrls && viewerIndex < claimImageUrls.length - 1" @click="viewerGo(1)"
+        class="fixed right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 text-white text-[20px] flex items-center justify-center active:bg-black/60 z-10">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <!-- 하단 줌 컨트롤 -->
       <div class="flex items-center justify-center gap-3 py-3 bg-black/50">
         <button @click="viewerScale = Math.max(0.25, viewerScale - 0.25)" class="w-9 h-9 rounded-full bg-white/20 text-white text-[18px] flex items-center justify-center active:bg-white/30">−</button>
@@ -488,6 +488,7 @@ function openDocViewer(doc: { document_url?: string; document_file_name?: string
 
 function onViewerTouchStart(e: TouchEvent) {
   if (e.touches.length === 2) {
+    e.preventDefault()
     const t0 = e.touches[0]
     const t1 = e.touches[1]
     if (t0 && t1) {
@@ -498,6 +499,7 @@ function onViewerTouchStart(e: TouchEvent) {
 
 function onViewerTouchMove(e: TouchEvent) {
   if (e.touches.length === 2) {
+    e.preventDefault()
     const t0 = e.touches[0]
     const t1 = e.touches[1]
     if (t0 && t1) {
@@ -617,7 +619,13 @@ function formatFileSize(bytes: number): string {
 
 function downloadPdf(): void {
   if (claim.value?.generated_pdf_url) {
-    window.open(claim.value.generated_pdf_url, '_blank')
+    const a = document.createElement('a')
+    a.href = claim.value.generated_pdf_url
+    a.target = '_blank'
+    a.rel = 'noopener'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 }
 
