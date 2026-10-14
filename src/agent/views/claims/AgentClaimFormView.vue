@@ -1,16 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="h-screen overflow-hidden bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+    <div class="w-full max-w-[402px] h-full flex flex-col bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
       <BackHeader :title="isDraftMode ? '청구서 이어쓰기' : (isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성'))" :custom-back="true" @back="handleHeaderBack" />
-      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)')" @focusin="handleFocusIn">
+      <main class="flex-1 flex flex-col min-h-0" @focusin="handleFocusIn">
         <!-- 로딩 -->
-        <div v-if="loading" class="flex items-center justify-center py-20">
+        <div v-if="loading" class="flex items-center justify-center py-20 px-5">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
           <p class="ml-3 text-[13px] text-[#999]">{{ isEditMode ? '청구 정보를 불러오는 중...' : '양식 정보를 불러오는 중...' }}</p>
         </div>
 
         <!-- 위저드 폼 -->
-        <div v-else-if="claimStore.selectedClaimForm">
+        <form v-else-if="claimStore.selectedClaimForm" class="flex-1 flex flex-col min-h-0" @submit.prevent="handleSubmit">
+          <!-- 스크롤 영역 -->
+          <div class="flex-1 overflow-y-auto min-h-0 px-5 py-4" :style="{ paddingBottom: keyboardPadding > 0 ? keyboardPadding + 16 + 'px' : '16px' }">
           <!-- 양식 정보 -->
           <CardSection class="mb-4">
             <div>
@@ -33,13 +35,6 @@
               :step-labels="STEP_LABELS"
             />
           </div>
-
-          <!-- 스텝 제목 -->
-          <!-- <p class="text-[16px] font-bold text-[#222] mb-4 px-1">
-            {{ STEP_TITLES[currentStep] || '' }}
-          </p> -->
-
-          <form @submit.prevent="handleSubmit">
             <!-- ===== Step 1: 약관 동의 ===== -->
             <div v-if="currentStep === 1">
               <CardSection class="mb-4">
@@ -430,8 +425,10 @@
               {{ claimStore.error }}
             </div>
 
-            <!-- 네비게이션 버튼 -->
-            <div class="flex gap-3">
+          </div>
+
+          <!-- 하단 고정 버튼 영역 -->
+          <div class="shrink-0 flex gap-3 px-5 py-3 bg-white border-t border-[#F0F0F0]">
               <button
                 v-if="!isFirstStep"
                 type="button"
@@ -474,12 +471,11 @@
               >
                 {{ submitting ? '처리 중...' : submitButtonText }}
               </button>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
 
         <!-- 템플릿 없음 -->
-        <div v-else class="text-center py-20">
+        <div v-else class="text-center py-20 px-5">
           <p class="text-[15px] text-[#888]">양식 정보를 찾을 수 없습니다.</p>
           <button
             @click="goBack"
@@ -967,7 +963,7 @@ function scrollToTop() {
   if (mainEl) mainEl.scrollTop = 0
 }
 
-const { handleFocusIn, mainStyle } = useKeyboardSafe()
+const { handleFocusIn, keyboardPadding } = useKeyboardSafe()
 
 
 // ===== 자동채움: Step 3 (고객 정보와 동일) =====
