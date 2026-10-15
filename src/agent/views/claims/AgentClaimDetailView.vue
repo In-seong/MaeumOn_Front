@@ -115,11 +115,42 @@
             <p class="text-[15px] font-semibold text-[#222] mb-2">팩스 발송</p>
             <CardSection>
               <!-- 발송완료 상태 -->
-              <div v-if="claim.fax_status === 'sent'" class="flex items-center gap-2 py-2">
-                <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="text-[14px] font-medium text-[#22C55E]">팩스 발송 완료</span>
+              <div v-if="claim.fax_status === 'sent'" class="space-y-3">
+                <div class="flex items-center gap-2 py-2">
+                  <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="text-[14px] font-medium text-[#22C55E]">팩스 발송 완료</span>
+                </div>
+                <div v-if="showResendSection" class="space-y-3 pt-1">
+                  <div>
+                    <label class="block text-[13px] font-medium text-[#888] mb-2">팩스 번호</label>
+                    <input
+                      v-model="faxNumber"
+                      type="tel"
+                      placeholder="02-1234-5678"
+                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                    />
+                  </div>
+                  <button
+                    :disabled="sendingFax"
+                    class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+                    @click="handleSendFax"
+                  >
+                    {{ sendingFax ? '발송 중...' : '팩스 재발송' }}
+                  </button>
+                </div>
+                <button
+                  v-else
+                  class="w-full border border-[#E0E0E0] text-[#555] rounded-[10px] py-2.5 text-[13px] font-medium active:bg-[#F5F5F5] transition-colors flex items-center justify-center gap-1.5"
+                  @click="showResendSection = true"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                  </svg>
+                  팩스 재발송
+                </button>
               </div>
 
               <!-- 발송대기/발송중 상태 -->
@@ -229,29 +260,64 @@
           </div>
 
           <!-- 첨부파일 -->
-          <div v-if="claimDocuments && claimDocuments.length > 0" class="mb-4">
+          <div class="mb-4">
             <p class="text-[15px] font-semibold text-[#222] mb-2">첨부파일</p>
             <CardSection>
-              <div
-                v-for="doc in claimDocuments"
-                :key="doc.claim_document_id"
-                class="flex items-center gap-3 py-2.5 border-b border-[#F0F0F0] last:border-0"
-              >
-                <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="flex-1 min-w-0">
-                  <p class="text-[13px] text-[#333] truncate">{{ doc.document_file_name }}</p>
-                  <p v-if="doc.document_file_size" class="text-[11px] text-[#999]">{{ formatFileSize(doc.document_file_size) }}</p>
-                </div>
-                <button
-                  v-if="doc.document_url"
-                  type="button"
-                  class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0"
-                  @click="openDocViewer(doc)"
+              <div v-if="claimDocuments && claimDocuments.length > 0">
+                <div
+                  v-for="doc in claimDocuments"
+                  :key="doc.claim_document_id"
+                  class="flex items-center gap-3 py-2.5 border-b border-[#F0F0F0] last:border-0"
                 >
-                  보기
+                  <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] text-[#333] truncate">{{ doc.document_file_name }}</p>
+                    <p v-if="doc.document_file_size" class="text-[11px] text-[#999]">{{ formatFileSize(doc.document_file_size) }}</p>
+                  </div>
+                  <button
+                    v-if="doc.document_url"
+                    type="button"
+                    class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0"
+                    @click="openDocViewer(doc)"
+                  >
+                    보기
+                  </button>
+                  <button
+                    v-if="claim.claim_status === 'pending'"
+                    type="button"
+                    class="text-[12px] text-[#EF4444] font-semibold flex-shrink-0"
+                    :disabled="deletingDocId === doc.claim_document_id"
+                    @click="handleDeleteDocument(doc.claim_document_id)"
+                  >
+                    {{ deletingDocId === doc.claim_document_id ? '삭제중' : '삭제' }}
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-[13px] text-[#999] text-center py-3">
+                첨부파일이 없습니다.
+              </p>
+              <!-- 첨부파일 추가 (pending 상태) -->
+              <div v-if="claim.claim_status === 'pending'" class="pt-3 mt-3 border-t border-[#F0F0F0]">
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*,.pdf"
+                  multiple
+                  class="hidden"
+                  @change="handleFileUpload"
+                />
+                <button
+                  :disabled="uploadingDoc"
+                  class="w-full border border-dashed border-[#CCCCCC] text-[#888] rounded-[10px] py-3 text-[13px] font-medium active:bg-[#F5F5F5] transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  @click="fileInputRef?.click()"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  {{ uploadingDoc ? '업로드 중...' : '첨부파일 추가' }}
                 </button>
               </div>
             </CardSection>
@@ -286,9 +352,9 @@
               수익자 변경
             </button>
 
-            <!-- 수정 버튼 (pending 상태이고 팩스 미발송일 때) -->
+            <!-- 수정 버튼 (pending 상태) -->
             <button
-              v-if="claim.claim_status === 'pending' && !claim.fax_status"
+              v-if="claim.claim_status === 'pending'"
               class="w-full bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
               @click="goToEdit"
             >
@@ -421,7 +487,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
-import { updateBeneficiary } from '../../services/agentApi'
+import { updateBeneficiary, uploadAgentClaimDocument, deleteAgentClaimDocument } from '../../services/agentApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import type { InsuranceClaim as SharedInsuranceClaim } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
@@ -442,6 +508,10 @@ const claimId = computed(() => Number(route.params.id))
 const faxNumber = ref('')
 const sendingFax = ref(false)
 const refreshingFax = ref(false)
+const showResendSection = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const uploadingDoc = ref(false)
+const deletingDocId = ref<number | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 // ===== 청구서 이미지 확대 뷰어 =====
@@ -649,6 +719,44 @@ async function handleSendFax(): Promise<void> {
     }
   } finally {
     sendingFax.value = false
+  }
+}
+
+// ===== 첨부파일 추가/삭제 =====
+async function handleFileUpload(e: Event): Promise<void> {
+  const target = e.target as HTMLInputElement
+  const files = target.files
+  if (!files || files.length === 0) return
+
+  uploadingDoc.value = true
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      if (!file) continue
+      await uploadAgentClaimDocument(claimId.value, file)
+    }
+    await store.loadClaim(claimId.value)
+    toast.showToast('첨부파일이 추가되었습니다.')
+  } catch {
+    toast.showToast('첨부파일 업로드에 실패했습니다.', 'error')
+  } finally {
+    uploadingDoc.value = false
+    target.value = ''
+  }
+}
+
+async function handleDeleteDocument(docId: number): Promise<void> {
+  if (!confirm('이 첨부파일을 삭제하시겠습니까?')) return
+
+  deletingDocId.value = docId
+  try {
+    await deleteAgentClaimDocument(claimId.value, docId)
+    await store.loadClaim(claimId.value)
+    toast.showToast('첨부파일이 삭제되었습니다.')
+  } catch {
+    toast.showToast('첨부파일 삭제에 실패했습니다.', 'error')
+  } finally {
+    deletingDocId.value = null
   }
 }
 
