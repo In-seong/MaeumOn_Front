@@ -447,6 +447,11 @@ function openDatePicker() {
   }
   dpYearSelectOpen.value = false
   datePickerOpen.value = !datePickerOpen.value
+  if (datePickerOpen.value) {
+    nextTick(() => {
+      datePickerWrapperRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 }
 
 function dpChangeMonth(delta: number) {
