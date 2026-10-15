@@ -333,21 +333,28 @@ async function downloadExcel() {
       is_active: activeFilter.value ? activeFilter.value === 'true' : undefined,
       agent_id: agentFilter.value || undefined,
       per_page: 9999,
+      export: true,
       ...sortParams(),
       ...branchStore.getBranchParam(),
     })
     const customers = res.data.data.data as AdminCustomer[]
-    const rows = customers.map(c => ({
-      name: c.name,
-      gender: c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : c.gender ?? '',
-      age: calcAge(c.birth_date),
-      phone: formatPhone(c.phone),
-      address: [c.address, c.detailed_address].filter(Boolean).join(' '),
-      agent_name: c.agent?.name ?? '',
-      hospital: c.hospital ?? '',
-      created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
-      memo: '',
-    }))
+    const rows = customers.map(c => {
+      const latestMemo = (c as any).latest_memo
+      const memoText = latestMemo
+        ? [latestMemo.title, latestMemo.content].filter(Boolean).join(' - ')
+        : ''
+      return {
+        name: c.name,
+        gender: c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : c.gender ?? '',
+        age: calcAge(c.birth_date),
+        phone: formatPhone(c.phone),
+        address: [c.address, c.detailed_address].filter(Boolean).join(' '),
+        agent_name: c.agent?.name ?? '',
+        hospital: c.hospital ?? '',
+        created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
+        memo: memoText,
+      }
+    })
     exportToExcel(rows, [
       { key: '__index__', label: '번호' },
       { key: 'name', label: '이름' },
