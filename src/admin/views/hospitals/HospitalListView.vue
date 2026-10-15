@@ -173,8 +173,15 @@
               </div>
             </div>
             <!-- 신규 등록 시 미리보기 -->
-            <div v-if="!editingId && imagePreviewUrl" class="mb-3">
-              <img :src="imagePreviewUrl" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
+            <div v-if="!editingId && imagePreviewUrls.length > 0" class="flex gap-2 flex-wrap mb-3">
+              <div v-for="(url, idx) in imagePreviewUrls" :key="idx" class="relative group">
+                <img :src="url" class="w-[120px] h-[67px] object-cover rounded-lg border border-[#E8E8E8]" />
+                <button
+                  type="button"
+                  class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click="imagePreviewUrls.splice(idx, 1); imageFiles.splice(idx, 1)"
+                >&times;</button>
+              </div>
             </div>
             <label class="inline-flex items-center gap-1.5 px-3 py-2 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[10px] text-[13px] text-[#555] cursor-pointer hover:bg-[#F0F0F0]">
               <span>{{ imageUploading ? '업로드 중...' : '+ 이미지 추가' }}</span>
@@ -274,8 +281,8 @@ const editingId = ref<number | null>(null)
 const submitting = ref(false)
 const scheduleOpen = ref(false)
 const existingAccount = ref('')
-const imageFile = ref<File | null>(null)
-const imagePreviewUrl = ref<string | null>(null)
+const imageFiles = ref<File[]>([])
+const imagePreviewUrls = ref<string[]>([])
 const showCropper = ref(false)
 const cropImgRef = ref<HTMLImageElement>()
 const rawImageUrl = ref('')
@@ -385,8 +392,8 @@ function openForm(hospital?: AdminHospital) {
     existingAccount.value = ''
     currentThumbnailUrl.value = null
   }
-  imageFile.value = null
-  imagePreviewUrl.value = null
+  imageFiles.value = []
+  imagePreviewUrls.value = []
   thumbnailFile.value = null
   thumbnailPreviewUrl.value = null
   scheduleOpen.value = false
@@ -474,8 +481,8 @@ function applyCrop() {
           imageUploading.value = false
         }
       } else {
-        imageFile.value = file
-        imagePreviewUrl.value = canvas.toDataURL('image/jpeg', 0.9)
+        imageFiles.value.push(file)
+        imagePreviewUrls.value.push(canvas.toDataURL('image/jpeg', 0.9))
       }
     }
     closeCropper()
@@ -527,9 +534,9 @@ async function submitForm() {
       fd.append('thumbnail', thumbnailFile.value)
       await uploadHospitalThumbnail(hospitalId, fd)
     }
-    if (imageFile.value) {
+    for (const file of imageFiles.value) {
       const fd = new FormData()
-      fd.append('image', imageFile.value)
+      fd.append('image', file)
       await addHospitalImage(hospitalId, fd)
     }
     alert(editingId.value ? '병원 정보가 수정되었습니다.' : '병원이 등록되었습니다.')
