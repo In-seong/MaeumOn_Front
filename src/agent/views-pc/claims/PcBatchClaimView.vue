@@ -730,7 +730,6 @@ watch(autoTransferAccount, (useAuto) => {
 })
 
 // ===== File Upload =====
-const MAX_FILE_COUNT = 20
 const MAX_FILE_SIZE_MB = 50
 const filePreviewUrls = ref<Record<string, string>>({})
 
@@ -741,9 +740,6 @@ async function handleCommonFileSelect(event: Event) {
   const oversized = rawFiles.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024)
   if (oversized) { alert(`파일당 최대 ${MAX_FILE_SIZE_MB}MB까지 업로드 가능합니다.`); input.value = ''; return }
   const files = await compressImages(rawFiles)
-  if (batchStore.commonDocuments.length + files.length > MAX_FILE_COUNT) {
-    alert(`공통 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다. (PDF는 페이지별로 분리됩니다)`); input.value = ''; return
-  }
   for (const file of files) {
     batchStore.addCommonDocument(file)
     if (file.type.startsWith('image/')) {
@@ -759,10 +755,6 @@ async function handlePerClaimFileSelect(event: Event, entryIdx: number) {
   if (!input.files) return
   const rawFiles = Array.from(input.files)
   const files = await compressImages(rawFiles)
-  const currentDocs = batchStore.perClaimDocuments[entryIdx] || []
-  if (currentDocs.length + files.length > MAX_FILE_COUNT) {
-    alert(`보험사별 서류는 최대 ${MAX_FILE_COUNT}장까지 가능합니다. (PDF는 페이지별로 분리됩니다)`); input.value = ''; return
-  }
   for (const file of files) batchStore.addPerClaimDocument(entryIdx, file)
   input.value = ''
 }
