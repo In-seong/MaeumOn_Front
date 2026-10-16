@@ -33,6 +33,22 @@
 
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
+              보험사 분류 <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="form.category"
+              required
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333]"
+            >
+              <option value="" disabled>분류를 선택하세요</option>
+              <option value="non-life">손해보험</option>
+              <option value="life">생명보험</option>
+              <option value="cooperative">공제조합</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
               팩스번호 <span class="text-red-500">*</span>
             </label>
             <input
@@ -214,6 +230,7 @@ const uploading = ref(false)
 
 const form = ref({
   company_name: '',
+  category: '',
   fax_number: '',
   contact_phone: '',
   form_name: '',
@@ -261,6 +278,7 @@ async function loadData() {
     if (template) {
       form.value = {
         company_name: template.insurance_company?.company_name || '',
+        category: template.insurance_company?.category || '',
         fax_number: template.insurance_company?.fax_number || '',
         contact_phone: template.insurance_company?.contact_phone || '',
         form_name: template.form_name,
@@ -284,6 +302,7 @@ async function handleSubmit() {
       // 생성 모드: FormData로 이미지 포함 전송
       const formData = new FormData()
       formData.append('company_name', form.value.company_name)
+      formData.append('category', form.value.category)
       formData.append('fax_number', form.value.fax_number)
       if (form.value.contact_phone) formData.append('contact_phone', form.value.contact_phone)
       formData.append('form_name', form.value.form_name)
