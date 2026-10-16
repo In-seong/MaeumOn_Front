@@ -411,3 +411,21 @@ export const registerFcmToken = (data: { fcm_token: string; device_info?: string
 
 export const deleteFcmToken = (fcm_token: string) =>
   api.delete<ApiResponse<null>>(`${BASE}/fcm-token`, { data: { fcm_token } })
+
+// ===== 양식 다운로드 =====
+export interface FormDownloadItem {
+  id: number
+  company_name: string
+  category: 'non-life' | 'life' | 'cooperative'
+  claim_form_path: string | null
+  claim_form_name: string | null
+  dental_confirm_path: string | null
+  dental_confirm_name: string | null
+  sort_order: number
+}
+
+export const fetchFormDownloads = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<FormDownloadItem[]>>(`${BASE}/form-downloads`, { params })
+
+export const getFormDownloadUrl = (id: number, type: 'claim' | 'dental') =>
+  api.get<ApiResponse<{ url: string; filename: string }>>(`${BASE}/form-downloads/${id}/download/${type}`)

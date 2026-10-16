@@ -156,6 +156,13 @@ const router = createRouter({
       component: () => import('../views/notifications/NotificationHistoryView.vue'),
       meta: { requiresAuth: true },
     },
+    // 양식 다운로드 관리 (슈퍼 관리자)
+    {
+      path: '/form-downloads',
+      name: 'form-downloads',
+      component: () => import('../views/form-downloads/FormDownloadListView.vue'),
+      meta: { requiresAuth: true, superOnly: true },
+    },
     // 양식 템플릿 관리 (슈퍼 관리자)
     {
       path: '/templates',

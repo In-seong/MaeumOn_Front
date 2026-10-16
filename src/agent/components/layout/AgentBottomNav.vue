@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
   { icon: markRaw(HomeIcon), label: '홈', path: '/', matchPaths: ['/'] },
   { icon: markRaw(CustomersIcon), label: '고객', path: '/customers', matchPaths: ['/customers'] },
   { icon: markRaw(ScheduleIcon), label: '일정', path: '/schedule', matchPaths: ['/schedule'] },
-  { icon: markRaw(StatisticsIcon), label: '통계', path: '/statistics', matchPaths: ['/statistics'] },
+  { icon: markRaw(StatisticsIcon), label: '양식', path: '/statistics', matchPaths: ['/statistics'] },
   { icon: markRaw(MyPageIcon), label: '마이', path: '/mypage', matchPaths: ['/mypage'] },
 ]
 

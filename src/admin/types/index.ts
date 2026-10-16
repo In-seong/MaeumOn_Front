@@ -433,3 +433,16 @@ export interface DashboardSummary {
   total_assignments: number
   recent_notices: AdminNotice[]
 }
+
+export interface FormDownloadItem {
+  id: number
+  company_name: string
+  category: 'non-life' | 'life' | 'cooperative'
+  claim_form_path: string | null
+  claim_form_name: string | null
+  dental_confirm_path: string | null
+  dental_confirm_name: string | null
+  sort_order: number
+  created_at: string
+  updated_at: string
+}

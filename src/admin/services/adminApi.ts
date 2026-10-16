@@ -10,6 +10,7 @@ import type {
   AdminHospital, AdminHealthCenter, AdminClaimRequest,
   AdminReservation, ScheduleConfig, ClaimRequestStatistics,
   ClaimRequestStatDetail,
+  FormDownloadItem,
 } from '../types'
 
 const BASE = '/admin'
@@ -502,3 +503,23 @@ export const activateDistributionList = (branchId: number, listId: number) =>
 
 export const fetchDistributionQueue = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<DistributionQueueItem>>>(`${BASE}/distribution/queue`, { params })
+
+// ===== 양식 다운로드 관리 =====
+export const fetchFormDownloads = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<FormDownloadItem[]>>(`${BASE}/form-downloads`, { params })
+
+export const createFormDownload = (data: FormData) =>
+  api.post<ApiResponse<FormDownloadItem>>(`${BASE}/form-downloads`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const updateFormDownload = (id: number, data: FormData) =>
+  api.post<ApiResponse<FormDownloadItem>>(`${BASE}/form-downloads/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deleteFormDownload = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/form-downloads/${id}`)
+
+export const getFormDownloadUrl = (id: number, type: 'claim' | 'dental') =>
+  api.get<ApiResponse<{ url: string; filename: string }>>(`${BASE}/form-downloads/${id}/download/${type}`)
