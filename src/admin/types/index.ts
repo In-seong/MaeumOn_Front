@@ -449,6 +449,8 @@ export interface FormDownloadItem {
 
 export interface AwardPlanItem {
   id: number
+  form_download_id: number | null
+  company_name?: string
   title: string
   file_path: string
   file_name: string

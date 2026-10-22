@@ -54,8 +54,7 @@ const navGroups: NavGroup[] = [
     collapsible: true,
     items: [
       { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'], superOnly: true },
-      { label: '양식 다운로드', icon: 'download', to: '/form-downloads', match: ['/form-downloads'], superOnly: true },
-      { label: '시상안 관리', icon: 'emoji_events', to: '/award-plans', match: ['/award-plans'], superOnly: true },
+      { label: '양식 관리', icon: 'download', to: '/form-downloads', match: ['/form-downloads'], superOnly: true },
       { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'], superOnly: true },
       { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims'] },
     ],

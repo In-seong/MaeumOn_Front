@@ -215,6 +215,7 @@ onMounted(async () => {
           </div>
           <div class="p-3">
             <p class="text-[13px] font-medium text-[#333] truncate">{{ item.title }}</p>
+            <p v-if="item.company_name" class="text-[11px] text-[#FF7B22] mt-0.5 truncate">{{ item.company_name }}</p>
             <p class="text-[11px] text-[#999] mt-0.5">{{ item.file_name }}</p>
           </div>
         </div>

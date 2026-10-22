@@ -6,9 +6,13 @@ import {
   updateFormDownload,
   deleteFormDownload,
   getFormDownloadUrl,
+  fetchAwardPlans,
+  createAwardPlan,
+  deleteAwardPlan,
 } from '../../services/adminApi'
-import type { FormDownloadItem } from '../../types'
+import type { FormDownloadItem, AwardPlanItem } from '../../types'
 
+// ===== 보험사 목록 =====
 const items = ref<FormDownloadItem[]>([])
 const loading = ref(false)
 const showModal = ref(false)
@@ -117,7 +121,7 @@ async function save() {
 }
 
 async function remove(item: FormDownloadItem) {
-  if (!confirm(`"${item.company_name}" 양식을 삭제하시겠습니까?`)) return
+  if (!confirm(`"${item.company_name}" 보험사와 연결된 모든 시상안도 함께 삭제됩니다. 삭제하시겠습니까?`)) return
   await deleteFormDownload(item.id)
   await loadItems()
 }
@@ -128,13 +132,120 @@ async function download(item: FormDownloadItem, type: 'claim' | 'dental') {
   window.open(url, '_blank')
 }
 
+// ===== 시상안 관리 (보험사별) =====
+const showAwardModal = ref(false)
+const awardCompany = ref<FormDownloadItem | null>(null)
+const awardItems = ref<AwardPlanItem[]>([])
+const awardLoading = ref(false)
+
+const now = new Date()
+const awardYear = ref(now.getFullYear())
+const awardMonth = ref(now.getMonth() + 1)
+
+const awardForm = ref({
+  title: '',
+  target_year: now.getFullYear(),
+  target_month: now.getMonth() + 1,
+  files: [] as File[],
+})
+
+const awardSaving = ref(false)
+const awardPreviewUrl = ref<string | null>(null)
+
+async function openAwardModal(item: FormDownloadItem) {
+  awardCompany.value = item
+  awardYear.value = now.getFullYear()
+  awardMonth.value = now.getMonth() + 1
+  awardForm.value = {
+    title: '',
+    target_year: now.getFullYear(),
+    target_month: now.getMonth() + 1,
+    files: [],
+  }
+  showAwardModal.value = true
+  await loadAwardItems()
+}
+
+async function loadAwardItems() {
+  if (!awardCompany.value) return
+  awardLoading.value = true
+  try {
+    const res = await fetchAwardPlans({
+      form_download_id: awardCompany.value.id,
+      year: awardYear.value,
+      month: awardMonth.value,
+    })
+    awardItems.value = res.data.data
+  } finally {
+    awardLoading.value = false
+  }
+}
+
+function awardPrevMonth() {
+  if (awardMonth.value === 1) {
+    awardYear.value--
+    awardMonth.value = 12
+  } else {
+    awardMonth.value--
+  }
+  loadAwardItems()
+}
+
+function awardNextMonth() {
+  if (awardMonth.value === 12) {
+    awardYear.value++
+    awardMonth.value = 1
+  } else {
+    awardMonth.value++
+  }
+  loadAwardItems()
+}
+
+function onAwardFilesChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (target.files) {
+    awardForm.value.files = Array.from(target.files)
+  }
+}
+
+async function saveAward() {
+  if (!awardCompany.value || !awardForm.value.title || awardForm.value.files.length === 0) return
+  awardSaving.value = true
+  try {
+    const fd = new FormData()
+    fd.append('form_download_id', String(awardCompany.value.id))
+    fd.append('title', awardForm.value.title)
+    fd.append('target_year', String(awardForm.value.target_year))
+    fd.append('target_month', String(awardForm.value.target_month))
+    for (const file of awardForm.value.files) {
+      fd.append('files[]', file)
+    }
+    await createAwardPlan(fd)
+    awardForm.value = {
+      title: '',
+      target_year: awardYear.value,
+      target_month: awardMonth.value,
+      files: [],
+    }
+    await Promise.all([loadAwardItems(), loadItems()])
+  } finally {
+    awardSaving.value = false
+  }
+}
+
+async function removeAward(ap: AwardPlanItem) {
+  if (!confirm(`"${ap.title}" 시상안을 삭제하시겠습니까?`)) return
+  await deleteAwardPlan(ap.id)
+  await Promise.all([loadAwardItems(), loadItems()])
+}
+
 onMounted(loadItems)
 </script>
 
 <template>
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-[20px] font-bold text-[#333]">양식 다운로드 관리</h1>
+      <h1 class="text-[20px] font-bold text-[#333]">양식 관리</h1>
       <button
         class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-[14px] font-medium hover:bg-[#E56A10] transition-colors"
         @click="openCreateModal"
@@ -167,8 +278,9 @@ onMounted(loadItems)
               <tr class="bg-[#F9F9F9] border-b border-[#E8E8E8]">
                 <th class="text-left px-4 py-3 text-[#777] font-medium w-12">순서</th>
                 <th class="text-left px-4 py-3 text-[#777] font-medium">보험사명</th>
-                <th class="text-center px-4 py-3 text-[#777] font-medium w-40">청구서</th>
-                <th class="text-center px-4 py-3 text-[#777] font-medium w-40">치과확인서</th>
+                <th class="text-center px-4 py-3 text-[#777] font-medium w-36">청구서</th>
+                <th class="text-center px-4 py-3 text-[#777] font-medium w-36">치과확인서</th>
+                <th class="text-center px-4 py-3 text-[#777] font-medium w-28">시상안</th>
                 <th class="text-center px-4 py-3 text-[#777] font-medium w-32">관리</th>
               </tr>
             </thead>
@@ -203,6 +315,15 @@ onMounted(loadItems)
                   <span v-else class="text-[#CCC]">-</span>
                 </td>
                 <td class="px-4 py-3 text-center">
+                  <button
+                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#FFF7ED] text-[#FF7B22] rounded-lg text-[13px] font-medium hover:bg-[#FFEDD5] transition-colors"
+                    @click="openAwardModal(item)"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">emoji_events</span>
+                    {{ (item as any).award_plans_count || 0 }}건
+                  </button>
+                </td>
+                <td class="px-4 py-3 text-center">
                   <button class="text-[#FF7B22] hover:underline text-[13px] mr-3" @click="openEditModal(item)">수정</button>
                   <button class="text-[#EF4444] hover:underline text-[13px]" @click="remove(item)">삭제</button>
                 </td>
@@ -213,7 +334,7 @@ onMounted(loadItems)
       </div>
     </template>
 
-    <!-- 등록/수정 모달 -->
+    <!-- 보험사 등록/수정 모달 -->
     <Teleport to="body">
       <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
         <div class="absolute inset-0 bg-black/40" @click="showModal = false" />
@@ -285,6 +406,147 @@ onMounted(loadItems)
               {{ saving ? '저장 중...' : (editingItem ? '수정' : '등록') }}
             </button>
           </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- 시상안 관리 모달 (보험사별) -->
+    <Teleport to="body">
+      <div v-if="showAwardModal && awardCompany" class="fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/40" @click="showAwardModal = false" />
+        <div class="relative bg-white rounded-2xl w-full max-w-[700px] mx-4 shadow-xl max-h-[90vh] flex flex-col">
+          <div class="px-6 py-5 border-b border-[#E8E8E8] flex items-center justify-between shrink-0">
+            <h3 class="text-[18px] font-bold text-[#333]">
+              {{ awardCompany.company_name }} — 시상안 관리
+            </h3>
+            <button @click="showAwardModal = false" class="text-[#999] hover:text-[#333]">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto">
+            <!-- 등록 폼 -->
+            <div class="px-6 py-4 bg-[#FAFAFA] border-b border-[#E8E8E8]">
+              <h4 class="text-[14px] font-bold text-[#555] mb-3">시상안 등록</h4>
+              <div class="grid grid-cols-[1fr_100px_100px] gap-3 mb-3">
+                <input
+                  v-model="awardForm.title"
+                  type="text"
+                  class="px-3 py-2 border border-[#DDD] rounded-lg text-[13px] focus:outline-none focus:border-[#FF7B22]"
+                  placeholder="제목 (예: 2026년 10월 시상안)"
+                />
+                <select
+                  v-model.number="awardForm.target_year"
+                  class="px-2 py-2 border border-[#DDD] rounded-lg text-[13px] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option v-for="y in 10" :key="y" :value="2020 + y">{{ 2020 + y }}년</option>
+                </select>
+                <select
+                  v-model.number="awardForm.target_month"
+                  class="px-2 py-2 border border-[#DDD] rounded-lg text-[13px] focus:outline-none focus:border-[#FF7B22]"
+                >
+                  <option v-for="m in 12" :key="m" :value="m">{{ m }}월</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-3">
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  multiple
+                  class="text-[13px] flex-1"
+                  @change="onAwardFilesChange"
+                />
+                <button
+                  class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-[13px] font-medium hover:bg-[#E56A10] disabled:opacity-50 shrink-0"
+                  :disabled="awardSaving || !awardForm.title || awardForm.files.length === 0"
+                  @click="saveAward"
+                >
+                  {{ awardSaving ? '업로드 중...' : '등록' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- 월 네비게이션 -->
+            <div class="px-6 py-3 flex items-center gap-3 border-b border-[#E8E8E8]">
+              <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F5F5F5]" @click="awardPrevMonth">
+                <span class="material-symbols-outlined text-[18px] text-[#666]">chevron_left</span>
+              </button>
+              <span class="text-[14px] font-bold text-[#333] min-w-[100px] text-center">
+                {{ awardYear }}년 {{ awardMonth }}월
+              </span>
+              <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F5F5F5]" @click="awardNextMonth">
+                <span class="material-symbols-outlined text-[18px] text-[#666]">chevron_right</span>
+              </button>
+              <span class="text-[12px] text-[#999]">({{ awardItems.length }}건)</span>
+            </div>
+
+            <!-- 시상안 목록 -->
+            <div class="px-6 py-4">
+              <div v-if="awardLoading" class="text-center py-10 text-[#999] text-[14px]">불러오는 중...</div>
+              <div v-else-if="!awardItems.length" class="text-center py-10 text-[#999] text-[14px]">
+                해당 월에 등록된 시상안이 없습니다.
+              </div>
+              <div v-else class="grid grid-cols-3 gap-3">
+                <div
+                  v-for="ap in awardItems"
+                  :key="ap.id"
+                  class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden group"
+                >
+                  <div
+                    class="aspect-[3/4] bg-[#F5F5F5] flex items-center justify-center cursor-pointer relative overflow-hidden"
+                    @click="awardPreviewUrl = ap.file_url"
+                  >
+                    <img
+                      v-if="ap.thumbnail_url"
+                      :src="ap.thumbnail_url"
+                      :alt="ap.title"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else class="material-symbols-outlined text-[36px] text-[#CCC]">description</span>
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </div>
+                  <div class="p-2.5 flex items-start justify-between gap-1">
+                    <div class="min-w-0">
+                      <p class="text-[12px] font-medium text-[#333] truncate">{{ ap.title }}</p>
+                      <p class="text-[11px] text-[#999] truncate">{{ ap.file_name }}</p>
+                    </div>
+                    <button
+                      class="text-[#EF4444] hover:underline text-[11px] shrink-0"
+                      @click="removeAward(ap)"
+                    >삭제</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- 시상안 미리보기 -->
+    <Teleport to="body">
+      <div
+        v-if="awardPreviewUrl"
+        class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4"
+        @click.self="awardPreviewUrl = null"
+      >
+        <div class="relative max-w-[90vw] max-h-[90vh]">
+          <button
+            class="absolute -top-10 right-0 text-white hover:text-[#FF7B22] transition-colors"
+            @click="awardPreviewUrl = null"
+          >
+            <span class="material-symbols-outlined text-[28px]">close</span>
+          </button>
+          <img
+            v-if="awardPreviewUrl && !awardPreviewUrl.includes('.pdf')"
+            :src="awardPreviewUrl"
+            class="max-w-full max-h-[85vh] object-contain rounded-lg"
+          />
+          <iframe
+            v-else-if="awardPreviewUrl"
+            :src="awardPreviewUrl"
+            class="w-[80vw] h-[85vh] rounded-lg bg-white"
+          />
         </div>
       </div>
     </Teleport>

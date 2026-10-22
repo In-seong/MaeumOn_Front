@@ -93,6 +93,7 @@
               </div>
               <div class="p-2.5">
                 <p class="text-[12px] font-medium text-[#333] truncate">{{ item.title }}</p>
+                <p v-if="item.company_name" class="text-[11px] text-[#FF7B22] truncate">{{ item.company_name }}</p>
               </div>
             </div>
           </div>

@@ -163,13 +163,6 @@ const router = createRouter({
       component: () => import('../views/form-downloads/FormDownloadListView.vue'),
       meta: { requiresAuth: true, superOnly: true },
     },
-    // 시상안 관리 (슈퍼 관리자)
-    {
-      path: '/award-plans',
-      name: 'award-plans',
-      component: () => import('../views/award-plans/AwardPlanListView.vue'),
-      meta: { requiresAuth: true, superOnly: true },
-    },
     // 양식 템플릿 관리 (슈퍼 관리자)
     {
       path: '/templates',
