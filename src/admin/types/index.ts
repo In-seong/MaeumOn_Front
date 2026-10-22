@@ -446,3 +446,24 @@ export interface FormDownloadItem {
   created_at: string
   updated_at: string
 }
+
+export interface AwardPlanItem {
+  id: number
+  title: string
+  file_path: string
+  file_name: string
+  thumbnail_path: string | null
+  thumbnail_url: string | null
+  file_url: string | null
+  target_year: number
+  target_month: number
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface AwardPlanMonth {
+  target_year: number
+  target_month: number
+  count: number
+}

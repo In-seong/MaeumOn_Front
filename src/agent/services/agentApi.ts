@@ -429,3 +429,29 @@ export const fetchFormDownloads = (params?: Record<string, unknown>) =>
 
 export const getFormDownloadUrl = (id: number, type: 'claim' | 'dental') =>
   api.get<ApiResponse<{ url: string; filename: string }>>(`${BASE}/form-downloads/${id}/download/${type}`)
+
+// ===== 시상안 =====
+export interface AwardPlanItem {
+  id: number
+  title: string
+  file_path: string
+  file_name: string
+  thumbnail_path: string | null
+  thumbnail_url: string | null
+  file_url: string | null
+  target_year: number
+  target_month: number
+  sort_order: number
+}
+
+export interface AwardPlanMonth {
+  target_year: number
+  target_month: number
+  count: number
+}
+
+export const fetchAwardPlans = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<AwardPlanItem[]>>(`${BASE}/award-plans`, { params })
+
+export const fetchAwardPlanMonths = () =>
+  api.get<ApiResponse<AwardPlanMonth[]>>(`${BASE}/award-plans/months`)

@@ -11,6 +11,7 @@ import type {
   AdminReservation, ScheduleConfig, ClaimRequestStatistics,
   ClaimRequestStatDetail,
   FormDownloadItem,
+  AwardPlanItem, AwardPlanMonth,
 } from '../types'
 
 const BASE = '/admin'
@@ -523,3 +524,23 @@ export const deleteFormDownload = (id: number) =>
 
 export const getFormDownloadUrl = (id: number, type: 'claim' | 'dental') =>
   api.get<ApiResponse<{ url: string; filename: string }>>(`${BASE}/form-downloads/${id}/download/${type}`)
+
+// ===== 시상안 =====
+export const fetchAwardPlans = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<AwardPlanItem[]>>(`${BASE}/award-plans`, { params })
+
+export const fetchAwardPlanMonths = () =>
+  api.get<ApiResponse<AwardPlanMonth[]>>(`${BASE}/award-plans/months`)
+
+export const createAwardPlan = (data: FormData) =>
+  api.post<ApiResponse<AwardPlanItem[]>>(`${BASE}/award-plans`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const updateAwardPlan = (id: number, data: FormData) =>
+  api.post<ApiResponse<AwardPlanItem>>(`${BASE}/award-plans/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deleteAwardPlan = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/award-plans/${id}`)
