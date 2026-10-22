@@ -245,7 +245,7 @@ onMounted(loadItems)
 <template>
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-[20px] font-bold text-[#333]">양식 관리</h1>
+      <h1 class="text-[20px] font-bold text-[#333]">다운로드 파일관리</h1>
       <button
         class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-[14px] font-medium hover:bg-[#E56A10] transition-colors"
         @click="openCreateModal"
