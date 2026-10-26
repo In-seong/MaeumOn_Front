@@ -10,6 +10,7 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
   const dateFrom = ref('')
   const dateTo = ref('')
   const selectedHospitalId = ref<number | null>(null)
+  const selectedDbType = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -25,6 +26,9 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
       }
       if (selectedHospitalId.value) {
         params.hospital_id = selectedHospitalId.value
+      }
+      if (selectedDbType.value) {
+        params.db_type = selectedDbType.value
       }
       const response = await fetchClaimRequestStatistics(params)
       const data = response.data.data
@@ -56,6 +60,11 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
     loadStatistics()
   }
 
+  function setDbType(type: string | null) {
+    selectedDbType.value = type
+    loadStatistics()
+  }
+
   return {
     agents,
     summary,
@@ -63,10 +72,12 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
     dateFrom,
     dateTo,
     selectedHospitalId,
+    selectedDbType,
     loading,
     error,
     loadStatistics,
     setDateRange,
     setHospital,
+    setDbType,
   }
 })

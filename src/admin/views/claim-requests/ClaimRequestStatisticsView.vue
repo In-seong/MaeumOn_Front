@@ -33,6 +33,20 @@
         <option value="">전체 병원</option>
         <option v-for="h in store.hospitals" :key="h.hospital_id" :value="h.hospital_id">{{ h.hospital_name }}</option>
       </select>
+
+      <div class="flex items-center gap-1">
+        <button
+          v-for="opt in dbTypeOptions"
+          :key="opt.value ?? 'all'"
+          :class="[
+            'px-3 py-2 rounded-[10px] text-[13px] font-medium transition-colors border',
+            store.selectedDbType === opt.value
+              ? 'bg-[#FF7B22] text-white border-[#FF7B22]'
+              : 'bg-white text-[#666] border-[#E8E8E8] hover:border-[#CCC]',
+          ]"
+          @click="onDbTypeChange(opt.value)"
+        >{{ opt.label }}</button>
+      </div>
     </div>
 
     <div class="mb-4 flex flex-wrap gap-3">
@@ -173,6 +187,17 @@ function onHospitalChange(e: Event) {
   store.setHospital(val ? Number(val) : null)
 }
 
+const dbTypeOptions = [
+  { value: null, label: '전체' },
+  { value: 'resident', label: '상주DB' },
+  { value: 'distribution', label: '배분DB' },
+  { value: 'corporate', label: '기업DB' },
+]
+
+function onDbTypeChange(type: string | null) {
+  store.setDbType(store.selectedDbType === type ? null : type)
+}
+
 const excelLoading = ref(false)
 
 async function downloadExcel() {
@@ -182,6 +207,7 @@ async function downloadExcel() {
       date_from: dateFrom.value,
       date_to: dateTo.value,
       hospital_id: store.selectedHospitalId || undefined,
+      db_type: store.selectedDbType || undefined,
     })
     const details = res.data.data.details as Array<{
       agent_name?: string
@@ -231,6 +257,7 @@ async function openDetail(row: ClaimRequestStatAgentRow) {
       date_from: dateFrom.value,
       date_to: dateTo.value,
       hospital_id: store.selectedHospitalId || undefined,
+      db_type: store.selectedDbType || undefined,
     })
     detailItems.value = res.data.data.details
   } catch {

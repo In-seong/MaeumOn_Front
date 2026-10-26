@@ -110,9 +110,17 @@ function visibleItems(group: NavGroup): NavItem[] {
 
 function isActive(item: NavItem): boolean {
   const currentPath = route.path
-  if (item.to === '/' && currentPath === '/') return true
-  if (item.to !== '/' && currentPath.startsWith(item.to)) return true
-  return false
+  if (item.to === '/') return currentPath === '/'
+  if (currentPath !== item.to && !currentPath.startsWith(item.to + '/')) return false
+  for (const group of navGroups) {
+    for (const other of group.items) {
+      if (other.to.length > item.to.length &&
+          (currentPath === other.to || currentPath.startsWith(other.to + '/'))) {
+        return false
+      }
+    }
+  }
+  return true
 }
 
 function groupHasActive(group: NavGroup): boolean {
