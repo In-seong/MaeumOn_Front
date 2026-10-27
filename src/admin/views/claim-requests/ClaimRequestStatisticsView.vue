@@ -75,7 +75,45 @@
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto"></div>
     </div>
 
-    <div v-else-if="store.agents.length === 0" class="text-center py-10 text-[#999] text-[14px]">
+    <template v-else>
+    <!-- 병원별 DB 요약 (전체 병원 선택 시) -->
+    <div v-if="!store.selectedHospitalId && store.hospitalStats.length > 0" class="mb-6">
+      <h2 class="text-[16px] font-bold text-[#333] mb-3">병원별 DB 현황</h2>
+      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
+        <table class="min-w-full divide-y divide-[#E8E8E8]">
+          <thead class="bg-[#FAFAFA]">
+            <tr>
+              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
+              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">병원</th>
+              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상주 DB</th>
+              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">배분 DB</th>
+              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">합계</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#F0F0F0]">
+            <tr v-for="(row, index) in store.hospitalStats" :key="row.hospital_id" class="hover:bg-[#FAFAFA] transition-colors">
+              <td class="px-4 lg:px-6 py-3 text-[13px] text-[#999]">{{ index + 1 }}</td>
+              <td class="px-4 lg:px-6 py-3 text-[13px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="store.setHospital(row.hospital_id)">{{ row.hospital_name }}</td>
+              <td class="px-4 lg:px-6 py-3 text-[13px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
+              <td class="px-4 lg:px-6 py-3 text-[13px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
+              <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#333]">{{ row.total }}</td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-[#FAFAFA]">
+            <tr>
+              <td class="px-4 lg:px-6 py-3"></td>
+              <td class="px-4 lg:px-6 py-3 text-[12px] font-bold text-[#333]">합계</td>
+              <td class="px-4 lg:px-6 py-3 text-[12px] text-center font-bold text-[#2196F3]">{{ hospitalStatsTotal.resident }}</td>
+              <td class="px-4 lg:px-6 py-3 text-[12px] text-center font-bold text-[#FF7B22]">{{ hospitalStatsTotal.distribution }}</td>
+              <td class="px-4 lg:px-6 py-3 text-[12px] text-center font-bold text-[#333]">{{ hospitalStatsTotal.total }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- 설계사별 통계 -->
+    <div v-if="store.agents.length === 0" class="text-center py-10 text-[#999] text-[14px]">
       해당 기간에 배정 데이터가 없습니다.
     </div>
 
@@ -163,11 +201,12 @@
         </div>
       </div>
     </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useClaimRequestStatStore } from '../../stores/claimRequestStatStore'
 import { useDateRange } from '../../composables/useDateRange'
 import { exportToExcel } from '@shared/utils/exportExcel'
@@ -176,6 +215,15 @@ import type { ClaimRequestStatDetail, ClaimRequestStatAgentRow } from '../../typ
 
 const store = useClaimRequestStatStore()
 const { dateFrom, dateTo } = useDateRange('month')
+
+const hospitalStatsTotal = computed(() => {
+  const stats = store.hospitalStats
+  return {
+    resident: stats.reduce((sum, r) => sum + r.resident, 0),
+    distribution: stats.reduce((sum, r) => sum + r.distribution, 0),
+    total: stats.reduce((sum, r) => sum + r.total, 0),
+  }
+})
 
 function onSearch() {
   store.setDateRange(dateFrom.value, dateTo.value)

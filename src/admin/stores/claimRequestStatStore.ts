@@ -7,6 +7,7 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
   const agents = ref<ClaimRequestStatAgentRow[]>([])
   const summary = ref<ClaimRequestStatSummary>({ total_resident: 0, total_distribution: 0, total_corporate: 0, total: 0 })
   const hospitals = ref<ClaimRequestStatHospital[]>([])
+  const hospitalStats = ref<Array<{ hospital_id: number; hospital_name: string; resident: number; distribution: number; total: number }>>([])
   const dateFrom = ref('')
   const dateTo = ref('')
   const selectedHospitalId = ref<number | null>(null)
@@ -35,6 +36,7 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
       agents.value = data.agents
       summary.value = data.summary
       hospitals.value = data.hospitals
+      hospitalStats.value = data.hospital_stats ?? []
       if (data.start_date && !dateFrom.value) {
         dateFrom.value = data.start_date
       }
@@ -69,6 +71,7 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
     agents,
     summary,
     hospitals,
+    hospitalStats,
     dateFrom,
     dateTo,
     selectedHospitalId,

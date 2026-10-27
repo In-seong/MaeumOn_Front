@@ -393,6 +393,7 @@ export interface ClaimRequestStatistics {
   agents: ClaimRequestStatAgentRow[]
   summary: ClaimRequestStatSummary
   hospitals: ClaimRequestStatHospital[]
+  hospital_stats?: Array<{ hospital_id: number; hospital_name: string; resident: number; distribution: number; total: number }>
   period: 'day' | 'week' | 'month'
   start_date: string
   end_date: string
