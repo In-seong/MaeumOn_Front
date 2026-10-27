@@ -105,15 +105,15 @@ export const useAssignmentStore = defineStore('assignment', () => {
     }
   }
 
-  async function deleteAssignment(id: number) {
+  async function deleteAssignment(id: number, recallReason?: string) {
     loading.value = true
     error.value = null
 
     try {
-      await apiDeleteAssignment(id)
+      await apiDeleteAssignment(id, recallReason ? { recall_reason: recallReason } : undefined)
       assignments.value = assignments.value.filter(a => a.assignment_id !== id)
     } catch (e: any) {
-      error.value = e.response?.data?.message || '배분 삭제에 실패했습니다.'
+      error.value = e.response?.data?.message || '배분 회수에 실패했습니다.'
       throw e
     } finally {
       loading.value = false

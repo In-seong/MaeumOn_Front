@@ -95,10 +95,10 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-[14px] font-medium">
               <button
-                @click="handleDelete(assignment)"
+                @click="openRecallModal(assignment)"
                 class="text-red-500 hover:text-red-600"
               >
-                삭제
+                회수
               </button>
             </td>
           </tr>
@@ -131,6 +131,7 @@
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">병원</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">첨부</th>
+            <th class="px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase tracking-wider w-[80px]">서류전달</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배정일</th>
           </tr>
         </thead>
@@ -170,12 +171,23 @@
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] hidden sm:table-cell">
               {{ item.files?.length || 0 }}개
             </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <button
+                @click.stop="openFileUploadModal(item)"
+                class="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#F0F0F0] text-[#888] hover:text-[#4A90D9] transition-colors"
+                title="추가 서류 전달"
+              >
+                <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" />
+                </svg>
+              </button>
+            </td>
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
               {{ formatDate(item.updated_at) }}
             </td>
           </tr>
           <tr v-if="store.claimAssignments.length === 0">
-            <td colspan="9" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="10" class="px-6 py-10 text-center text-[#999]">
               청구 배정 이력이 없습니다.
             </td>
           </tr>
@@ -280,6 +292,66 @@
       </div>
     </div>
 
+    <!-- 회수 확인 모달 -->
+    <div v-if="recallModalOpen" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" @click.self="recallModalOpen = false">
+      <div class="bg-white rounded-[14px] shadow-xl w-full max-w-[420px] mx-4">
+        <div class="px-6 py-4 border-b border-[#F0F0F0]">
+          <h3 class="text-[16px] font-semibold text-[#222]">DB 배분 회수</h3>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+          <p class="text-[14px] text-[#555]">
+            <span class="font-medium text-[#222]">"{{ recallTarget?.customer?.name || '해당 고객' }}"</span>의 배분을 회수하시겠습니까?
+            <br /><span class="text-[13px] text-[#999]">담당 설계사에게 회수 알림이 발송됩니다.</span>
+          </p>
+          <div>
+            <label class="block text-[13px] text-[#555] mb-1.5">회수 사유 (선택)</label>
+            <textarea v-model="recallReason" rows="3" maxlength="500" placeholder="회수 사유를 입력하세요"
+              class="w-full border border-[#DDD] rounded-[8px] px-3 py-2.5 text-[14px] text-[#222] placeholder:text-[#BBB] resize-none focus:outline-none focus:border-[#4A90D9] focus:ring-1 focus:ring-[#4A90D9]/30"></textarea>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-[#F0F0F0] flex justify-end gap-2">
+          <button @click="recallModalOpen = false" class="px-4 py-2 text-[14px] text-[#555] hover:text-[#222] rounded-[8px] hover:bg-[#F5F5F5]">취소</button>
+          <button @click="submitRecall" :disabled="recallSubmitting"
+            class="px-4 py-2 text-[14px] text-white bg-red-500 hover:bg-red-600 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ recallSubmitting ? '처리중...' : '회수' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 추가 서류 전달 모달 -->
+    <div v-if="fileUploadModalOpen" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" @click.self="fileUploadModalOpen = false">
+      <div class="bg-white rounded-[14px] shadow-xl w-full max-w-[480px] mx-4">
+        <div class="px-6 py-4 border-b border-[#F0F0F0]">
+          <h3 class="text-[16px] font-semibold text-[#222]">추가 서류 전달</h3>
+          <p class="text-[13px] text-[#999] mt-1">{{ fileUploadTarget?.name }} — {{ fileUploadTarget?.assigned_agent?.name || '미배정' }}</p>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+          <div>
+            <label class="block text-[13px] text-[#555] mb-2">파일 선택 (최대 10개, 각 50MB 이하)</label>
+            <input type="file" multiple accept="*/*" @change="handleFileSelect"
+              class="block w-full text-[13px] text-[#555] file:mr-3 file:py-2 file:px-4 file:rounded-[8px] file:border-0 file:text-[13px] file:font-medium file:bg-[#F0F5FF] file:text-[#4A90D9] hover:file:bg-[#E0EBFF]" />
+          </div>
+          <div v-if="selectedFiles.length > 0" class="space-y-1.5 max-h-[200px] overflow-y-auto">
+            <div v-for="(file, idx) in selectedFiles" :key="idx" class="flex items-center justify-between bg-[#F8F8F8] rounded-[8px] px-3 py-2">
+              <span class="text-[13px] text-[#333] truncate flex-1 mr-2">{{ file.name }}</span>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="text-[11px] text-[#999]">{{ formatFileSize(file.size) }}</span>
+                <button @click="removeSelectedFile(idx)" class="text-[#CCC] hover:text-red-400 text-[16px]">&times;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-[#F0F0F0] flex justify-end gap-2">
+          <button @click="fileUploadModalOpen = false" class="px-4 py-2 text-[14px] text-[#555] hover:text-[#222] rounded-[8px] hover:bg-[#F5F5F5]">취소</button>
+          <button @click="submitFileUpload" :disabled="selectedFiles.length === 0 || fileUploading"
+            class="px-4 py-2 text-[14px] text-white bg-[#4A90D9] hover:bg-[#3A7BC8] rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ fileUploading ? '업로드 중...' : `전달 (${selectedFiles.length}건)` }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 이미지 뷰어 -->
     <div v-if="imageViewerOpen" class="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center" @click.self="imageViewerOpen = false">
       <button @click="imageViewerOpen = false" class="absolute top-4 right-4 text-white/80 hover:text-white text-[32px] z-10">&times;</button>
@@ -306,6 +378,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAssignmentStore } from '../../stores/assignmentStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
+import { addClaimRequestFiles } from '../../services/adminApi'
 import type { Assignment, AdminClaimRequest, AdminClaimRequestFile } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
@@ -477,17 +550,68 @@ function statusClass(status: string): string {
   return map[status] || 'bg-gray-100 text-gray-800'
 }
 
-async function handleDelete(assignment: Assignment) {
-  const customerName = assignment.customer?.name || '해당 고객'
-  if (!confirm(`"${customerName}"의 배분을 삭제하시겠습니까?\n담당 설계사 배정이 해제됩니다.`)) {
-    return
-  }
+const recallModalOpen = ref(false)
+const recallTarget = ref<Assignment | null>(null)
+const recallReason = ref('')
+const recallSubmitting = ref(false)
 
+function openRecallModal(assignment: Assignment) {
+  recallTarget.value = assignment
+  recallReason.value = ''
+  recallModalOpen.value = true
+}
+
+async function submitRecall() {
+  if (!recallTarget.value) return
+  recallSubmitting.value = true
   try {
-    await store.deleteAssignment(assignment.assignment_id)
-    alert('배분이 삭제되었습니다.')
+    await store.deleteAssignment(recallTarget.value.assignment_id, recallReason.value || undefined)
+    recallModalOpen.value = false
+    alert('배분이 회수되었습니다.')
   } catch (e: any) {
-    alert(e.response?.data?.message || '삭제에 실패했습니다.')
+    alert(e.response?.data?.message || '회수에 실패했습니다.')
+  } finally {
+    recallSubmitting.value = false
+  }
+}
+
+// 추가 서류 전달
+const fileUploadModalOpen = ref(false)
+const fileUploadTarget = ref<AdminClaimRequest | null>(null)
+const selectedFiles = ref<File[]>([])
+const fileUploading = ref(false)
+
+function openFileUploadModal(item: AdminClaimRequest) {
+  fileUploadTarget.value = item
+  selectedFiles.value = []
+  fileUploadModalOpen.value = true
+}
+
+function handleFileSelect(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (!input.files) return
+  const newFiles = Array.from(input.files).slice(0, 10 - selectedFiles.value.length)
+  selectedFiles.value = [...selectedFiles.value, ...newFiles].slice(0, 10)
+}
+
+function removeSelectedFile(idx: number) {
+  selectedFiles.value.splice(idx, 1)
+}
+
+async function submitFileUpload() {
+  if (!fileUploadTarget.value || selectedFiles.value.length === 0) return
+  fileUploading.value = true
+  try {
+    const formData = new FormData()
+    selectedFiles.value.forEach(f => formData.append('files[]', f))
+    await addClaimRequestFiles(fileUploadTarget.value.request_id, formData)
+    fileUploadModalOpen.value = false
+    alert('추가 서류가 전달되었습니다.')
+    fetchData()
+  } catch (e: any) {
+    alert(e.response?.data?.message || '서류 전달에 실패했습니다.')
+  } finally {
+    fileUploading.value = false
   }
 }
 
