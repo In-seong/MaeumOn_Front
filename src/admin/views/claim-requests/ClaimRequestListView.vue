@@ -405,7 +405,7 @@ async function openDetail(item: AdminClaimRequest) {
   agentDropdownOpen.value = false
   modalOpen.value = true
   if (agents.value.length === 0) {
-    try { const res = await fetchAgents({ per_page: 200 }); agents.value = res.data.data.data ?? [] } catch { /* ignore */ }
+    try { const res = await fetchAgents({ per_page: 'all' }); agents.value = res.data.data.data ?? [] } catch { /* ignore */ }
   }
 }
 

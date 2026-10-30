@@ -343,7 +343,7 @@ async function fetchAgentList() {
     const res = await apiFetchAgents({
       search: agentSearchQuery.value || undefined,
       is_active: 'true',
-      per_page: 50,
+      per_page: 'all',
     })
     targetAgents.value = (res.data.data.data as AdminAgent[]).filter(a => a.agent_id !== props.agentId)
   } catch {

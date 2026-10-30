@@ -342,7 +342,7 @@ async function openDetail(item: AdminConsultation) {
   try {
     const detailReq = fetchConsultation(item.consultation_id)
     const agentsReq = agents.value.length === 0
-      ? fetchAgents({ per_page: 200 })
+      ? fetchAgents({ per_page: 'all' })
       : Promise.resolve(null)
 
     const [detailRes, agentsRes] = await Promise.all([detailReq, agentsReq])

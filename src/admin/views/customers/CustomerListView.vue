@@ -376,7 +376,7 @@ async function downloadExcel() {
 
 async function loadAgentList() {
   try {
-    const res = await fetchAgents({ per_page: 200 })
+    const res = await fetchAgents({ per_page: 'all' })
     agentList.value = res.data.data.data
   } catch {
     // 설계사 목록 로드 실패해도 고객 목록은 정상 표시

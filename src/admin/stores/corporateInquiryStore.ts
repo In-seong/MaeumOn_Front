@@ -94,7 +94,7 @@ export const useCorporateInquiryStore = defineStore('corporateInquiry', () => {
 
   async function loadAgentOptions(extraParams?: Record<string, unknown>) {
     try {
-      const res = await apiFetchAgents({ is_active: true, per_page: 100, ...extraParams } as Record<string, unknown>)
+      const res = await apiFetchAgents({ is_active: true, per_page: 'all', ...extraParams } as Record<string, unknown>)
       const { data } = res.data.data
       agentOptions.value = data
     } catch (e: any) {

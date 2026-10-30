@@ -300,7 +300,7 @@ async function handleSubmit() {
 
 async function loadAgentList() {
   try {
-    const response = await fetchAgents({ per_page: 200, is_active: true, ...branchStore.getBranchParam() } as Record<string, unknown>)
+    const response = await fetchAgents({ per_page: 'all', is_active: true, ...branchStore.getBranchParam() } as Record<string, unknown>)
     agentList.value = response.data.data.data
   } catch {
     // 설계사 목록 로딩 실패 시 무시

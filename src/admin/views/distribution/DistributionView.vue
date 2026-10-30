@@ -448,7 +448,7 @@ async function loadQueue() {
 
 async function loadAgents() {
   try {
-    const params: Record<string, unknown> = { per_page: 100, is_active: 'true' }
+    const params: Record<string, unknown> = { per_page: 'all', is_active: 'true' }
     if (selectedBranchId.value) params.branch_id = selectedBranchId.value
     const res = await fetchAgents(params)
     const pageData = res.data.data

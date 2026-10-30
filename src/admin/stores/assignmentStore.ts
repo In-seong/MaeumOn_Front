@@ -194,7 +194,7 @@ export const useAssignmentStore = defineStore('assignment', () => {
     try {
       const response = await apiFetchAgents({
         is_active: true,
-        per_page: 100,
+        per_page: 'all',
         ...extraParams,
       } as Record<string, unknown>)
       const { data } = response.data.data

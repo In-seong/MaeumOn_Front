@@ -51,7 +51,7 @@ const canSend = computed(() =>
 onMounted(async () => {
   loadingAgents.value = true
   try {
-    const res = await fetchAgents({ per_page: 200, is_active: true, ...branchStore.getBranchParam() })
+    const res = await fetchAgents({ per_page: 'all', is_active: true, ...branchStore.getBranchParam() })
     agents.value = (res.data?.data?.data ?? res.data?.data ?? []) as AdminAgent[]
   } catch {
     // handled globally
