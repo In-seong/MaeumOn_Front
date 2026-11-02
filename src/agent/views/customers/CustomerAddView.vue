@@ -337,3 +337,13 @@ async function handleSubmit(): Promise<void> {
   }
 }
 </script>
+
+<style scoped>
+input[type="date"],
+input[type="number"] {
+  -webkit-appearance: none;
+  appearance: none;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+</style>
