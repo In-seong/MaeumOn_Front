@@ -341,22 +341,22 @@
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <div class="min-w-0">
+                <div class="min-w-0 overflow-hidden">
                   <label class="text-[12px] text-[#888] mb-1 block">계약금액</label>
                   <input
                     v-model="contractForm.contract_amount"
                     type="number"
                     inputmode="numeric"
                     placeholder="원"
-                    class="w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full max-w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] box-border"
                   />
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 overflow-hidden">
                   <label class="text-[12px] text-[#888] mb-1 block">체결일</label>
                   <input
                     v-model="contractForm.contract_date"
                     type="date"
-                    class="w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full max-w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] box-border"
                   />
                 </div>
               </div>
@@ -369,24 +369,24 @@
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <div class="min-w-0">
+                <div class="min-w-0 overflow-hidden">
                   <label class="text-[12px] text-[#888] mb-1 block">계약상태</label>
                   <select
                     v-model="contractForm.contract_status"
-                    class="w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                    class="w-full max-w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none box-border"
                   >
                     <option v-for="s in contractStatusOptions" :key="s.value" :value="s.value">
                       {{ s.label }}
                     </option>
                   </select>
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 overflow-hidden">
                   <label class="text-[12px] text-[#888] mb-1 block">납입방법</label>
                   <input
                     v-model="contractForm.payment_method"
                     type="text"
                     placeholder="예: 월납"
-                    class="w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full max-w-full min-w-0 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] box-border"
                   />
                 </div>
               </div>
