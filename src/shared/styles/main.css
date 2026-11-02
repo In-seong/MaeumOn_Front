@@ -37,3 +37,13 @@ body {
 .font-jalnan {
   font-family: 'Jalnan2', sans-serif;
 }
+
+/* iOS Safari 네이티브 위젯 최소 폭 강제 해제 */
+input[type="date"],
+input[type="number"],
+input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}

@@ -1306,15 +1306,4 @@ function goToClaim(): void {
 .fade-leave-to {
   opacity: 0;
 }
-.contract-form input,
-.contract-form select,
-.contract-form textarea {
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-.contract-form input[type="date"],
-.contract-form input[type="number"] {
-  -webkit-appearance: none;
-  appearance: none;
-}
 </style>
