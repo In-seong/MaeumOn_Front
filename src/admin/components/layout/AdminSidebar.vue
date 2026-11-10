@@ -99,6 +99,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: '지사 관리', icon: 'apartment', to: '/branches', match: ['/branches'] },
       { label: '관리자 계정', icon: 'admin_panel_settings', to: '/admin-accounts', match: ['/admin-accounts'] },
+      { label: '요청 관리', icon: 'checklist', to: '/maintenance-tasks', match: ['/maintenance-tasks'] },
     ],
   },
 ]

@@ -12,6 +12,7 @@ import type {
   ClaimRequestStatDetail,
   FormDownloadItem,
   AwardPlanItem, AwardPlanMonth,
+  MaintenanceTask,
 } from '../types'
 
 const BASE = '/admin'
@@ -549,3 +550,16 @@ export const updateAwardPlan = (id: number, data: FormData) =>
 
 export const deleteAwardPlan = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/award-plans/${id}`)
+
+// ===== 유지보수 요청 =====
+export const fetchMaintenanceTasks = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<MaintenanceTask>>>(`${BASE}/maintenance-tasks`, { params })
+
+export const createMaintenanceTask = (data: Record<string, unknown>) =>
+  api.post<ApiResponse<MaintenanceTask>>(`${BASE}/maintenance-tasks`, data)
+
+export const updateMaintenanceTask = (id: number, data: Record<string, unknown>) =>
+  api.put<ApiResponse<MaintenanceTask>>(`${BASE}/maintenance-tasks/${id}`, data)
+
+export const deleteMaintenanceTask = (id: number) =>
+  api.delete<ApiResponse<null>>(`${BASE}/maintenance-tasks/${id}`)

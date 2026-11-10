@@ -470,3 +470,15 @@ export interface AwardPlanMonth {
   target_month: number
   count: number
 }
+
+export interface MaintenanceTask {
+  id: number
+  title: string
+  description: string | null
+  priority: 'P0' | 'P1' | 'P2' | 'P3'
+  status: '요청' | '진행중' | '완료' | '테스트완료' | '테스트실패' | '보류'
+  source: '카톡' | '회의' | '직접입력' | '기타' | null
+  completed_at: string | null
+  created_at: string
+  updated_at: string
+}

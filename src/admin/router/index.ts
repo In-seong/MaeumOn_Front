@@ -296,6 +296,13 @@ const router = createRouter({
       component: () => import('../views/admin-accounts/AdminAccountListView.vue'),
       meta: { requiresAuth: true, superOnly: true },
     },
+    // 요청 관리 (유지보수)
+    {
+      path: '/maintenance-tasks',
+      name: 'maintenance-tasks',
+      component: () => import('../views/maintenance-tasks/MaintenanceTaskListView.vue'),
+      meta: { requiresAuth: true, superOnly: true },
+    },
     // ========== 병원 포털 (별도 레이아웃, 관리자 인증 불필요) ==========
     {
       path: '/portal/login',
