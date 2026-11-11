@@ -191,8 +191,8 @@
       :visible="reassignModalVisible"
       :agent-id="agent.agent_id"
       :agent-name="agent.name"
-      @close="reassignModalVisible = false"
-      @done="loadData"
+      @close="reassignModalVisible = false; deleteAfterReassign = false"
+      @done="handleReassignDone"
     />
   </div>
 </template>
@@ -261,10 +261,38 @@ async function handleToggleActive() {
   finally { toggling.value = false }
 }
 
+const deleteAfterReassign = ref(false)
+
 async function handleDeleteAgent() {
   if (!agent.value) return
+  const customerCount = agent.value.customers_count ?? 0
+  if (customerCount > 0) {
+    if (!confirm(`이 설계사에게 담당 고객이 ${customerCount}명 있습니다.\n삭제 전에 고객을 다른 설계사에게 이관해야 합니다.\n\n고객 재배분 화면으로 이동하시겠습니까?`)) return
+    deleteAfterReassign.value = true
+    reassignModalVisible.value = true
+    return
+  }
   if (!confirm('이 설계사를 완전 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return
   if (!confirm('정말로 삭제하시겠습니까? 리스트에서 완전히 사라집니다.')) return
+  await executeDelete()
+}
+
+async function handleReassignDone() {
+  await loadData()
+  if (deleteAfterReassign.value) {
+    deleteAfterReassign.value = false
+    const remaining = agent.value?.customers_count ?? 0
+    if (remaining > 0) {
+      alert(`아직 ${remaining}명의 고객이 남아있습니다. 모든 고객을 이관한 후 삭제할 수 있습니다.`)
+      return
+    }
+    if (!confirm('고객 이관이 완료되었습니다. 이제 설계사를 삭제하시겠습니까?')) return
+    await executeDelete()
+  }
+}
+
+async function executeDelete() {
+  if (!agent.value) return
   try {
     await api.delete(`/admin/agents/${agent.value.agent_id}`)
     router.replace('/agents')
