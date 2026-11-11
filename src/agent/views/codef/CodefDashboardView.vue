@@ -537,20 +537,7 @@
               />
             </div>
             <div>
-              <label class="text-[12px] text-[#999] mb-1 block">인증 유형</label>
-              <div class="flex bg-[#F8F8F8] rounded-[10px] border border-[#E8E8E8] p-0.5">
-                <button
-                  :class="['flex-1 py-2 rounded-[8px] text-[13px] font-medium transition-colors', authType === 'simple' ? 'bg-[#FF7B22] text-white' : 'text-[#888]']"
-                  @click="authType = 'simple'"
-                >간편인증</button>
-                <button
-                  :class="['flex-1 py-2 rounded-[8px] text-[13px] font-medium transition-colors', authType === 'sms' ? 'bg-[#FF7B22] text-white' : 'text-[#888]']"
-                  @click="authType = 'sms'"
-                >SMS 인증</button>
-              </div>
-            </div>
-            <div v-if="authType === 'simple'">
-              <label class="text-[12px] text-[#999] mb-1 block">인증 앱</label>
+              <label class="text-[12px] text-[#999] mb-1 block">인증 방법</label>
               <AppSelect
                 v-model="authLevel"
                 :options="authLevelOptions"
@@ -862,11 +849,10 @@ const authError = ref('')
 const showAuthModal = ref(false)
 const authTarget = ref<'medical' | 'checkup' | 'healthAge'>('medical')
 const authTelecom = ref('')
-const authLevel = ref('1')
+const authLevel = ref('sms')
 const authUserName = ref('')
 const authPhoneNo = ref('')
 const authIdentity = ref('')
-const authType = ref<'simple' | 'sms'>('simple')
 const smsAuthCode = ref('')
 const twoWayType = ref<'simple' | 'sms' | null>(null)
 
@@ -879,6 +865,7 @@ const telecomOptions = [
   { value: '5', label: 'LG U+ 알뜰폰' },
 ]
 const authLevelOptions = [
+  { value: 'sms', label: 'SMS 인증' },
   { value: '1', label: '카카오톡' },
   { value: '5', label: '통신사(PASS)' },
   { value: '3', label: '삼성패스' },
@@ -1153,7 +1140,6 @@ async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
   twoWayPending.value = false
   twoWayType.value = null
   smsAuthCode.value = ''
-  authType.value = 'simple'
   try {
     const res = await api.fetchCustomer(customerId.value)
     const c = res.data.data
@@ -1179,7 +1165,7 @@ async function doFetchAuth() {
       : authTarget.value === 'checkup' ? api.fetchCheckup
       : api.fetchHealthAgeApi
 
-    const isSms = authType.value === 'sms'
+    const isSms = authLevel.value === 'sms'
     const params: Record<string, any> = {
       loginType: isSms ? '2' : '5',
       loginTypeLevel: isSms ? '1' : authLevel.value,
