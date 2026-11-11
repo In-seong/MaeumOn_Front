@@ -166,10 +166,10 @@
               @click="step = 1"
             >이전</button>
             <button
-              :disabled="!targetAgentId"
+              :disabled="!targetAgentId || previewLoading"
               class="px-5 py-2.5 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:bg-[#E0E0E0] disabled:text-[#999] transition-colors"
-              @click="step = 3"
-            >다음</button>
+              @click="goToStep3"
+            >{{ previewLoading ? '확인 중...' : '다음' }}</button>
           </div>
         </template>
 
@@ -206,20 +206,15 @@
             </div>
 
             <div class="mt-4 bg-white border border-[#E8E8E8] rounded-[12px] p-4">
-              <p class="text-[13px] font-medium text-[#666] mb-2">이관되는 데이터</p>
-              <ul class="grid grid-cols-2 gap-x-4 gap-y-1 text-[13px] text-[#999]">
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 고객 담당자</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 보험 청구</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 배치 청구</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 계약 정보</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 상담 기록</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 고객 상태</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 만족도 조사</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 캘린더 일정/알림</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 청구 신청</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 기업보험 문의</li>
-                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 불만 접수</li>
-              </ul>
+              <p class="text-[13px] font-medium text-[#666] mb-3">함께 이관되는 데이터</p>
+              <div class="flex flex-wrap gap-2">
+                <span v-for="item in previewItems" :key="item.key"
+                  class="px-3 py-1.5 rounded-full text-[13px]"
+                  :class="item.count > 0
+                    ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium'
+                    : 'bg-[#F5F5F5] text-[#BBB]'"
+                >{{ item.label }} {{ item.count }}건</span>
+              </div>
             </div>
           </div>
 
@@ -242,7 +237,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { fetchCustomers as apiFetchCustomers, fetchAgents as apiFetchAgents, reassignCustomers } from '../services/adminApi'
+import { fetchCustomers as apiFetchCustomers, fetchAgents as apiFetchAgents, reassignCustomers, reassignPreview } from '../services/adminApi'
 import type { AdminCustomer, AdminAgent } from '../types'
 import Pagination from './Pagination.vue'
 
@@ -272,6 +267,28 @@ const agentLoading = ref(false)
 const agentSearchQuery = ref('')
 const targetAgents = ref<AdminAgent[]>([])
 const targetAgentId = ref<string | null>(null)
+
+const previewLoading = ref(false)
+const previewCounts = ref<Record<string, number>>({})
+
+const PREVIEW_LABELS: Record<string, string> = {
+  claims: '보험 청구',
+  batch_claims: '배치 청구',
+  contracts: '계약',
+  consultations: '상담',
+  calendar_events: '일정',
+  claim_requests: '청구 신청',
+  corporate_inquiries: '기업문의',
+  complaints: '불만접수',
+}
+
+const previewItems = computed(() =>
+  Object.entries(PREVIEW_LABELS).map(([key, label]) => ({
+    key,
+    label,
+    count: previewCounts.value[key] ?? 0,
+  }))
+)
 
 let searchTimeout: ReturnType<typeof setTimeout>
 let agentSearchTimeout: ReturnType<typeof setTimeout>
@@ -364,6 +381,20 @@ async function fetchAgentList() {
   } finally {
     agentLoading.value = false
   }
+}
+
+async function goToStep3() {
+  if (!targetAgentId.value || selectedIds.value.size === 0) return
+  previewLoading.value = true
+  try {
+    const res = await reassignPreview(props.agentId, [...selectedIds.value])
+    previewCounts.value = res.data.data ?? {}
+  } catch {
+    previewCounts.value = {}
+  } finally {
+    previewLoading.value = false
+  }
+  step.value = 3
 }
 
 async function handleReassign() {

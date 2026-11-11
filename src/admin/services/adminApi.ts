@@ -69,8 +69,11 @@ export const updateAgent = (id: string, data: Record<string, unknown>) =>
 export const deleteAgent = (id: string) =>
   api.delete<ApiResponse<AdminAgent>>(`${BASE}/agents/${id}`)
 
+export const reassignPreview = (fromAgentId: string, customerIds: string[]) =>
+  api.post<ApiResponse<Record<string, number>>>(`${BASE}/agents/${fromAgentId}/reassign-preview`, { customer_ids: customerIds })
+
 export const reassignCustomers = (fromAgentId: string, data: { to_agent_id: string; customer_ids: string[] }) =>
-  api.post<ApiResponse<{ customers: number; claims: number; batch_claims: number; contracts: number; consultations: number }>>(`${BASE}/agents/${fromAgentId}/reassign`, data)
+  api.post<ApiResponse<Record<string, number>>>(`${BASE}/agents/${fromAgentId}/reassign`, data)
 
 // ===== Assignments / DB Distribution (SFR-039) =====
 export const fetchAssignments = (params?: Record<string, unknown>) =>
