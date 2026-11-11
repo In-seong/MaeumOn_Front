@@ -205,9 +205,22 @@
               </div>
             </div>
 
-            <p class="mt-4 text-[13px] text-[#999]">
-              고객 정보, 청구, 계약, 상담 등 모든 관련 데이터가 대상 설계사에게 이관됩니다.
-            </p>
+            <div class="mt-4 bg-white border border-[#E8E8E8] rounded-[12px] p-4">
+              <p class="text-[13px] font-medium text-[#666] mb-2">이관되는 데이터</p>
+              <ul class="grid grid-cols-2 gap-x-4 gap-y-1 text-[13px] text-[#999]">
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 고객 담당자</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 보험 청구</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 배치 청구</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 계약 정보</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 상담 기록</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 고객 상태</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 만족도 조사</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 캘린더 일정/알림</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 청구 신청</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 기업보험 문의</li>
+                <li class="flex items-center gap-1.5"><span class="text-[#FF7B22]">•</span> 불만 접수</li>
+              </ul>
+            </div>
           </div>
 
           <div class="px-6 py-4 border-t border-[#F0F0F0] flex items-center justify-between">
