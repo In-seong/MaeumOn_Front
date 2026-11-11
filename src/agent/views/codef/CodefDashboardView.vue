@@ -1191,16 +1191,17 @@ async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
 }
 
 function handleTwoWayExtraInfo(extraInfo?: Record<string, any>) {
-  if (extraInfo?.reqSecureNo) {
+  const method = extraInfo?.method || ''
+  if (method === 'secureNo' || (extraInfo && 'reqSecureNo' in extraInfo && extraInfo.reqSecureNo)) {
     twoWayType.value = 'secureNo'
     secureNoCode.value = ''
-    secureNoImage.value = extraInfo.reqSecureNo || ''
+    secureNoImage.value = extraInfo?.reqSecureNo || ''
     toast.showToast('보안문자를 입력해주세요', 'success')
-  } else if (extraInfo?.reqSMSAuthNo) {
+  } else if (method === 'smsAuthNo' || (extraInfo && 'reqSMSAuthNo' in extraInfo)) {
     twoWayType.value = 'sms'
     smsAuthCode.value = ''
     toast.showToast('인증번호가 전송되었습니다', 'success')
-  } else if (extraInfo?.commSimpleAuth) {
+  } else if (method === 'simpleAuth' || (extraInfo && 'commSimpleAuth' in extraInfo)) {
     twoWayType.value = 'simple'
     toast.showToast('고객 휴대폰에서 인증을 완료해주세요', 'success')
   } else {
