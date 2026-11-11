@@ -129,6 +129,14 @@
       :agent-name="customerModalAgentName"
       @close="customerModalVisible = false"
     />
+    <ReassignCustomerModal
+      :visible="deleteModalVisible"
+      :agent-id="deleteAgentId"
+      :agent-name="deleteAgentName"
+      :delete-mode="true"
+      @close="deleteModalVisible = false"
+      @delete="executeDeleteAfterReassign"
+    />
   </div>
 </template>
 
@@ -142,6 +150,7 @@ import { useSortable } from '../../composables/useSortable'
 import type { AdminAgent } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 import AgentCustomerModal from '../../components/AgentCustomerModal.vue'
+import ReassignCustomerModal from '../../components/ReassignCustomerModal.vue'
 
 const router = useRouter()
 const store = useAgentStore()
@@ -154,6 +163,10 @@ const { toggleSort, sortParams, sortIcon } = useSortable()
 const customerModalVisible = ref(false)
 const customerModalAgentId = ref('')
 const customerModalAgentName = ref('')
+
+const deleteModalVisible = ref(false)
+const deleteAgentId = ref('')
+const deleteAgentName = ref('')
 
 function openCustomerModal(agent: AdminAgent) {
   customerModalAgentId.value = agent.agent_id
@@ -223,11 +236,25 @@ async function handleToggleActive(agent: AdminAgent) {
   }
 }
 
-async function handleDelete(agent: AdminAgent) {
-  if (!confirm(`"${agent.name}" 설계사를 완전 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return
-  if (!confirm('정말로 삭제하시겠습니까? 리스트에서 완전히 사라집니다.')) return
+function handleDelete(agent: AdminAgent) {
+  if ((agent.customers_count ?? 0) > 0) {
+    deleteAgentId.value = agent.agent_id
+    deleteAgentName.value = agent.name
+    deleteModalVisible.value = true
+  } else {
+    if (!confirm(`"${agent.name}" 설계사를 삭제하시겠습니까?\n담당 고객이 없으므로 바로 삭제됩니다.`)) return
+    doDelete(agent.agent_id)
+  }
+}
+
+async function executeDeleteAfterReassign() {
+  deleteModalVisible.value = false
+  await doDelete(deleteAgentId.value)
+}
+
+async function doDelete(agentId: string) {
   try {
-    await api.delete(`/admin/agents/${agent.agent_id}`)
+    await api.delete(`/admin/agents/${agentId}`)
     await fetchData()
   } catch (e: any) {
     alert(e.response?.data?.message || '삭제에 실패했습니다.')

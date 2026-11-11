@@ -132,7 +132,7 @@
         <tbody class="divide-y divide-[#F0F0F0]">
           <tr v-for="(row, index) in store.agents" :key="row.agent_id" class="hover:bg-[#FAFAFA] transition-colors">
             <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ index + 1 }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#FF7B22] cursor-pointer hover:underline" @click="openDetail(row)">{{ row.agent_name }}</td>
+            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="openDetail(row)">{{ row.agent_name }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#4CAF50] font-medium">{{ row.corporate }}</td>

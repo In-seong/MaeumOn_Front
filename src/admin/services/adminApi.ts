@@ -566,3 +566,12 @@ export const updateMaintenanceTask = (id: number, data: Record<string, unknown>)
 
 export const deleteMaintenanceTask = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/maintenance-tasks/${id}`)
+
+// ===== 보험사 관리 =====
+export const fetchInsuranceCompanies = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<Record<string, unknown>>>>(`${BASE}/insurance-companies`, { params })
+
+export const uploadInsuranceCompanyLogo = (id: number, formData: FormData) =>
+  api.post<ApiResponse<Record<string, unknown>>>(`${BASE}/insurance-companies/${id}/logo`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })

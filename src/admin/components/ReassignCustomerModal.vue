@@ -6,19 +6,36 @@
       @click.self="$emit('close')"
     >
       <div class="absolute inset-0 bg-black/40" />
-      <div class="relative bg-white rounded-[16px] shadow-xl w-full max-w-[720px] mx-4 max-h-[85vh] flex flex-col overflow-hidden">
+      <div class="relative bg-white rounded-[16px] shadow-xl w-full max-w-[720px] mx-4 h-[80vh] flex flex-col overflow-hidden">
         <!-- 헤더 -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-[#F0F0F0]">
-          <div>
-            <h2 class="text-[16px] font-bold text-[#333]">고객 재배분</h2>
-            <p class="text-[13px] text-[#999] mt-0.5">{{ agentName }} → 다른 설계사</p>
+        <div class="px-6 py-4 border-b border-[#F0F0F0]">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-[16px] font-bold text-[#333]">{{ deleteMode ? '설계사 삭제 — 고객 이관' : '고객 재배분' }}</h2>
+              <p class="text-[13px] text-[#999] mt-0.5">{{ deleteMode ? `${agentName}의 모든 고객을 이관 후 삭제합니다` : `${agentName} → 다른 설계사` }}</p>
+            </div>
+            <button
+              @click="$emit('close')"
+              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors"
+            >
+              <span class="material-symbols-outlined text-[20px] text-[#999]">close</span>
+            </button>
           </div>
-          <button
-            @click="$emit('close')"
-            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F0F0F0] transition-colors"
-          >
-            <span class="material-symbols-outlined text-[20px] text-[#999]">close</span>
-          </button>
+          <!-- 스텝 인디케이터 -->
+          <div class="flex items-center gap-2 mt-3">
+            <template v-for="s in (deleteMode ? [2, 3] : [1, 2, 3])" :key="s">
+              <div v-if="s > (deleteMode ? 2 : 1)" class="w-6 h-px bg-[#E0E0E0]" />
+              <div class="flex items-center gap-1.5">
+                <div
+                  class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold"
+                  :class="step === s ? 'bg-[#FF7B22] text-white' : step > s ? 'bg-[#FF7B22]/20 text-[#FF7B22]' : 'bg-[#F0F0F0] text-[#999]'"
+                >{{ s }}</div>
+                <span class="text-[12px]" :class="step === s ? 'text-[#333] font-medium' : 'text-[#999]'">
+                  {{ s === 1 ? '고객 선택' : s === 2 ? '대상 설계사' : '확인' }}
+                </span>
+              </div>
+            </template>
+          </div>
         </div>
 
         <!-- Step 1: 고객 선택 -->
@@ -43,12 +60,12 @@
             </label>
           </div>
 
-          <div class="flex-1 overflow-y-auto">
-            <div v-if="loading" class="text-center py-10">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+          <div class="flex-1 min-h-0 overflow-y-auto">
+            <div v-if="loading" class="flex items-center justify-center h-full">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
             </div>
             <table v-else class="min-w-full divide-y divide-[#E8E8E8]">
-              <thead class="bg-[#FAFAFA] sticky top-0">
+              <thead class="bg-[#FAFAFA] sticky top-0 z-[1]">
                 <tr>
                   <th class="px-4 py-3 w-[44px]"></th>
                   <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">이름</th>
@@ -60,8 +77,8 @@
                 <tr
                   v-for="customer in customers"
                   :key="customer.customer_id"
-                  class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
-                  :class="{ 'bg-[#FFF8F3]': selectedIds.has(customer.customer_id) }"
+                  class="hover:bg-[#FAFAFA] cursor-pointer"
+                  :class="selectedIds.has(customer.customer_id) ? 'bg-[#FFF8F3]' : ''"
                   @click="toggleCustomer(customer.customer_id)"
                 >
                   <td class="px-4 py-3 text-center">
@@ -117,12 +134,12 @@
             />
           </div>
 
-          <div class="flex-1 overflow-y-auto">
-            <div v-if="agentLoading" class="text-center py-10">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+          <div class="flex-1 min-h-0 overflow-y-auto">
+            <div v-if="agentLoading" class="flex items-center justify-center h-full">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
             </div>
             <table v-else class="min-w-full divide-y divide-[#E8E8E8]">
-              <thead class="bg-[#FAFAFA] sticky top-0">
+              <thead class="bg-[#FAFAFA] sticky top-0 z-[1]">
                 <tr>
                   <th class="px-4 py-3 w-[44px]"></th>
                   <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">이름</th>
@@ -134,8 +151,8 @@
                 <tr
                   v-for="agent in targetAgents"
                   :key="agent.agent_id"
-                  class="hover:bg-[#FAFAFA] transition-colors cursor-pointer"
-                  :class="{ 'bg-[#FFF8F3]': targetAgentId === agent.agent_id }"
+                  class="hover:bg-[#FAFAFA] cursor-pointer"
+                  :class="targetAgentId === agent.agent_id ? 'bg-[#FFF8F3]' : ''"
                   @click="targetAgentId = agent.agent_id"
                 >
                   <td class="px-4 py-3 text-center">
@@ -162,9 +179,11 @@
 
           <div class="px-6 py-4 border-t border-[#F0F0F0] flex items-center justify-between">
             <button
+              v-if="!deleteMode"
               class="px-4 py-2.5 border border-[#E0E0E0] text-[#555] rounded-[10px] text-[14px] font-medium transition-colors hover:bg-[#F8F8F8]"
               @click="step = 1"
             >이전</button>
+            <span v-else />
             <button
               :disabled="!targetAgentId || previewLoading"
               class="px-5 py-2.5 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-medium disabled:bg-[#E0E0E0] disabled:text-[#999] transition-colors"
@@ -175,7 +194,7 @@
 
         <!-- Step 3: 확인 -->
         <template v-if="step === 3">
-          <div class="flex-1 overflow-y-auto px-6 py-6">
+          <div class="flex-1 min-h-0 overflow-y-auto px-6 py-6">
             <div class="bg-[#FFF8F3] rounded-[12px] p-5 mb-5">
               <p class="text-[15px] font-semibold text-[#333] mb-3">재배분 요약</p>
               <div class="space-y-2 text-[14px]">
@@ -225,9 +244,10 @@
             >이전</button>
             <button
               :disabled="submitting"
-              class="px-6 py-2.5 bg-[#FF7B22] text-white rounded-[10px] text-[14px] font-semibold disabled:opacity-50 transition-colors"
+              class="px-6 py-2.5 text-white rounded-[10px] text-[14px] font-semibold disabled:opacity-50 transition-colors"
+              :class="deleteMode ? 'bg-red-500 hover:bg-red-600' : 'bg-[#FF7B22] hover:bg-[#E56D1E]'"
               @click="handleReassign"
-            >{{ submitting ? '처리 중...' : '재배분 실행' }}</button>
+            >{{ submitting ? '처리 중...' : (deleteMode ? '이관 후 삭제' : '재배분 실행') }}</button>
           </div>
         </template>
       </div>
@@ -245,11 +265,13 @@ const props = defineProps<{
   visible: boolean
   agentId: string
   agentName: string
+  deleteMode?: boolean
 }>()
 
 const emit = defineEmits<{
   close: []
   done: []
+  delete: []
 }>()
 
 const step = ref(1)
@@ -405,9 +427,13 @@ async function handleReassign() {
       to_agent_id: targetAgentId.value,
       customer_ids: [...selectedIds.value],
     })
-    alert(res.data.message || '재배분이 완료되었습니다.')
-    emit('done')
-    emit('close')
+    if (props.deleteMode) {
+      emit('delete')
+    } else {
+      alert(res.data.message || '재배분이 완료되었습니다.')
+      emit('done')
+      emit('close')
+    }
   } catch (e: unknown) {
     const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
     alert(msg || '재배분 중 오류가 발생했습니다.')
@@ -431,16 +457,42 @@ function formatDate(dateStr?: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-watch(() => props.visible, (newVal) => {
+watch(() => props.visible, async (newVal) => {
   if (newVal) {
-    step.value = 1
     searchQuery.value = ''
     agentSearchQuery.value = ''
     selectedIds.value = new Set()
     selectedCustomerNames.value = []
     targetAgentId.value = null
     targetAgents.value = []
-    fetchCustomerList(1)
+    previewCounts.value = {}
+
+    if (props.deleteMode) {
+      loading.value = true
+      try {
+        const res = await apiFetchCustomers({
+          agent_id: props.agentId,
+          per_page: 9999,
+        })
+        const data = res.data.data
+        customers.value = data.data
+        totalCount.value = data.total
+        allCustomerIds.value = data.data.map((c: AdminCustomer) => c.customer_id)
+        selectedIds.value = new Set(allCustomerIds.value)
+        updateSelectedNames()
+      } catch {
+        customers.value = []
+        totalCount.value = 0
+        allCustomerIds.value = []
+      } finally {
+        loading.value = false
+      }
+      step.value = 2
+      fetchAgentList()
+    } else {
+      step.value = 1
+      fetchCustomerList(1)
+    }
   }
 })
 
