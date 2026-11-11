@@ -864,8 +864,7 @@ const telecomOptions = [
   { value: '4', label: 'KT 알뜰폰' },
   { value: '5', label: 'LG U+ 알뜰폰' },
 ]
-const authLevelOptions = [
-  { value: 'sms', label: 'SMS 인증' },
+const simpleAuthOptions = [
   { value: '1', label: '카카오톡' },
   { value: '5', label: '통신사(PASS)' },
   { value: '3', label: '삼성패스' },
@@ -873,6 +872,12 @@ const authLevelOptions = [
   { value: '6', label: '네이버' },
   { value: '8', label: '토스' },
 ]
+const authLevelOptions = computed(() => {
+  if (authTarget.value === 'medical') {
+    return [{ value: 'sms', label: 'SMS 인증' }, ...simpleAuthOptions]
+  }
+  return simpleAuthOptions
+})
 const medicalSubTab = ref<'hospital' | 'pharmacy'>('hospital')
 const selectedMedical = ref<MedicalRecordFull | null>(null)
 const selectedCheckup = ref<HealthCheckupRecord | null>(null)
@@ -1140,6 +1145,7 @@ async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
   twoWayPending.value = false
   twoWayType.value = null
   smsAuthCode.value = ''
+  authLevel.value = target === 'medical' ? 'sms' : '1'
   try {
     const res = await api.fetchCustomer(customerId.value)
     const c = res.data.data
