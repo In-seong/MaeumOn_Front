@@ -202,6 +202,7 @@ import { useCustomerStore } from '../../stores/customerStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { fetchAgents } from '../../services/adminApi'
 import type { AdminAgent } from '../../types'
+import { formatAcquisitionChannel } from '@shared/utils/formatLabel'
 
 const route = useRoute()
 const router = useRouter()
@@ -248,7 +249,7 @@ async function loadData() {
         detailed_address: customer.detailed_address || '',
         job: customer.job || '',
         telecom: c.telecom || '',
-        acquisition_channel: c.acquisition_channel || '',
+        acquisition_channel: c.acquisition_channel ? formatAcquisitionChannel(c.acquisition_channel) : '',
         agent_id: (customer.agent_id as any) || '',
       }
     }

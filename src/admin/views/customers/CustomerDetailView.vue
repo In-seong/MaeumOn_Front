@@ -135,7 +135,7 @@
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">고객 취득 경로</p>
-            <p class="text-[14px] text-[#333]">{{ (customer as any).acquisition_channel || '-' }}</p>
+            <p class="text-[14px] text-[#333]">{{ formatAcquisitionChannel((customer as any).acquisition_channel) }}</p>
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">담당 설계사</p>
@@ -342,6 +342,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@shared/api'
+import { formatAcquisitionChannel } from '@shared/utils/formatLabel'
 import { useCustomerStore } from '../../stores/customerStore'
 import { unmaskResidentNumber } from '../../services/adminApi'
 import type { Memo } from '../../types'

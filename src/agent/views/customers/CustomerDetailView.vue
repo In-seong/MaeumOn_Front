@@ -287,7 +287,7 @@
             <InfoRow label="직업" :value="customer.job ?? '-'" />
             <InfoRow label="통신사" :value="customer.telecom ?? '-'" />
             <InfoRow label="병원" :value="customer.hospital ?? '-'" />
-            <InfoRow label="가입경로" :value="customer.acquisition_channel ?? '-'" />
+            <InfoRow label="가입경로" :value="formatAcquisitionChannel(customer.acquisition_channel)" />
             <InfoRow label="기타" :value="customer.acquisition_note ?? '-'" />
             <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
           </CardSection>
@@ -711,6 +711,7 @@ import { fetchInsuranceCompanies, unmaskResidentNumber, fetchCustomerCodefLogs }
 import type { CodefLogEntry } from '../../services/agentApi'
 import type { Memo, Contract } from '../../types'
 import type { InsuranceCompany } from '@shared/types'
+import { formatAcquisitionChannel } from '@shared/utils/formatLabel'
 
 type TabKey = 'info' | 'contracts' | 'claims' | 'inquiries' | 'memos'
 
