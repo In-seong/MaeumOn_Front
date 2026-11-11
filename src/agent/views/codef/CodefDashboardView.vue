@@ -462,7 +462,7 @@
         <div v-if="twoWayPending && twoWayType === 'secureNo'">
           <p class="text-[14px] text-[#555] mb-3">아래 보안문자를 입력해주세요</p>
           <div v-if="secureNoImage" class="flex justify-center mb-3">
-            <img :src="'data:image/png;base64,' + secureNoImage" alt="보안문자" class="h-[50px] rounded-[8px] border border-[#E8E8E8]" />
+            <img :src="secureNoImage" alt="보안문자" class="h-[50px] rounded-[8px] border border-[#E8E8E8]" />
           </div>
           <input
             v-model="secureNoCode"
@@ -1194,7 +1194,7 @@ function handleTwoWayExtraInfo(extraInfo?: Record<string, any>) {
   if (extraInfo?.reqSecureNo) {
     twoWayType.value = 'secureNo'
     secureNoCode.value = ''
-    secureNoImage.value = extraInfo.secureNoImage || ''
+    secureNoImage.value = extraInfo.reqSecureNo || ''
     toast.showToast('보안문자를 입력해주세요', 'success')
   } else if (extraInfo?.reqSMSAuthNo) {
     twoWayType.value = 'sms'
