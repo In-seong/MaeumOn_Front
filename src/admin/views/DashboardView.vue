@@ -187,9 +187,6 @@ onMounted(async () => {
           <p class="text-[22px] font-bold text-[#333]">
             {{ dashboard.kpi.total_customers.toLocaleString() }}<span class="text-[13px] font-normal text-[#999]">명</span>
           </p>
-          <p v-if="dashboard.kpi.new_customers > 0" class="text-[11px] text-[#FF7B22] mt-1 font-medium">
-            &#9650; 신규 {{ dashboard.kpi.new_customers }}명
-          </p>
         </div>
 
         <!-- 제휴 병원 -->
