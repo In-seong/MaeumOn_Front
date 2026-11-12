@@ -426,12 +426,60 @@ export interface AdminReservation {
 }
 
 // 대시보드 요약
-export interface DashboardSummary {
+export interface DashboardKpi {
+  contract_amount: number
+  contract_count: number
+  db_count: number
+  conversion_rate: number
+  new_db_count: number
+  assign_complete_rate: number
+  active_agents: number
+  new_agents: number
   total_customers: number
+  new_customers: number
+  hospitals: number
+  new_hospitals: number
+  api_usage: number
+  claim_count: number
+}
+
+export interface DashboardActionItems {
+  unassigned_db: number
+  no_contact_db: number
+  pending_reservations: number
+  unanswered_qna: number
+}
+
+export interface AgentRankingItem {
+  agent_id: string
+  name: string
+  contract_count: number
+  db_count: number
+  conversion_rate: number
+  api_count: number
+  claim_count: number
+}
+
+export interface DashboardAgentRanking {
   total_agents: number
-  total_claims: number
-  pending_claims: number
-  total_assignments: number
+  top: AgentRankingItem[]
+  needs_care: AgentRankingItem[]
+}
+
+export interface DashboardActivity {
+  type: 'paid' | 'claim' | 'contract' | 'distribution'
+  label: string
+  description: string
+  time: string
+  date: string
+  timestamp: number
+}
+
+export interface DashboardSummary {
+  kpi: DashboardKpi
+  action_items: DashboardActionItems
+  agent_ranking: DashboardAgentRanking
+  recent_activities: DashboardActivity[]
   recent_notices: AdminNotice[]
 }
 
