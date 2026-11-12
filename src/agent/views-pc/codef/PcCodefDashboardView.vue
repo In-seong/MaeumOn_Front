@@ -450,8 +450,55 @@
     <!-- 간편인증 모달 -->
     <div v-if="showAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div class="bg-white rounded-[16px] w-[420px] p-6">
-        <h3 class="text-[17px] font-bold text-[#222] mb-5">간편인증 ({{ authTargetLabel }})</h3>
-        <div v-if="twoWayPending">
+        <h3 class="text-[17px] font-bold text-[#222] mb-5">본인인증 ({{ authTargetLabel }})</h3>
+
+        <!-- 2-Way 대기: 보안문자 입력 -->
+        <div v-if="twoWayPending && twoWayType === 'secureNo'">
+          <p class="text-[14px] text-[#555] mb-3">아래 보안문자를 입력해주세요</p>
+          <div v-if="secureNoImage" class="flex justify-center mb-3">
+            <img :src="secureNoImage" alt="보안문자" class="h-[50px] rounded-[8px] border border-[#E8E8E8]" />
+          </div>
+          <input
+            v-model="secureNoCode"
+            type="text"
+            placeholder="보안문자 입력"
+            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22] mb-2"
+          />
+          <p v-if="authError" class="text-[13px] text-red-500 text-center mt-3 px-1">{{ authError }}</p>
+          <div class="flex gap-3 mt-4">
+            <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showAuthModal = false">취소</button>
+            <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!secureNoCode || fetchLoading" @click="doConfirmAuth">
+              {{ fetchLoading ? '확인 중...' : '확인' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 2-Way 대기: SMS 인증번호 입력 -->
+        <div v-else-if="twoWayPending && twoWayType === 'sms'">
+          <p class="text-[14px] text-[#555] mb-3">고객 휴대폰으로 전송된 인증번호를 입력해주세요</p>
+          <input
+            v-model="smsAuthCode"
+            type="text"
+            inputmode="numeric"
+            placeholder="인증번호 입력"
+            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22] mb-2"
+          />
+          <div class="bg-[#FFF8F3] border border-[#FFE0C8] rounded-[10px] px-4 py-3 mt-2">
+            <p class="text-[13px] text-[#B85A00] text-center leading-[20px]">
+              인증번호 유효시간은 약 3분입니다.
+            </p>
+          </div>
+          <p v-if="authError" class="text-[13px] text-red-500 text-center mt-3 px-1">{{ authError }}</p>
+          <div class="flex gap-3 mt-4">
+            <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showAuthModal = false">취소</button>
+            <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!smsAuthCode || fetchLoading" @click="doConfirmAuth">
+              {{ fetchLoading ? '확인 중...' : '인증 확인' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 2-Way 대기: 간편인증 -->
+        <div v-else-if="twoWayPending">
           <div class="flex justify-center py-5">
             <div class="w-14 h-14 border-4 border-[#F0F0F0] border-t-[#FF7B22] rounded-full animate-spin" />
           </div>
@@ -795,10 +842,14 @@ const authError = ref('')
 const showAuthModal = ref(false)
 const authTarget = ref<'medical' | 'checkup' | 'healthAge'>('medical')
 const authTelecom = ref('')
-const authLevel = ref('1')
+const authLevel = ref('sms')
 const authUserName = ref('')
 const authPhoneNo = ref('')
 const authIdentity = ref('')
+const smsAuthCode = ref('')
+const secureNoCode = ref('')
+const secureNoImage = ref('')
+const twoWayType = ref<'simple' | 'sms' | 'secureNo' | null>(null)
 
 const telecomOptions = [
   { value: '0', label: 'SKT' },
@@ -808,7 +859,7 @@ const telecomOptions = [
   { value: '4', label: 'KT 알뜰폰' },
   { value: '5', label: 'LG U+ 알뜰폰' },
 ]
-const authLevelOptions = [
+const simpleAuthOptions = [
   { value: '1', label: '카카오톡' },
   { value: '5', label: '통신사(PASS)' },
   { value: '3', label: '삼성패스' },
@@ -816,6 +867,12 @@ const authLevelOptions = [
   { value: '6', label: '네이버' },
   { value: '8', label: '토스' },
 ]
+const authLevelOptions = computed(() => {
+  if (authTarget.value === 'medical') {
+    return [{ value: 'sms', label: 'SMS 인증' }, ...simpleAuthOptions]
+  }
+  return simpleAuthOptions
+})
 const medicalSubTab = ref<'hospital' | 'pharmacy'>('hospital')
 const selectedMedical = ref<MedicalRecordFull | null>(null)
 const selectedCheckup = ref<HealthCheckupRecord | null>(null)
@@ -1081,6 +1138,11 @@ async function doConfirmInsurance() {
 async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
   authTarget.value = target
   twoWayPending.value = false
+  twoWayType.value = null
+  smsAuthCode.value = ''
+  secureNoCode.value = ''
+  secureNoImage.value = ''
+  authLevel.value = target === 'medical' ? 'sms' : '1'
   try {
     const res = await api.fetchCustomer(customerId.value)
     const c = res.data.data
@@ -1096,6 +1158,22 @@ async function startSimpleAuth(target: 'medical' | 'checkup' | 'healthAge') {
   showAuthModal.value = true
 }
 
+function handleTwoWayExtraInfo(extraInfo?: Record<string, any>) {
+  const method = extraInfo?.method || ''
+  if (method === 'secureNo' || (extraInfo && 'reqSecureNo' in extraInfo && extraInfo.reqSecureNo)) {
+    twoWayType.value = 'secureNo'
+    secureNoCode.value = ''
+    secureNoImage.value = extraInfo?.reqSecureNo || ''
+  } else if (method === 'smsAuthNo' || (extraInfo && 'reqSMSAuthNo' in extraInfo)) {
+    twoWayType.value = 'sms'
+    smsAuthCode.value = ''
+  } else if (method === 'simpleAuth' || (extraInfo && 'commSimpleAuth' in extraInfo)) {
+    twoWayType.value = 'simple'
+  } else {
+    twoWayType.value = 'simple'
+  }
+}
+
 async function doFetchAuth() {
   fetchLoading.value = true
   authError.value = ''
@@ -1103,17 +1181,28 @@ async function doFetchAuth() {
     const fetchFn = authTarget.value === 'medical' ? api.fetchMedical
       : authTarget.value === 'checkup' ? api.fetchCheckup
       : api.fetchHealthAgeApi
-    const res = await fetchFn(customerId.value, {
-      loginTypeLevel: authLevel.value,
+    const isSms = authLevel.value === 'sms'
+    const params: Record<string, any> = {
+      loginType: isSms ? '2' : '5',
+      loginTypeLevel: isSms ? '1' : authLevel.value,
       telecom: authTelecom.value,
       userName: authUserName.value || undefined,
       phoneNo: authPhoneNo.value || undefined,
       identity: authIdentity.value ? authIdentity.value.replace(/-/g, '') : undefined,
-    } as any)
-    const data = res.data as { success: boolean; two_way?: boolean; message?: string }
+    }
+    if (isSms) { params.authMethod = '0' }
+    const res = await fetchFn(customerId.value, params as any)
+    const data = res.data as { success: boolean; two_way?: boolean; message?: string; extraInfo?: Record<string, any> }
     if (data.two_way) {
+      handleTwoWayExtraInfo(data.extraInfo)
       twoWayPending.value = true
-      toast.showToast('고객 휴대폰에서 인증을 완료해주세요', 'success')
+      if (twoWayType.value === 'sms') {
+        toast.showToast('고객 휴대폰으로 인증번호가 전송되었습니다', 'success')
+      } else if (twoWayType.value === 'secureNo') {
+        toast.showToast('보안문자를 입력해주세요', 'success')
+      } else {
+        toast.showToast('고객 휴대폰에서 인증을 완료해주세요', 'success')
+      }
     } else if (data.success) {
       showAuthModal.value = false
       toast.showToast('조회 완료', 'success')
@@ -1140,11 +1229,27 @@ async function doConfirmAuth() {
     const confirmFn = authTarget.value === 'medical' ? api.confirmMedical
       : authTarget.value === 'checkup' ? api.confirmCheckup
       : api.confirmHealthAge
-    const res = await confirmFn(customerId.value, { is_confirm: '1' })
-    const data = res.data as { success: boolean; message?: string }
-    if (data.success) {
+    const confirmParams: Record<string, string> = { is_confirm: '1' }
+    if (twoWayType.value === 'sms') {
+      confirmParams.smsAuthNo = smsAuthCode.value
+    } else if (twoWayType.value === 'secureNo') {
+      confirmParams.secureNo = secureNoCode.value
+    }
+    const res = await confirmFn(customerId.value, confirmParams as any)
+    const data = res.data as { success: boolean; two_way?: boolean; message?: string; extraInfo?: Record<string, any> }
+    if (data.two_way) {
+      handleTwoWayExtraInfo(data.extraInfo)
+      if (twoWayType.value === 'sms') {
+        toast.showToast('추가 SMS 인증번호가 전송되었습니다', 'success')
+      } else if (twoWayType.value === 'secureNo') {
+        toast.showToast('보안문자를 입력해주세요', 'success')
+      } else {
+        toast.showToast('추가 간편인증을 완료해주세요', 'success')
+      }
+    } else if (data.success) {
       showAuthModal.value = false
       twoWayPending.value = false
+      twoWayType.value = null
       toast.showToast('조회 완료', 'success')
       loadTabData()
     } else {
