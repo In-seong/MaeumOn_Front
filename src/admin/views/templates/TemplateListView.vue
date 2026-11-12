@@ -62,10 +62,21 @@
         <!-- 정보 -->
         <div class="p-4">
           <div class="flex justify-between items-start mb-2">
-            <h3 class="text-[15px] font-semibold text-[#333]">{{ template.form_name }}</h3>
+            <div class="flex items-center gap-2 min-w-0">
+              <img
+                v-if="template.insurance_company?.logo_url"
+                :src="template.insurance_company.logo_url"
+                :alt="template.insurance_company.company_name"
+                class="w-6 h-6 object-contain rounded flex-shrink-0"
+              />
+              <div class="w-6 h-6 bg-[#F0F0F0] rounded flex items-center justify-center flex-shrink-0" v-else>
+                <span class="text-[10px] text-[#999]">N</span>
+              </div>
+              <h3 class="text-[15px] font-semibold text-[#333] truncate">{{ template.form_name }}</h3>
+            </div>
             <span
               :class="template.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
-              class="px-2.5 py-1 text-[11px] font-medium rounded-full"
+              class="px-2.5 py-1 text-[11px] font-medium rounded-full flex-shrink-0 ml-2"
             >
               {{ template.is_active ? '활성화' : '비활성화' }}
             </span>

@@ -47,6 +47,37 @@
             </select>
           </div>
 
+          <!-- 보험사 로고 (수정 모드) -->
+          <div v-if="isEdit">
+            <label class="block text-[13px] font-medium text-[#555] mb-2">
+              보험사 로고
+            </label>
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 border border-[#E8E8E8] rounded-[12px] flex items-center justify-center bg-[#F8F8F8] overflow-hidden">
+                <img
+                  v-if="logoPreview"
+                  :src="logoPreview"
+                  alt="보험사 로고"
+                  class="w-full h-full object-contain"
+                />
+                <span v-else class="text-[12px] text-[#BBB]">없음</span>
+              </div>
+              <div>
+                <label class="inline-flex items-center px-3 py-1.5 text-[13px] bg-[#FFF3ED] text-[#FF7B22] rounded-[8px] cursor-pointer hover:bg-[#FFE8D6] transition-colors font-medium">
+                  {{ logoUploading ? '업로드 중...' : '로고 변경' }}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpg,image/jpeg,image/svg+xml,image/webp"
+                    class="hidden"
+                    :disabled="logoUploading"
+                    @change="handleLogoUpload"
+                  />
+                </label>
+                <p class="mt-1 text-[11px] text-[#999]">PNG, JPG, SVG, WebP (최대 2MB)</p>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
               팩스번호 <span class="text-red-500">*</span>
@@ -218,6 +249,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
+import { uploadInsuranceCompanyLogo } from '../../services/adminApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -237,6 +269,9 @@ const form = ref({
   form_description: '',
   is_active: true,
 })
+
+const logoPreview = ref('')
+const logoUploading = ref(false)
 
 // 생성 시 다중 이미지/PDF 업로드를 위한 상태
 const imageFiles = ref<File[]>([])
@@ -285,6 +320,7 @@ async function loadData() {
         form_description: template.form_description || '',
         is_active: template.is_active,
       }
+      logoPreview.value = template.insurance_company?.logo_url || ''
     }
   } finally {
     loading.value = false
@@ -328,6 +364,35 @@ async function handleSubmit() {
     alert(e.response?.data?.message || '저장에 실패했습니다.')
   } finally {
     submitting.value = false
+  }
+}
+
+async function handleLogoUpload(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  const companyId = store.currentTemplate?.insurance_company?.company_id
+  if (!companyId) {
+    alert('보험사 정보를 찾을 수 없습니다.')
+    return
+  }
+
+  logoUploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('logo', file)
+    const res = await uploadInsuranceCompanyLogo(companyId, fd)
+    const data = res.data as { data?: { logo_url?: string } }
+    if (data.data?.logo_url) {
+      logoPreview.value = data.data.logo_url
+    }
+    alert('로고가 변경되었습니다.')
+  } catch (e: any) {
+    alert(e.response?.data?.message || '로고 업로드에 실패했습니다.')
+  } finally {
+    logoUploading.value = false
+    target.value = ''
   }
 }
 
