@@ -9,13 +9,8 @@ import {
   fetchAwardPlans,
   createAwardPlan,
   deleteAwardPlan,
-  fetchInsuranceCompanies,
-  uploadInsuranceCompanyLogo,
 } from '../../services/adminApi'
 import type { FormDownloadItem, AwardPlanItem } from '../../types'
-
-// ===== 탭 =====
-const activeTab = ref<'forms' | 'logos'>('forms')
 
 // ===== 보험사 목록 =====
 const items = ref<FormDownloadItem[]>([])
@@ -244,79 +239,6 @@ async function removeAward(ap: AwardPlanItem) {
   await Promise.all([loadAwardItems(), loadItems()])
 }
 
-// ===== 보험사 로고 관리 =====
-interface InsuranceCompanyItem {
-  company_id: number
-  company_name: string
-  category: string
-  logo_path: string | null
-  logo_url: string | null
-  is_active: boolean
-}
-
-const logoCompanies = ref<InsuranceCompanyItem[]>([])
-const logoLoading = ref(false)
-const logoSearch = ref('')
-const logoUploading = ref<number | null>(null)
-
-const filteredLogoCompanies = computed(() => {
-  if (!logoSearch.value) return logoCompanies.value
-  const q = logoSearch.value.toLowerCase()
-  return logoCompanies.value.filter(c =>
-    c.company_name.toLowerCase().includes(q)
-  )
-})
-
-const logoCategoryLabels: Record<string, string> = {
-  'non-life': '손해보험',
-  'life': '생명보험',
-  'cooperative': '공제조합',
-  '': '미분류',
-}
-
-async function loadLogoCompanies() {
-  logoLoading.value = true
-  try {
-    const res = await fetchInsuranceCompanies({ per_page: 100, is_active: true })
-    const data = res.data.data
-    logoCompanies.value = (data.data as unknown as InsuranceCompanyItem[]).sort((a, b) =>
-      a.company_name.localeCompare(b.company_name, 'ko')
-    )
-  } finally {
-    logoLoading.value = false
-  }
-}
-
-function triggerLogoUpload(companyId: number) {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/png,image/jpeg,image/gif,image/svg+xml,image/webp'
-  input.onchange = async () => {
-    const file = input.files?.[0]
-    if (!file) return
-    logoUploading.value = companyId
-    try {
-      const fd = new FormData()
-      fd.append('logo', file)
-      await uploadInsuranceCompanyLogo(companyId, fd)
-      await loadLogoCompanies()
-    } catch (e: unknown) {
-      const err = e as { response?: { data?: { message?: string } } }
-      alert(err.response?.data?.message || '로고 업로드에 실패했습니다.')
-    } finally {
-      logoUploading.value = null
-    }
-  }
-  input.click()
-}
-
-function onTabChange(tab: 'forms' | 'logos') {
-  activeTab.value = tab
-  if (tab === 'logos' && logoCompanies.value.length === 0) {
-    loadLogoCompanies()
-  }
-}
-
 onMounted(loadItems)
 </script>
 
@@ -324,31 +246,14 @@ onMounted(loadItems)
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[20px] font-bold text-[#333]">다운로드 파일관리</h1>
-      <div class="flex items-center gap-3">
-        <div class="flex bg-[#F3F3F3] rounded-lg p-0.5">
-          <button
-            class="px-4 py-1.5 rounded-md text-[13px] font-medium transition-colors"
-            :class="activeTab === 'forms' ? 'bg-white text-[#333] shadow-sm' : 'text-[#888] hover:text-[#555]'"
-            @click="onTabChange('forms')"
-          >양식 관리</button>
-          <button
-            class="px-4 py-1.5 rounded-md text-[13px] font-medium transition-colors"
-            :class="activeTab === 'logos' ? 'bg-white text-[#333] shadow-sm' : 'text-[#888] hover:text-[#555]'"
-            @click="onTabChange('logos')"
-          >보험사 로고</button>
-        </div>
-        <button
-          v-if="activeTab === 'forms'"
-          class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-[14px] font-medium hover:bg-[#E56A10] transition-colors"
-          @click="openCreateModal"
-        >
-          + 보험사 추가
-        </button>
-      </div>
+      <button
+        class="px-4 py-2 bg-[#FF7B22] text-white rounded-lg text-[14px] font-medium hover:bg-[#E56A10] transition-colors"
+        @click="openCreateModal"
+      >
+        + 보험사 추가
+      </button>
     </div>
 
-    <!-- 양식 관리 탭 -->
-    <template v-if="activeTab === 'forms'">
     <div v-if="loading" class="text-center py-20 text-[#999]">불러오는 중...</div>
 
     <template v-else>
@@ -427,85 +332,6 @@ onMounted(loadItems)
           </table>
         </div>
       </div>
-    </template>
-    </template>
-
-    <!-- 보험사 로고 탭 -->
-    <template v-if="activeTab === 'logos'">
-      <div v-if="logoLoading" class="text-center py-20 text-[#999]">불러오는 중...</div>
-      <template v-else>
-        <div class="mb-4">
-          <input
-            v-model="logoSearch"
-            type="text"
-            placeholder="보험사명 검색..."
-            class="w-full max-w-[300px] px-3 py-2 border border-[#DDD] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22]"
-          />
-        </div>
-
-        <div class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden">
-          <table class="w-full text-[14px]">
-            <thead>
-              <tr class="bg-[#F9F9F9] border-b border-[#E8E8E8]">
-                <th class="text-left px-4 py-3 text-[#777] font-medium w-12">ID</th>
-                <th class="text-center px-4 py-3 text-[#777] font-medium w-20">로고</th>
-                <th class="text-left px-4 py-3 text-[#777] font-medium">보험사명</th>
-                <th class="text-center px-4 py-3 text-[#777] font-medium w-28">분류</th>
-                <th class="text-center px-4 py-3 text-[#777] font-medium w-32">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="company in filteredLogoCompanies"
-                :key="company.company_id"
-                class="border-b border-[#F0F0F0] last:border-0 hover:bg-[#FAFAFA]"
-              >
-                <td class="px-4 py-3 text-[#999]">{{ company.company_id }}</td>
-                <td class="px-4 py-3 text-center">
-                  <div class="w-12 h-12 mx-auto bg-[#F5F5F5] rounded-lg flex items-center justify-center overflow-hidden">
-                    <img
-                      v-if="company.logo_url"
-                      :src="company.logo_url"
-                      :alt="company.company_name"
-                      class="max-w-full max-h-full object-contain"
-                    />
-                    <span v-else class="text-[10px] text-[#CCC]">없음</span>
-                  </div>
-                </td>
-                <td class="px-4 py-3 font-medium text-[#333]">{{ company.company_name }}</td>
-                <td class="px-4 py-3 text-center">
-                  <span
-                    class="inline-block px-2 py-0.5 rounded text-[12px]"
-                    :class="{
-                      'bg-blue-50 text-blue-600': company.category === 'non-life',
-                      'bg-green-50 text-green-600': company.category === 'life',
-                      'bg-purple-50 text-purple-600': company.category === 'cooperative',
-                      'bg-gray-50 text-gray-500': !company.category,
-                    }"
-                  >{{ logoCategoryLabels[company.category || ''] }}</span>
-                </td>
-                <td class="px-4 py-3 text-center">
-                  <button
-                    class="px-3 py-1.5 text-[13px] font-medium rounded-lg transition-colors"
-                    :class="company.logo_url
-                      ? 'bg-[#F3F3F3] text-[#555] hover:bg-[#E8E8E8]'
-                      : 'bg-[#FF7B22] text-white hover:bg-[#E56A10]'"
-                    :disabled="logoUploading === company.company_id"
-                    @click="triggerLogoUpload(company.company_id)"
-                  >
-                    <template v-if="logoUploading === company.company_id">업로드 중...</template>
-                    <template v-else>{{ company.logo_url ? '변경' : '업로드' }}</template>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p class="mt-3 text-[12px] text-[#999]">
-          총 {{ filteredLogoCompanies.length }}개 보험사 · 로고 없는 보험사: {{ filteredLogoCompanies.filter(c => !c.logo_url).length }}개
-        </p>
-      </template>
     </template>
 
     <!-- 보험사 등록/수정 모달 -->
