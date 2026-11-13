@@ -174,7 +174,7 @@
 
                 <!-- 필드 렌더링 -->
                 <div class="flex flex-col gap-4">
-                  <template v-for="field in currentStepFields" :key="field.form_field_id">
+                  <template v-for="field in (currentStep === 5 ? step5SortedFields : currentStepFields)" :key="field.form_field_id">
                     <!-- 서명 필드: 인라인 렌더링 (캔버스 ref 필요) -->
                     <div v-if="field.field_type === 'signature'">
                       <div class="flex items-center justify-between mb-1.5">
@@ -492,6 +492,46 @@ const currentStepFields = computed(() =>
   wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === currentStep.value)
 )
 
+// Step 5: 자동이체 체크 시 계좌 입력 필드 숨김
+const ACCOUNT_HIDE_FIELDS = new Set(['bank_name', 'account_number', 'account_holder', 'account_holder_rrn'])
+
+const isAutoTransferChecked = computed(() => {
+  const step5Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 5)
+  const atField = step5Fields.find(f => f.field_name === 'auto_transfer_account')
+  if (!atField) return false
+  const val = claimStore.fieldValues[atField.form_field_id]
+  if (!val) return false
+  try {
+    const arr = JSON.parse(val)
+    return Array.isArray(arr) && arr.length > 0
+  } catch { return !!val }
+})
+
+const step5SortedFields = computed(() => {
+  const fields = currentStepFields.value
+  if (currentStep.value !== 5) return fields
+  const autoTransfer = fields.filter(f => f.field_name === 'auto_transfer_account')
+  const accountFields = fields.filter(f => f.field_type !== 'signature' && f.field_name !== 'auto_transfer_account')
+  const signatureFields = fields.filter(f => f.field_type === 'signature')
+  const visibleAccount = isAutoTransferChecked.value
+    ? accountFields.filter(f => !ACCOUNT_HIDE_FIELDS.has(f.field_name))
+    : accountFields
+  return [...autoTransfer, ...visibleAccount, ...signatureFields]
+})
+
+function isFieldHiddenByAutoTransfer(f: FormField): boolean {
+  return isAutoTransferChecked.value && ACCOUNT_HIDE_FIELDS.has(f.field_name) && getFieldWizardStep(f) === 5
+}
+
+watch(isAutoTransferChecked, (checked) => {
+  if (checked) {
+    const step5Fields = wizardDisplayFields.value.filter(f => getFieldWizardStep(f) === 5)
+    step5Fields
+      .filter(f => ACCOUNT_HIDE_FIELDS.has(f.field_name))
+      .forEach(f => claimStore.setFieldValue(f.form_field_id, ''))
+  }
+})
+
 // Step 4 서브섹션 분리
 const insuredStepFields = computed(() =>
   currentStepFields.value.filter(f => f.field_name.toLowerCase().startsWith('insured_'))
@@ -593,14 +633,14 @@ function isFieldValid(field: FormField): boolean {
 const isCurrentStepValid = computed(() => {
   if (currentStep.value === 1) return allConsentsAgreed.value
   return currentStepFields.value
-    .filter(f => f.is_required)
+    .filter(f => f.is_required && !isFieldHiddenByAutoTransfer(f))
     .every(f => isFieldValid(f))
 })
 
 const isFormValid = computed(() =>
   allConsentsAgreed.value &&
   wizardDisplayFields.value
-    .filter(f => f.is_required)
+    .filter(f => f.is_required && !isFieldHiddenByAutoTransfer(f))
     .every(f => isFieldValid(f))
 )
 
