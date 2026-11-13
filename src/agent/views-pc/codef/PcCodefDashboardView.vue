@@ -281,7 +281,7 @@
           </thead>
           <tbody class="divide-y divide-[#F0F0F0]">
             <tr v-for="rec in filteredMedicalRecords" :key="rec.record_id" class="hover:bg-[#FAFAFA] transition-colors cursor-pointer" @click="selectedMedical = rec">
-              <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ formatDate(rec.treatment_date) }}</td>
+              <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ formatDate(rec.treatment_date) }} <span v-if="getDaysAgo(rec.treatment_date)" class="text-[#FF7B22]">{{ getDaysAgo(rec.treatment_date) }}</span></td>
               <td class="px-5 py-3.5 text-[13px] font-medium text-[#333]">{{ rec.hospital_name || '-' }}</td>
               <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ rec.department || '-' }}</td>
               <td class="px-5 py-3.5 text-[13px] text-[#666]">
@@ -589,7 +589,7 @@
                 <p class="text-[16px] font-semibold text-[#222]">{{ selectedMedical.hospital_name || '병원명 없음' }}</p>
                 <p v-if="selectedMedical.department" class="text-[13px] text-[#999] mt-0.5">{{ selectedMedical.department }}</p>
               </div>
-              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }}</span>
+              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }} <span v-if="getDaysAgo(selectedMedical.treatment_date)" class="text-[#FF7B22]">{{ getDaysAgo(selectedMedical.treatment_date) }}</span></span>
             </div>
             <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
               <div v-if="selectedMedical.treatment_type" class="flex justify-between"><span class="text-[#999]">진료유형</span><span class="text-[#333]">{{ selectedMedical.treatment_type }}</span></div>
@@ -1272,6 +1272,19 @@ function formatDate(d?: string | null): string {
   const date = new Date(d)
   if (isNaN(date.getTime())) return d
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+function getDaysAgo(d?: string | null): string {
+  if (!d) return ''
+  const date = new Date(d)
+  if (isNaN(date.getTime())) return ''
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  date.setHours(0, 0, 0, 0)
+  const diff = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+  if (diff === 0) return '(오늘)'
+  if (diff < 0) return ''
+  return `(${diff}일 전)`
 }
 
 function formatCurrency(amount?: number | string | null): string {

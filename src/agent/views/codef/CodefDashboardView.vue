@@ -276,7 +276,7 @@
           >
             <div class="flex items-start justify-between mb-1.5">
               <p class="text-[14px] font-semibold text-[#222]">{{ rec.hospital_name || '병원명 없음' }}</p>
-              <span class="text-[12px] text-[#999]">{{ formatDate(rec.treatment_date) }}</span>
+              <span class="text-[12px] text-[#999]">{{ formatDate(rec.treatment_date) }} <span v-if="getDaysAgo(rec.treatment_date)" class="text-[#FF7B22] text-[11px]">{{ getDaysAgo(rec.treatment_date) }}</span></span>
             </div>
             <div v-if="rec.diagnosis_name" class="flex items-center gap-1.5">
               <p class="text-[13px] text-[#555]">{{ rec.diagnosis_name }}</p>
@@ -626,7 +626,7 @@
                 <p class="text-[15px] font-semibold text-[#222]">{{ selectedMedical.hospital_name || '병원명 없음' }}</p>
                 <p v-if="selectedMedical.department" class="text-[13px] text-[#999] mt-0.5">{{ selectedMedical.department }}</p>
               </div>
-              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }}</span>
+              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }} <span v-if="getDaysAgo(selectedMedical.treatment_date)" class="text-[#FF7B22]">{{ getDaysAgo(selectedMedical.treatment_date) }}</span></span>
             </div>
             <div class="bg-[#F8F8F8] rounded-[12px] p-3.5 space-y-2 text-[13px]">
               <div v-if="selectedMedical.treatment_type" class="flex justify-between"><span class="text-[#999]">진료유형</span><span class="text-[#333]">{{ selectedMedical.treatment_type }}</span></div>
@@ -1302,6 +1302,19 @@ function formatDate(d?: string | null): string {
   const date = new Date(d)
   if (isNaN(date.getTime())) return d
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+function getDaysAgo(d?: string | null): string {
+  if (!d) return ''
+  const date = new Date(d)
+  if (isNaN(date.getTime())) return ''
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  date.setHours(0, 0, 0, 0)
+  const diff = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+  if (diff === 0) return '(오늘)'
+  if (diff < 0) return ''
+  return `(${diff}일 전)`
 }
 
 function formatCurrency(amount?: number | string | null): string {

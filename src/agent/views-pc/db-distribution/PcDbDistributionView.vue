@@ -110,7 +110,14 @@
                 class="hover:bg-[#FAFAFA] transition-colors"
               >
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ dbRowNum(index) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ item.customer?.name || '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium">
+                    <button
+                      v-if="item.customer?.customer_id"
+                      class="text-[#FF7B22] hover:underline cursor-pointer"
+                      @click="router.push({ name: 'customer-detail', params: { id: item.customer.customer_id } })"
+                    >{{ item.customer.name }}</button>
+                    <span v-else class="text-[#333]">{{ item.customer?.name || '-' }}</span>
+                  </td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666]">{{ formatPhone(item.customer?.phone) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ item.assignment_type || '-' }}</td>
                 <td class="px-6 py-4 text-[14px] text-[#666] max-w-[200px] truncate hidden lg:table-cell">{{ item.notes || '-' }}</td>
@@ -332,9 +339,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDbDistributionStore } from '../../stores/dbDistributionStore'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 
+const router = useRouter()
 const dbStore = useDbDistributionStore()
 const corpStore = useCorporateInquiryStore()
 

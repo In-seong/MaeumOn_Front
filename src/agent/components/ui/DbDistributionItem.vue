@@ -22,16 +22,26 @@
 
     <p v-if="distribution.notes" class="text-[12px] text-[#666] mt-2 line-clamp-2">{{ distribution.notes }}</p>
 
-    <button
-      class="mt-3 w-full py-2.5 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
-      @click="$emit('edit', distribution.assignment_id, distribution.notes)"
-    >
-      메모 수정
-    </button>
+    <div class="mt-3 flex gap-2">
+      <button
+        v-if="distribution.customer?.customer_id"
+        class="flex-1 py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform border-2 border-[#FF7B22] text-[#FF7B22] bg-white"
+        @click="router.push({ name: 'customer-detail', params: { id: distribution.customer.customer_id } })"
+      >
+        고객 정보
+      </button>
+      <button
+        class="flex-1 py-2.5 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+        @click="$emit('edit', distribution.assignment_id, distribution.notes)"
+      >
+        메모 수정
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import type { DbDistribution } from '../../types'
 
 interface Props {
@@ -39,6 +49,8 @@ interface Props {
 }
 
 defineProps<Props>()
+
+const router = useRouter()
 
 function formatDate(raw: string): string {
   const d = new Date(raw)
