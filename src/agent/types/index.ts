@@ -38,6 +38,7 @@ export interface Agent {
   hire_date?: string         // 입사일
   resignation_date?: string  // 퇴사일
   is_active: boolean
+  birthday_alarm_enabled?: boolean
   created_at: string
   updated_at: string
 }

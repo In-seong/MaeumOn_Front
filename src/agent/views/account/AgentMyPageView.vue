@@ -105,6 +105,28 @@
           </CardSection>
         </div>
 
+        <!-- 알림 설정 -->
+        <div class="mb-5">
+          <CardSection>
+            <div class="flex items-center justify-between py-1">
+              <div>
+                <p class="text-[14px] text-[#333]">생일 알림</p>
+                <p class="text-[12px] text-[#999] mt-0.5">고객 생일 리마인더 알림 수신</p>
+              </div>
+              <button
+                class="relative w-[44px] h-[24px] rounded-full transition-colors"
+                :class="birthdayAlarmEnabled ? 'bg-[#FF7B22]' : 'bg-[#DDD]'"
+                @click="toggleBirthdayAlarm"
+              >
+                <span
+                  class="absolute top-[2px] w-[20px] h-[20px] bg-white rounded-full shadow transition-transform"
+                  :class="birthdayAlarmEnabled ? 'translate-x-[22px]' : 'translate-x-[2px]'"
+                />
+              </button>
+            </div>
+          </CardSection>
+        </div>
+
         <!-- Logout Button -->
         <ActionButton variant="outline" full @click="handleLogout">로그아웃</ActionButton>
 
@@ -364,6 +386,21 @@ async function handleSaveProfile(): Promise<void> {
     toast.showToast(authStore.error ?? '프로필 수정에 실패했습니다.', 'error')
   } finally {
     editSaving.value = false
+  }
+}
+
+// ===== 생일 알림 토글 =====
+const birthdayAlarmEnabled = ref(authStore.agent?.birthday_alarm_enabled !== false)
+
+async function toggleBirthdayAlarm(): Promise<void> {
+  const newVal = !birthdayAlarmEnabled.value
+  birthdayAlarmEnabled.value = newVal
+  try {
+    await authStore.updateProfile({ birthday_alarm_enabled: newVal })
+    toast.showToast(newVal ? '생일 알림이 활성화되었습니다.' : '생일 알림이 비활성화되었습니다.')
+  } catch {
+    birthdayAlarmEnabled.value = !newVal
+    toast.showToast('설정 변경에 실패했습니다.', 'error')
   }
 }
 

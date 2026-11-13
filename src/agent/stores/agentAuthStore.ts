@@ -48,7 +48,7 @@ export const useAgentAuthStore = defineStore('agentAuth', () => {
     }
   }
 
-  async function updateProfile(data: Partial<Pick<Agent, 'phone' | 'email' | 'office_location'>>) {
+  async function updateProfile(data: Partial<Pick<Agent, 'phone' | 'email' | 'office_location' | 'birthday_alarm_enabled'>>) {
     loading.value = true
     error.value = null
     try {
