@@ -101,14 +101,65 @@
 
         <!-- 청구서 탭 -->
         <div v-if="activeTab === 'form'" class="px-4 py-4">
-          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5 text-center">
-            <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-[#FFF0E5] flex items-center justify-center">
-              <span class="material-symbols-outlined text-[28px] text-[#FF7B22]">download</span>
+          <!-- 카테고리 필터 -->
+          <div class="flex gap-2 mb-3 overflow-x-auto">
+            <button
+              v-for="tab in categoryTabs"
+              :key="tab.key"
+              :class="[
+                'px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors border whitespace-nowrap',
+                formCategory === tab.key
+                  ? 'text-white border-transparent'
+                  : 'bg-white text-[#555] border-[#E0E0E0]',
+              ]"
+              :style="formCategory === tab.key ? { backgroundColor: tab.color } : {}"
+              @click="formCategory = tab.key"
+            >
+              {{ tab.label }}
+              <span class="ml-0.5 text-[11px] opacity-80">({{ formItems.filter(i => i.category === tab.key).length }})</span>
+            </button>
+          </div>
+
+          <!-- 로딩 -->
+          <div v-if="formLoading" class="bg-white rounded-xl border border-[#E8E8E8] p-10 text-center text-[13px] text-[#999]">
+            불러오는 중...
+          </div>
+
+          <!-- 빈 상태 -->
+          <div v-else-if="!filteredFormItems.length" class="bg-white rounded-xl border border-[#E8E8E8] p-10 text-center">
+            <span class="material-symbols-outlined text-[28px] text-[#CCC] mb-2">description</span>
+            <p class="text-[13px] text-[#999]">등록된 양식이 없습니다.</p>
+          </div>
+
+          <!-- 목록 -->
+          <div v-else class="space-y-2">
+            <div
+              v-for="item in filteredFormItems"
+              :key="item.id"
+              class="bg-white rounded-xl border border-[#E8E8E8] px-4 py-3"
+            >
+              <div class="text-[14px] font-medium text-[#333] mb-2">{{ item.company_name }}</div>
+              <div class="flex gap-2">
+                <button
+                  v-if="item.claim_form_path"
+                  class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#EFF6FF] text-[#3B82F6] rounded-lg text-[13px] font-medium active:bg-[#DBEAFE]"
+                  :disabled="downloading === item.id"
+                  @click="downloadForm(item, 'claim')"
+                >
+                  <span class="material-symbols-outlined text-[16px]">download</span>
+                  청구서
+                </button>
+                <button
+                  v-if="item.dental_confirm_path"
+                  class="flex-1 flex items-center justify-center gap-1 py-2 bg-[#F0FDF4] text-[#10B981] rounded-lg text-[13px] font-medium active:bg-[#DCFCE7]"
+                  :disabled="downloading === item.id"
+                  @click="downloadForm(item, 'dental')"
+                >
+                  <span class="material-symbols-outlined text-[16px]">download</span>
+                  치과확인서
+                </button>
+              </div>
             </div>
-            <h3 class="text-[16px] font-bold text-[#333] mb-1">양식 다운로드</h3>
-            <p class="text-[13px] text-[#999] leading-relaxed">
-              양식 다운로드는 PC에서 이용 가능합니다.
-            </p>
           </div>
         </div>
       </main>
@@ -199,13 +250,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import AgentAppHeader from '../../components/layout/AgentAppHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
-import { fetchAwardPlans, fetchAwardPlanMonths } from '../../services/agentApi'
-import type { AwardPlanItem } from '../../services/agentApi'
+import { fetchAwardPlans, fetchAwardPlanMonths, fetchFormDownloads, getFormDownloadUrl } from '../../services/agentApi'
+import type { AwardPlanItem, FormDownloadItem } from '../../services/agentApi'
 
 const activeTab = ref<'award' | 'form'>('award')
+
+// ===== 청구서 양식 =====
+const formItems = ref<FormDownloadItem[]>([])
+const formLoading = ref(false)
+const formCategory = ref<'non-life' | 'life' | 'cooperative'>('non-life')
+const downloading = ref<number | null>(null)
+
+const categoryTabs = [
+  { key: 'non-life' as const, label: '손보', color: '#3B82F6' },
+  { key: 'life' as const, label: '생보', color: '#8B5CF6' },
+  { key: 'cooperative' as const, label: '공제', color: '#10B981' },
+]
+
+const filteredFormItems = computed(() =>
+  formItems.value.filter(i => i.category === formCategory.value)
+)
+
+async function loadFormItems() {
+  formLoading.value = true
+  try {
+    const res = await fetchFormDownloads()
+    formItems.value = res.data.data
+  } finally {
+    formLoading.value = false
+  }
+}
+
+async function downloadForm(item: FormDownloadItem, type: 'claim' | 'dental') {
+  downloading.value = item.id
+  try {
+    const res = await getFormDownloadUrl(item.id, type)
+    const { url } = res.data.data
+    window.open(url, '_blank')
+  } finally {
+    downloading.value = null
+  }
+}
 
 // ===== 시상안 =====
 const awardItems = ref<AwardPlanItem[]>([])
@@ -339,5 +427,6 @@ function onTouchEnd(e: TouchEvent) {
 onMounted(() => {
   loadAwardItems()
   fetchAwardPlanMonths()
+  loadFormItems()
 })
 </script>
