@@ -142,6 +142,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useTemplateStore } from '../../stores/templateStore'
+import { claimFormApi } from '@shared/services/insuranceApi'
 import type { ClaimForm } from '@shared/types'
 import Pagination from '../../components/Pagination.vue'
 
@@ -181,8 +182,10 @@ async function handleDelete(template: ClaimForm) {
   }
 
   try {
-    await store.deleteTemplate(template.claim_form_id)
-    alert('삭제되었습니다.')
+    const res = await claimFormApi.delete(template.claim_form_id)
+    const msg = res.data?.message || '삭제되었습니다.'
+    alert(msg)
+    await fetchData()
   } catch (e: any) {
     alert(e.response?.data?.message || '삭제에 실패했습니다.')
   }
