@@ -129,33 +129,35 @@
             ></textarea>
           </div>
 
-          <!-- 페이지 이미지 업로드 (생성/수정 모두 가능) -->
+          <!-- 페이지 이미지 업로드 -->
           <div>
             <label class="block text-[13px] font-medium text-[#555] mb-2">
               페이지 이미지 <span class="text-[#999]">(선택)</span>
             </label>
 
-            <!-- 수정 모드: 기존 이미지 표시 -->
-            <div v-if="isEdit && store.currentTemplate?.template_image_url" class="mb-4">
-              <img
-                :src="store.currentTemplate.template_image_url"
-                alt="현재 이미지"
-                class="max-w-full h-48 object-contain border border-[#E8E8E8] rounded-[12px]"
-              />
-              <p class="mt-1 text-[12px] text-[#999]">
-                {{ store.currentTemplate.image_width }} x {{ store.currentTemplate.image_height }} px
-              </p>
-              <p class="mt-1 text-[12px] text-[#FF7B22]">페이지 이미지 관리는 에디터에서 진행해주세요.</p>
+            <!-- 수정 모드: 기존 페이지 목록 -->
+            <div v-if="isEdit && existingPages.length > 0" class="mb-4">
+              <p class="text-[12px] text-[#777] mb-2">현재 {{ existingPages.length }}페이지</p>
+              <div class="flex flex-wrap gap-2">
+                <div v-for="page in existingPages" :key="page.form_page_id" class="relative">
+                  <img
+                    v-if="page.page_image_url"
+                    :src="page.page_image_url"
+                    class="w-24 h-32 object-cover border border-[#E8E8E8] rounded-[8px]"
+                  />
+                  <div v-else class="w-24 h-32 border border-[#E8E8E8] rounded-[8px] flex items-center justify-center bg-[#F8F8F8]">
+                    <span class="text-[11px] text-[#CCC]">빈 페이지</span>
+                  </div>
+                  <span class="absolute bottom-0 left-0 bg-black/60 text-white text-[10px] px-1 rounded-br">{{ page.page_number }}p</span>
+                </div>
+              </div>
             </div>
 
-            <!-- 생성 모드: 다중 이미지/PDF 업로드 -->
-            <div v-if="!isEdit">
-              <!-- 파일 미리보기 -->
+            <!-- 다중 이미지/PDF 업로드 (생성/수정 공통) -->
+            <div>
               <div v-if="imagePreviews.length > 0" class="mb-4 flex flex-wrap gap-2">
                 <div v-for="(preview, index) in imagePreviews" :key="index" class="relative">
-                  <!-- 이미지 미리보기 -->
                   <img v-if="preview.type === 'image'" :src="preview.url" class="w-24 h-32 object-cover border border-[#E8E8E8] rounded-[8px]" />
-                  <!-- PDF 표시 -->
                   <div v-else class="w-24 h-32 border border-[#E8E8E8] rounded-[8px] flex flex-col items-center justify-center bg-red-50">
                     <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/>
@@ -181,21 +183,15 @@
                 @change="handleImagesSelect"
                 class="block w-full text-[13px] text-[#999] file:mr-4 file:py-2 file:px-4 file:rounded-[8px] file:border-0 file:text-[13px] file:font-medium file:bg-[#FFF3ED] file:text-[#FF7B22] hover:file:bg-[#FFE8D6]"
               />
-              <p class="mt-1 text-[12px] text-[#999]">JPG, PNG, PDF 형식 (최대 20MB) - PDF는 페이지별로 자동 분리됩니다</p>
-            </div>
+              <p class="mt-1 text-[12px] text-[#999]">
+                JPG, PNG, PDF 형식 (최대 20MB) - PDF는 페이지별로 자동 분리됩니다
+                <template v-if="isEdit && existingPages.length > 0">
+                  <br /><span class="text-[#FF7B22]">새 파일 업로드 시 기존 페이지가 모두 교체됩니다</span>
+                </template>
+              </p>
 
-            <!-- 수정 모드: 기존 단일 이미지 업로드 (레거시 호환) -->
-            <div v-if="isEdit && !store.currentTemplate?.template_image_url">
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/jpg"
-                @change="handleImageUpload"
-                class="block w-full text-[13px] text-[#999] file:mr-4 file:py-2 file:px-4 file:rounded-[8px] file:border-0 file:text-[13px] file:font-medium file:bg-[#FFF3ED] file:text-[#FF7B22] hover:file:bg-[#FFE8D6]"
-              />
-              <p class="mt-1 text-[12px] text-[#999]">JPG, PNG 형식 (최대 10MB)</p>
-
-              <div v-if="uploading" class="mt-2 text-[#FF7B22] text-[13px]">
-                이미지 업로드 중...
+              <div v-if="replacingPages" class="mt-2 text-[#FF7B22] text-[13px]">
+                페이지 교체 중...
               </div>
             </div>
           </div>
@@ -250,6 +246,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTemplateStore } from '../../stores/templateStore'
 import { uploadInsuranceCompanyLogo } from '../../services/adminApi'
+import { claimFormApi } from '@shared/services/insuranceApi'
+import type { FormPage } from '@shared/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -258,7 +256,6 @@ const store = useTemplateStore()
 const isEdit = computed(() => !!route.params.id)
 const loading = ref(false)
 const submitting = ref(false)
-const uploading = ref(false)
 
 const form = ref({
   company_name: '',
@@ -272,6 +269,8 @@ const form = ref({
 
 const logoPreview = ref('')
 const logoUploading = ref(false)
+const replacingPages = ref(false)
+const existingPages = ref<FormPage[]>([])
 
 // 생성 시 다중 이미지/PDF 업로드를 위한 상태
 const imageFiles = ref<File[]>([])
@@ -321,6 +320,7 @@ async function loadData() {
         is_active: template.is_active,
       }
       logoPreview.value = template.insurance_company?.logo_url || ''
+      existingPages.value = template.form_pages || []
     }
   } finally {
     loading.value = false
@@ -332,6 +332,22 @@ async function handleSubmit() {
   try {
     if (isEdit.value) {
       await store.updateTemplate(Number(route.params.id), { ...form.value })
+
+      // 새 이미지가 있으면 페이지 교체
+      if (imageFiles.value.length > 0) {
+        replacingPages.value = true
+        try {
+          const fd = new FormData()
+          imageFiles.value.forEach((file) => fd.append('images[]', file))
+          await claimFormApi.replacePages(Number(route.params.id), fd)
+        } finally {
+          replacingPages.value = false
+          imagePreviews.value.forEach(p => {
+            if (p.type === 'image' && p.url) URL.revokeObjectURL(p.url)
+          })
+        }
+      }
+
       alert('수정되었습니다.')
       router.push('/templates')
     } else {
@@ -392,23 +408,6 @@ async function handleLogoUpload(event: Event) {
     alert(e.response?.data?.message || '로고 업로드에 실패했습니다.')
   } finally {
     logoUploading.value = false
-    target.value = ''
-  }
-}
-
-async function handleImageUpload(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
-
-  uploading.value = true
-  try {
-    await store.uploadImage(Number(route.params.id), file)
-    alert('이미지가 업로드되었습니다.')
-  } catch (e: any) {
-    alert(e.response?.data?.message || '이미지 업로드에 실패했습니다.')
-  } finally {
-    uploading.value = false
     target.value = ''
   }
 }

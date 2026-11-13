@@ -112,6 +112,10 @@ export const claimFormApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+
+  // 관리자: 페이지 일괄 교체 (다중 이미지/PDF)
+  replacePages: (id: number, formData: FormData) =>
+    api.post<ApiResponse<ClaimForm>>(`/admin/claim-forms/${id}/replace-pages`, formData),
 }
 
 // ============ 양식 페이지 API ============
