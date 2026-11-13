@@ -113,9 +113,9 @@ export const claimFormApi = {
     })
   },
 
-  // 관리자: 페이지 일괄 교체 (다중 이미지/PDF)
-  replacePages: (id: number, formData: FormData) =>
-    api.post<ApiResponse<ClaimForm>>(`/admin/claim-forms/${id}/replace-pages`, formData),
+  // 관리자: 페이지 추가 (다중 이미지/PDF, 기존 뒤에 이어붙임)
+  addPages: (id: number, formData: FormData) =>
+    api.post<ApiResponse<ClaimForm>>(`/admin/claim-forms/${id}/add-pages`, formData),
 }
 
 // ============ 양식 페이지 API ============

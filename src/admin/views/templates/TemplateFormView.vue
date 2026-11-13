@@ -186,12 +186,12 @@
               <p class="mt-1 text-[12px] text-[#999]">
                 JPG, PNG, PDF 형식 (최대 20MB) - PDF는 페이지별로 자동 분리됩니다
                 <template v-if="isEdit && existingPages.length > 0">
-                  <br /><span class="text-[#FF7B22]">새 파일 업로드 시 기존 페이지가 모두 교체됩니다</span>
+                  <br /><span class="text-[#FF7B22]">기존 페이지 뒤에 이어서 추가됩니다</span>
                 </template>
               </p>
 
               <div v-if="replacingPages" class="mt-2 text-[#FF7B22] text-[13px]">
-                페이지 교체 중...
+                페이지 추가 중...
               </div>
             </div>
           </div>
@@ -339,7 +339,7 @@ async function handleSubmit() {
         try {
           const fd = new FormData()
           imageFiles.value.forEach((file) => fd.append('images[]', file))
-          await claimFormApi.replacePages(Number(route.params.id), fd)
+          await claimFormApi.addPages(Number(route.params.id), fd)
         } finally {
           replacingPages.value = false
           imagePreviews.value.forEach(p => {
