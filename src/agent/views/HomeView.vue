@@ -4,195 +4,200 @@
       <AgentAppHeader :unread-count="unreadCount" />
 
       <main class="px-4 py-3 pb-20 overflow-y-auto" style="height: calc(100dvh - 66px - 60px);">
+
         <!-- 인사 헤더 -->
-        <section class="mb-4">
-          <div class="bg-gradient-to-r from-[#FF7B22] to-[#FF9F5A] rounded-[16px] p-5 text-white">
-            <p class="text-[12px] opacity-80">{{ formattedToday }}</p>
-            <h2 class="text-[18px] font-bold mt-1">{{ dashboard?.header.agent_name ?? '' }} FC님, 오늘도 화이팅!</h2>
-            <p v-if="dashboard?.header.branch_name" class="text-[12px] opacity-80 mt-0.5">{{ dashboard.header.branch_name }}</p>
-          </div>
+        <section class="mb-5">
+          <p class="text-[12px] text-[#999] tracking-wide">{{ formattedToday }}</p>
+          <h2 class="text-[20px] font-bold text-[#222] mt-1 leading-tight">
+            {{ dashboard?.header.agent_name ?? '' }} <span class="text-[#FF7B22]">FC</span>님,
+          </h2>
+          <p class="text-[15px] text-[#666] mt-0.5">오늘도 화이팅!</p>
         </section>
 
-        <!-- 오늘의 일정 -->
-        <section class="mb-4">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-[15px] font-bold text-[#333]">오늘의 일정</h3>
-            <button class="text-[12px] text-[#FF7B22] font-medium" @click="router.push('/schedule')">전체보기</button>
-          </div>
-          <div v-if="!dashboard || dashboard.today_schedules.length === 0" class="bg-white rounded-xl border border-[#ECECEC] p-4 text-center text-[13px] text-[#999]">
-            오늘 예정된 일정이 없습니다
-          </div>
-          <div v-else class="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
-            <div
-              v-for="sch in dashboard.today_schedules"
-              :key="sch.event_id"
-              class="flex-shrink-0 w-[160px] bg-white rounded-xl border border-[#ECECEC] p-3 cursor-pointer active:bg-[#F8F8F8]"
-              @click="router.push('/schedule')"
-            >
-              <div class="flex items-center gap-1.5 mb-1.5">
-                <span class="w-2 h-2 rounded-full" :class="scheduleTypeColor(sch.event_type)" />
-                <span class="text-[11px] text-[#999]">{{ scheduleTypeLabel(sch.event_type) }}</span>
-              </div>
-              <p class="text-[13px] font-semibold text-[#333] truncate">{{ sch.title }}</p>
-              <p v-if="sch.start_time" class="text-[11px] text-[#999] mt-0.5">
-                {{ formatTime(sch.start_time) }}<template v-if="sch.end_time"> ~ {{ formatTime(sch.end_time) }}</template>
-              </p>
-              <p v-if="sch.customer" class="text-[11px] text-[#777] mt-0.5 truncate">{{ sch.customer.name }}</p>
+        <!-- 실적 요약 -->
+        <section class="mb-5">
+          <div class="grid grid-cols-3 gap-2.5">
+            <div class="bg-[#FF7B22] rounded-2xl p-3.5 text-white">
+              <p class="text-[11px] opacity-80">이달 계약</p>
+              <p class="text-[28px] font-extrabold leading-none mt-1.5">{{ perf.contracts_count }}</p>
+              <p class="text-[11px] opacity-70 mt-1">{{ formatAmount(perf.contracts_amount) }}</p>
             </div>
-          </div>
-        </section>
-
-        <!-- 이달의 실적 -->
-        <section class="mb-4">
-          <h3 class="text-[15px] font-bold text-[#333] mb-2">이달의 실적</h3>
-          <div class="bg-white rounded-xl border border-[#ECECEC] p-4">
-            <div class="grid grid-cols-3 gap-3 mb-3">
-              <div class="text-center">
-                <p class="text-[11px] text-[#999]">계약</p>
-                <p class="text-[20px] font-bold text-[#FF7B22]">{{ perf.contracts_count }}</p>
-                <p class="text-[10px] text-[#BBB]">건</p>
-              </div>
-              <div class="text-center">
-                <p class="text-[11px] text-[#999]">체결률</p>
-                <p class="text-[20px] font-bold text-[#333]">{{ perf.conversion_rate }}%</p>
-              </div>
-              <div class="text-center">
-                <p class="text-[11px] text-[#999]">신규고객</p>
-                <p class="text-[20px] font-bold text-[#333]">{{ perf.new_customers }}</p>
-                <p class="text-[10px] text-[#BBB]">명</p>
-              </div>
+            <div class="bg-white rounded-2xl p-3.5 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+              <p class="text-[11px] text-[#999]">체결률</p>
+              <p class="text-[28px] font-extrabold text-[#222] leading-none mt-1.5">{{ perf.conversion_rate }}<span class="text-[16px] font-bold">%</span></p>
+              <p class="text-[11px] text-[#BBB] mt-1">DB {{ perf.db_count }}건</p>
             </div>
-            <div class="flex items-center justify-between text-[12px] text-[#777] mb-1.5">
-              <span>계약금액 <b class="text-[#333]">{{ formatAmount(perf.contracts_amount) }}</b></span>
-              <span>DB <b class="text-[#333]">{{ perf.db_count }}건</b></span>
-            </div>
-            <div v-if="perf.branch_rank != null && perf.branch_total != null" class="mt-2">
-              <div class="flex items-center justify-between text-[12px] mb-1">
-                <span class="text-[#999]">지점순위</span>
-                <span class="font-bold text-[#FF7B22]">{{ perf.branch_rank }}위 <span class="text-[#BBB] font-normal">/ {{ perf.branch_total }}명</span></span>
-              </div>
-              <div class="h-2 bg-[#F0F0F0] rounded-full overflow-hidden">
-                <div
-                  class="h-full bg-gradient-to-r from-[#FF7B22] to-[#FFB574] rounded-full transition-all duration-500"
-                  :style="{ width: rankPercent + '%' }"
-                />
+            <div class="bg-white rounded-2xl p-3.5 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+              <p class="text-[11px] text-[#999]">신규고객</p>
+              <p class="text-[28px] font-extrabold text-[#222] leading-none mt-1.5">{{ perf.new_customers }}<span class="text-[16px] font-bold">명</span></p>
+              <div v-if="perf.branch_rank != null && perf.branch_total != null" class="mt-1">
+                <p class="text-[11px] text-[#FF7B22] font-semibold">
+                  <svg class="inline w-3 h-3 -mt-px mr-px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 20V4m-7 7l7-7 7 7"/></svg>
+                  {{ perf.branch_rank }}위<span class="text-[#BBB] font-normal">/{{ perf.branch_total }}</span>
+                </p>
               </div>
             </div>
           </div>
         </section>
 
         <!-- 체크리스트 -->
-        <section class="mb-4">
-          <h3 class="text-[15px] font-bold text-[#333] mb-2">체크리스트</h3>
-          <div class="flex gap-2.5">
+        <section class="mb-5">
+          <div class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] divide-y divide-[#F5F5F5]">
             <button
-              class="flex-1 bg-white rounded-xl border border-[#ECECEC] p-3 text-center active:bg-[#F8F8F8]"
+              class="w-full flex items-center gap-3.5 px-4 py-3 active:bg-[#FAFAFA]"
               @click="router.push('/db-distribution')"
             >
-              <div class="w-10 h-10 rounded-full mx-auto mb-1.5 flex items-center justify-center text-[16px] font-bold"
-                :class="checklist.unregistered_db > 0 ? 'bg-[#FFF0E6] text-[#FF7B22]' : 'bg-[#F5F5F5] text-[#CCC]'"
-              >{{ checklist.unregistered_db }}</div>
-              <p class="text-[11px] text-[#777]">미등록DB</p>
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                :class="checklist.unregistered_db > 0 ? 'bg-[#FFF0E6]' : 'bg-[#F5F5F5]'"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="checklist.unregistered_db > 0 ? '#FF7B22' : '#CCC'" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="text-[13px] font-medium text-[#333]">미등록 DB</p>
+              </div>
+              <span class="text-[18px] font-bold" :class="checklist.unregistered_db > 0 ? 'text-[#FF7B22]' : 'text-[#DDD]'">{{ checklist.unregistered_db }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
             <button
-              class="flex-1 bg-white rounded-xl border border-[#ECECEC] p-3 text-center active:bg-[#F8F8F8]"
+              class="w-full flex items-center gap-3.5 px-4 py-3 active:bg-[#FAFAFA]"
               @click="router.push('/claims')"
             >
-              <div class="w-10 h-10 rounded-full mx-auto mb-1.5 flex items-center justify-center text-[16px] font-bold"
-                :class="checklist.incomplete_claims > 0 ? 'bg-[#E8F5E9] text-[#4CAF50]' : 'bg-[#F5F5F5] text-[#CCC]'"
-              >{{ checklist.incomplete_claims }}</div>
-              <p class="text-[11px] text-[#777]">미완료청구</p>
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                :class="checklist.incomplete_claims > 0 ? 'bg-[#EBF5EB]' : 'bg-[#F5F5F5]'"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="checklist.incomplete_claims > 0 ? '#4CAF50' : '#CCC'" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="text-[13px] font-medium text-[#333]">미완료 청구</p>
+              </div>
+              <span class="text-[18px] font-bold" :class="checklist.incomplete_claims > 0 ? 'text-[#4CAF50]' : 'text-[#DDD]'">{{ checklist.incomplete_claims }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
             <button
-              class="flex-1 bg-white rounded-xl border border-[#ECECEC] p-3 text-center active:bg-[#F8F8F8]"
+              class="w-full flex items-center gap-3.5 px-4 py-3 active:bg-[#FAFAFA]"
               @click="router.push('/consultations')"
             >
-              <div class="w-10 h-10 rounded-full mx-auto mb-1.5 flex items-center justify-center text-[16px] font-bold"
-                :class="checklist.pending_consultations > 0 ? 'bg-[#E3F2FD] text-[#2196F3]' : 'bg-[#F5F5F5] text-[#CCC]'"
-              >{{ checklist.pending_consultations }}</div>
-              <p class="text-[11px] text-[#777]">고객문의</p>
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                :class="checklist.pending_consultations > 0 ? 'bg-[#E8F0FE]' : 'bg-[#F5F5F5]'"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" :stroke="checklist.pending_consultations > 0 ? '#2196F3' : '#CCC'" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="text-[13px] font-medium text-[#333]">고객 문의</p>
+              </div>
+              <span class="text-[18px] font-bold" :class="checklist.pending_consultations > 0 ? 'text-[#2196F3]' : 'text-[#DDD]'">{{ checklist.pending_consultations }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           </div>
         </section>
 
-        <!-- DB 배분 내역 -->
-        <section class="mb-4">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-[15px] font-bold text-[#333]">DB 배분 내역</h3>
-            <button class="text-[12px] text-[#FF7B22] font-medium" @click="router.push('/db-distribution')">전체보기</button>
+        <!-- 오늘의 일정 -->
+        <section class="mb-5">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-[15px] font-bold text-[#222]">오늘의 일정</h3>
+            <button class="text-[12px] text-[#FF7B22] font-medium" @click="router.push('/schedule')">전체보기</button>
           </div>
-          <div v-if="!dashboard || dashboard.db_distributions.length === 0" class="bg-white rounded-xl border border-[#ECECEC] p-4 text-center text-[13px] text-[#999]">
-            배분된 DB가 없습니다
+          <div v-if="!dashboard || dashboard.today_schedules.length === 0" class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] p-5 text-center">
+            <svg class="mx-auto mb-2 text-[#DDD]" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <p class="text-[13px] text-[#BBB]">오늘 예정된 일정이 없습니다</p>
           </div>
-          <div v-else class="bg-white rounded-xl border border-[#ECECEC] overflow-hidden">
-            <table class="w-full text-[12px]">
-              <thead class="bg-[#FAFAFA] text-[#999]">
-                <tr>
-                  <th class="py-2 px-3 text-left font-medium">배분일</th>
-                  <th class="py-2 px-3 text-left font-medium">고객</th>
-                  <th class="py-2 px-3 text-left font-medium">병원</th>
-                  <th class="py-2 px-3 text-right font-medium">등록기한</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in dashboard.db_distributions"
-                  :key="item.assignment_id"
-                  class="border-t border-[#F0F0F0] cursor-pointer active:bg-[#FAFAFA]"
-                  @click="router.push(`/customers/${item.customer_id}`)"
-                >
-                  <td class="py-2.5 px-3 text-[#777]">{{ formatDate(item.assignment_date) }}</td>
-                  <td class="py-2.5 px-3 text-[#333] font-medium">{{ item.customer_name }}</td>
-                  <td class="py-2.5 px-3 text-[#777] truncate max-w-[80px]">{{ item.hospital }}</td>
-                  <td class="py-2.5 px-3 text-right" :class="deadlineClass(item.deadline)">{{ formatDate(item.deadline) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- 고객 관리 알림 -->
-        <section v-if="dashboard && dashboard.customer_alerts.length > 0" class="mb-4">
-          <h3 class="text-[15px] font-bold text-[#333] mb-2">고객 관리 알림</h3>
-          <div class="flex flex-col gap-2">
+          <div v-else class="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
             <div
-              v-for="(alert, idx) in dashboard.customer_alerts"
-              :key="idx"
-              class="bg-white rounded-xl border border-[#ECECEC] p-3 flex items-center gap-3 cursor-pointer active:bg-[#F8F8F8]"
-              @click="router.push(`/customers/${alert.customer_id}`)"
+              v-for="sch in dashboard.today_schedules"
+              :key="sch.event_id"
+              class="flex-shrink-0 w-[152px] bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] p-3.5 cursor-pointer active:bg-[#FAFAFA]"
+              @click="router.push('/schedule')"
             >
-              <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                :class="alert.type === 'birthday' ? 'bg-[#FFF0E6]' : 'bg-[#E3F2FD]'"
-              >
-                <svg v-if="alert.type === 'birthday'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-3-3.87M4 21v-2a4 4 0 0 1 3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75M8 3.13a4 4 0 0 0 0 7.75"/><circle cx="12" cy="7" r="4"/><path d="M12 11v10"/></svg>
-                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+              <div class="flex items-center gap-1.5 mb-2">
+                <span class="w-1.5 h-1.5 rounded-full" :class="scheduleTypeColor(sch.event_type)" />
+                <span class="text-[11px] text-[#AAA]">{{ scheduleTypeLabel(sch.event_type) }}</span>
               </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-[13px] font-medium text-[#333]">{{ alert.customer_name }}</p>
-                <p class="text-[11px] text-[#999]">{{ alert.label }} · {{ formatDate(alert.date) }}</p>
-              </div>
-              <span class="text-[11px] px-2 py-0.5 rounded-full shrink-0"
-                :class="alert.type === 'birthday' ? 'bg-[#FFF0E6] text-[#FF7B22]' : 'bg-[#E3F2FD] text-[#2196F3]'"
-              >{{ alert.type === 'birthday' ? '생일' : '갱신' }}</span>
+              <p class="text-[13px] font-semibold text-[#222] truncate leading-tight">{{ sch.title }}</p>
+              <p v-if="sch.start_time" class="text-[12px] text-[#FF7B22] font-medium mt-1">
+                {{ formatTime(sch.start_time) }}<template v-if="sch.end_time"> ~ {{ formatTime(sch.end_time) }}</template>
+              </p>
+              <p v-if="sch.customer" class="text-[11px] text-[#999] mt-0.5 truncate">{{ sch.customer.name }}</p>
             </div>
           </div>
         </section>
 
-        <!-- 공지·교육 -->
-        <section v-if="dashboard && dashboard.notices.length > 0" class="mb-4">
-          <h3 class="text-[15px] font-bold text-[#333] mb-2">공지·교육</h3>
-          <div class="flex flex-col gap-2">
+        <!-- DB 배분 내역 -->
+        <section class="mb-5">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-[15px] font-bold text-[#222]">DB 배분</h3>
+            <button class="text-[12px] text-[#FF7B22] font-medium" @click="router.push('/db-distribution')">전체보기</button>
+          </div>
+          <div v-if="!dashboard || dashboard.db_distributions.length === 0" class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] p-5 text-center">
+            <p class="text-[13px] text-[#BBB]">배분된 DB가 없습니다</p>
+          </div>
+          <div v-else class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] overflow-hidden">
             <div
-              v-for="notice in dashboard.notices"
-              :key="notice.notice_id"
-              class="bg-white rounded-xl border border-[#ECECEC] p-3"
+              v-for="(item, idx) in dashboard.db_distributions"
+              :key="item.assignment_id"
+              class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-[#FAFAFA]"
+              :class="idx > 0 ? 'border-t border-[#F5F5F5]' : ''"
+              @click="router.push(`/customers/${item.customer_id}`)"
             >
-              <div class="flex items-center gap-2 mb-1">
-                <span v-if="notice.is_pinned" class="text-[10px] px-1.5 py-0.5 bg-[#FF7B22] text-white rounded font-medium">고정</span>
-                <span v-if="notice.notice_type" class="text-[10px] px-1.5 py-0.5 bg-[#F0F0F0] text-[#777] rounded">{{ notice.notice_type }}</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <p class="text-[14px] font-semibold text-[#222]">{{ item.customer_name }}</p>
+                  <span class="text-[11px] text-[#BBB]">{{ item.hospital }}</span>
+                </div>
+                <p class="text-[11px] text-[#999] mt-0.5">배분 {{ formatDate(item.assignment_date) }}</p>
               </div>
-              <p class="text-[13px] font-medium text-[#333] truncate">{{ notice.title }}</p>
-              <p class="text-[11px] text-[#BBB] mt-0.5">{{ formatDate(notice.created_at) }}</p>
+              <div class="text-right shrink-0">
+                <p class="text-[12px] font-semibold" :class="deadlineClass(item.deadline)">
+                  {{ deadlineLabel(item.deadline) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 고객 관리 알림 -->
+        <section v-if="dashboard && dashboard.customer_alerts.length > 0" class="mb-5">
+          <h3 class="text-[15px] font-bold text-[#222] mb-2.5">고객 알림</h3>
+          <div class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+            <div
+              v-for="(alert, idx) in dashboard.customer_alerts"
+              :key="idx"
+              class="flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-[#FAFAFA]"
+              :class="idx > 0 ? 'border-t border-[#F5F5F5]' : ''"
+              @click="router.push(`/customers/${alert.customer_id}`)"
+            >
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                :class="alert.type === 'birthday' ? 'bg-[#FFF0E6]' : 'bg-[#E8F0FE]'"
+              >
+                <svg v-if="alert.type === 'birthday'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-3-3.87M4 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/></svg>
+                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-[#222]">{{ alert.customer_name }}</p>
+                <p class="text-[11px] text-[#999]">{{ alert.label }}</p>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-md shrink-0 font-medium"
+                :class="alert.type === 'birthday' ? 'bg-[#FFF0E6] text-[#FF7B22]' : 'bg-[#E8F0FE] text-[#2196F3]'"
+              >{{ formatDate(alert.date) }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 공지 -->
+        <section v-if="dashboard && dashboard.notices.length > 0" class="mb-5">
+          <h3 class="text-[15px] font-bold text-[#222] mb-2.5">공지</h3>
+          <div class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+            <div
+              v-for="(notice, idx) in dashboard.notices"
+              :key="notice.notice_id"
+              class="px-4 py-3"
+              :class="idx > 0 ? 'border-t border-[#F5F5F5]' : ''"
+            >
+              <div class="flex items-center gap-1.5">
+                <span v-if="notice.is_pinned" class="text-[10px] px-1.5 py-px bg-[#FF7B22] text-white rounded font-medium">고정</span>
+                <span v-if="notice.notice_type" class="text-[10px] px-1.5 py-px bg-[#F0F0F0] text-[#888] rounded">{{ notice.notice_type }}</span>
+                <span class="text-[10px] text-[#CCC] ml-auto">{{ formatDate(notice.created_at) }}</span>
+              </div>
+              <p class="text-[13px] font-medium text-[#333] truncate mt-1">{{ notice.title }}</p>
             </div>
           </div>
         </section>
@@ -233,12 +238,6 @@ const checklist = computed(() => dashboard.value?.checklist ?? {
   unregistered_db: 0,
   incomplete_claims: 0,
   pending_consultations: 0,
-})
-
-const rankPercent = computed(() => {
-  const p = perf.value
-  if (!p.branch_rank || !p.branch_total || p.branch_total === 0) return 0
-  return Math.max(5, Math.round(((p.branch_total - p.branch_rank + 1) / p.branch_total) * 100))
 })
 
 const formattedToday = computed(() => {
@@ -292,9 +291,22 @@ function deadlineClass(dateStr: string | null | undefined): string {
   const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
   if (isNaN(target.getTime())) return 'text-[#999]'
   const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diff < 0) return 'text-[#FF4444] font-semibold'
-  if (diff <= 1) return 'text-[#FF7B22] font-semibold'
+  if (diff < 0) return 'text-[#FF3B30]'
+  if (diff <= 1) return 'text-[#FF7B22]'
   return 'text-[#999]'
+}
+
+function deadlineLabel(dateStr: string | null | undefined): string {
+  if (!dateStr) return '-'
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
+  if (isNaN(target.getTime())) return '-'
+  const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (diff < 0) return `${Math.abs(diff)}일 초과`
+  if (diff === 0) return 'D-Day'
+  if (diff <= 3) return `D-${diff}`
+  return formatDate(dateStr)
 }
 
 function setupFcmTokenHandler() {
