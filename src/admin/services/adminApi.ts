@@ -44,11 +44,17 @@ export const unmaskResidentNumber = (id: string) =>
 export const fetchMemos = (customerId: string, params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<Memo>>>(`${BASE}/customers/${customerId}/memos`, { params })
 
-export const createMemo = (customerId: string, data: { title?: string; content: string; memo_date: string }) =>
-  api.post<ApiResponse<Memo>>(`${BASE}/customers/${customerId}/memos`, data)
+export const createMemo = (customerId: string, data: FormData | { title?: string; content: string; memo_date: string }) =>
+  api.post<ApiResponse<Memo>>(`${BASE}/customers/${customerId}/memos`, data,
+    data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined)
 
-export const updateMemo = (memoId: number, data: { title?: string; content?: string; memo_date?: string }) =>
-  api.put<ApiResponse<Memo>>(`${BASE}/memos/${memoId}`, data)
+export const updateMemo = (memoId: number, data: FormData | { title?: string; content?: string; memo_date?: string }) => {
+  if (data instanceof FormData) {
+    data.append('_method', 'PUT')
+    return api.post<ApiResponse<Memo>>(`${BASE}/memos/${memoId}`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+  }
+  return api.put<ApiResponse<Memo>>(`${BASE}/memos/${memoId}`, data)
+}
 
 export const deleteMemo = (memoId: number) =>
   api.delete(`${BASE}/memos/${memoId}`)

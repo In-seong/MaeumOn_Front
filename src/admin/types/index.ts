@@ -79,6 +79,12 @@ export interface AdminNotice {
 }
 
 // 메모 타입
+export interface MemoAttachment {
+  path: string
+  url: string
+  name: string
+}
+
 export interface Memo {
   memo_id: number
   customer_id: string
@@ -87,6 +93,8 @@ export interface Memo {
   title?: string
   content: string
   memo_date: string
+  attachments?: string[] | null
+  attachment_urls?: MemoAttachment[]
   created_at?: string
   updated_at?: string
 }

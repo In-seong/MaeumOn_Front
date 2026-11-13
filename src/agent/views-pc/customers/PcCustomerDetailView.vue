@@ -616,6 +616,40 @@
                     rows="3"
                     class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] resize-none text-[#333]"
                   />
+                  <!-- 기존 첨부파일 -->
+                  <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
+                    <div
+                      v-for="att in memo.attachment_urls"
+                      :key="att.path"
+                      class="flex items-center gap-1 rounded-[6px] px-2.5 py-1.5 text-[12px]"
+                      :class="editMemoRemoveAttachments.includes(att.path) ? 'bg-[#FFF0F0] text-[#FF4444] line-through' : 'bg-[#F0F4FF] text-[#4A6FA5]'"
+                    >
+                      <span class="max-w-[150px] truncate">{{ att.name }}</span>
+                      <button class="ml-1" @click="toggleRemoveAttachment(att.path)">
+                        <svg v-if="!editMemoRemoveAttachments.includes(att.path)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- 새 파일 첨부 -->
+                  <div class="mt-2">
+                    <input ref="editMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onEditMemoFileChange" />
+                    <button
+                      class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-1.5 hover:bg-[#F5F5F5] transition-colors"
+                      @click="editMemoFileInput?.click()"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                      파일 추가
+                    </button>
+                    <div v-if="editMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-1.5">
+                      <div v-for="(file, idx) in editMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[12px] text-[#666]">
+                        <span class="max-w-[150px] truncate">{{ file.name }}</span>
+                        <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="editMemoFiles.splice(idx, 1)">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                   <div class="flex justify-end gap-2 mt-3">
                     <button
                       class="px-4 py-2 rounded-[8px] border border-[#E0E0E0] text-[12px] text-[#666] hover:bg-[#F5F5F5] transition-colors"
@@ -637,6 +671,18 @@
                     <div class="flex-1">
                       <p v-if="memo.title" class="text-[14px] font-semibold text-[#333] mb-1">{{ memo.title }}</p>
                       <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-line">{{ memo.content }}</p>
+                      <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
+                        <a
+                          v-for="att in memo.attachment_urls"
+                          :key="att.path"
+                          :href="att.url"
+                          target="_blank"
+                          class="flex items-center gap-1 bg-[#F0F4FF] rounded-[6px] px-2.5 py-1.5 text-[12px] text-[#4A6FA5] no-underline hover:bg-[#E0EAFF] transition-colors"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                          <span class="max-w-[150px] truncate">{{ att.name }}</span>
+                        </a>
+                      </div>
                       <p class="text-[11px] text-[#AAAAAA] mt-2">{{ formatDate(memo.memo_date) }}</p>
                     </div>
                     <div class="flex items-center gap-1 flex-shrink-0 ml-3">
@@ -682,6 +728,25 @@
               placeholder="메모를 입력하세요"
               :rows="4"
             />
+            <!-- 파일 첨부 -->
+            <div class="mt-3">
+              <input ref="newMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onNewMemoFileChange" />
+              <button
+                class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-2 hover:bg-[#F5F5F5] transition-colors"
+                @click="newMemoFileInput?.click()"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                파일 첨부 (최대 5개)
+              </button>
+              <div v-if="newMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-2">
+                <div v-for="(file, idx) in newMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[12px] text-[#666]">
+                  <span class="max-w-[150px] truncate">{{ file.name }}</span>
+                  <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="newMemoFiles.splice(idx, 1)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
             <div class="mt-3">
               <label class="text-[12px] text-[#888] mb-1 block">날짜</label>
               <input
@@ -755,11 +820,16 @@ const codefLogsLoaded = ref(false)
 const newMemoTitle = ref('')
 const newMemoContent = ref('')
 const newMemoDate = ref(new Date().toISOString().slice(0, 10))
+const newMemoFiles = ref<File[]>([])
+const newMemoFileInput = ref<HTMLInputElement | null>(null)
 
 // ===== 메모 수정 =====
 const editingMemoId = ref<number | null>(null)
 const editMemoTitle = ref('')
 const editMemoContent = ref('')
+const editMemoFiles = ref<File[]>([])
+const editMemoRemoveAttachments = ref<string[]>([])
+const editMemoFileInput = ref<HTMLInputElement | null>(null)
 
 // ===== 계약 관련 =====
 const insuranceCompanies = ref<InsuranceCompany[]>([])
@@ -1099,18 +1169,59 @@ async function handleDelete(): Promise<void> {
   }
 }
 
+// ===== 메모 파일 핸들러 =====
+function onNewMemoFileChange(e: Event): void {
+  const target = e.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+  const remaining = 5 - newMemoFiles.value.length
+  for (let i = 0; i < Math.min(files.length, remaining); i++) {
+    const f = files[i]
+    if (f) newMemoFiles.value.push(f)
+  }
+  target.value = ''
+}
+
+function onEditMemoFileChange(e: Event): void {
+  const target = e.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+  const remaining = 5 - editMemoFiles.value.length
+  for (let i = 0; i < Math.min(files.length, remaining); i++) {
+    const f = files[i]
+    if (f) editMemoFiles.value.push(f)
+  }
+  target.value = ''
+}
+
+function toggleRemoveAttachment(path: string): void {
+  const idx = editMemoRemoveAttachments.value.indexOf(path)
+  if (idx === -1) editMemoRemoveAttachments.value.push(path)
+  else editMemoRemoveAttachments.value.splice(idx, 1)
+}
+
 // ===== 메모 추가 =====
 async function handleAddMemo(): Promise<void> {
   if (!newMemoContent.value.trim()) return
   try {
-    await store.addMemo(customerId.value, {
-      title: newMemoTitle.value.trim() || undefined,
-      content: newMemoContent.value.trim(),
-      memo_date: newMemoDate.value,
-    })
+    if (newMemoFiles.value.length > 0) {
+      const fd = new FormData()
+      if (newMemoTitle.value.trim()) fd.append('title', newMemoTitle.value.trim())
+      fd.append('content', newMemoContent.value.trim())
+      fd.append('memo_date', newMemoDate.value)
+      newMemoFiles.value.forEach(f => fd.append('files[]', f))
+      await store.addMemo(customerId.value, fd)
+    } else {
+      await store.addMemo(customerId.value, {
+        title: newMemoTitle.value.trim() || undefined,
+        content: newMemoContent.value.trim(),
+        memo_date: newMemoDate.value,
+      })
+    }
     newMemoTitle.value = ''
     newMemoContent.value = ''
     newMemoDate.value = new Date().toISOString().slice(0, 10)
+    newMemoFiles.value = []
     toast.showToast('메모가 추가되었습니다.')
   } catch {
     toast.showToast(store.error ?? '메모 추가에 실패했습니다.', 'error')
@@ -1122,20 +1233,36 @@ function startMemoEdit(memo: Memo): void {
   editingMemoId.value = memo.memo_id
   editMemoTitle.value = memo.title ?? ''
   editMemoContent.value = memo.content
+  editMemoFiles.value = []
+  editMemoRemoveAttachments.value = []
 }
 
 function cancelMemoEdit(): void {
   editingMemoId.value = null
+  editMemoFiles.value = []
+  editMemoRemoveAttachments.value = []
 }
 
 async function handleSaveMemoEdit(memoId: number): Promise<void> {
   if (!editMemoContent.value.trim()) return
   try {
-    await store.editMemo(memoId, {
-      title: editMemoTitle.value.trim() || undefined,
-      content: editMemoContent.value.trim(),
-    })
+    const hasFileChanges = editMemoFiles.value.length > 0 || editMemoRemoveAttachments.value.length > 0
+    if (hasFileChanges) {
+      const fd = new FormData()
+      fd.append('title', editMemoTitle.value.trim())
+      fd.append('content', editMemoContent.value.trim())
+      editMemoFiles.value.forEach(f => fd.append('files[]', f))
+      editMemoRemoveAttachments.value.forEach(p => fd.append('remove_attachments[]', p))
+      await store.editMemo(memoId, fd)
+    } else {
+      await store.editMemo(memoId, {
+        title: editMemoTitle.value.trim() || undefined,
+        content: editMemoContent.value.trim(),
+      })
+    }
     editingMemoId.value = null
+    editMemoFiles.value = []
+    editMemoRemoveAttachments.value = []
     toast.showToast('메모가 수정되었습니다.')
   } catch {
     toast.showToast(store.error ?? '메모 수정에 실패했습니다.', 'error')

@@ -204,7 +204,7 @@ export const useCustomerStore = defineStore('customer', () => {
     }
   }
 
-  async function addMemo(customerId: string, data: { title?: string; content: string; memo_date: string }) {
+  async function addMemo(customerId: string, data: FormData | { title?: string; content: string; memo_date: string }) {
     try {
       const res = await apiCreateMemo(customerId, data)
       memos.value.unshift(res.data.data)
@@ -216,7 +216,7 @@ export const useCustomerStore = defineStore('customer', () => {
     }
   }
 
-  async function editMemo(memoId: number, data: { title?: string; content?: string; memo_date?: string }) {
+  async function editMemo(memoId: number, data: FormData | { title?: string; content?: string; memo_date?: string }) {
     try {
       const res = await apiUpdateMemo(memoId, data)
       const index = memos.value.findIndex((m) => m.memo_id === memoId)
