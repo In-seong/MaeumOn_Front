@@ -1,141 +1,211 @@
 <template>
   <div class="p-6">
-    <h1 class="text-[20px] font-bold text-[#333] mb-6">대시보드</h1>
-
-    <!-- 퀵메뉴 2행 3열 -->
-    <div class="grid grid-cols-3 gap-4 mb-6">
-      <router-link
-        v-for="item in quickMenuItems"
-        :key="item.path"
-        :to="item.path"
-        class="bg-white rounded-xl border border-[#E8E8E8] p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
-      >
-        <div class="w-[52px] h-[52px] rounded-[14px] bg-[#FFF3ED] flex items-center justify-center shrink-0">
-          <!-- 고객관리: 올 주황 -->
-          <svg v-if="item.icon === 'customers'" width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <circle cx="16" cy="13" r="6" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
-            <circle cx="16" cy="12" r="3.5" fill="white"/>
-            <circle cx="16" cy="11" r="2.5" fill="#FFD5B8"/>
-            <path d="M6 34C6 27 10.5 23 16 23C21.5 23 26 27 26 34" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
-            <path d="M6 34C6 27.5 10.5 24 16 24C21.5 24 26 27.5 26 34" fill="#FF7B22" opacity="0.2"/>
-            <circle cx="28" cy="15" r="4.5" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
-            <circle cx="28" cy="14" r="2.5" fill="white"/>
-            <circle cx="28" cy="13.5" r="1.8" fill="#FFD5B8"/>
-            <path d="M24 34C24 29 26.5 26 29 25" stroke="#FF7B22" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <!-- 청구관리: 체크 주황, 텍스트라인 초록 -->
-          <svg v-else-if="item.icon === 'claims'" width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <rect x="8" y="8" width="24" height="28" rx="3" fill="white" stroke="#FF7B22" stroke-width="1.5"/>
-            <rect x="14" y="4" width="12" height="7" rx="2" fill="#FF7B22"/>
-            <circle cx="20" cy="7.5" r="1.5" fill="white"/>
-            <rect x="13" y="16" width="14" height="2" rx="1" fill="#A8D5BA"/>
-            <rect x="13" y="21" width="10" height="2" rx="1" fill="#A8D5BA"/>
-            <rect x="13" y="26" width="12" height="2" rx="1" fill="#A8D5BA"/>
-            <circle cx="29" cy="29" r="6" fill="#FF7B22"/>
-            <path d="M26 29L28.5 31.5L33 27" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <!-- 새 청구: 플러스 주황, 텍스트라인 초록 -->
-          <svg v-else-if="item.icon === 'newClaim'" width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <rect x="8" y="4" width="20" height="28" rx="3" fill="#FF7B22" opacity="0.15"/>
-            <rect x="10" y="6" width="20" height="28" rx="3" fill="white" stroke="#FF7B22" stroke-width="1.5"/>
-            <rect x="14" y="12" width="12" height="1.5" rx="0.75" fill="#A8D5BA"/>
-            <rect x="14" y="16" width="9" height="1.5" rx="0.75" fill="#A8D5BA"/>
-            <rect x="14" y="20" width="11" height="1.5" rx="0.75" fill="#A8D5BA"/>
-            <circle cx="27" cy="28" r="7" fill="#FF7B22"/>
-            <path d="M27 24.5V31.5M23.5 28H30.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <!-- 메시지: N뱃지 주황 -->
-          <svg v-else-if="item.icon === 'message'" width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <rect x="5" y="10" width="30" height="22" rx="3" fill="white" stroke="#FF7B22" stroke-width="1.5"/>
-            <path d="M5 13L20 24L35 13" stroke="#FF7B22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="5" y="10" width="30" height="8" rx="3" fill="#FF7B22" opacity="0.15"/>
-            <rect x="10" y="24" width="10" height="1.5" rx="0.75" fill="#A8D5BA"/>
-            <rect x="10" y="27" width="7" height="1.5" rx="0.75" fill="#A8D5BA"/>
-            <circle cx="32" cy="10" r="5" fill="#FF7B22"/>
-            <text x="32" y="13.5" text-anchor="middle" font-size="8" font-weight="bold" fill="white">N</text>
-          </svg>
-          <!-- DB배분: 초록 하이라이트 유지 -->
-          <svg v-else-if="item.icon === 'db'" width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <ellipse cx="20" cy="10" rx="13" ry="5" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
-            <path d="M7 10V30C7 32.76 12.8 35 20 35C27.2 35 33 32.76 33 30V10" stroke="#FF7B22" stroke-width="1.5"/>
-            <path d="M7 17C7 19.76 12.8 22 20 22C27.2 22 33 19.76 33 17" stroke="#FF7B22" stroke-width="1.5"/>
-            <path d="M7 24C7 26.76 12.8 29 20 29C27.2 29 33 26.76 33 24" stroke="#FF7B22" stroke-width="1.5"/>
-            <ellipse cx="20" cy="10" rx="9" ry="3" fill="#FF7B22" opacity="0.2"/>
-            <ellipse cx="20" cy="17" rx="8" ry="2.5" fill="#C8E6C9" opacity="0.5"/>
-            <ellipse cx="20" cy="24" rx="8" ry="2.5" fill="#C8E6C9" opacity="0.35"/>
-          </svg>
-          <!-- 보험·건강: 하트+방패 -->
-          <svg v-else-if="item.icon === 'codef'" width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <path d="M20 6L8 12V20C8 28 13 33 20 36C27 33 32 28 32 20V12L20 6Z" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
-            <path d="M20 10L12 14V20C12 26 15.5 30 20 32C24.5 30 28 26 28 20V14L20 10Z" fill="#FF7B22" opacity="0.2"/>
-            <path d="M20 18C18.5 16 16 16 15 17.5C14 19 14.5 21 20 25C25.5 21 26 19 25 17.5C24 16 21.5 16 20 18Z" fill="#FF7B22" opacity="0.6"/>
-          </svg>
-        </div>
-        <div>
-          <p class="text-[14px] font-semibold text-[#333]">{{ item.label }}</p>
-          <p class="text-[12px] text-[#999]">{{ item.sub }}</p>
-        </div>
-      </router-link>
+    <!-- 인사 헤더 -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-[22px] font-bold text-[#333]">{{ dashboard?.header.agent_name ?? '' }} FC님, 오늘도 화이팅!</h1>
+        <p class="text-[13px] text-[#999] mt-0.5">
+          {{ formattedToday }}
+          <template v-if="dashboard?.header.branch_name"> · {{ dashboard.header.branch_name }}</template>
+        </p>
+      </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-6">
-      <!-- 오늘의 할일 -->
-      <div class="col-span-2 bg-white rounded-xl border border-[#E8E8E8] p-5">
-        <h2 class="text-[16px] font-semibold text-[#333] mb-4">오늘의 할일</h2>
-        <div v-if="todayTasks.length === 0" class="text-[13px] text-[#999] py-6 text-center">
-          오늘 할일이 없습니다
+    <!-- 상단 3열: 실적 + 체크리스트 + 일정 -->
+    <div class="grid grid-cols-3 gap-5 mb-6">
+      <!-- 이달의 실적 -->
+      <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
+        <h2 class="text-[15px] font-bold text-[#333] mb-4">이달의 실적</h2>
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div class="text-center">
+            <p class="text-[11px] text-[#999]">계약</p>
+            <p class="text-[24px] font-bold text-[#FF7B22]">{{ perf.contracts_count }}</p>
+            <p class="text-[10px] text-[#BBB]">건</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[11px] text-[#999]">체결률</p>
+            <p class="text-[24px] font-bold text-[#333]">{{ perf.conversion_rate }}%</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[11px] text-[#999]">신규고객</p>
+            <p class="text-[24px] font-bold text-[#333]">{{ perf.new_customers }}</p>
+            <p class="text-[10px] text-[#BBB]">명</p>
+          </div>
         </div>
-        <ul v-else class="space-y-2">
-          <li
-            v-for="task in todayTasks"
-            :key="task.id"
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-[#FAFAFA] transition-colors"
-            :class="{ 'opacity-50': task.is_completed }"
-          >
-            <button
-              v-if="task.can_toggle"
-              class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-              :class="task.is_completed ? 'border-[#FF7B22] bg-[#FF7B22]' : 'border-[#D0D0D0]'"
-              @click="toggleTodo(task.id)"
-            >
-              <span v-if="task.is_completed" class="material-symbols-outlined text-[14px] text-white">check</span>
-            </button>
-            <span v-else class="w-5 h-5 rounded-full bg-[#F0F0F0] shrink-0" />
-            <div class="flex-1 min-w-0 cursor-pointer" @click="task.route && router.push(task.route)">
-              <p class="text-[13px] text-[#333] truncate" :class="{ 'line-through': task.is_completed }">{{ task.title }}</p>
-              <p v-if="task.subtitle" class="text-[11px] text-[#999] truncate">{{ task.subtitle }}</p>
-            </div>
-          </li>
-        </ul>
+        <div class="flex items-center justify-between text-[12px] text-[#777] mb-2">
+          <span>계약금액 <b class="text-[#333]">{{ formatAmount(perf.contracts_amount) }}</b></span>
+          <span>DB <b class="text-[#333]">{{ perf.db_count }}건</b></span>
+        </div>
+        <div v-if="perf.branch_rank != null && perf.branch_total != null">
+          <div class="flex items-center justify-between text-[12px] mb-1">
+            <span class="text-[#999]">지점순위</span>
+            <span class="font-bold text-[#FF7B22]">{{ perf.branch_rank }}위 <span class="text-[#BBB] font-normal">/ {{ perf.branch_total }}명</span></span>
+          </div>
+          <div class="h-2 bg-[#F0F0F0] rounded-full overflow-hidden">
+            <div
+              class="h-full bg-gradient-to-r from-[#FF7B22] to-[#FFB574] rounded-full transition-all duration-500"
+              :style="{ width: rankPercent + '%' }"
+            />
+          </div>
+        </div>
       </div>
 
-      <!-- 다가오는 일정 -->
+      <!-- 체크리스트 -->
+      <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
+        <h2 class="text-[15px] font-bold text-[#333] mb-4">체크리스트</h2>
+        <div class="space-y-3">
+          <button
+            class="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-[#FAFAFA] transition-colors"
+            @click="router.push('/db-distribution')"
+          >
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-[18px] font-bold"
+              :class="checklist.unregistered_db > 0 ? 'bg-[#FFF0E6] text-[#FF7B22]' : 'bg-[#F5F5F5] text-[#CCC]'"
+            >{{ checklist.unregistered_db }}</div>
+            <div class="text-left">
+              <p class="text-[14px] font-medium text-[#333]">미등록 DB</p>
+              <p class="text-[11px] text-[#999]">배정 후 미등록 고객</p>
+            </div>
+          </button>
+          <button
+            class="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-[#FAFAFA] transition-colors"
+            @click="router.push('/claims')"
+          >
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-[18px] font-bold"
+              :class="checklist.incomplete_claims > 0 ? 'bg-[#E8F5E9] text-[#4CAF50]' : 'bg-[#F5F5F5] text-[#CCC]'"
+            >{{ checklist.incomplete_claims }}</div>
+            <div class="text-left">
+              <p class="text-[14px] font-medium text-[#333]">미완료 청구</p>
+              <p class="text-[11px] text-[#999]">임시저장 또는 접수대기</p>
+            </div>
+          </button>
+          <button
+            class="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-[#FAFAFA] transition-colors"
+            @click="router.push('/consultations')"
+          >
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-[18px] font-bold"
+              :class="checklist.pending_consultations > 0 ? 'bg-[#E3F2FD] text-[#2196F3]' : 'bg-[#F5F5F5] text-[#CCC]'"
+            >{{ checklist.pending_consultations }}</div>
+            <div class="text-left">
+              <p class="text-[14px] font-medium text-[#333]">고객 문의</p>
+              <p class="text-[11px] text-[#999]">답변 대기중</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 오늘의 일정 -->
       <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-[16px] font-semibold text-[#333]">다가오는 일정</h2>
+          <h2 class="text-[15px] font-bold text-[#333]">오늘의 일정</h2>
           <button class="text-[12px] text-[#FF7B22] font-medium hover:underline" @click="router.push('/schedule')">전체보기</button>
         </div>
-        <div v-if="upcomingEvents.length === 0" class="text-[13px] text-[#999] py-6 text-center">
-          예정된 일정이 없습니다
+        <div v-if="!dashboard || dashboard.today_schedules.length === 0" class="text-[13px] text-[#999] py-8 text-center">
+          오늘 예정된 일정이 없습니다
         </div>
         <div v-else class="space-y-2.5">
           <div
-            v-for="event in upcomingEvents.slice(0, 8)"
-            :key="event.event_id"
+            v-for="sch in dashboard.today_schedules.slice(0, 6)"
+            :key="sch.event_id"
             class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[#FAFAFA] cursor-pointer transition-colors"
             @click="router.push('/schedule')"
           >
-            <span class="text-[16px]">{{ eventTypeIcon[event.event_type] ?? '📌' }}</span>
+            <span class="w-2 h-2 rounded-full shrink-0" :class="scheduleTypeColor(sch.event_type)" />
             <div class="flex-1 min-w-0">
-              <p class="text-[13px] font-medium text-[#333] truncate">{{ event.title }}</p>
+              <p class="text-[13px] font-medium text-[#333] truncate">{{ sch.title }}</p>
               <p class="text-[11px] text-[#999]">
-                {{ eventTypeLabel(event) }}
-                <template v-if="event.customer">· {{ event.customer.name }}</template>
+                {{ scheduleTypeLabel(sch.event_type) }}
+                <template v-if="sch.start_time"> · {{ formatTime(sch.start_time) }}</template>
+                <template v-if="sch.customer"> · {{ sch.customer.name }}</template>
               </p>
             </div>
-            <span class="text-[12px] shrink-0" :class="daysUntilVariant(event.event_date)">
-              {{ daysUntil(event.event_date) }}
-            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 2열: DB배분 + 알림/공지 -->
+    <div class="grid grid-cols-3 gap-5">
+      <!-- DB 배분 내역 (2/3 너비) -->
+      <div class="col-span-2 bg-white rounded-xl border border-[#E8E8E8] p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-[15px] font-bold text-[#333]">DB 배분 내역</h2>
+          <button class="text-[12px] text-[#FF7B22] font-medium hover:underline" @click="router.push('/db-distribution')">전체보기</button>
+        </div>
+        <div v-if="!dashboard || dashboard.db_distributions.length === 0" class="text-[13px] text-[#999] py-8 text-center">
+          배분된 DB가 없습니다
+        </div>
+        <table v-else class="w-full text-[13px]">
+          <thead class="text-[12px] text-[#999] border-b border-[#F0F0F0]">
+            <tr>
+              <th class="py-2 text-left font-medium">배분일</th>
+              <th class="py-2 text-left font-medium">고객</th>
+              <th class="py-2 text-left font-medium">병원</th>
+              <th class="py-2 text-left font-medium">연락처</th>
+              <th class="py-2 text-right font-medium">등록기한</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="item in dashboard.db_distributions"
+              :key="item.assignment_id"
+              class="border-b border-[#F8F8F8] hover:bg-[#FAFAFA] cursor-pointer transition-colors"
+              @click="router.push(`/customers/${item.customer_id}`)"
+            >
+              <td class="py-2.5 text-[#777]">{{ formatDate(item.assignment_date) }}</td>
+              <td class="py-2.5 text-[#333] font-medium">{{ item.customer_name }}</td>
+              <td class="py-2.5 text-[#777]">{{ item.hospital }}</td>
+              <td class="py-2.5 text-[#777]">{{ item.customer_phone }}</td>
+              <td class="py-2.5 text-right" :class="deadlineClass(item.deadline)">{{ formatDate(item.deadline) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 우측: 고객알림 + 공지 -->
+      <div class="space-y-5">
+        <!-- 고객 관리 알림 -->
+        <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
+          <h2 class="text-[15px] font-bold text-[#333] mb-3">고객 관리 알림</h2>
+          <div v-if="!dashboard || dashboard.customer_alerts.length === 0" class="text-[13px] text-[#999] py-4 text-center">
+            알림이 없습니다
+          </div>
+          <div v-else class="space-y-2">
+            <div
+              v-for="(alert, idx) in dashboard.customer_alerts.slice(0, 5)"
+              :key="idx"
+              class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-[#FAFAFA] cursor-pointer transition-colors"
+              @click="router.push(`/customers/${alert.customer_id}`)"
+            >
+              <span class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px]"
+                :class="alert.type === 'birthday' ? 'bg-[#FFF0E6] text-[#FF7B22]' : 'bg-[#E3F2FD] text-[#2196F3]'"
+              >{{ alert.type === 'birthday' ? 'B' : 'R' }}</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] text-[#333] truncate">{{ alert.customer_name }}</p>
+                <p class="text-[11px] text-[#999]">{{ alert.label }} · {{ formatDate(alert.date) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 공지·교육 -->
+        <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
+          <h2 class="text-[15px] font-bold text-[#333] mb-3">공지·교육</h2>
+          <div v-if="!dashboard || dashboard.notices.length === 0" class="text-[13px] text-[#999] py-4 text-center">
+            공지사항이 없습니다
+          </div>
+          <div v-else class="space-y-2">
+            <div
+              v-for="notice in dashboard.notices"
+              :key="notice.notice_id"
+              class="p-2 rounded-lg hover:bg-[#FAFAFA] transition-colors"
+            >
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span v-if="notice.is_pinned" class="text-[9px] px-1 py-px bg-[#FF7B22] text-white rounded font-medium">고정</span>
+                <span v-if="notice.notice_type" class="text-[9px] px-1 py-px bg-[#F0F0F0] text-[#777] rounded">{{ notice.notice_type }}</span>
+              </div>
+              <p class="text-[13px] text-[#333] truncate">{{ notice.title }}</p>
+              <p class="text-[10px] text-[#BBB] mt-0.5">{{ formatDate(notice.created_at) }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -146,98 +216,98 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useScheduleStore } from '../stores/scheduleStore'
 import { useNotificationStore } from '../stores/notificationStore'
-import { useAgentAuthStore } from '../stores/agentAuthStore'
-import { fetchTodayTasks, toggleScheduleComplete } from '../services/agentApi'
-import type { CalendarEvent, DashboardTask } from '../types'
+import { fetchDashboardFull } from '../services/agentApi'
+import type { DashboardFull } from '../types'
 
 const router = useRouter()
-const scheduleStore = useScheduleStore()
 const notificationStore = useNotificationStore()
-const authStore = useAgentAuthStore()
 
-const upcomingEvents = computed(() => scheduleStore.upcomingEvents)
+const dashboard = ref<DashboardFull | null>(null)
 
-const isReviewAccount = computed(() => authStore.agent?.employee_number === 'TEST001')
+const perf = computed(() => dashboard.value?.performance ?? {
+  contracts_count: 0,
+  contracts_amount: 0,
+  db_count: 0,
+  conversion_rate: 0,
+  new_customers: 0,
+  branch_rank: null,
+  branch_total: null,
+})
 
-const allQuickMenuItems = [
-  { icon: 'customers', label: '고객관리', sub: '고객 목록 관리', path: '/customers', review: true },
-  { icon: 'claims', label: '청구관리', sub: '청구 현황 보기', path: '/claims', review: false },
-  { icon: 'newClaim', label: '새 청구', sub: '보험금 청구하기', path: '/claims/new', review: false },
-  { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', review: true },
-  { icon: 'db', label: 'DB배분', sub: '신규 고객 배분', path: '/db-distribution', review: true },
-  { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', review: false },
-]
+const checklist = computed(() => dashboard.value?.checklist ?? {
+  unregistered_db: 0,
+  incomplete_claims: 0,
+  pending_consultations: 0,
+})
 
-const quickMenuItems = computed(() =>
-  isReviewAccount.value ? allQuickMenuItems.filter(i => i.review) : allQuickMenuItems
-)
+const rankPercent = computed(() => {
+  const p = perf.value
+  if (!p.branch_rank || !p.branch_total || p.branch_total === 0) return 0
+  return Math.max(5, Math.round(((p.branch_total - p.branch_rank + 1) / p.branch_total) * 100))
+})
 
-const eventTypeIcon: Record<string, string> = {
-  birthday: '🎂',
-  contract_expiry: '📋',
-  insurance_expiry: '🚗',
-  manual: '📌',
-}
+const formattedToday = computed(() => {
+  const d = new Date()
+  const days = ['일', '월', '화', '수', '목', '금', '토']
+  const day = days[d.getDay()]
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} (${day})`
+})
 
-function eventTypeLabel(event: CalendarEvent): string {
+function scheduleTypeColor(type: string): string {
   const map: Record<string, string> = {
-    birthday: '생일',
-    contract_expiry: '보험 만기',
-    insurance_expiry: '자동차보험 만기',
-    manual: '일정',
+    manual: 'bg-[#FF7B22]',
+    birthday: 'bg-[#E91E63]',
+    contract_expiry: 'bg-[#2196F3]',
+    insurance_expiry: 'bg-[#4CAF50]',
   }
-  return map[event.event_type] ?? '일정'
+  return map[type] ?? 'bg-[#999]'
 }
 
-function daysUntil(dateStr: string): string {
+function scheduleTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    manual: '일정',
+    birthday: '생일',
+    contract_expiry: '만기',
+    insurance_expiry: '자동차만기',
+  }
+  return map[type] ?? '일정'
+}
+
+function formatTime(time: string): string {
+  return time ? time.slice(0, 5) : ''
+}
+
+function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
-  if (isNaN(target.getTime())) return '-'
-  const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diff === 0) return '오늘'
-  if (diff === 1) return '내일'
-  if (diff < 0) return `${Math.abs(diff)}일 전`
-  return `${diff}일 후`
+  const d = new Date(dateStr.slice(0, 10) + 'T00:00:00')
+  if (isNaN(d.getTime())) return '-'
+  return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
-function daysUntilVariant(dateStr: string): string {
+function formatAmount(amount: number): string {
+  if (amount >= 10000) return Math.round(amount / 10000) + '만원'
+  if (amount >= 1000) return Math.round(amount / 1000) + '천원'
+  return amount.toLocaleString() + '원'
+}
+
+function deadlineClass(dateStr: string | null | undefined): string {
   if (!dateStr) return 'text-[#999]'
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
   if (isNaN(target.getTime())) return 'text-[#999]'
   const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diff <= 1) return 'text-[#FF4444] font-semibold'
-  if (diff <= 7) return 'text-[#FF7B22] font-semibold'
+  if (diff < 0) return 'text-[#FF4444] font-semibold'
+  if (diff <= 1) return 'text-[#FF7B22] font-semibold'
   return 'text-[#999]'
-}
-
-const todayTasks = ref<DashboardTask[]>([])
-
-async function toggleTodo(id: string) {
-  const task = todayTasks.value.find(t => t.id === id)
-  if (!task || !task.can_toggle) return
-  task.is_completed = !task.is_completed
-  try {
-    if (task.type === 'calendar' && task.related_id) {
-      await toggleScheduleComplete(task.related_id)
-    }
-  } catch {
-    task.is_completed = !task.is_completed
-  }
 }
 
 onMounted(async () => {
   await Promise.all([
-    scheduleStore.loadMonth(),
-    scheduleStore.loadUpcoming(30),
     notificationStore.refreshUnreadCount(),
-    fetchTodayTasks().then(res => {
-      todayTasks.value = res.data?.data ?? []
+    fetchDashboardFull().then(res => {
+      dashboard.value = res.data?.data ?? null
     }).catch(() => {}),
   ])
 })

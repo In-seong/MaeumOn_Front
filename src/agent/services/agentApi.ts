@@ -2,7 +2,7 @@ import api from '@shared/api'
 import type {
   Agent, Customer, Consultation, AgentClaim, CalendarEvent,
   Performance, DbDistribution, ClaimAssignment, DisclosureObligation, Message,
-  SatisfactionSurvey, AgentNotification, DashboardSummary,
+  SatisfactionSurvey, AgentNotification, DashboardSummary, DashboardFull,
   DashboardTask,
   Memo, StatisticsTrend, MessageTemplate,
   BatchClaim,
@@ -26,6 +26,10 @@ export const deleteAccount = () =>
 // ===== Dashboard =====
 export const fetchDashboard = () =>
   api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`)
+
+// ===== Dashboard Full (설계사 대시보드 통합) =====
+export const fetchDashboardFull = () =>
+  api.get<ApiResponse<DashboardFull>>(`${BASE}/dashboard/full`)
 
 // ===== Today Tasks (오늘의 할일) =====
 export const fetchTodayTasks = () =>

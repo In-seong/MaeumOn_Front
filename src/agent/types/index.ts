@@ -385,6 +385,59 @@ export interface DashboardSummary {
   upcoming_obligations: number
 }
 
+// ===== Dashboard Full (설계사 대시보드 통합) =====
+export interface DashboardFull {
+  header: {
+    agent_name: string
+    branch_name: string
+    today: string
+  }
+  today_schedules: CalendarEvent[]
+  performance: {
+    contracts_count: number
+    contracts_amount: number
+    db_count: number
+    conversion_rate: number
+    new_customers: number
+    branch_rank: number | null
+    branch_total: number | null
+  }
+  checklist: {
+    unregistered_db: number
+    incomplete_claims: number
+    pending_consultations: number
+  }
+  db_distributions: DashboardDbDistribution[]
+  customer_alerts: DashboardCustomerAlert[]
+  notices: DashboardNotice[]
+}
+
+export interface DashboardDbDistribution {
+  assignment_id: number
+  assignment_date: string | null
+  deadline: string | null
+  customer_name: string
+  customer_phone: string
+  hospital: string
+  customer_id: string
+}
+
+export interface DashboardCustomerAlert {
+  type: 'renewal' | 'birthday'
+  customer_name: string
+  customer_id: string
+  date: string | null
+  label: string
+}
+
+export interface DashboardNotice {
+  notice_id: number
+  title: string
+  notice_type: string | null
+  is_pinned: boolean
+  created_at: string
+}
+
 // ===== CalendarEvent (캘린더 일정) =====
 export type CalendarEventType = 'manual' | 'birthday' | 'contract_expiry' | 'insurance_expiry'
 export type CalendarSource = 'manual' | 'system'
