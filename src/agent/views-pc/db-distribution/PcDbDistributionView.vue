@@ -56,7 +56,14 @@
                 class="hover:bg-[#FAFAFA] transition-colors"
               >
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ index + 1 }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ item.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium">
+                  <button
+                    v-if="item.registered_customer_id"
+                    class="text-[#FF7B22] hover:underline cursor-pointer"
+                    @click="router.push({ name: 'customer-detail', params: { id: item.registered_customer_id } })"
+                  >{{ item.name }}</button>
+                  <span v-else class="text-[#333]">{{ item.name }}</span>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666]">{{ formatPhone(item.phone) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span

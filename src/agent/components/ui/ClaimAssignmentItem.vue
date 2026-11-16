@@ -174,15 +174,17 @@
       >
         {{ registering ? '등록 중...' : '내 고객으로 등록하기' }}
       </button>
-      <div
+      <button
         v-else
-        class="w-full py-2.5 bg-[#F0F7F0] text-[#2E7D32] text-[13px] font-semibold rounded-[12px] text-center flex items-center justify-center gap-1.5"
+        class="w-full py-2.5 bg-[#F0F7F0] text-[#2E7D32] text-[13px] font-semibold rounded-[12px] text-center flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
+        @click="router.push({ name: 'customer-detail', params: { id: registeredCustomerId } })"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12" />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
-        고객 등록 완료
-      </div>
+        고객 정보 보기
+      </button>
 
       <!-- Direct claim button -->
       <button
