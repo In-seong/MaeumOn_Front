@@ -49,32 +49,32 @@
       </div>
     </div>
 
-    <div class="mb-4 flex flex-wrap gap-3">
-      <div class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]">
-        <div class="text-[12px] text-[#999] mb-1">전체</div>
-        <div class="text-[24px] font-bold text-[#333]">{{ store.summary.total }}</div>
+    <div class="mb-6 flex flex-wrap gap-4">
+      <div class="bg-white rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]">
+        <div class="text-[13px] text-[#999] mb-1">전체</div>
+        <div class="text-[28px] font-bold text-[#333]">{{ store.summary.total }}</div>
       </div>
-      <div class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]">
-        <div class="text-[12px] text-[#999] mb-1">상주 DB</div>
-        <div class="text-[24px] font-bold text-[#2196F3]">{{ store.summary.total_resident }}</div>
+      <div class="bg-white rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]">
+        <div class="text-[13px] text-[#999] mb-1">상주 DB</div>
+        <div class="text-[28px] font-bold text-[#2196F3]">{{ store.summary.total_resident }}</div>
       </div>
-      <div class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]">
-        <div class="text-[12px] text-[#999] mb-1">배분 DB</div>
-        <div class="text-[24px] font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</div>
+      <div class="bg-white rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]">
+        <div class="text-[13px] text-[#999] mb-1">배분 DB</div>
+        <div class="text-[28px] font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</div>
       </div>
-      <div class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]">
-        <div class="text-[12px] text-[#999] mb-1">기업 DB</div>
-        <div class="text-[24px] font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</div>
+      <div class="bg-white rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]">
+        <div class="text-[13px] text-[#999] mb-1">기업 DB</div>
+        <div class="text-[28px] font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</div>
       </div>
       <div :class="[
-        'rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]',
+        'rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]',
         store.summary.total_recall > 0 ? 'bg-[#FFF5F5]' : 'bg-white'
       ]">
-        <div :class="['text-[12px] mb-1', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#999]']">회수</div>
-        <div :class="['text-[24px] font-bold', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#333]']">{{ store.summary.total_recall ?? 0 }}</div>
+        <div :class="['text-[13px] mb-1', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#999]']">회수</div>
+        <div :class="['text-[28px] font-bold', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#333]']">{{ store.summary.total_recall ?? 0 }}</div>
       </div>
-      <div class="bg-[#F8F8F8] rounded-[12px] px-5 py-4 flex items-center">
-        <span class="text-[13px] text-[#999]">기간: {{ dateFrom }} ~ {{ dateTo }}</span>
+      <div class="bg-[#F8F8F8] rounded-[14px] px-6 py-5 flex items-center">
+        <span class="text-[14px] text-[#999]">기간: {{ dateFrom }} ~ {{ dateTo }}</span>
       </div>
     </div>
 
@@ -85,34 +85,34 @@
     <template v-else>
     <!-- 병원별 DB 요약 (전체 병원 선택 시) -->
     <div v-if="!store.selectedHospitalId && store.hospitalStats.length > 0" class="mb-6">
-      <h2 class="text-[16px] font-bold text-[#333] mb-3">병원별 DB 현황</h2>
+      <h2 class="text-[17px] font-bold text-[#333] mb-3">병원별 DB 현황</h2>
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] overflow-x-auto">
         <table class="min-w-full divide-y divide-[#E8E8E8]">
           <thead class="bg-[#FAFAFA]">
             <tr>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
-              <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">병원</th>
-              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상주 DB</th>
-              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">배분 DB</th>
-              <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">합계</th>
+              <th class="px-5 lg:px-6 py-4 text-left text-[13px] font-semibold text-[#888]">No.</th>
+              <th class="px-5 lg:px-6 py-4 text-left text-[13px] font-semibold text-[#888]">병원</th>
+              <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">상주 DB</th>
+              <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">배분 DB</th>
+              <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">합계</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[#F0F0F0]">
             <tr v-for="(row, index) in store.hospitalStats" :key="row.hospital_id" class="hover:bg-[#FAFAFA] transition-colors">
-              <td class="px-4 lg:px-6 py-3 text-[13px] text-[#999]">{{ index + 1 }}</td>
-              <td class="px-4 lg:px-6 py-3 text-[13px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="store.setHospital(row.hospital_id)">{{ row.hospital_name }}</td>
-              <td class="px-4 lg:px-6 py-3 text-[13px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
-              <td class="px-4 lg:px-6 py-3 text-[13px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
-              <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#333]">{{ row.total }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[15px] text-[#999]">{{ index + 1 }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[15px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="store.setHospital(row.hospital_id)">{{ row.hospital_name }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[15px] text-center text-[#2196F3] font-semibold">{{ row.resident }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[15px] text-center text-[#FF7B22] font-semibold">{{ row.distribution }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#333]">{{ row.total }}</td>
             </tr>
           </tbody>
           <tfoot class="bg-[#FAFAFA]">
             <tr>
-              <td class="px-4 lg:px-6 py-3"></td>
-              <td class="px-4 lg:px-6 py-3 text-[12px] font-bold text-[#333]">합계</td>
-              <td class="px-4 lg:px-6 py-3 text-[12px] text-center font-bold text-[#2196F3]">{{ hospitalStatsTotal.resident }}</td>
-              <td class="px-4 lg:px-6 py-3 text-[12px] text-center font-bold text-[#FF7B22]">{{ hospitalStatsTotal.distribution }}</td>
-              <td class="px-4 lg:px-6 py-3 text-[12px] text-center font-bold text-[#333]">{{ hospitalStatsTotal.total }}</td>
+              <td class="px-5 lg:px-6 py-4"></td>
+              <td class="px-5 lg:px-6 py-4 text-[14px] font-bold text-[#333]">합계</td>
+              <td class="px-5 lg:px-6 py-4 text-[14px] text-center font-bold text-[#2196F3]">{{ hospitalStatsTotal.resident }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[14px] text-center font-bold text-[#FF7B22]">{{ hospitalStatsTotal.distribution }}</td>
+              <td class="px-5 lg:px-6 py-4 text-[14px] text-center font-bold text-[#333]">{{ hospitalStatsTotal.total }}</td>
             </tr>
           </tfoot>
         </table>
@@ -128,35 +128,35 @@
       <table class="min-w-full divide-y divide-[#E8E8E8]">
         <thead class="bg-[#FAFAFA]">
           <tr>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">No.</th>
-            <th class="px-4 lg:px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase">설계사</th>
-            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상주 DB</th>
-            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">배분 DB</th>
-            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">기업 DB</th>
-            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">회수</th>
-            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">합계</th>
+            <th class="px-5 lg:px-6 py-4 text-left text-[13px] font-semibold text-[#888]">No.</th>
+            <th class="px-5 lg:px-6 py-4 text-left text-[13px] font-semibold text-[#888]">설계사</th>
+            <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">상주 DB</th>
+            <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">배분 DB</th>
+            <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">기업 DB</th>
+            <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">회수</th>
+            <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">합계</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[#F0F0F0]">
-          <tr v-for="(row, index) in store.agents" :key="row.agent_id" class="hover:bg-[#FAFAFA] transition-colors">
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-[#999]">{{ index + 1 }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="openDetail(row)">{{ row.agent_name }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#4CAF50] font-medium">{{ row.corporate }}</td>
-            <td :class="['px-4 lg:px-6 py-4 text-[14px] text-center', (row.recall ?? 0) > 0 ? 'text-[#E86A33] font-semibold' : 'text-[#999]']">{{ row.recall ?? 0 }}</td>
-            <td class="px-4 lg:px-6 py-4 text-[14px] text-center font-bold text-[#333]">{{ row.total }}</td>
+          <tr v-for="(row, index) in store.agents" :key="row.agent_id" class="hover:bg-[#FFF8F3] transition-colors">
+            <td class="px-5 lg:px-6 py-5 text-[15px] text-[#999]">{{ index + 1 }}</td>
+            <td class="px-5 lg:px-6 py-5 text-[16px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="openDetail(row)">{{ row.agent_name }}</td>
+            <td class="px-5 lg:px-6 py-5 text-[16px] text-center text-[#2196F3] font-semibold">{{ row.resident }}</td>
+            <td class="px-5 lg:px-6 py-5 text-[16px] text-center text-[#FF7B22] font-semibold">{{ row.distribution }}</td>
+            <td class="px-5 lg:px-6 py-5 text-[16px] text-center text-[#4CAF50] font-semibold">{{ row.corporate }}</td>
+            <td :class="['px-5 lg:px-6 py-5 text-[16px] text-center', (row.recall ?? 0) > 0 ? 'text-[#E86A33] font-bold' : 'text-[#999]']">{{ row.recall ?? 0 }}</td>
+            <td class="px-5 lg:px-6 py-5 text-[17px] text-center font-bold text-[#333]">{{ row.total }}</td>
           </tr>
         </tbody>
         <tfoot class="bg-[#FAFAFA]">
           <tr>
-            <td class="px-4 lg:px-6 py-3"></td>
-            <td class="px-4 lg:px-6 py-3 text-[13px] font-bold text-[#333]">합계</td>
-            <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#2196F3]">{{ store.summary.total_resident }}</td>
-            <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</td>
-            <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</td>
-            <td :class="['px-4 lg:px-6 py-3 text-[13px] text-center font-bold', (store.summary.total_recall ?? 0) > 0 ? 'text-[#E86A33]' : 'text-[#999]']">{{ store.summary.total_recall ?? 0 }}</td>
-            <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#333]">{{ store.summary.total }}</td>
+            <td class="px-5 lg:px-6 py-4"></td>
+            <td class="px-5 lg:px-6 py-4 text-[15px] font-bold text-[#333]">합계</td>
+            <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#2196F3]">{{ store.summary.total_resident }}</td>
+            <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</td>
+            <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</td>
+            <td :class="['px-5 lg:px-6 py-4 text-[15px] text-center font-bold', (store.summary.total_recall ?? 0) > 0 ? 'text-[#E86A33]' : 'text-[#999]']">{{ store.summary.total_recall ?? 0 }}</td>
+            <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#333]">{{ store.summary.total }}</td>
           </tr>
         </tfoot>
       </table>
