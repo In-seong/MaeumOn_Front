@@ -285,8 +285,17 @@
                   >
                     보기
                   </button>
+                  <a
+                    v-if="doc.document_url"
+                    :href="doc.document_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[12px] text-[#4A90D9] font-semibold flex-shrink-0"
+                  >
+                    저장
+                  </a>
                   <button
-                    v-if="claim.claim_status === 'pending'"
+                    v-if="canManageDocuments"
                     type="button"
                     class="text-[12px] text-[#EF4444] font-semibold flex-shrink-0"
                     :disabled="deletingDocId === doc.claim_document_id"
@@ -299,8 +308,8 @@
               <p v-else class="text-[13px] text-[#999] text-center py-3">
                 첨부파일이 없습니다.
               </p>
-              <!-- 첨부파일 추가 (pending 상태) -->
-              <div v-if="claim.claim_status === 'pending'" class="pt-3 mt-3 border-t border-[#F0F0F0]">
+              <!-- 첨부파일 추가 -->
+              <div v-if="canManageDocuments" class="pt-3 mt-3 border-t border-[#F0F0F0]">
                 <input
                   ref="fileInputRef"
                   type="file"
@@ -665,6 +674,13 @@ function getStatusLabel(status: string): string {
   const option = CLAIM_STATUS_OPTIONS.find(o => o.value === status)
   return option?.label ?? status
 }
+
+const canManageDocuments = computed(() => {
+  const cs = claim.value?.claim_status
+  if (cs === 'pending') return true
+  const fs = claim.value?.fax_status
+  return fs === 'sent' || fs === 'failed' || !fs
+})
 
 function getFaxStatusLabel(status?: string): string {
   switch (status) {
