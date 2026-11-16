@@ -385,6 +385,7 @@ export interface ClaimRequestStatAgentRow {
   distribution: number
   corporate: number
   recall: number
+  reject: number
   total: number
 }
 
@@ -393,6 +394,7 @@ export interface ClaimRequestStatSummary {
   total_distribution: number
   total_corporate: number
   total_recall: number
+  total_reject: number
   total: number
 }
 

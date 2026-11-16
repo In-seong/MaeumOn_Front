@@ -292,28 +292,54 @@
       </div>
     </div>
 
-    <!-- 회수 확인 모달 -->
+    <!-- 회수/반려 모달 -->
     <div v-if="recallModalOpen" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" @click.self="recallModalOpen = false">
       <div class="bg-white rounded-[14px] shadow-xl w-full max-w-[420px] mx-4">
         <div class="px-6 py-4 border-b border-[#F0F0F0]">
-          <h3 class="text-[16px] font-semibold text-[#222]">DB 배분 회수</h3>
+          <h3 class="text-[16px] font-semibold text-[#222]">DB 배분 회수 / 반려</h3>
         </div>
         <div class="px-6 py-5 space-y-4">
           <p class="text-[14px] text-[#555]">
-            <span class="font-medium text-[#222]">"{{ recallTarget?.customer?.name || '해당 고객' }}"</span>의 배분을 회수하시겠습니까?
-            <br /><span class="text-[13px] text-[#999]">담당 설계사에게 회수 알림이 발송됩니다.</span>
+            <span class="font-medium text-[#222]">"{{ recallTarget?.customer?.name || '해당 고객' }}"</span>의 배분을 처리합니다.
+            <br /><span class="text-[13px] text-[#999]">담당 설계사에게 알림이 발송됩니다.</span>
           </p>
           <div>
-            <label class="block text-[13px] text-[#555] mb-1.5">회수 사유 (선택)</label>
-            <textarea v-model="recallReason" rows="3" maxlength="500" placeholder="회수 사유를 입력하세요"
+            <label class="block text-[13px] text-[#555] mb-2">처리 유형</label>
+            <div class="flex gap-2">
+              <button
+                @click="recallActionType = 'recall'"
+                :class="[
+                  'flex-1 py-2.5 rounded-[10px] text-[14px] font-medium border-2 transition-colors',
+                  recallActionType === 'recall'
+                    ? 'border-[#FF7B22] bg-[#FFF5ED] text-[#FF7B22]'
+                    : 'border-[#E0E0E0] bg-white text-[#666] hover:border-[#CCC]'
+                ]"
+              >회수</button>
+              <button
+                @click="recallActionType = 'reject'"
+                :class="[
+                  'flex-1 py-2.5 rounded-[10px] text-[14px] font-medium border-2 transition-colors',
+                  recallActionType === 'reject'
+                    ? 'border-[#E53935] bg-[#FFF5F5] text-[#E53935]'
+                    : 'border-[#E0E0E0] bg-white text-[#666] hover:border-[#CCC]'
+                ]"
+              >반려</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[13px] text-[#555] mb-1.5">{{ recallActionType === 'reject' ? '반려' : '회수' }} 사유 (선택)</label>
+            <textarea v-model="recallReason" rows="3" maxlength="500" :placeholder="recallActionType === 'reject' ? '반려 사유를 입력하세요' : '회수 사유를 입력하세요'"
               class="w-full border border-[#DDD] rounded-[8px] px-3 py-2.5 text-[14px] text-[#222] placeholder:text-[#BBB] resize-none focus:outline-none focus:border-[#4A90D9] focus:ring-1 focus:ring-[#4A90D9]/30"></textarea>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-[#F0F0F0] flex justify-end gap-2">
           <button @click="recallModalOpen = false" class="px-4 py-2 text-[14px] text-[#555] hover:text-[#222] rounded-[8px] hover:bg-[#F5F5F5]">취소</button>
           <button @click="submitRecall" :disabled="recallSubmitting"
-            class="px-4 py-2 text-[14px] text-white bg-red-500 hover:bg-red-600 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed">
-            {{ recallSubmitting ? '처리중...' : '회수' }}
+            :class="[
+              'px-4 py-2 text-[14px] text-white rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed',
+              recallActionType === 'reject' ? 'bg-[#E53935] hover:bg-[#D32F2F]' : 'bg-[#FF7B22] hover:bg-[#E56D1E]'
+            ]">
+            {{ recallSubmitting ? '처리중...' : (recallActionType === 'reject' ? '반려' : '회수') }}
           </button>
         </div>
       </div>
@@ -552,11 +578,13 @@ function statusClass(status: string): string {
 
 const recallModalOpen = ref(false)
 const recallTarget = ref<Assignment | null>(null)
+const recallActionType = ref<'recall' | 'reject'>('recall')
 const recallReason = ref('')
 const recallSubmitting = ref(false)
 
 function openRecallModal(assignment: Assignment) {
   recallTarget.value = assignment
+  recallActionType.value = 'recall'
   recallReason.value = ''
   recallModalOpen.value = true
 }
@@ -564,12 +592,13 @@ function openRecallModal(assignment: Assignment) {
 async function submitRecall() {
   if (!recallTarget.value) return
   recallSubmitting.value = true
+  const label = recallActionType.value === 'reject' ? '반려' : '회수'
   try {
-    await store.deleteAssignment(recallTarget.value.assignment_id, recallReason.value || undefined)
+    await store.deleteAssignment(recallTarget.value.assignment_id, recallActionType.value, recallReason.value || undefined)
     recallModalOpen.value = false
-    alert('배분이 회수되었습니다.')
+    alert(`배분이 ${label}되었습니다.`)
   } catch (e: any) {
-    alert(e.response?.data?.message || '회수에 실패했습니다.')
+    alert(e.response?.data?.message || `${label}에 실패했습니다.`)
   } finally {
     recallSubmitting.value = false
   }

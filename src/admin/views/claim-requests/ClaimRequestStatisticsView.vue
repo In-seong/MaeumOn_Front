@@ -73,6 +73,13 @@
         <div :class="['text-[13px] mb-1', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#999]']">회수</div>
         <div :class="['text-[28px] font-bold', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#333]']">{{ store.summary.total_recall ?? 0 }}</div>
       </div>
+      <div :class="[
+        'rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]',
+        (store.summary.total_reject ?? 0) > 0 ? 'bg-[#FFF5F5]' : 'bg-white'
+      ]">
+        <div :class="['text-[13px] mb-1', (store.summary.total_reject ?? 0) > 0 ? 'text-[#E53935]' : 'text-[#999]']">반려</div>
+        <div :class="['text-[28px] font-bold', (store.summary.total_reject ?? 0) > 0 ? 'text-[#E53935]' : 'text-[#333]']">{{ store.summary.total_reject ?? 0 }}</div>
+      </div>
       <div class="bg-[#F8F8F8] rounded-[14px] px-6 py-5 flex items-center">
         <span class="text-[14px] text-[#999]">기간: {{ dateFrom }} ~ {{ dateTo }}</span>
       </div>
@@ -134,6 +141,7 @@
             <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">배분 DB</th>
             <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">기업 DB</th>
             <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">회수</th>
+            <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">반려</th>
             <th class="px-5 lg:px-6 py-4 text-center text-[13px] font-semibold text-[#888]">합계</th>
           </tr>
         </thead>
@@ -145,6 +153,7 @@
             <td class="px-5 lg:px-6 py-5 text-[16px] text-center text-[#FF7B22] font-semibold">{{ row.distribution }}</td>
             <td class="px-5 lg:px-6 py-5 text-[16px] text-center text-[#4CAF50] font-semibold">{{ row.corporate }}</td>
             <td :class="['px-5 lg:px-6 py-5 text-[16px] text-center', (row.recall ?? 0) > 0 ? 'text-[#E86A33] font-bold' : 'text-[#999]']">{{ row.recall ?? 0 }}</td>
+            <td :class="['px-5 lg:px-6 py-5 text-[16px] text-center', (row.reject ?? 0) > 0 ? 'text-[#E53935] font-bold' : 'text-[#999]']">{{ row.reject ?? 0 }}</td>
             <td class="px-5 lg:px-6 py-5 text-[17px] text-center font-bold text-[#333]">{{ row.total }}</td>
           </tr>
         </tbody>
@@ -156,6 +165,7 @@
             <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</td>
             <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</td>
             <td :class="['px-5 lg:px-6 py-4 text-[15px] text-center font-bold', (store.summary.total_recall ?? 0) > 0 ? 'text-[#E86A33]' : 'text-[#999]']">{{ store.summary.total_recall ?? 0 }}</td>
+            <td :class="['px-5 lg:px-6 py-4 text-[15px] text-center font-bold', (store.summary.total_reject ?? 0) > 0 ? 'text-[#E53935]' : 'text-[#999]']">{{ store.summary.total_reject ?? 0 }}</td>
             <td class="px-5 lg:px-6 py-4 text-[15px] text-center font-bold text-[#333]">{{ store.summary.total }}</td>
           </tr>
         </tfoot>

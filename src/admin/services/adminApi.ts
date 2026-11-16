@@ -91,7 +91,7 @@ export const createAssignment = (data: { customer_id: string; agent_id: string; 
 export const bulkAssignment = (data: { assignments: Array<{ customer_id: string; agent_id: string }>; notes?: string }) =>
   api.post<ApiResponse<{ created_count: number }>>(`${BASE}/assignments/bulk`, data)
 
-export const deleteAssignment = (id: number, data?: { recall_reason?: string }) =>
+export const deleteAssignment = (id: number, data?: { action_type?: string; recall_reason?: string }) =>
   api.delete<ApiResponse<null>>(`${BASE}/assignments/${id}`, { data })
 
 export const addClaimRequestFiles = (id: number, formData: FormData) =>
