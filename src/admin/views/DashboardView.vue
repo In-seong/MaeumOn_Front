@@ -95,6 +95,13 @@ const activityLabelStyle: Record<string, { bg: string; text: string }> = {
   contract: { bg: '#F3F3F3', text: '#555' },
 }
 
+const activityRouteMap: Record<string, string> = {
+  paid: '/claims',
+  claim: '/claims',
+  distribution: '/assignments',
+  contract: '/customers',
+}
+
 watch(() => branchStore.selectedBranchId, () => loadDashboard())
 
 onMounted(async () => {
@@ -141,7 +148,7 @@ onMounted(async () => {
       <!-- KPI 카드 — 1열: 3개 큰 카드 -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <!-- 신규 계약 · DB 전환률 (강조) -->
-        <div class="bg-[#3D3024] text-white p-5 rounded-[16px]">
+        <div class="bg-[#3D3024] text-white p-5 rounded-[16px] cursor-pointer hover:opacity-90 transition" @click="router.push('/performance')">
           <p class="text-[13px] text-[#CCBFB0] mb-1">신규 계약 · DB 전환률</p>
           <p class="text-[28px] font-bold leading-tight">
             {{ formatAmount(dashboard.kpi.contract_amount) }}<span class="text-[16px] font-normal">원</span>
@@ -159,7 +166,7 @@ onMounted(async () => {
         </div>
 
         <!-- 신규 DB 유입 -->
-        <div class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] cursor-pointer hover:shadow-[0_0_16px_rgba(0,0,0,0.1)] transition" @click="router.push('/assignments')">
           <p class="text-[13px] text-[#999] mb-1">신규 DB 유입</p>
           <p class="text-[28px] font-bold text-[#333] leading-tight">
             {{ dashboard.kpi.new_db_count.toLocaleString() }}<span class="text-[14px] font-normal text-[#999]">건</span>
@@ -168,7 +175,7 @@ onMounted(async () => {
         </div>
 
         <!-- 활동 FC -->
-        <div class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="bg-white p-5 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] cursor-pointer hover:shadow-[0_0_16px_rgba(0,0,0,0.1)] transition" @click="router.push('/agents')">
           <p class="text-[13px] text-[#999] mb-1">활동 FC</p>
           <p class="text-[28px] font-bold text-[#333] leading-tight">
             {{ dashboard.kpi.active_agents.toLocaleString() }}<span class="text-[14px] font-normal text-[#999]">명</span>
@@ -182,7 +189,7 @@ onMounted(async () => {
       <!-- KPI 카드 — 2열: 4개 작은 카드 -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <!-- 등록 고객 -->
-        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] cursor-pointer hover:shadow-[0_0_16px_rgba(0,0,0,0.1)] transition" @click="router.push('/customers')">
           <p class="text-[12px] text-[#999] mb-1">등록 고객</p>
           <p class="text-[22px] font-bold text-[#333]">
             {{ dashboard.kpi.total_customers.toLocaleString() }}<span class="text-[13px] font-normal text-[#999]">명</span>
@@ -190,7 +197,7 @@ onMounted(async () => {
         </div>
 
         <!-- 제휴 병원 -->
-        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] cursor-pointer hover:shadow-[0_0_16px_rgba(0,0,0,0.1)] transition" @click="router.push('/hospitals')">
           <p class="text-[12px] text-[#999] mb-1">제휴 병원</p>
           <p class="text-[22px] font-bold text-[#333]">
             {{ dashboard.kpi.hospitals.toLocaleString() }}<span class="text-[13px] font-normal text-[#999]">개</span>
@@ -201,7 +208,7 @@ onMounted(async () => {
         </div>
 
         <!-- API 사용 -->
-        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] cursor-pointer hover:shadow-[0_0_16px_rgba(0,0,0,0.1)] transition" @click="router.push('/codef-logs')">
           <p class="text-[12px] text-[#999] mb-1">API 사용</p>
           <p class="text-[22px] font-bold text-[#333]">
             {{ dashboard.kpi.api_usage.toLocaleString() }}<span class="text-[13px] font-normal text-[#999]">건</span>
@@ -209,7 +216,7 @@ onMounted(async () => {
         </div>
 
         <!-- 청구 접수 -->
-        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)]">
+        <div class="bg-white p-4 rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] cursor-pointer hover:shadow-[0_0_16px_rgba(0,0,0,0.1)] transition" @click="router.push('/claims')">
           <p class="text-[12px] text-[#999] mb-1">청구 접수</p>
           <p class="text-[22px] font-bold text-[#333]">
             {{ dashboard.kpi.claim_count.toLocaleString() }}<span class="text-[13px] font-normal text-[#999]">건</span>
@@ -272,7 +279,8 @@ onMounted(async () => {
           <div
             v-for="(agent, idx) in dashboard.agent_ranking.top"
             :key="agent.agent_id"
-            class="flex items-center gap-1 text-[13px]"
+            class="flex items-center gap-1 text-[13px] cursor-pointer hover:bg-[#FAFAFA] rounded-[8px] px-1 -mx-1 transition"
+            @click="router.push(`/agents/${agent.agent_id}`)"
           >
             <span class="w-[80px] flex-shrink-0 font-medium text-[#333] truncate">
               <span class="text-[#999] mr-1">{{ idx + 1 }}</span>
@@ -310,7 +318,8 @@ onMounted(async () => {
               <div
                 v-for="agent in dashboard.agent_ranking.needs_care"
                 :key="agent.agent_id"
-                class="flex items-center gap-1 text-[13px]"
+                class="flex items-center gap-1 text-[13px] cursor-pointer hover:bg-[#FAFAFA] rounded-[8px] px-1 -mx-1 transition"
+                @click="router.push(`/agents/${agent.agent_id}`)"
               >
                 <span class="w-[80px] flex-shrink-0 text-[#333] truncate">{{ agent.name }}</span>
                 <div class="flex-1 h-[20px] flex items-center gap-0 min-w-0">
@@ -346,7 +355,8 @@ onMounted(async () => {
           <div
             v-for="(activity, idx) in dashboard.recent_activities"
             :key="idx"
-            class="flex items-start gap-3 py-3 border-b border-[#F5F5F5] last:border-0"
+            class="flex items-start gap-3 py-3 border-b border-[#F5F5F5] last:border-0 cursor-pointer hover:bg-[#FAFAFA] rounded-[8px] px-2 -mx-2 transition"
+            @click="router.push(activityRouteMap[activity.type] ?? '/')"
           >
             <span class="text-[13px] text-[#999] w-[42px] flex-shrink-0 pt-0.5">{{ activity.time }}</span>
             <span
