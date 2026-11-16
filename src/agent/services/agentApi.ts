@@ -463,3 +463,61 @@ export const fetchAwardPlans = (params?: Record<string, unknown>) =>
 
 export const fetchAwardPlanMonths = () =>
   api.get<ApiResponse<AwardPlanMonth[]>>(`${BASE}/award-plans/months`)
+
+// ===== 숨은 보험금 찾기 =====
+export const fetchUnclaimedSessions = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<import('../types').UnclaimedSession>>>(`${BASE}/unclaimed/sessions`, { params })
+
+export const createUnclaimedSession = (data: {
+  customer_id?: string
+  customer_name: string
+  customer_phone: string
+  customer_birth_date: string
+  customer_address?: string
+  customer_detailed_address?: string
+  customer_gender?: string
+  customer_telecom?: string
+}) =>
+  api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions`, data)
+
+export const fetchUnclaimedSession = (sessionId: number) =>
+  api.get<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}`)
+
+export const fetchUnclaimedConsentTemplates = () =>
+  api.get<ApiResponse<import('../types').ConsentTemplateItem[]>>(`${BASE}/unclaimed/consent-templates`)
+
+export const submitUnclaimedConsents = (sessionId: number, data: { consent_template_ids: number[] }) =>
+  api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}/consents`, data)
+
+export const uploadUnclaimedIdCard = (sessionId: number, file: File) => {
+  const formData = new FormData()
+  formData.append('id_card', file)
+  return api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}/id-card`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000,
+  })
+}
+
+export const uploadUnclaimedSignature = (sessionId: number, blob: Blob) => {
+  const formData = new FormData()
+  formData.append('signature', blob, 'signature.png')
+  return api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}/signature`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000,
+  })
+}
+
+export const startUnclaimedFetch = (sessionId: number, data: { loginTypeLevel: string; telecom: string }) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/unclaimed/sessions/${sessionId}/fetch`, data, { timeout: 300000 })
+
+export const confirmUnclaimedFetch = (sessionId: number, data: Record<string, string>) =>
+  api.post<ApiResponse<unknown>>(`${BASE}/unclaimed/sessions/${sessionId}/fetch/confirm`, data, { timeout: 300000 })
+
+export const analyzeUnclaimed = (sessionId: number) =>
+  api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}/analyze`, {}, { timeout: 120000 })
+
+export const fetchUnclaimedResults = (sessionId: number) =>
+  api.get<ApiResponse<import('../types').UnclaimedResult[]>>(`${BASE}/unclaimed/sessions/${sessionId}/results`)
+
+export const cancelUnclaimedSession = (sessionId: number) =>
+  api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}/cancel`)

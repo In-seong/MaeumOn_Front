@@ -581,3 +581,61 @@ export interface MessageTemplate {
   content: string
   category: string
 }
+
+// ===== 숨은 보험금 찾기 =====
+export interface UnclaimedSession {
+  session_id: number
+  agent_id: string
+  customer_id: string | null
+  customer_name: string
+  customer_phone: string
+  customer_birth_date: string
+  customer_address?: string
+  customer_detailed_address?: string
+  customer_gender?: 'M' | 'F' | 'OTHER'
+  customer_telecom?: string
+  status: 'consent' | 'identity_verify' | 'id_upload' | 'signature' | 'fetching' | 'analyzing' | 'completed' | 'cancelled'
+  id_card_path?: string
+  signature_path?: string
+  total_unclaimed_amount?: number
+  analyzed_at?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+  results?: UnclaimedResult[]
+  consents?: UnclaimedConsent[]
+}
+
+export interface UnclaimedResult {
+  result_id: number
+  session_id: number
+  visit_date?: string
+  hospital_name?: string
+  diagnosis?: string
+  treatment_type?: string
+  total_cost?: number
+  estimated_claim_amount?: number
+  matched_insurance_product?: string
+  matched_coverage?: string
+  claim_status: 'unclaimed' | 'claiming' | 'claimed' | 'not_applicable'
+  claim_id?: number
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface UnclaimedConsent {
+  consent_id: number
+  session_id: number
+  consent_template_id: number
+  agreed_at: string
+  template?: ConsentTemplateItem
+}
+
+export interface ConsentTemplateItem {
+  consent_template_id: number
+  consent_type: string
+  title: string
+  content: string
+  is_active: boolean
+}

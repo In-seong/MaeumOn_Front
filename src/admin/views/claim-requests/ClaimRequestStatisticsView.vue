@@ -66,6 +66,13 @@
         <div class="text-[12px] text-[#999] mb-1">기업 DB</div>
         <div class="text-[24px] font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</div>
       </div>
+      <div :class="[
+        'rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-5 py-4 min-w-[140px]',
+        store.summary.total_recall > 0 ? 'bg-[#FFF5F5]' : 'bg-white'
+      ]">
+        <div :class="['text-[12px] mb-1', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#999]']">회수</div>
+        <div :class="['text-[24px] font-bold', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#333]']">{{ store.summary.total_recall ?? 0 }}</div>
+      </div>
       <div class="bg-[#F8F8F8] rounded-[12px] px-5 py-4 flex items-center">
         <span class="text-[13px] text-[#999]">기간: {{ dateFrom }} ~ {{ dateTo }}</span>
       </div>
@@ -126,6 +133,7 @@
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상주 DB</th>
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">배분 DB</th>
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">기업 DB</th>
+            <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">회수</th>
             <th class="px-4 lg:px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase">합계</th>
           </tr>
         </thead>
@@ -136,6 +144,7 @@
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#2196F3] font-medium">{{ row.resident }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#FF7B22] font-medium">{{ row.distribution }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center text-[#4CAF50] font-medium">{{ row.corporate }}</td>
+            <td :class="['px-4 lg:px-6 py-4 text-[14px] text-center', (row.recall ?? 0) > 0 ? 'text-[#E86A33] font-semibold' : 'text-[#999]']">{{ row.recall ?? 0 }}</td>
             <td class="px-4 lg:px-6 py-4 text-[14px] text-center font-bold text-[#333]">{{ row.total }}</td>
           </tr>
         </tbody>
@@ -146,6 +155,7 @@
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#2196F3]">{{ store.summary.total_resident }}</td>
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</td>
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</td>
+            <td :class="['px-4 lg:px-6 py-3 text-[13px] text-center font-bold', (store.summary.total_recall ?? 0) > 0 ? 'text-[#E86A33]' : 'text-[#999]']">{{ store.summary.total_recall ?? 0 }}</td>
             <td class="px-4 lg:px-6 py-3 text-[13px] text-center font-bold text-[#333]">{{ store.summary.total }}</td>
           </tr>
         </tfoot>

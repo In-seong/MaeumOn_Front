@@ -223,6 +223,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/unclaimed',
+      name: 'unclaimed-wizard',
+      component: adaptiveView(
+        () => import('../views/unclaimed/UnclaimedWizardView.vue'),
+        () => import('../views-pc/unclaimed/PcUnclaimedWizardView.vue'),
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/unclaimed/:sessionId',
+      name: 'unclaimed-session',
+      component: adaptiveView(
+        () => import('../views/unclaimed/UnclaimedWizardView.vue'),
+        () => import('../views-pc/unclaimed/PcUnclaimedWizardView.vue'),
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/notifications',
       name: 'agent-notifications',
       component: adaptiveView(

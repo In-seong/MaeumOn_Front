@@ -82,6 +82,12 @@
             <path d="M20 10L12 14V20C12 26 15.5 30 20 32C24.5 30 28 26 28 20V14L20 10Z" fill="#FF7B22" opacity="0.2"/>
             <path d="M20 18C18.5 16 16 16 15 17.5C14 19 14.5 21 20 25C25.5 21 26 19 25 17.5C24 16 21.5 16 20 18Z" fill="#FF7B22" opacity="0.6"/>
           </svg>
+          <!-- 숨은 보험금: 돋보기+원화 -->
+          <svg v-else-if="item.icon === 'unclaimed'" width="45" height="45" viewBox="0 0 40 40" fill="none">
+            <circle cx="18" cy="18" r="10" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <line x1="25" y1="25" x2="33" y2="33" stroke="#FF7B22" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="18" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FF7B22">&#8361;</text>
+          </svg>
         </div>
         <span class="text-[13px] font-bold text-[#333]">{{ item.label }}</span>
         <span class="text-[11px] text-[#999] -mt-1">{{ item.sub }}</span>
@@ -107,6 +113,7 @@ const allMenuItems = [
   { icon: 'message', label: '메시지', sub: '안내 메시지 발송', path: '/messages/send', bgClass: 'bg-[#FFF3ED]', review: true },
   { icon: 'db', label: 'DB배분', sub: '배분 내역 관리', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]', review: true },
   { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]', review: false },
+  { icon: 'unclaimed', label: '숨은보험금', sub: '미청구 의료비 찾기', path: '/unclaimed', bgClass: 'bg-[#FFF3ED]', review: false },
 ]
 
 const menuItems = computed(() =>

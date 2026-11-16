@@ -67,6 +67,7 @@ const navGroups = computed<NavGroup[]>(() => {
   ]
   if (!isReviewAccount.value) {
     taskItems.push({ label: '보험·건강 조회', icon: 'health_and_safety', to: '/codef' })
+    taskItems.push({ label: '숨은 보험금', icon: 'search_insights', to: '/unclaimed' })
   }
   groups.push({ title: '업무 관리', collapsible: true, items: taskItems })
 
