@@ -17,15 +17,18 @@
     </div>
 
     <template v-else>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4 mb-6">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4 mb-6">
         <div
           v-for="card in summaryCards"
           :key="card.label"
-          class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5"
+          :class="[
+            'rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5',
+            card.warn ? 'bg-[#FFF5F5]' : 'bg-white'
+          ]"
         >
-          <p class="text-[13px] text-[#999] mb-2">{{ card.label }}</p>
-          <p class="text-[22px] font-bold text-[#333]">{{ card.value }}</p>
-          <p class="text-[12px] text-[#999] mt-1">{{ card.unit }}</p>
+          <p :class="['text-[13px] mb-2', card.warn ? 'text-[#E86A33]' : 'text-[#999]']">{{ card.label }}</p>
+          <p :class="['text-[22px] font-bold', card.warn ? 'text-[#E86A33]' : 'text-[#333]']">{{ card.value }}</p>
+          <p :class="['text-[12px] mt-1', card.warn ? 'text-[#E86A33]' : 'text-[#999]']">{{ card.unit }}</p>
         </div>
       </div>
 
@@ -66,10 +69,11 @@
               <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ agent.agent_name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] text-right">{{ agent.resident_count }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999] text-right">{{ agent.distribution_count }}</td>
+              <td :class="['px-6 py-4 whitespace-nowrap text-[14px] text-right', agent.recall_count > 0 ? 'text-[#E86A33] font-semibold' : 'text-[#999]']">{{ agent.recall_count }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-[14px] font-semibold text-[#333] text-right">{{ agent.total_count }}</td>
             </tr>
             <tr v-if="agents.length === 0">
-              <td colspan="4" class="px-6 py-10 text-center text-[#999]">
+              <td colspan="5" class="px-6 py-10 text-center text-[#999]">
                 배분 데이터가 없습니다.
               </td>
             </tr>
@@ -101,6 +105,7 @@ const columns = [
   { key: 'agent_name', label: '설계사명', align: 'left' },
   { key: 'resident_count', label: '상주 DB', align: 'right' },
   { key: 'distribution_count', label: '배분 DB', align: 'right' },
+  { key: 'recall_count', label: '회수', align: 'right' },
   { key: 'total_count', label: '합계', align: 'right' },
 ]
 
@@ -108,17 +113,19 @@ const summaryCards = computed(() => {
   const s = summary.value
   if (!s) {
     return [
-      { label: '상주 DB', value: '-', unit: '건' },
-      { label: '배분 DB', value: '-', unit: '건' },
-      { label: '전체 배분', value: '-', unit: '건' },
-      { label: '배분 설계사', value: '-', unit: '명' },
+      { label: '상주 DB', value: '-', unit: '건', warn: false },
+      { label: '배분 DB', value: '-', unit: '건', warn: false },
+      { label: '회수', value: '-', unit: '건', warn: false },
+      { label: '전체 배분', value: '-', unit: '건', warn: false },
+      { label: '배분 설계사', value: '-', unit: '명', warn: false },
     ]
   }
   return [
-    { label: '상주 DB', value: s.total_resident.toLocaleString(), unit: '건' },
-    { label: '배분 DB', value: s.total_distribution.toLocaleString(), unit: '건' },
-    { label: '전체 배분', value: s.total_all.toLocaleString(), unit: '건' },
-    { label: '배분 설계사', value: s.agent_count.toLocaleString(), unit: '명' },
+    { label: '상주 DB', value: s.total_resident.toLocaleString(), unit: '건', warn: false },
+    { label: '배분 DB', value: s.total_distribution.toLocaleString(), unit: '건', warn: false },
+    { label: '회수', value: s.total_recall.toLocaleString(), unit: '건', warn: s.total_recall > 0 },
+    { label: '전체 배분', value: s.total_all.toLocaleString(), unit: '건', warn: false },
+    { label: '배분 설계사', value: s.agent_count.toLocaleString(), unit: '명', warn: false },
   ]
 })
 

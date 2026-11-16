@@ -190,12 +190,14 @@ export interface DistributionStatAgent {
   agent_name: string
   resident_count: number
   distribution_count: number
+  recall_count: number
   total_count: number
 }
 
 export interface DistributionStatSummary {
   total_resident: number
   total_distribution: number
+  total_recall: number
   total_all: number
   agent_count: number
 }
