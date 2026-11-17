@@ -191,29 +191,31 @@
       </div>
 
       <!-- 콘텐츠 영역 -->
-      <div
-        class="flex-1 overflow-hidden relative"
-        @touchstart="onTouchStart"
-        @touchmove="onTouchMove"
-        @touchend="onTouchEnd"
-      >
+      <div class="flex-1 overflow-hidden relative">
         <!-- PDF -->
         <iframe
           v-if="previewItem.file_url && isPdf(previewItem)"
           :src="previewItem.file_url"
           class="w-full h-full bg-white"
         />
-        <!-- 이미지 (확대/축소 지원) -->
+        <!-- 이미지 (핀치 줌 + 패닝) -->
         <div
           v-else-if="previewItem.file_url"
-          class="w-full h-full flex items-center justify-center overflow-auto"
+          ref="imgContainerRef"
+          class="w-full h-full overflow-hidden touch-none"
+          @touchstart.prevent="onPinchStart"
+          @touchmove.prevent="onPinchMove"
+          @touchend.prevent="onPinchEnd"
+          @dblclick="toggleZoom"
         >
           <img
+            ref="imgRef"
             :src="previewItem.file_url"
             :alt="previewItem.title"
-            class="max-w-none transition-transform duration-200"
-            :style="{ transform: `scale(${zoomLevel})` }"
-            @dblclick="toggleZoom"
+            class="w-full h-auto select-none pointer-events-none"
+            :class="isAnimating ? 'transition-transform duration-200 ease-out' : ''"
+            :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoomLevel})`, transformOrigin: '0 0' }"
+            @load="onImageLoad"
           />
         </div>
       </div>
@@ -354,17 +356,31 @@ const previewItem = ref<AwardPlanItem | null>(null)
 const previewAllItems = ref<AwardPlanItem[]>([])
 const previewIndex = ref(0)
 const zoomLevel = ref(1)
+const panX = ref(0)
+const panY = ref(0)
+const isAnimating = ref(false)
+const imgContainerRef = ref<HTMLDivElement | null>(null)
+const imgRef = ref<HTMLImageElement | null>(null)
+
+const MIN_ZOOM = 1
+const MAX_ZOOM = 4
+
+function resetTransform() {
+  zoomLevel.value = 1
+  panX.value = 0
+  panY.value = 0
+}
 
 function openPreview(item: AwardPlanItem) {
   previewAllItems.value = [...awardItems.value]
   previewIndex.value = previewAllItems.value.findIndex(i => i.id === item.id)
   previewItem.value = item
-  zoomLevel.value = 1
+  resetTransform()
 }
 
 function closePreview() {
   previewItem.value = null
-  zoomLevel.value = 1
+  resetTransform()
 }
 
 function prevPreview() {
@@ -373,7 +389,7 @@ function prevPreview() {
     const item = previewAllItems.value[previewIndex.value]
     if (item) {
       previewItem.value = item
-      zoomLevel.value = 1
+      resetTransform()
     }
   }
 }
@@ -384,43 +400,127 @@ function nextPreview() {
     const item = previewAllItems.value[previewIndex.value]
     if (item) {
       previewItem.value = item
-      zoomLevel.value = 1
+      resetTransform()
     }
   }
 }
 
+function onImageLoad() {
+  resetTransform()
+}
+
 function toggleZoom() {
-  zoomLevel.value = zoomLevel.value === 1 ? 2.5 : 1
+  isAnimating.value = true
+  if (zoomLevel.value > 1) {
+    resetTransform()
+  } else {
+    zoomLevel.value = 2.5
+    panX.value = 0
+    panY.value = 0
+  }
+  setTimeout(() => { isAnimating.value = false }, 220)
 }
 
-// 스와이프 제스처
-let touchStartX = 0
-let touchStartY = 0
+function clampPan() {
+  const container = imgContainerRef.value
+  const img = imgRef.value
+  if (!container || !img) return
+  const cw = container.clientWidth
+  const ch = container.clientHeight
+  const iw = img.naturalWidth
+  const ih = img.naturalHeight
+  const displayW = cw
+  const displayH = (ih / iw) * cw
+  const scaledW = displayW * zoomLevel.value
+  const scaledH = displayH * zoomLevel.value
 
-function onTouchStart(e: TouchEvent) {
-  const touch = e.touches[0]
-  if (!touch) return
-  touchStartX = touch.clientX
-  touchStartY = touch.clientY
+  if (scaledW <= cw) {
+    panX.value = (cw - scaledW) / 2
+  } else {
+    panX.value = Math.min(0, Math.max(cw - scaledW, panX.value))
+  }
+  if (scaledH <= ch) {
+    panY.value = (ch - scaledH) / 2
+  } else {
+    panY.value = Math.min(0, Math.max(ch - scaledH, panY.value))
+  }
 }
 
-function onTouchMove(e: TouchEvent) {
-  if (zoomLevel.value > 1) return
-  e.preventDefault()
+// 핀치 줌 + 패닝
+let pinchStartDist = 0
+let pinchStartZoom = 1
+let panStartX = 0
+let panStartY = 0
+let panStartPanX = 0
+let panStartPanY = 0
+let isPinching = false
+let swipeStartX = 0
+let swipeStartY = 0
+
+function getDist(t1: Touch, t2: Touch): number {
+  return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
 }
 
-function onTouchEnd(e: TouchEvent) {
-  if (zoomLevel.value > 1) return
-  const touch = e.changedTouches[0]
-  if (!touch) return
-  const dx = touch.clientX - touchStartX
-  const dy = touch.clientY - touchStartY
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-    if (dx < 0) {
-      nextPreview()
-    } else {
-      prevPreview()
+function onPinchStart(e: TouchEvent) {
+  const t0 = e.touches[0]
+  if (!t0) return
+  if (e.touches.length === 2) {
+    const t1 = e.touches[1]
+    if (!t1) return
+    isPinching = true
+    pinchStartDist = getDist(t0, t1)
+    pinchStartZoom = zoomLevel.value
+  } else {
+    isPinching = false
+    panStartX = t0.clientX
+    panStartY = t0.clientY
+    panStartPanX = panX.value
+    panStartPanY = panY.value
+    swipeStartX = t0.clientX
+    swipeStartY = t0.clientY
+  }
+  isAnimating.value = false
+}
+
+function onPinchMove(e: TouchEvent) {
+  const t0 = e.touches[0]
+  if (!t0) return
+  if (e.touches.length === 2 && isPinching) {
+    const t1 = e.touches[1]
+    if (!t1) return
+    const dist = getDist(t0, t1)
+    const scale = dist / pinchStartDist
+    zoomLevel.value = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, pinchStartZoom * scale))
+    clampPan()
+  } else if (zoomLevel.value > 1 && !isPinching) {
+    panX.value = panStartPanX + (t0.clientX - panStartX)
+    panY.value = panStartPanY + (t0.clientY - panStartY)
+  }
+}
+
+function onPinchEnd(e: TouchEvent) {
+  if (isPinching && e.touches.length < 2) {
+    isPinching = false
+    isAnimating.value = true
+    if (zoomLevel.value < MIN_ZOOM) zoomLevel.value = MIN_ZOOM
+    clampPan()
+    setTimeout(() => { isAnimating.value = false }, 220)
+    return
+  }
+
+  if (zoomLevel.value <= 1) {
+    const touch = e.changedTouches[0]
+    if (!touch) return
+    const dx = touch.clientX - swipeStartX
+    const dy = touch.clientY - swipeStartY
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) nextPreview()
+      else prevPreview()
     }
+  } else {
+    isAnimating.value = true
+    clampPan()
+    setTimeout(() => { isAnimating.value = false }, 220)
   }
 }
 
