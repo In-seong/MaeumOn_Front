@@ -25,7 +25,7 @@
           <div
             v-for="noti in notifications"
             :key="noti.notification_id"
-            class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4 transition-colors"
+            class="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4 transition-colors cursor-pointer"
             :class="noti.is_read ? 'opacity-60' : ''"
             @click="handleMarkRead(noti)"
           >
@@ -47,6 +47,21 @@
                 <p class="text-[13px] text-[#666] leading-relaxed">{{ noti.content }}</p>
                 <p class="text-[11px] text-[#BBB] mt-1.5">{{ formatDate(noti.created_at ?? '') }}</p>
               </div>
+              <!-- 이동 가능한 알림에 화살표 표시 -->
+              <svg
+                v-if="isNavigable(noti.notification_type)"
+                class="flex-shrink-0 mt-3"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#CCC"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </div>
           </div>
         </div>
@@ -63,11 +78,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import { useNotificationStore } from '../../stores/notificationStore'
 import type { AgentNotification } from '../../types'
 
+const router = useRouter()
 const store = useNotificationStore()
 const markingAllRead = ref(false)
 
@@ -81,6 +98,7 @@ onMounted(() => {
 
 async function handleMarkRead(noti: AgentNotification): Promise<void> {
   await store.markRead(noti)
+  navigateByNotification(noti)
 }
 
 async function handleMarkAllRead(): Promise<void> {
@@ -90,6 +108,72 @@ async function handleMarkAllRead(): Promise<void> {
   } finally {
     markingAllRead.value = false
   }
+}
+
+/** 알림 타입에 따라 해당 화면으로 이동 */
+function navigateByNotification(noti: AgentNotification): void {
+  const refId = noti.reference_id
+  const refType = noti.reference_type
+
+  switch (noti.notification_type) {
+    case 'ASSIGNMENT':
+    case 'db_inflow':
+      if (refType === 'customer' && refId) {
+        router.push({ name: 'customer-detail', params: { id: refId } })
+      } else {
+        router.push({ name: 'db-distribution' })
+      }
+      break
+
+    case 'BIRTHDAY':
+    case 'schedule':
+      router.push({ name: 'schedule' })
+      break
+
+    case 'CLAIM_REQUEST':
+      router.push({ name: 'agent-claim-list' })
+      break
+
+    case 'FAX_RESULT':
+      if (refType === 'claim' && refId) {
+        router.push({ name: 'agent-claim-detail', params: { id: refId } })
+      } else {
+        router.push({ name: 'agent-claim-list' })
+      }
+      break
+
+    case 'consultation':
+      router.push({ name: 'consultation-list' })
+      break
+
+    case 'health_checkup_risk':
+      if (refType === 'customer' && refId) {
+        router.push({ name: 'codef-dashboard', params: { customerId: refId } })
+      } else {
+        router.push({ name: 'codef' })
+      }
+      break
+
+    case 'customer_registered':
+      if (refType === 'customer' && refId) {
+        router.push({ name: 'customer-detail', params: { id: refId } })
+      }
+      break
+
+    // NOTICE, ADMIN_MESSAGE: 알림 내용 확인용이므로 이동 없음
+    default:
+      break
+  }
+}
+
+/** 이동 가능한 알림 타입인지 확인 */
+function isNavigable(type: string): boolean {
+  const navigableTypes = [
+    'ASSIGNMENT', 'db_inflow', 'BIRTHDAY', 'schedule',
+    'CLAIM_REQUEST', 'FAX_RESULT', 'consultation',
+    'health_checkup_risk', 'customer_registered',
+  ]
+  return navigableTypes.includes(type)
 }
 
 function iconBg(type: string): string {

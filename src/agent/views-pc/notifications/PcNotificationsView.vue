@@ -28,6 +28,7 @@
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">제목</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">내용</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider w-[140px]">시간</th>
+            <th class="px-3 py-3 w-[40px]" />
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
@@ -58,9 +59,24 @@
             <td class="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#333]">{{ noti.title }}</td>
             <td class="px-6 py-4 text-[14px] text-[#666] max-w-[400px] truncate">{{ noti.content }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-[13px] text-[#999]">{{ formatDate(noti.created_at ?? '') }}</td>
+            <td class="px-3 py-4 text-center">
+              <svg
+                v-if="isNavigable(noti.notification_type)"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#CCC"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </td>
           </tr>
           <tr v-if="notifications.length === 0">
-            <td colspan="5" class="px-6 py-16 text-center text-[14px] text-[#999]">
+            <td colspan="6" class="px-6 py-16 text-center text-[14px] text-[#999]">
               알림이 없습니다
             </td>
           </tr>
@@ -72,9 +88,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useNotificationStore } from '../../stores/notificationStore'
 import type { AgentNotification } from '../../types'
 
+const router = useRouter()
 const store = useNotificationStore()
 const markingAllRead = ref(false)
 
@@ -88,6 +106,7 @@ onMounted(() => {
 
 async function handleMarkRead(noti: AgentNotification): Promise<void> {
   await store.markRead(noti)
+  navigateByNotification(noti)
 }
 
 async function handleMarkAllRead(): Promise<void> {
@@ -97,6 +116,72 @@ async function handleMarkAllRead(): Promise<void> {
   } finally {
     markingAllRead.value = false
   }
+}
+
+/** 알림 타입에 따라 해당 화면으로 이동 */
+function navigateByNotification(noti: AgentNotification): void {
+  const refId = noti.reference_id
+  const refType = noti.reference_type
+
+  switch (noti.notification_type) {
+    case 'ASSIGNMENT':
+    case 'db_inflow':
+      if (refType === 'customer' && refId) {
+        router.push({ name: 'customer-detail', params: { id: refId } })
+      } else {
+        router.push({ name: 'db-distribution' })
+      }
+      break
+
+    case 'BIRTHDAY':
+    case 'schedule':
+      router.push({ name: 'schedule' })
+      break
+
+    case 'CLAIM_REQUEST':
+      router.push({ name: 'agent-claim-list' })
+      break
+
+    case 'FAX_RESULT':
+      if (refType === 'claim' && refId) {
+        router.push({ name: 'agent-claim-detail', params: { id: refId } })
+      } else {
+        router.push({ name: 'agent-claim-list' })
+      }
+      break
+
+    case 'consultation':
+      router.push({ name: 'consultation-list' })
+      break
+
+    case 'health_checkup_risk':
+      if (refType === 'customer' && refId) {
+        router.push({ name: 'codef-dashboard', params: { customerId: refId } })
+      } else {
+        router.push({ name: 'codef' })
+      }
+      break
+
+    case 'customer_registered':
+      if (refType === 'customer' && refId) {
+        router.push({ name: 'customer-detail', params: { id: refId } })
+      }
+      break
+
+    // NOTICE, ADMIN_MESSAGE: 알림 내용 확인용이므로 이동 없음
+    default:
+      break
+  }
+}
+
+/** 이동 가능한 알림 타입인지 확인 */
+function isNavigable(type: string): boolean {
+  const navigableTypes = [
+    'ASSIGNMENT', 'db_inflow', 'BIRTHDAY', 'schedule',
+    'CLAIM_REQUEST', 'FAX_RESULT', 'consultation',
+    'health_checkup_risk', 'customer_registered',
+  ]
+  return navigableTypes.includes(type)
 }
 
 function typeLabel(type: string): string {

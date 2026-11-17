@@ -223,6 +223,8 @@ export interface AgentNotification {
   read_at?: string
   sent_at?: string
   created_at?: string
+  reference_id?: string | null
+  reference_type?: string | null
 }
 
 // ===== DisclosureObligation (알릴의무) =====
