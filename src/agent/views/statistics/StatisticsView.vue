@@ -409,14 +409,22 @@ function onImageLoad() {
   resetTransform()
 }
 
-function toggleZoom() {
+function toggleZoom(e: MouseEvent) {
   isAnimating.value = true
   if (zoomLevel.value > 1) {
     resetTransform()
   } else {
-    zoomLevel.value = 2.5
-    panX.value = 0
-    panY.value = 0
+    const rect = imgContainerRef.value?.getBoundingClientRect()
+    const tapX = e.clientX - (rect?.left ?? 0)
+    const tapY = e.clientY - (rect?.top ?? 0)
+    const focalX = tapX - panX.value
+    const focalY = tapY - panY.value
+    const newZoom = 2.5
+    const scaleFactor = newZoom / zoomLevel.value
+    panX.value = tapX - focalX * scaleFactor
+    panY.value = tapY - focalY * scaleFactor
+    zoomLevel.value = newZoom
+    clampPan()
   }
   setTimeout(() => { isAnimating.value = false }, 220)
 }
@@ -446,9 +454,13 @@ function clampPan() {
   }
 }
 
-// 핀치 줌 + 패닝
+// 핀치 줌 + 패닝 (focal point 기준)
 let pinchStartDist = 0
 let pinchStartZoom = 1
+let pinchStartPanX = 0
+let pinchStartPanY = 0
+let pinchMidX = 0
+let pinchMidY = 0
 let panStartX = 0
 let panStartY = 0
 let panStartPanX = 0
@@ -470,6 +482,11 @@ function onPinchStart(e: TouchEvent) {
     isPinching = true
     pinchStartDist = getDist(t0, t1)
     pinchStartZoom = zoomLevel.value
+    pinchStartPanX = panX.value
+    pinchStartPanY = panY.value
+    const rect = imgContainerRef.value?.getBoundingClientRect()
+    pinchMidX = (t0.clientX + t1.clientX) / 2 - (rect?.left ?? 0)
+    pinchMidY = (t0.clientY + t1.clientY) / 2 - (rect?.top ?? 0)
   } else {
     isPinching = false
     panStartX = t0.clientX
@@ -489,8 +506,14 @@ function onPinchMove(e: TouchEvent) {
     const t1 = e.touches[1]
     if (!t1) return
     const dist = getDist(t0, t1)
-    const scale = dist / pinchStartDist
-    zoomLevel.value = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, pinchStartZoom * scale))
+    const ratio = dist / pinchStartDist
+    const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, pinchStartZoom * ratio))
+    const focalX = pinchMidX - pinchStartPanX
+    const focalY = pinchMidY - pinchStartPanY
+    const scaleFactor = newZoom / pinchStartZoom
+    panX.value = pinchMidX - focalX * scaleFactor
+    panY.value = pinchMidY - focalY * scaleFactor
+    zoomLevel.value = newZoom
     clampPan()
   } else if (zoomLevel.value > 1 && !isPinching) {
     panX.value = panStartPanX + (t0.clientX - panStartX)
