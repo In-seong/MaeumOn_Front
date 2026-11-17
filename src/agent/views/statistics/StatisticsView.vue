@@ -192,32 +192,36 @@
 
       <!-- 콘텐츠 영역 -->
       <div class="flex-1 overflow-hidden relative">
-        <!-- PDF -->
-        <iframe
-          v-if="previewItem.file_url && isPdf(previewItem)"
-          :src="previewItem.file_url"
-          class="w-full h-full bg-white"
-        />
-        <!-- 이미지 (핀치 줌 + 패닝) -->
-        <div
-          v-else-if="previewItem.file_url"
-          ref="imgContainerRef"
-          class="w-full h-full overflow-hidden touch-none"
-          @touchstart.prevent="onPinchStart"
-          @touchmove.prevent="onPinchMove"
-          @touchend.prevent="onPinchEnd"
-          @dblclick="toggleZoom"
-        >
-          <img
-            ref="imgRef"
-            :src="previewItem.file_url"
-            :alt="previewItem.title"
-            class="w-full h-auto select-none pointer-events-none"
-            :class="isAnimating ? 'transition-transform duration-200 ease-out' : ''"
-            :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoomLevel})`, transformOrigin: '0 0' }"
-            @load="onImageLoad"
-          />
-        </div>
+        <transition :name="'slide-' + slideDirection" mode="out-in">
+          <div :key="previewIndex" class="absolute inset-0">
+            <!-- PDF -->
+            <iframe
+              v-if="previewItem.file_url && isPdf(previewItem)"
+              :src="previewItem.file_url"
+              class="w-full h-full bg-white"
+            />
+            <!-- 이미지 (핀치 줌 + 패닝) -->
+            <div
+              v-else-if="previewItem.file_url"
+              ref="imgContainerRef"
+              class="w-full h-full overflow-hidden touch-none"
+              @touchstart.prevent="onPinchStart"
+              @touchmove.prevent="onPinchMove"
+              @touchend.prevent="onPinchEnd"
+              @dblclick="toggleZoom"
+            >
+              <img
+                ref="imgRef"
+                :src="previewItem.file_url"
+                :alt="previewItem.title"
+                class="w-full h-auto select-none pointer-events-none"
+                :class="isAnimating ? 'transition-transform duration-200 ease-out' : ''"
+                :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoomLevel})`, transformOrigin: '0 0' }"
+                @load="onImageLoad"
+              />
+            </div>
+          </div>
+        </transition>
       </div>
 
       <!-- 하단 컨트롤 -->
@@ -361,6 +365,7 @@ const panY = ref(0)
 const isAnimating = ref(false)
 const imgContainerRef = ref<HTMLDivElement | null>(null)
 const imgRef = ref<HTMLImageElement | null>(null)
+const slideDirection = ref<'left' | 'right'>('left')
 
 const MIN_ZOOM = 1
 const MAX_ZOOM = 4
@@ -385,6 +390,7 @@ function closePreview() {
 
 function prevPreview() {
   if (previewIndex.value > 0) {
+    slideDirection.value = 'right'
     previewIndex.value--
     const item = previewAllItems.value[previewIndex.value]
     if (item) {
@@ -396,6 +402,7 @@ function prevPreview() {
 
 function nextPreview() {
   if (previewIndex.value < previewAllItems.value.length - 1) {
+    slideDirection.value = 'left'
     previewIndex.value++
     const item = previewAllItems.value[previewIndex.value]
     if (item) {
@@ -553,3 +560,28 @@ onMounted(() => {
   loadFormItems()
 })
 </script>
+
+<style scoped>
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+.slide-left-enter-from {
+  transform: translateX(30%);
+  opacity: 0;
+}
+.slide-left-leave-to {
+  transform: translateX(-30%);
+  opacity: 0;
+}
+.slide-right-enter-from {
+  transform: translateX(-30%);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(30%);
+  opacity: 0;
+}
+</style>
