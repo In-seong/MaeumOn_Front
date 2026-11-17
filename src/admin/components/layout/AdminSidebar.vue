@@ -69,6 +69,7 @@ const navGroups: NavGroup[] = [
       { label: '청구 신청 관리', icon: 'assignment', to: '/claim-requests', match: ['/claim-requests'] },
       { label: '배정 통계', icon: 'leaderboard', to: '/claim-requests/statistics', match: ['/claim-requests/statistics'] },
       { label: '배너 관리', icon: 'image', to: '/banners', match: ['/banners'], superOnly: true },
+      { label: '팝업 공지', icon: 'campaign', to: '/popup-notices', match: ['/popup-notices'], superOnly: true },
     ],
   },
   {

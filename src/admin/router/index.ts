@@ -241,6 +241,13 @@ const router = createRouter({
       component: () => import('../views/banners/BannerListView.vue'),
       meta: { requiresAuth: true, superOnly: true },
     },
+    // 팝업 공지 관리 (슈퍼 관리자)
+    {
+      path: '/popup-notices',
+      name: 'popup-notices',
+      component: () => import('../views/popup-notices/PopupNoticeListView.vue'),
+      meta: { requiresAuth: true, superOnly: true },
+    },
     // 청구 신청 관리
     {
       path: '/claim-requests',

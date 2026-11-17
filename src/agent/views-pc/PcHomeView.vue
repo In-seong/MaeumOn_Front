@@ -140,6 +140,36 @@
         </div>
       </div>
     </div>
+    <!-- 팝업 공지 모달 -->
+    <div
+      v-if="currentPopup"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      @click.self="dismissPopup(false)"
+    >
+      <div class="relative w-full max-w-[480px]">
+        <button
+          class="absolute -top-10 right-0 w-8 h-8 flex items-center justify-center"
+          @click="dismissPopup(false)"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <img
+          v-if="currentPopup.image_url"
+          :src="currentPopup.image_url"
+          :alt="currentPopup.title"
+          class="w-full rounded-2xl cursor-pointer"
+          @click="openPopupLink"
+        />
+        <button
+          class="w-full mt-3 py-2.5 text-[13px] text-white/80 bg-black/30 rounded-xl backdrop-blur-sm"
+          @click="dismissPopup(true)"
+        >
+          오늘 하루 안보기
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -149,7 +179,8 @@ import { useRouter } from 'vue-router'
 import { useScheduleStore } from '../stores/scheduleStore'
 import { useNotificationStore } from '../stores/notificationStore'
 import { useAgentAuthStore } from '../stores/agentAuthStore'
-import { fetchTodayTasks, toggleScheduleComplete } from '../services/agentApi'
+import { fetchTodayTasks, toggleScheduleComplete, fetchActivePopupNotices } from '../services/agentApi'
+import type { PopupNoticeItem } from '../services/agentApi'
 import type { CalendarEvent, DashboardTask } from '../types'
 
 const router = useRouter()
@@ -216,6 +247,50 @@ function daysUntilVariant(dateStr: string): string {
   return 'text-[#999]'
 }
 
+// 팝업 공지
+const popupNotices = ref<PopupNoticeItem[]>([])
+const popupIndex = ref(0)
+const currentPopup = computed(() => {
+  const item = popupNotices.value[popupIndex.value]
+  return item ?? null
+})
+
+function isDismissedToday(id: number): boolean {
+  try {
+    const today = new Date().toISOString().slice(0, 10)
+    return localStorage.getItem(`popup_dismissed_${id}_${today}`) === '1'
+  } catch {
+    return false
+  }
+}
+
+function dismissPopup(hideToday: boolean) {
+  const popup = currentPopup.value
+  if (popup && hideToday) {
+    try {
+      const today = new Date().toISOString().slice(0, 10)
+      localStorage.setItem(`popup_dismissed_${popup.popup_notice_id}_${today}`, '1')
+    } catch { /* silent */ }
+  }
+  popupIndex.value++
+}
+
+function openPopupLink() {
+  const popup = currentPopup.value
+  if (popup?.link_url) {
+    window.open(popup.link_url, '_blank', 'noopener')
+  }
+}
+
+async function loadPopupNotices() {
+  try {
+    const res = await fetchActivePopupNotices()
+    const all: PopupNoticeItem[] = res.data?.data ?? []
+    popupNotices.value = all.filter(p => !isDismissedToday(p.popup_notice_id))
+    popupIndex.value = 0
+  } catch { /* silent */ }
+}
+
 const todayTasks = ref<DashboardTask[]>([])
 
 async function toggleTodo(id: string) {
@@ -239,6 +314,7 @@ onMounted(async () => {
     fetchTodayTasks().then(res => {
       todayTasks.value = res.data?.data ?? []
     }).catch(() => {}),
+    loadPopupNotices(),
   ])
 })
 </script>

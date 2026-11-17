@@ -339,6 +339,37 @@ export const updateBanner = (id: number, formData: FormData) =>
 export const deleteBanner = (id: number) =>
   api.delete(`${BASE}/banners/${id}`)
 
+// ===== PopupNotices (팝업 공지) =====
+export interface PopupNoticeItem {
+  popup_notice_id: number
+  title: string
+  image_path: string | null
+  image_url: string | null
+  link_url: string | null
+  start_date: string
+  end_date: string
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export const fetchPopupNotices = () =>
+  api.get<ApiResponse<PopupNoticeItem[]>>(`${BASE}/popup-notices`)
+
+export const createPopupNotice = (formData: FormData) =>
+  api.post<ApiResponse<PopupNoticeItem>>(`${BASE}/popup-notices`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const updatePopupNotice = (id: number, formData: FormData) =>
+  api.post<ApiResponse<PopupNoticeItem>>(`${BASE}/popup-notices/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+
+export const deletePopupNotice = (id: number) =>
+  api.delete(`${BASE}/popup-notices/${id}`)
+
 // ===== Branches (지사 관리) =====
 export const fetchBranches = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<BranchData[]>>(`${BASE}/branches`, { params })

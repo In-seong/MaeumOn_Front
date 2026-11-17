@@ -522,3 +522,16 @@ export const fetchUnclaimedResults = (sessionId: number) =>
 
 export const cancelUnclaimedSession = (sessionId: number) =>
   api.post<ApiResponse<import('../types').UnclaimedSession>>(`${BASE}/unclaimed/sessions/${sessionId}/cancel`)
+
+// ===== Popup Notices (팝업 공지) =====
+export interface PopupNoticeItem {
+  popup_notice_id: number
+  title: string
+  image_url: string | null
+  link_url: string | null
+  start_date: string
+  end_date: string
+}
+
+export const fetchActivePopupNotices = () =>
+  api.get<ApiResponse<PopupNoticeItem[]>>(`${BASE}/popup-notices/active`)
