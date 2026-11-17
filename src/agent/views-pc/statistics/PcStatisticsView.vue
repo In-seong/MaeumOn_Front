@@ -15,6 +15,21 @@ const awardMonths = ref<AwardPlanMonth[]>([])
 const awardLoading = ref(false)
 const previewItem = ref<AwardPlanItem | null>(null)
 
+const awardCategory = ref<string | null>(null)
+
+const awardCategoryTabs = [
+  { key: null, label: '전체', color: '#FF7B22' },
+  { key: 'non-life', label: '손해보험', color: '#3B82F6' },
+  { key: 'life', label: '생명보험', color: '#8B5CF6' },
+  { key: 'cooperative', label: '공제조합', color: '#10B981' },
+] as const
+
+const filteredAwardItems = computed(() =>
+  awardCategory.value
+    ? awardItems.value.filter(i => i.category === awardCategory.value)
+    : awardItems.value
+)
+
 const now = new Date()
 const selectedYear = ref(now.getFullYear())
 const selectedMonth = ref(now.getMonth() + 1)
@@ -178,13 +193,32 @@ onMounted(async () => {
         </button>
       </div>
 
+      <!-- 카테고리 필터 -->
+      <div class="flex gap-2 mb-5">
+        <button
+          v-for="tab in awardCategoryTabs"
+          :key="tab.key ?? 'all'"
+          :class="[
+            'px-4 py-2 rounded-lg text-[14px] font-medium transition-colors border',
+            awardCategory === tab.key
+              ? 'text-white border-transparent'
+              : 'bg-white text-[#555] border-[#E0E0E0] hover:bg-[#F5F5F5]',
+          ]"
+          :style="awardCategory === tab.key ? { backgroundColor: tab.color } : {}"
+          @click="awardCategory = tab.key"
+        >
+          {{ tab.label }}
+          <span class="ml-1 text-[12px] opacity-80">({{ tab.key ? awardItems.filter(i => i.category === tab.key).length : awardItems.length }})</span>
+        </button>
+      </div>
+
       <!-- 로딩 -->
       <div v-if="awardLoading" class="bg-white rounded-xl border border-[#E8E8E8] p-20 text-center text-[#999]">
         불러오는 중...
       </div>
 
       <!-- 빈 상태 -->
-      <div v-else-if="!awardItems.length" class="bg-white rounded-xl border border-[#E8E8E8] p-20 text-center">
+      <div v-else-if="!filteredAwardItems.length" class="bg-white rounded-xl border border-[#E8E8E8] p-20 text-center">
         <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#F5F5F5] flex items-center justify-center">
           <span class="material-symbols-outlined text-[28px] text-[#CCC]">emoji_events</span>
         </div>
@@ -194,7 +228,7 @@ onMounted(async () => {
       <!-- 카드 그리드 -->
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         <div
-          v-for="item in awardItems"
+          v-for="item in filteredAwardItems"
           :key="item.id"
           class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
           @click="previewItem = item"

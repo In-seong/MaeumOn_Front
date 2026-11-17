@@ -441,6 +441,7 @@ export interface AwardPlanItem {
   id: number
   form_download_id: number | null
   company_name?: string
+  category?: string
   title: string
   file_path: string
   file_name: string

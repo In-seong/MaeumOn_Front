@@ -44,7 +44,7 @@
               <span class="text-[15px] font-bold text-[#333]">
                 {{ selectedYear }}년 {{ selectedMonth }}월
               </span>
-              <span class="text-[12px] text-[#999] ml-1">({{ awardItems.length }}건)</span>
+              <span class="text-[12px] text-[#999] ml-1">({{ filteredAwardItems.length }}건)</span>
             </div>
             <button
               class="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#F0F0F0]"
@@ -61,13 +61,32 @@
             13개월 전
           </button>
 
+          <!-- 카테고리 필터 -->
+          <div class="flex gap-2 mb-3 overflow-x-auto">
+            <button
+              v-for="tab in awardCategoryTabs"
+              :key="tab.key ?? 'all'"
+              :class="[
+                'px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors border whitespace-nowrap',
+                awardCategory === tab.key
+                  ? 'text-white border-transparent'
+                  : 'bg-white text-[#555] border-[#E0E0E0]',
+              ]"
+              :style="awardCategory === tab.key ? { backgroundColor: tab.color } : {}"
+              @click="awardCategory = tab.key"
+            >
+              {{ tab.label }}
+              <span class="ml-0.5 text-[11px] opacity-80">({{ tab.key ? awardItems.filter(i => i.category === tab.key).length : awardItems.length }})</span>
+            </button>
+          </div>
+
           <!-- 로딩 -->
           <div v-if="awardLoading" class="py-16 text-center text-[#999] text-[14px]">
             불러오는 중...
           </div>
 
           <!-- 빈 상태 -->
-          <div v-else-if="!awardItems.length" class="py-16 text-center">
+          <div v-else-if="!filteredAwardItems.length" class="py-16 text-center">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-[#FFF0E5] flex items-center justify-center">
               <span class="material-symbols-outlined text-[28px] text-[#FF7B22]">emoji_events</span>
             </div>
@@ -77,7 +96,7 @@
           <!-- 카드 그리드 (2열) -->
           <div v-else class="grid grid-cols-2 gap-3">
             <div
-              v-for="item in awardItems"
+              v-for="item in filteredAwardItems"
               :key="item.id"
               class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden active:scale-[0.98] transition-transform"
               @click="openPreview(item)"
@@ -263,6 +282,22 @@ import { fetchAwardPlans, fetchAwardPlanMonths, fetchFormDownloads, getFormDownl
 import type { AwardPlanItem, FormDownloadItem } from '../../services/agentApi'
 
 const activeTab = ref<'award' | 'form'>('award')
+
+// ===== 시상안 카테고리 필터 =====
+const awardCategory = ref<string | null>(null)
+
+const awardCategoryTabs = [
+  { key: null, label: '전체', color: '#FF7B22' },
+  { key: 'non-life', label: '손보', color: '#3B82F6' },
+  { key: 'life', label: '생보', color: '#8B5CF6' },
+  { key: 'cooperative', label: '공제', color: '#10B981' },
+] as const
+
+const filteredAwardItems = computed(() =>
+  awardCategory.value
+    ? awardItems.value.filter(i => i.category === awardCategory.value)
+    : awardItems.value
+)
 
 // ===== 청구서 양식 =====
 const formItems = ref<FormDownloadItem[]>([])
