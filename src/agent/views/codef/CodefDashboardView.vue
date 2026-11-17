@@ -632,7 +632,7 @@
               <div v-if="selectedMedical.treatment_type" class="flex justify-between"><span class="text-[#999]">진료유형</span><span class="text-[#333]">{{ selectedMedical.treatment_type }}</span></div>
               <div v-if="selectedMedical.diagnosis_name" class="flex justify-between"><span class="text-[#999]">진단명</span><span class="text-[#333]">{{ selectedMedical.diagnosis_name }}</span></div>
               <div v-if="selectedMedical.diagnosis_code" class="flex justify-between"><span class="text-[#999]">질병코드</span><span class="text-[#333]">{{ selectedMedical.diagnosis_code }}</span></div>
-              <div v-if="selectedMedical.visit_days" class="flex justify-between"><span class="text-[#999]">내원일수</span><span class="text-[#333]">{{ selectedMedical.visit_days }}일</span></div>
+              <div v-if="selectedMedical.visit_days != null" class="flex justify-between"><span class="text-[#999]">일수</span><span class="text-[#333]">{{ selectedMedical.visit_days }}일</span></div>
               <div v-if="selectedMedical.total_amount" class="flex justify-between"><span class="text-[#999]">총진료비</span><span class="text-[#333] font-medium">{{ formatCurrency(selectedMedical.total_amount) }}</span></div>
               <div v-if="selectedMedical.public_charge" class="flex justify-between"><span class="text-[#999]">공단부담</span><span class="text-[#333]">{{ formatCurrency(selectedMedical.public_charge) }}</span></div>
               <div v-if="selectedMedical.deductible_amt" class="flex justify-between"><span class="text-[#999]">본인부담</span><span class="text-[#333] font-medium">{{ formatCurrency(selectedMedical.deductible_amt) }}</span></div>
@@ -842,7 +842,7 @@ import { useToast } from '../../composables/useToast'
 import * as api from '../../services/agentApi'
 import type { MedicalRecordFull, HealthCheckupRecord } from '../../types'
 import type { InsuranceContract } from '@shared/types'
-import { exportToExcel } from '@shared/utils/exportExcel'
+import { exportToExcelMultiSheet } from '@shared/utils/exportExcel'
 
 const route = useRoute()
 const store = useCodefStore()
@@ -1040,11 +1040,27 @@ function hasSurgery(rec: any): boolean {
 
 const selectedHasSurgery = computed(() => hasSurgery(selectedMedical.value))
 
+function isPharmacy(rec: any): boolean {
+  return rec.hospital_name?.includes('약국') || rec.treatment_type === '약국'
+}
+
+function getSurgeryDetails(rec: any): string {
+  const details = safeParseJson(rec?.detail_treat_list_json)
+  return details
+    .filter((d: any) => d.resTreatType?.includes('수술'))
+    .map((d: any) => d.resCodeName || d.resTreatType || '')
+    .filter(Boolean)
+    .join(', ')
+}
+
 function downloadMedicalExcel() {
   const records = store.medicalRecords
   if (records.length === 0) return
 
-  const rows = records.map(rec => ({
+  const hospitalRecords = records.filter(rec => !isPharmacy(rec))
+  const pharmacyRecords = records.filter(rec => isPharmacy(rec))
+
+  const hospitalRows = hospitalRecords.map(rec => ({
     treatment_date: rec.treatment_date ?? '',
     hospital_name: rec.hospital_name ?? '',
     department: rec.department ?? '',
@@ -1056,22 +1072,58 @@ function downloadMedicalExcel() {
     public_charge: rec.public_charge ?? '',
     deductible_amt: rec.deductible_amt ?? '',
     surgery: hasSurgery(rec) ? 'O' : 'X',
+    surgery_details: getSurgeryDetails(rec),
   })) as Record<string, unknown>[]
 
+  const pharmacyRows = pharmacyRecords.map(rec => {
+    const drugs = safeParseJson(rec.prescribe_drug_list_json)
+    const drugNames = drugs.map((d: any) => d.resDrugName || '').filter(Boolean).join(', ')
+    return {
+      treatment_date: rec.treatment_date ?? '',
+      hospital_name: rec.hospital_name ?? '',
+      diagnosis_name: rec.diagnosis_name ?? '',
+      total_amount: rec.total_amount ?? '',
+      public_charge: rec.public_charge ?? '',
+      deductible_amt: rec.deductible_amt ?? '',
+      drug_names: drugNames,
+    } as Record<string, unknown>
+  })
+
   const name = customerName.value || '고객'
-  exportToExcel(rows, [
-    { key: '__index__', label: 'No.' },
-    { key: 'treatment_date', label: '진료일자' },
-    { key: 'hospital_name', label: '병원/약국명' },
-    { key: 'department', label: '진료과' },
-    { key: 'diagnosis_name', label: '진단명' },
-    { key: 'diagnosis_code', label: '질병코드' },
-    { key: 'treatment_type', label: '진료유형' },
-    { key: 'visit_days', label: '내원일수' },
-    { key: 'total_amount', label: '총진료비' },
-    { key: 'public_charge', label: '공단부담' },
-    { key: 'deductible_amt', label: '본인부담' },
-    { key: 'surgery', label: '수술여부' },
+  exportToExcelMultiSheet([
+    {
+      name: '병원',
+      data: hospitalRows,
+      headers: [
+        { key: '__index__', label: 'No.' },
+        { key: 'treatment_date', label: '진료일자' },
+        { key: 'hospital_name', label: '병원명' },
+        { key: 'department', label: '진료과' },
+        { key: 'diagnosis_name', label: '진단명' },
+        { key: 'diagnosis_code', label: '질병코드' },
+        { key: 'treatment_type', label: '진료유형' },
+        { key: 'visit_days', label: '일수' },
+        { key: 'total_amount', label: '총진료비' },
+        { key: 'public_charge', label: '공단부담' },
+        { key: 'deductible_amt', label: '본인부담' },
+        { key: 'surgery', label: '수술여부' },
+        { key: 'surgery_details', label: '수술내역' },
+      ],
+    },
+    {
+      name: '약국',
+      data: pharmacyRows,
+      headers: [
+        { key: '__index__', label: 'No.' },
+        { key: 'treatment_date', label: '조제일자' },
+        { key: 'hospital_name', label: '약국명' },
+        { key: 'diagnosis_name', label: '진단명' },
+        { key: 'total_amount', label: '총진료비' },
+        { key: 'public_charge', label: '공단부담' },
+        { key: 'deductible_amt', label: '본인부담' },
+        { key: 'drug_names', label: '처방약' },
+      ],
+    },
   ], `${name}_진료내역`)
 }
 
@@ -1314,7 +1366,12 @@ function getDaysAgo(d?: string | null): string {
   const diff = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
   if (diff === 0) return '(오늘)'
   if (diff < 0) return ''
-  return `(${diff}일 전)`
+  const years = Math.floor(diff / 365)
+  const months = Math.floor((diff % 365) / 30)
+  const days = diff % 30
+  if (years > 0) return `(${years}년 ${months}월 ${days}일)`
+  if (months > 0) return `(${months}월 ${days}일)`
+  return `(${days}일)`
 }
 
 function formatCurrency(amount?: number | string | null): string {
