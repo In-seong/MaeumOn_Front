@@ -103,7 +103,7 @@
           이미지 업로드
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/jpg,application/pdf"
             class="hidden"
             @change="handlePageImageUpload"
           />
@@ -235,7 +235,7 @@
               <span class="text-[12px] text-[#999]">페이지 이미지 변경</span>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/jpg,application/pdf"
                 class="mt-1 block w-full text-[12px] text-[#999] file:mr-2 file:py-1 file:px-2 file:rounded-[6px] file:border-0 file:text-[12px] file:bg-[#FFF3ED] file:text-[#FF7B22] hover:file:bg-[#FFE8D6]"
                 @change="handlePageImageUpload"
               />
