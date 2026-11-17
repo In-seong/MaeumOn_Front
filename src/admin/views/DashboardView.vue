@@ -255,8 +255,11 @@ onMounted(async () => {
             <h3 class="text-[16px] font-bold text-[#333]">설계사 성과</h3>
             <span class="text-[12px] text-[#999]">이번 달</span>
           </div>
-          <span class="text-[13px] text-[#FF7B22] font-medium">
-            전체 {{ dashboard.agent_ranking.total_agents }}명
+          <span
+            class="text-[13px] text-[#FF7B22] font-medium cursor-pointer hover:underline"
+            @click="router.push('/performance')"
+          >
+            전체 {{ dashboard.agent_ranking.total_agents }}명 →
           </span>
         </div>
 

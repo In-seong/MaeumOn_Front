@@ -176,6 +176,50 @@
           등록된 실적 정보가 없습니다.
         </div>
       </div>
+
+      <!-- 최근 계약 목록 -->
+      <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6 mt-6">
+        <h2 class="text-[15px] font-medium text-[#333] mb-4">최근 계약 목록</h2>
+        <div v-if="contracts.length > 0" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-[#E8E8E8]">
+            <thead class="bg-[#FAFAFA]">
+              <tr>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">계약일</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객명</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험상품</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">보험사</th>
+                <th class="px-4 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">계약금액</th>
+                <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">상태</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-[#F0F0F0]">
+              <tr v-for="c in contracts" :key="c.contract_id" class="hover:bg-[#FAFAFA] transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-[#333]">{{ c.contract_date?.slice(0, 10) ?? '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-[#333]">{{ c.customer?.name || c.customer_name || '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-[#333]">{{ c.insurance_product || '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-[#999]">{{ c.insurance_company?.company_name || '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-[13px] text-[#333] text-right">{{ c.contract_amount ? Number(c.contract_amount).toLocaleString() + '원' : '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-[13px]">
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                    :class="{
+                      'bg-green-100 text-green-700': c.contract_status === 'active',
+                      'bg-yellow-100 text-yellow-700': c.contract_status === 'pending',
+                      'bg-red-100 text-red-600': c.contract_status === 'cancelled',
+                      'bg-gray-100 text-gray-600': !['active', 'pending', 'cancelled'].includes(c.contract_status),
+                    }"
+                  >
+                    {{ c.contract_status === 'active' ? '유지' : c.contract_status === 'pending' ? '대기' : c.contract_status === 'cancelled' ? '해지' : c.contract_status || '-' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else class="px-6 py-10 text-center text-[#999] text-[14px]">
+          등록된 계약 정보가 없습니다.
+        </div>
+      </div>
     </div>
 
     <AgentCustomerModal
@@ -219,6 +263,11 @@ const agent = computed(() => store.selectedAgent)
 const performances = computed(() => {
   const a = agent.value as any
   return a?.performances || []
+})
+
+const contracts = computed(() => {
+  const a = agent.value as any
+  return a?.contracts || []
 })
 
 function formatPhone(phone?: string): string {
