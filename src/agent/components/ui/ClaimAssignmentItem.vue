@@ -369,6 +369,22 @@ function buildMemoContent(): string {
   return parts.join('\n')
 }
 
+async function buildMemoFormData(): Promise<FormData> {
+  const fd = new FormData()
+  fd.append('title', '청구 배정 DB배분 내역')
+  fd.append('content', buildMemoContent())
+  fd.append('memo_date', new Date().toISOString().split('T')[0] ?? '')
+
+  const files = props.assignment.files
+  if (files && files.length > 0) {
+    const fetched = await Promise.all(files.map(f => fetchAsFile(f)))
+    for (const file of fetched) {
+      fd.append('files[]', file)
+    }
+  }
+  return fd
+}
+
 async function registerCustomer() {
   registering.value = true
   try {
@@ -379,12 +395,8 @@ async function registerCustomer() {
     })
     const customerId = res.data.data.customer_id
 
-    const today = new Date().toISOString().split('T')[0] ?? ''
-    await createMemo(customerId, {
-      title: '청구 배정 DB배분 내역',
-      content: buildMemoContent(),
-      memo_date: today,
-    })
+    const fd = await buildMemoFormData()
+    await createMemo(customerId, fd)
 
     registered.value = true
     registeredCustomerId.value = customerId
@@ -409,12 +421,8 @@ async function goToClaim() {
       })
       customerId = res.data.data.customer_id
 
-      const today = new Date().toISOString().split('T')[0] ?? ''
-      await createMemo(customerId, {
-        title: '청구 배정 DB배분 내역',
-        content: buildMemoContent(),
-        memo_date: today,
-      })
+      const fd = await buildMemoFormData()
+      await createMemo(customerId, fd)
 
       registered.value = true
       registeredCustomerId.value = customerId
