@@ -133,6 +133,7 @@
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden sm:table-cell">첨부</th>
             <th class="px-6 py-3 text-center text-[12px] font-medium text-[#999] uppercase tracking-wider w-[80px]">서류전달</th>
             <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배정일</th>
+            <th class="px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-[#F0F0F0]">
@@ -185,9 +186,19 @@
             <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">
               {{ formatDate(item.updated_at) }}
             </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-[14px] font-medium">
+              <button
+                v-if="item.assigned_agent_id"
+                @click.stop="openClaimRecallModal(item)"
+                class="text-red-500 hover:text-red-600"
+              >
+                회수
+              </button>
+              <span v-else class="text-[#CCC]">-</span>
+            </td>
           </tr>
           <tr v-if="store.claimAssignments.length === 0">
-            <td colspan="10" class="px-6 py-10 text-center text-[#999]">
+            <td colspan="11" class="px-6 py-10 text-center text-[#999]">
               청구 배정 이력이 없습니다.
             </td>
           </tr>
@@ -296,11 +307,11 @@
     <div v-if="recallModalOpen" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" @click.self="recallModalOpen = false">
       <div class="bg-white rounded-[14px] shadow-xl w-full max-w-[420px] mx-4">
         <div class="px-6 py-4 border-b border-[#F0F0F0]">
-          <h3 class="text-[16px] font-semibold text-[#222]">DB 배분 회수 / 반려</h3>
+          <h3 class="text-[16px] font-semibold text-[#222]">{{ recallMode === 'claim' ? '청구 배정' : 'DB 배분' }} 회수 / 반려</h3>
         </div>
         <div class="px-6 py-5 space-y-4">
           <p class="text-[14px] text-[#555]">
-            <span class="font-medium text-[#222]">"{{ recallTarget?.customer?.name || '해당 고객' }}"</span>의 배분을 처리합니다.
+            <span class="font-medium text-[#222]">"{{ recallTargetName }}"</span>의 {{ recallMode === 'claim' ? '배정' : '배분' }}을 처리합니다.
             <br /><span class="text-[13px] text-[#999]">담당 설계사에게 알림이 발송됩니다.</span>
           </p>
           <div>
@@ -404,7 +415,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAssignmentStore } from '../../stores/assignmentStore'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
-import { addClaimRequestFiles } from '../../services/adminApi'
+import { addClaimRequestFiles, recallClaimRequest } from '../../services/adminApi'
 import type { Assignment, AdminClaimRequest, AdminClaimRequestFile } from '../../types'
 import Pagination from '../../components/Pagination.vue'
 
@@ -578,25 +589,52 @@ function statusClass(status: string): string {
 
 const recallModalOpen = ref(false)
 const recallTarget = ref<Assignment | null>(null)
+const recallClaimTarget = ref<AdminClaimRequest | null>(null)
+const recallMode = ref<'db' | 'claim'>('db')
 const recallActionType = ref<'recall' | 'reject'>('recall')
 const recallReason = ref('')
 const recallSubmitting = ref(false)
 
+const recallTargetName = computed(() => {
+  if (recallMode.value === 'claim') return recallClaimTarget.value?.name || '해당 고객'
+  return recallTarget.value?.customer?.name || '해당 고객'
+})
+
 function openRecallModal(assignment: Assignment) {
   recallTarget.value = assignment
+  recallClaimTarget.value = null
+  recallMode.value = 'db'
+  recallActionType.value = 'recall'
+  recallReason.value = ''
+  recallModalOpen.value = true
+}
+
+function openClaimRecallModal(item: AdminClaimRequest) {
+  recallClaimTarget.value = item
+  recallTarget.value = null
+  recallMode.value = 'claim'
   recallActionType.value = 'recall'
   recallReason.value = ''
   recallModalOpen.value = true
 }
 
 async function submitRecall() {
-  if (!recallTarget.value) return
   recallSubmitting.value = true
   const label = recallActionType.value === 'reject' ? '반려' : '회수'
   try {
-    await store.deleteAssignment(recallTarget.value.assignment_id, recallActionType.value, recallReason.value || undefined)
-    recallModalOpen.value = false
-    alert(`배분이 ${label}되었습니다.`)
+    if (recallMode.value === 'claim' && recallClaimTarget.value) {
+      await recallClaimRequest(recallClaimTarget.value.request_id, {
+        action_type: recallActionType.value,
+        recall_reason: recallReason.value || undefined,
+      })
+      recallModalOpen.value = false
+      alert(`청구 배정이 ${label}되었습니다.`)
+      fetchData()
+    } else if (recallTarget.value) {
+      await store.deleteAssignment(recallTarget.value.assignment_id, recallActionType.value, recallReason.value || undefined)
+      recallModalOpen.value = false
+      alert(`배분이 ${label}되었습니다.`)
+    }
   } catch (e: any) {
     alert(e.response?.data?.message || `${label}에 실패했습니다.`)
   } finally {

@@ -103,6 +103,9 @@ export const addClaimRequestFiles = (id: number, formData: FormData) =>
 export const deleteClaimRequest = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/claim-requests/${id}`)
 
+export const recallClaimRequest = (id: number, data?: { action_type?: string; recall_reason?: string }) =>
+  api.put<ApiResponse<null>>(`${BASE}/claim-requests/${id}/recall`, data)
+
 export const deleteCorporateInquiry = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/corporate-inquiries/${id}`)
 
