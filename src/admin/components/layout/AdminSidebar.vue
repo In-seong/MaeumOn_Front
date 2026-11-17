@@ -87,6 +87,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: '공지사항', icon: 'campaign', to: '/notices', match: ['/notices'], superOnly: true },
       { label: '알림 발송', icon: 'notifications_active', to: '/notifications', match: ['/notifications'] },
+      { label: '문의 관리', icon: 'contact_support', to: '/inquiries', match: ['/inquiries'] },
       { label: '상담 관리', icon: 'forum', to: '/consultations', match: ['/consultations'] },
       { label: 'API 사용 로그', icon: 'api', to: '/codef-logs', match: ['/codef-logs'], superOnly: true },
       { label: '설정', icon: 'settings', to: '/settings', match: ['/settings'], superOnly: true },

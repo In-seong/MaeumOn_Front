@@ -535,3 +535,18 @@ export interface PopupNoticeItem {
 
 export const fetchActivePopupNotices = () =>
   api.get<ApiResponse<PopupNoticeItem[]>>(`${BASE}/popup-notices/active`)
+
+// ===== 설계사 문의하기 =====
+export function fetchMyInquiries(params?: Record<string, unknown>) {
+  return api.get(`${BASE}/inquiries`, { params })
+}
+
+export function createInquiry(data: FormData) {
+  return api.post(`${BASE}/inquiries`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
+export function fetchInquiryDetail(id: number) {
+  return api.get(`${BASE}/inquiries/${id}`)
+}

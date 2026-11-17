@@ -13,6 +13,7 @@ import type {
   FormDownloadItem,
   AwardPlanItem, AwardPlanMonth,
   MaintenanceTask,
+  InquiryItem,
 } from '../types'
 
 const BASE = '/admin'
@@ -612,3 +613,13 @@ export const uploadInsuranceCompanyLogo = (id: number, formData: FormData) =>
   api.post<ApiResponse<Record<string, unknown>>>(`${BASE}/insurance-companies/${id}/logo`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
+
+// ===== 설계사 문의 관리 =====
+export const fetchInquiries = (params?: Record<string, unknown>) =>
+  api.get<ApiResponse<LaravelPagination<InquiryItem>>>(`${BASE}/inquiries`, { params })
+
+export const fetchInquiryDetail = (id: number) =>
+  api.get<ApiResponse<InquiryItem>>(`${BASE}/inquiries/${id}`)
+
+export const answerInquiry = (id: number, answer: string) =>
+  api.put<ApiResponse<InquiryItem>>(`${BASE}/inquiries/${id}/answer`, { answer })

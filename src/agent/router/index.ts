@@ -250,6 +250,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/inquiry',
+      name: 'agent-inquiry',
+      component: adaptiveView(
+        () => import('../views/inquiry/InquiryView.vue'),
+        () => import('../views-pc/inquiry/PcInquiryView.vue')
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/mypage',
       name: 'agent-mypage',
       component: adaptiveView(

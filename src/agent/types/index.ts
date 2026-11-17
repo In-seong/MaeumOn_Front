@@ -641,3 +641,19 @@ export interface ConsentTemplateItem {
   content: string
   is_active: boolean
 }
+
+// ===== 설계사 문의하기 =====
+export interface InquiryItem {
+  inquiry_id: number
+  agent_id: string
+  category: 'system_error' | 'feature_request' | 'business' | 'other'
+  title: string
+  content: string
+  attachments?: { path: string; name: string; size: number }[]
+  attachment_urls?: { path: string; name: string; size: number; url: string }[]
+  answer?: string
+  answered_at?: string
+  status: 'pending' | 'answered'
+  created_at: string
+  updated_at: string
+}

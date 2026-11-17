@@ -462,6 +462,7 @@ export interface DashboardActionItems {
   no_contact_db: number
   pending_reservations: number
   unanswered_qna: number
+  pending_inquiries?: number
 }
 
 export interface AgentRankingItem {
@@ -531,6 +532,24 @@ export interface AwardPlanMonth {
   target_year: number
   target_month: number
   count: number
+}
+
+// 설계사 문의
+export interface InquiryItem {
+  inquiry_id: number
+  agent_id: string
+  agent?: { agent_id: string; name: string; phone?: string }
+  category: 'system_error' | 'feature_request' | 'business' | 'other'
+  title: string
+  content: string
+  attachments?: { path: string; name: string; size: number }[]
+  attachment_urls?: { path: string; name: string; size: number; url: string }[]
+  answer?: string
+  answered_by_admin?: { admin_id: number; name: string }
+  answered_at?: string
+  status: 'pending' | 'answered'
+  created_at: string
+  updated_at: string
 }
 
 export interface MaintenanceTask {

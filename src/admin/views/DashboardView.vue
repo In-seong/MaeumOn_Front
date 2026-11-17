@@ -85,6 +85,7 @@ const actionItems = computed(() => {
     { key: 'no_contact_db', count: ai.no_contact_db, label: '미연락 DB', sub: '배분 후 24시간 경과', color: '#E8A838', to: '/assignments' },
     { key: 'pending_reservations', count: ai.pending_reservations, label: '병원 예약', sub: '신규 예약 고객', color: '#7C8DB5', to: '/reservations' },
     { key: 'unanswered_qna', count: ai.unanswered_qna, label: 'QnA', sub: '미답변 문의', color: '#999', to: '/consultations' },
+    { key: 'pending_inquiries', count: ai.pending_inquiries ?? 0, label: '설계사 문의', sub: '미답변 문의', color: '#6366F1', to: '/inquiries' },
   ]
 })
 

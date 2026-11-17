@@ -201,6 +201,13 @@ const router = createRouter({
       component: () => import('../views/ConsentTemplateView.vue'),
       meta: { requiresAuth: true, superOnly: true },
     },
+    // 설계사 문의 관리
+    {
+      path: '/inquiries',
+      name: 'inquiries',
+      component: () => import('../views/inquiries/InquiryListView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 상담 관리
     {
       path: '/consultations',

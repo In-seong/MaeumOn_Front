@@ -88,6 +88,11 @@
             <line x1="25" y1="25" x2="33" y2="33" stroke="#FF7B22" stroke-width="2.5" stroke-linecap="round"/>
             <text x="18" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#FF7B22">&#8361;</text>
           </svg>
+          <!-- 문의하기: 말풍선+물음표 -->
+          <svg v-else-if="item.icon === 'inquiry'" width="45" height="45" viewBox="0 0 40 40" fill="none">
+            <path d="M8 10C8 8.34 9.34 7 11 7H29C30.66 7 32 8.34 32 10V24C32 25.66 30.66 27 29 27H16L10 33V27H11C9.34 27 8 25.66 8 24V10Z" fill="#FFF3ED" stroke="#FF7B22" stroke-width="1.5"/>
+            <text x="20" y="21" text-anchor="middle" font-size="13" font-weight="bold" fill="#FF7B22">?</text>
+          </svg>
         </div>
         <span class="text-[13px] font-bold text-[#333]">{{ item.label }}</span>
         <span class="text-[11px] text-[#999] -mt-1">{{ item.sub }}</span>
@@ -114,6 +119,7 @@ const allMenuItems = [
   { icon: 'db', label: 'DB배분', sub: '배분 내역 관리', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]', review: true },
   { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]', review: false },
   // { icon: 'unclaimed', label: '숨은보험금', sub: '미청구 의료비 찾기', path: '/unclaimed', bgClass: 'bg-[#FFF3ED]', review: false },
+  { icon: 'inquiry', label: '문의하기', sub: '본사에 문의·건의', path: '/inquiry', bgClass: 'bg-[#FFF3ED]', review: true },
 ]
 
 const menuItems = computed(() =>
