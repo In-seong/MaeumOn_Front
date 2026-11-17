@@ -75,6 +75,18 @@
           </svg>
           페이지 추가
         </button>
+
+        <!-- PDF로 페이지 추가 -->
+        <button
+          @click="showPdfModal = true"
+          class="px-3 py-2 text-[13px] bg-red-50 text-red-500 rounded-[8px] hover:bg-red-100 flex items-center gap-1 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/>
+            <text x="7" y="18" font-size="5" font-weight="bold">PDF</text>
+          </svg>
+          PDF 추가
+        </button>
       </div>
     </div>
 
@@ -99,15 +111,23 @@
     <div v-else-if="store.currentPage && !store.currentPage.page_image_url" class="flex-1 flex items-center justify-center">
       <div class="text-center">
         <p class="text-[#999] text-[14px] mb-4">{{ store.currentPage.page_number }}페이지에 이미지가 없습니다.</p>
-        <label class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] cursor-pointer inline-block transition-colors text-[14px] font-medium">
-          이미지 업로드
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/jpg,application/pdf"
-            class="hidden"
-            @change="handlePageImageUpload"
-          />
-        </label>
+        <div class="flex gap-3 justify-center">
+          <label class="px-4 py-2.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] cursor-pointer inline-block transition-colors text-[14px] font-medium">
+            이미지 업로드
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/jpg"
+              class="hidden"
+              @change="handlePageImageUpload"
+            />
+          </label>
+          <button
+            @click="showPdfModal = true"
+            class="px-4 py-2.5 bg-red-50 text-red-500 border border-red-200 rounded-[12px] hover:bg-red-100 transition-colors text-[14px] font-medium"
+          >
+            PDF 업로드
+          </button>
+        </div>
       </div>
     </div>
 
@@ -235,11 +255,17 @@
               <span class="text-[12px] text-[#999]">페이지 이미지 변경</span>
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/jpg,application/pdf"
+                accept="image/jpeg,image/png,image/jpg"
                 class="mt-1 block w-full text-[12px] text-[#999] file:mr-2 file:py-1 file:px-2 file:rounded-[6px] file:border-0 file:text-[12px] file:bg-[#FFF3ED] file:text-[#FF7B22] hover:file:bg-[#FFE8D6]"
                 @change="handlePageImageUpload"
               />
             </label>
+            <button
+              @click="showPdfModal = true"
+              class="mt-2 w-full py-1.5 text-[12px] text-red-500 bg-red-50 border border-red-200 rounded-[6px] hover:bg-red-100 transition-colors"
+            >
+              PDF로 페이지 추가
+            </button>
           </div>
 
           <h2 class="text-[16px] font-semibold text-[#333] mb-4">
@@ -694,6 +720,13 @@
         </button>
       </div>
     </div>
+    <!-- PDF 미리보기 모달 -->
+    <PdfPreviewModal
+      :visible="showPdfModal"
+      :template-id="Number(route.params.id)"
+      @update:visible="showPdfModal = $event"
+      @confirmed="handlePdfConfirmed"
+    />
   </div>
 </template>
 
@@ -704,6 +737,7 @@ import { useTemplateStore } from '../../stores/templateStore'
 import { standardFieldApi, formFieldApi } from '@shared/services/insuranceApi'
 import { FIELD_TYPE_OPTIONS } from '@shared/types'
 import type { FormField, FormPage, FieldOptions, StandardField } from '@shared/types'
+import PdfPreviewModal from '../../components/PdfPreviewModal.vue'
 
 const route = useRoute()
 const store = useTemplateStore()
@@ -711,6 +745,7 @@ const store = useTemplateStore()
 const canvasRef = ref<HTMLElement | null>(null)
 const saving = ref(false)
 const showAddModal = ref(false)
+const showPdfModal = ref(false)
 
 const fieldTypeOptions = FIELD_TYPE_OPTIONS.filter(o => o.value !== 'consent')
 
@@ -1321,6 +1356,14 @@ async function handlePageImageUpload(event: Event) {
 
   // input 초기화
   input.value = ''
+}
+
+async function handlePdfConfirmed(_addedCount: number) {
+  await store.fetchPages(Number(route.params.id))
+  const lastPage = store.sortedPages[store.sortedPages.length - 1]
+  if (lastPage) {
+    store.selectPage(lastPage)
+  }
 }
 
 // choice 마커 드래그 시작

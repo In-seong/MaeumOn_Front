@@ -116,6 +116,21 @@ export const claimFormApi = {
   // 관리자: 페이지 추가 (다중 이미지/PDF, 기존 뒤에 이어붙임)
   addPages: (id: number, formData: FormData) =>
     api.post<ApiResponse<ClaimForm>>(`/admin/claim-forms/${id}/add-pages`, formData),
+
+  // 관리자: PDF 미리보기 (변환만, 저장 안 함)
+  previewPdf: (file: File) => {
+    const formData = new FormData()
+    formData.append('pdf', file)
+    return api.post<ApiResponse<{
+      preview_key: string
+      page_count: number
+      pages: Array<{ page_number: number; width: number; height: number; thumbnail: string }>
+    }>>('/admin/claim-forms/preview-pdf', formData)
+  },
+
+  // 관리자: PDF 미리보기 확인 → 실제 페이지 추가
+  confirmPdfPages: (templateId: number, previewKey: string) =>
+    api.post<ApiResponse<ClaimForm>>(`/admin/claim-forms/${templateId}/confirm-pdf`, { preview_key: previewKey }),
 }
 
 // ============ 양식 페이지 API ============
