@@ -151,6 +151,7 @@ const awardForm = ref({
 
 const awardSaving = ref(false)
 const awardPreviewUrl = ref<string | null>(null)
+const addFilesLoading = ref(false)
 
 async function openAwardModal(item: FormDownloadItem) {
   awardCompany.value = item
@@ -237,6 +238,35 @@ async function removeAward(ap: AwardPlanItem) {
   if (!confirm(`"${ap.title}" 시상안을 삭제하시겠습니까?`)) return
   await deleteAwardPlan(ap.id)
   await Promise.all([loadAwardItems(), loadItems()])
+}
+
+function triggerAddFiles() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.jpg,.jpeg,.png,.pdf'
+  input.multiple = true
+  input.onchange = async () => {
+    if (!input.files?.length || !awardCompany.value) return
+    addFilesLoading.value = true
+    try {
+      const baseTitle = awardItems.value[0]?.title?.replace(/\s*\(\d+\)$/, '') ?? `${awardYear.value}년 ${awardMonth.value}월 시상안`
+      const fd = new FormData()
+      fd.append('form_download_id', String(awardCompany.value.id))
+      fd.append('title', baseTitle)
+      fd.append('target_year', String(awardYear.value))
+      fd.append('target_month', String(awardMonth.value))
+      const maxSort = awardItems.value.reduce((max, i) => Math.max(max, i.sort_order ?? 0), 0)
+      fd.append('sort_order', String(maxSort + 1))
+      for (const file of Array.from(input.files)) {
+        fd.append('files[]', file)
+      }
+      await createAwardPlan(fd)
+      await Promise.all([loadAwardItems(), loadItems()])
+    } finally {
+      addFilesLoading.value = false
+    }
+  }
+  input.click()
 }
 
 onMounted(loadItems)
@@ -478,6 +508,15 @@ onMounted(loadItems)
                 <span class="material-symbols-outlined text-[18px] text-[#666]">chevron_right</span>
               </button>
               <span class="text-[12px] text-[#999]">({{ awardItems.length }}건)</span>
+              <button
+                v-if="awardItems.length > 0"
+                class="ml-auto px-3 py-1.5 bg-[#3B82F6] text-white rounded-lg text-[12px] font-medium hover:bg-[#2563EB] disabled:opacity-50 flex items-center gap-1"
+                :disabled="addFilesLoading"
+                @click="triggerAddFiles"
+              >
+                <span class="material-symbols-outlined text-[16px]">add</span>
+                {{ addFilesLoading ? '업로드 중...' : '파일 추가' }}
+              </button>
             </div>
 
             <!-- 시상안 목록 -->
