@@ -374,16 +374,16 @@
               청구서 수정
             </button>
 
-            <!-- PDF 다운로드 -->
+            <!-- 청구서 보기 -->
             <button
               v-if="claim.generated_pdf_url"
               class="w-full bg-white border border-[#E0E0E0] text-[#555] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
-              @click="downloadPdf"
+              @click="showPdfViewer = true"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              PDF 다운로드
+              청구서 보기
             </button>
           </div>
         </div>
@@ -448,6 +448,23 @@
       </Transition>
     </div>
 
+    <!-- PDF 청구서 뷰어 모달 -->
+    <div v-if="showPdfViewer && claim?.generated_image_urls?.length" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
+      <div class="flex items-center justify-between px-4 py-3 bg-black/50">
+        <span class="text-white text-[14px] font-medium">청구서 보기</span>
+        <button @click="showPdfViewer = false" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">닫기</button>
+      </div>
+      <div class="flex-1 overflow-auto px-2 py-4 space-y-2">
+        <img
+          v-for="page in claim.generated_image_urls"
+          :key="page.page_number"
+          :src="page.url"
+          :alt="`${page.page_number}페이지`"
+          class="w-full"
+        />
+      </div>
+    </div>
+
     <!-- 청구서 이미지 확대 뷰어 -->
     <div v-if="viewerOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
       <!-- 상단 바 -->
@@ -497,7 +514,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { updateBeneficiary, uploadAgentClaimDocument, deleteAgentClaimDocument } from '../../services/agentApi'
-import api from '@shared/api'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import type { InsuranceClaim as SharedInsuranceClaim } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
@@ -522,6 +538,7 @@ const showResendSection = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const uploadingDoc = ref(false)
 const deletingDocId = ref<number | null>(null)
+const showPdfViewer = ref(false)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 // ===== 청구서 이미지 확대 뷰어 =====
@@ -704,23 +721,6 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
 }
 
-async function downloadPdf(): Promise<void> {
-  if (!claim.value) return
-  try {
-    const res = await api.get(`/agent/claims/${claim.value.claim_id}/download/pdf`, { responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'application/pdf' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `청구서_${claim.value.claim_id}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  } catch {
-    toast.showToast('PDF 다운로드에 실패했습니다.', 'error')
-  }
-}
 
 function goToEdit(): void {
   if (claim.value) {

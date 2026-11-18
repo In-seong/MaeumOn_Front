@@ -136,6 +136,7 @@ export interface InsuranceClaim {
   rejection_reason?: string
   generated_pdf_path?: string
   generated_pdf_url?: string
+  generated_image_urls?: Array<{ page_number: number; url: string }>
   fax_sent_at?: string
   fax_status?: string
   notes?: string

@@ -164,9 +164,9 @@
               <button
                 v-if="claim.generated_pdf_url"
                 class="flex-1 bg-[#F8F8F8] text-[#555] rounded-[8px] py-2 text-[12px] font-medium hover:bg-[#EEEEEE] transition-colors"
-                @click="openPdf(claim.generated_pdf_url, claim.claim_id)"
+                @click="openPdfImages(claim.generated_image_urls)"
               >
-                PDF 보기
+                청구서 보기
               </button>
               <!-- 상세 보기 -->
               <button
@@ -211,6 +211,19 @@
         {{ toast.message.value }}
       </div>
     </Transition>
+
+    <!-- PDF 청구서 뷰어 모달 -->
+    <div v-if="pdfViewerImages.length" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
+      <div class="flex items-center justify-between px-6 py-3 bg-black/50">
+        <span class="text-white text-[14px] font-medium">청구서 보기</span>
+        <button @click="pdfViewerImages = []" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium hover:bg-white/30">닫기</button>
+      </div>
+      <div class="flex-1 overflow-auto flex justify-center">
+        <div class="max-w-[800px] w-full px-4 py-4 space-y-2">
+          <img v-for="page in pdfViewerImages" :key="page.page_number" :src="page.url" :alt="`${page.page_number}페이지`" class="w-full" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -224,8 +237,6 @@ import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
 import { useToast } from '../../composables/useToast'
-import api from '@shared/api'
-
 const toast = useToast()
 
 const router = useRouter()
@@ -235,6 +246,11 @@ const batchStore = useAgentBatchClaimStore()
 const batchId = computed(() => Number(route.params.id))
 const sendingBatchFax = ref(false)
 const sendingClaimFaxId = ref<number | null>(null)
+const pdfViewerImages = ref<Array<{ page_number: number; url: string }>>([])
+
+function openPdfImages(images?: Array<{ page_number: number; url: string }>): void {
+  if (images?.length) pdfViewerImages.value = images
+}
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const initialLoading = ref(true)
@@ -362,26 +378,6 @@ async function handleSendBatchFax(): Promise<void> {
   }
 }
 
-async function openPdf(url?: string, claimId?: number): Promise<void> {
-  if (!claimId) {
-    if (url) window.open(url, '_blank')
-    return
-  }
-  try {
-    const res = await api.get(`/agent/claims/${claimId}/download/pdf`, { responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'application/pdf' })
-    const blobUrl = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = blobUrl
-    a.download = `청구서_${claimId}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(blobUrl)
-  } catch {
-    toast.showToast('PDF 다운로드에 실패했습니다.', 'error')
-  }
-}
 
 function goToClaimDetail(claimId: number): void {
   router.push(`/claims/${claimId}`)
