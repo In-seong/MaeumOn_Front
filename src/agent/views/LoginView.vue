@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
     <div class="w-full max-w-[402px] h-screen relative flex flex-col items-center justify-center px-8">
       <!-- Logo -->
       <div class="flex flex-col items-center gap-3 mb-12">
@@ -27,7 +27,7 @@
           <input
             v-model="saveId"
             type="checkbox"
-            class="w-4 h-4 rounded border-[#E8E8E8] text-[#FF7B22] focus:ring-[#FF7B22]"
+            class="w-4 h-4 rounded border-[#E8E8E8] text-[#FF6B2D] focus:ring-[#FF6B2D]"
           />
           <span class="text-[13px] text-[#888]">아이디 저장</span>
         </label>
@@ -52,7 +52,7 @@
       <!-- Footer -->
       <p class="mt-6 text-[13px] text-[#888]">
         계정이 없으신가요?
-        <router-link to="/register" class="text-[#FF7B22] font-semibold">회원가입</router-link>
+        <router-link to="/register" class="text-[#FF6B2D] font-semibold">회원가입</router-link>
       </p>
     </div>
   </div>

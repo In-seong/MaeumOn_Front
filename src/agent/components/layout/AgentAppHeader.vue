@@ -1,36 +1,34 @@
 <template>
-  <header class="flex justify-between items-center h-[66px] px-6 py-3">
-    <div class="flex items-center gap-2.5">
-      <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-10 h-10" />
-      <div class="flex flex-col justify-center translate-y-[1px]">
-        <span class="text-[20px] font-bold leading-none"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
-        <span class="text-[11px] text-[#999] mt-1">{{ agentAuthStore.agentName }} · {{ agentAuthStore.agencyName }}</span>
-      </div>
-    </div>
+  <header class="flex justify-between items-center h-[56px] px-5 py-2">
     <div class="flex items-center gap-2">
-      <button class="p-1 relative" @click="router.push('/notifications')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <img :src="`${baseUrl}icons/LogoIcon.svg`" alt="ON:CARE" class="w-6 h-6" />
+      <span class="text-[24px] font-bold leading-none translate-y-[0.5px]"><span class="text-[#FF6B2D]">ON:CARE</span></span>
+      <span class="text-[11px] text-[#555] bg-white rounded px-2 py-0.5 font-bold ml-0.5">설계사</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button class="p-1.5 relative" @click="router.push('/notifications')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
         <span
           v-if="unreadCount > 0"
-          class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#FF3B30] rounded-full text-white text-[9px] font-bold flex items-center justify-center"
+          class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-[#FF3B30] rounded-full text-white text-[9px] font-bold flex items-center justify-center px-1"
         >{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
       </button>
       <div class="relative">
-        <button class="p-1" @click="showMenu = !showMenu">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="#333">
-            <circle cx="12" cy="5" r="2"/>
-            <circle cx="12" cy="12" r="2"/>
-            <circle cx="12" cy="19" r="2"/>
+        <button class="p-1.5" @click="showMenu = !showMenu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
           </svg>
         </button>
         <Teleport to="body">
           <div v-if="showMenu" class="fixed inset-0 z-[90]" @click="showMenu = false">
             <div
               class="absolute bg-white rounded-xl shadow-lg border border-[#E8E8E8] w-[200px] py-1.5 overflow-hidden"
-              :style="{ top: '58px', right: '16px' }"
+              :style="{ top: '50px', right: '16px' }"
               @click.stop
             >
               <button
@@ -53,7 +51,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAgentAuthStore } from '../../stores/agentAuthStore'
 
 interface Props {
   unreadCount?: number
@@ -64,7 +61,7 @@ withDefaults(defineProps<Props>(), {
 })
 
 const router = useRouter()
-const agentAuthStore = useAgentAuthStore()
+const baseUrl = import.meta.env.BASE_URL
 
 const showMenu = ref(false)
 

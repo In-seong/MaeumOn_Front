@@ -4,21 +4,21 @@
     <p class="text-[13px] text-[#888]">숨은 보험금 찾기 서비스 이용을 위해 아래 동의서를 확인하고 동의해주세요.</p>
 
     <!-- 전체 동의 -->
-    <label class="flex items-center gap-3 bg-[#FF7B22] rounded-[14px] p-4 cursor-pointer">
+    <label class="flex items-center gap-3 bg-[#FF6B2D] rounded-[14px] p-4 cursor-pointer">
       <div
         :class="[
           'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
           allAgreed ? 'border-white bg-white' : 'border-white/60'
         ]"
       >
-        <svg v-if="allAgreed" class="w-3 h-3 text-[#FF7B22]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        <svg v-if="allAgreed" class="w-3 h-3 text-[#FF6B2D]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
       </div>
       <span class="text-[14px] font-bold text-white" @click="toggleAll">전체 동의</span>
     </label>
 
     <!-- 로딩 -->
     <div v-if="loading" class="text-center py-8">
-      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF6B2D] mx-auto" />
     </div>
 
     <!-- 개별 동의서 -->
@@ -33,7 +33,7 @@
             <div
               :class="[
                 'w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
-                item.agreed ? 'border-[#FF7B22] bg-[#FF7B22]' : 'border-[#DDD]'
+                item.agreed ? 'border-[#FF6B2D] bg-[#FF6B2D]' : 'border-[#DDD]'
               ]"
             >
               <svg v-if="item.agreed" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>

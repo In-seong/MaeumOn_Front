@@ -16,7 +16,7 @@
         >
           {{ assignment.source_type === 'resident' ? '상주' : '배분' }}
         </span>
-        <span class="text-[12px] text-white bg-[#FF7B22] px-2 py-0.5 rounded-full font-medium">
+        <span class="text-[12px] text-white bg-[#FF6B2D] px-2 py-0.5 rounded-full font-medium">
           청구배정
         </span>
       </div>
@@ -102,7 +102,7 @@
             <button
               v-for="(_, i) in imageFiles"
               :key="i"
-              :class="i === currentSlide ? 'bg-[#FF7B22] w-4' : 'bg-[#DDD] w-1.5'"
+              :class="i === currentSlide ? 'bg-[#FF6B2D] w-4' : 'bg-[#DDD] w-1.5'"
               class="h-1.5 rounded-full transition-all duration-200"
               @click="currentSlide = i"
             />
@@ -114,7 +114,7 @@
               {{ imageFiles[currentSlide]?.file_name }}
             </span>
             <button
-              class="ml-2 p-1.5 rounded-full bg-[#FF7B22] active:bg-[#E56A15] transition-colors"
+              class="ml-2 p-1.5 rounded-full bg-[#FF6B2D] active:bg-[#E56A15] transition-colors"
               @click="downloadFile(imageFiles[currentSlide])"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -142,7 +142,7 @@
               class="p-1 rounded-full active:bg-[#EEE] transition-colors"
               @click="downloadFile(file)"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6B2D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
               </svg>
@@ -153,7 +153,7 @@
         <!-- Bulk download -->
         <button
           v-if="assignment.files.length > 1"
-          class="w-full py-2.5 bg-[#FFF3ED] text-[#FF7B22] text-[13px] font-medium rounded-[10px] active:bg-[#FFE8D9] transition-colors disabled:opacity-50"
+          class="w-full py-2.5 bg-[#FFF3ED] text-[#FF6B2D] text-[13px] font-medium rounded-[10px] active:bg-[#FFE8D9] transition-colors disabled:opacity-50"
           :disabled="downloading"
           @click="downloadAll"
         >
@@ -168,7 +168,7 @@
       <button
         v-if="!registered"
         class="w-full py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
-        :class="registering ? 'bg-[#FFB380] text-white' : 'bg-[#FF7B22] text-white'"
+        :class="registering ? 'bg-[#FFB380] text-white' : 'bg-[#FF6B2D] text-white'"
         :disabled="registering"
         @click="registerCustomer"
       >
@@ -188,7 +188,7 @@
 
       <!-- Direct claim button -->
       <button
-        class="w-full py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform border-2 border-[#FF7B22] text-[#FF7B22] bg-white disabled:opacity-50"
+        class="w-full py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform border-2 border-[#FF6B2D] text-[#FF6B2D] bg-white disabled:opacity-50"
         :disabled="claimNavigating"
         @click="goToClaim"
       >

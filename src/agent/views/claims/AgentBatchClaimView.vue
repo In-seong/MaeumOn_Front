@@ -9,11 +9,11 @@
         <h1 class="text-[17px] font-bold text-[#1A1A1A]">{{ STEP_TITLES[currentStep] || '' }}</h1>
         <div class="ml-auto">
           <button v-if="currentStep <= 7" @click="handleSaveDraft" :disabled="batchStore.loading"
-            class="text-[13px] text-[#FF7B22] font-semibold">임시저장</button>
+            class="text-[13px] text-[#FF6B2D] font-semibold">임시저장</button>
         </div>
       </div>
       <div class="h-[3px] bg-[#F0F0F0]">
-        <div class="h-full bg-[#FF7B22] transition-all duration-300"
+        <div class="h-full bg-[#FF6B2D] transition-all duration-300"
           :style="{ width: `${(activeStepIndex + 1) / activeSteps.length * 100}%` }"></div>
       </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="max-w-[402px] mx-auto">
       <!-- 로딩 -->
       <div v-if="!batchStore.allFormsLoaded" class="text-center py-20">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D] mx-auto"></div>
         <p class="mt-3 text-[14px] text-[#6B7280]">양식을 불러오는 중...</p>
       </div>
 
@@ -36,7 +36,7 @@
             class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-4 transition-colors"
             :class="allConsentsChecked ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
             <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-              :class="allConsentsChecked ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+              :class="allConsentsChecked ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
               <svg v-if="allConsentsChecked" width="12" height="10" viewBox="0 0 12 10" fill="none">
                 <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -49,9 +49,9 @@
             <button v-for="item in CONSENT_ITEMS" :key="item.id" type="button"
               @click="toggleConsent(item.id)"
               class="w-full flex items-center gap-3 bg-white border rounded-[14px] p-4 transition-colors text-left"
-              :class="consentState[item.id] ? 'border-[#FF7B22]' : 'border-[#E5E5E5]'">
+              :class="consentState[item.id] ? 'border-[#FF6B2D]' : 'border-[#E5E5E5]'">
               <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                :class="consentState[item.id] ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                :class="consentState[item.id] ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
                 <svg v-if="consentState[item.id]" width="12" height="10" viewBox="0 0 12 10" fill="none">
                   <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -77,7 +77,7 @@
             class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-6 transition-colors"
             :class="autoFillContractor ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
             <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-              :class="autoFillContractor ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+              :class="autoFillContractor ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
               <svg v-if="autoFillContractor" width="12" height="10" viewBox="0 0 12 10" fill="none">
                 <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -91,7 +91,7 @@
             class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-6 transition-colors"
             :class="autoFillInsured ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
             <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-              :class="autoFillInsured ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+              :class="autoFillInsured ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
               <svg v-if="autoFillInsured" width="12" height="10" viewBox="0 0 12 10" fill="none">
                 <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -102,18 +102,18 @@
           <!-- Step 6: 자동이체 계좌 -->
           <div v-if="currentStep === 6 && hasAutoTransferField" class="mb-6">
             <p class="text-[13px] font-medium text-[#6B7280] mb-3">보험료 자동이체 계좌로 수령하시겠습니까?</p>
-            <p v-if="autoTransferAccount && !allHaveAutoTransfer" class="text-[12px] text-[#FF7B22] mb-2">
+            <p v-if="autoTransferAccount && !allHaveAutoTransfer" class="text-[12px] text-[#FF6B2D] mb-2">
               일부 보험사는 자동이체 수령을 지원하지 않아 계좌 정보를 입력해야 합니다.
             </p>
             <div class="flex gap-3">
               <button type="button" @click="autoTransferAccount = true"
                 class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors"
-                :class="autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">
+                :class="autoTransferAccount ? 'border-[#FF6B2D] bg-[#FFF3ED] text-[#FF6B2D]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">
                 네
               </button>
               <button type="button" @click="autoTransferAccount = false"
                 class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors"
-                :class="!autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">
+                :class="!autoTransferAccount ? 'border-[#FF6B2D] bg-[#FFF3ED] text-[#FF6B2D]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">
                 아니오
               </button>
             </div>
@@ -128,7 +128,7 @@
             <div class="mb-5">
               <div v-if="field.entries.length > 1" class="flex flex-wrap gap-1 mb-1">
                 <span v-for="e in field.entries" :key="e.formFieldId"
-                  class="text-[10px] px-1.5 py-0.5 bg-[#FFF3ED] text-[#FF7B22] rounded-full">{{ e.companyName }}</span>
+                  class="text-[10px] px-1.5 py-0.5 bg-[#FFF3ED] text-[#FF6B2D] rounded-full">{{ e.companyName }}</span>
               </div>
               <ClaimFieldInput
                 :field="fieldToFormField(field)"
@@ -162,8 +162,8 @@
           <template v-for="(entry, idx) in batchStore.selectedEntries" :key="'spec-' + idx">
             <template v-if="specificFieldsForStep(currentStep, idx).length > 0">
               <div class="mt-6 mb-3 flex items-center gap-2">
-                <span class="w-[6px] h-[6px] rounded-full bg-[#FF7B22]"></span>
-                <p class="text-[13px] font-semibold text-[#FF7B22]">{{ entry.company.company_name }}</p>
+                <span class="w-[6px] h-[6px] rounded-full bg-[#FF6B2D]"></span>
+                <p class="text-[13px] font-semibold text-[#FF6B2D]">{{ entry.company.company_name }}</p>
               </div>
               <template v-for="field in specificFieldsForStep(currentStep, idx)" :key="field.key">
                 <div class="mb-5">
@@ -186,7 +186,7 @@
           <p class="text-[14px] text-[#6B7280] mb-6">진단서, 영수증 등 청구에 필요한 서류를 첨부해주세요</p>
 
           <!-- 업로드 버튼 -->
-          <label class="flex items-center justify-center gap-2 h-[52px] border-2 border-dashed border-[#E5E5E5] rounded-[12px] cursor-pointer hover:border-[#FF7B22] transition-colors mb-4">
+          <label class="flex items-center justify-center gap-2 h-[52px] border-2 border-dashed border-[#E5E5E5] rounded-[12px] cursor-pointer hover:border-[#FF6B2D] transition-colors mb-4">
             <span class="material-symbols-outlined text-[20px] text-[#6B7280]">add_photo_alternate</span>
             <span class="text-[14px] text-[#6B7280] font-medium">사진/서류 추가</span>
             <input type="file" class="hidden" multiple accept="image/*,application/pdf" @change="handleFileUpload" />
@@ -228,7 +228,7 @@
                 <span class="text-[12px] font-medium px-2 py-0.5 rounded-full"
                   :class="progressPercent(idx) === 100
                     ? 'bg-[#E8F8EE] text-[#34C759]'
-                    : 'bg-[#FFF3ED] text-[#FF7B22]'">
+                    : 'bg-[#FFF3ED] text-[#FF6B2D]'">
                   {{ progressPercent(idx) }}%
                 </span>
               </div>
@@ -242,7 +242,7 @@
               </div>
               <button v-if="progressPercent(idx) < 100" type="button"
                 @click="goToFirstIncompleteStep()"
-                class="mt-3 text-[12px] text-[#FF7B22] font-medium">
+                class="mt-3 text-[12px] text-[#FF6B2D] font-medium">
                 미입력 항목 채우기 →
               </button>
             </div>
@@ -259,7 +259,7 @@
         <div v-else-if="currentStep === 9" class="px-5 pt-6 pb-[120px]">
           <div class="flex items-center justify-between mb-1">
             <p class="text-[22px] font-bold text-[#1A1A1A]">서명</p>
-            <button type="button" @click="resetSignature" class="flex items-center gap-1 text-[12px] text-[#999] active:text-[#FF7B22]">
+            <button type="button" @click="resetSignature" class="flex items-center gap-1 text-[12px] text-[#999] active:text-[#FF6B2D]">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
               다시 쓰기
             </button>
@@ -289,7 +289,7 @@
                 지우기
               </button>
               <button type="button" @click="completeSignature"
-                class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-white bg-[#FF7B22]">
+                class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-white bg-[#FF6B2D]">
                 서명 완료
               </button>
             </div>
@@ -299,7 +299,7 @@
             <div class="rounded-[14px] overflow-hidden bg-[#FAF0F0] p-4">
               <img :src="signatureDataUrl" alt="서명" class="max-h-[120px] mx-auto" />
             </div>
-            <button type="button" @click="resetSignature" class="mt-3 text-[13px] text-[#FF7B22] font-medium">
+            <button type="button" @click="resetSignature" class="mt-3 text-[13px] text-[#FF6B2D] font-medium">
               다시 서명
             </button>
           </div>
@@ -317,7 +317,7 @@
             <div v-for="(entry, idx) in batchStore.selectedEntries" :key="'final-' + idx"
               class="flex items-center gap-3 bg-[#F6F6F8] rounded-[14px] p-4">
               <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center text-[16px] font-bold shrink-0"
-                :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF7B22]'">
+                :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF6B2D]'">
                 {{ progressPercent(idx) === 100 ? '✓' : '!' }}
               </span>
               <div class="flex-1 min-w-0">
@@ -325,7 +325,7 @@
                 <p class="text-[12px] text-[#6B7280]">{{ entry.claimForm?.form_name || '' }}</p>
               </div>
               <span class="text-[13px] font-semibold shrink-0"
-                :class="progressPercent(idx) === 100 ? 'text-[#34C759]' : 'text-[#FF7B22]'">
+                :class="progressPercent(idx) === 100 ? 'text-[#34C759]' : 'text-[#FF6B2D]'">
                 {{ progressPercent(idx) }}%
               </span>
             </div>
@@ -341,7 +341,7 @@
           <div class="bg-[#F6F6F8] rounded-[14px] p-4">
             <label class="flex items-start gap-3 cursor-pointer">
               <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors"
-                :class="finalConsentChecked ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'"
+                :class="finalConsentChecked ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'"
                 @click="finalConsentChecked = !finalConsentChecked">
                 <svg v-if="finalConsentChecked" width="12" height="10" viewBox="0 0 12 10" fill="none">
                   <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -367,7 +367,7 @@
         <button @click="handleCTA" :disabled="!canProceed || batchStore.loading"
           class="w-full h-[56px] rounded-[28px] text-[16px] font-bold transition-colors"
           :class="canProceed && !batchStore.loading
-            ? 'bg-[#FF7B22] text-white active:bg-[#E86D1A]'
+            ? 'bg-[#FF6B2D] text-white active:bg-[#E86D1A]'
             : 'bg-[#FFD4B3] text-white'">
           <span v-if="batchStore.loading" class="flex items-center justify-center gap-2">
             <span class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>

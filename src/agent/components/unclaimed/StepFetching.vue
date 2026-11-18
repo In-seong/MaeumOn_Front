@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6 text-center py-8">
-    <div class="animate-spin rounded-full h-16 w-16 border-4 border-[#FFE0C4] border-t-[#FF7B22] mx-auto" />
+    <div class="animate-spin rounded-full h-16 w-16 border-4 border-[#FFE0C4] border-t-[#FF6B2D] mx-auto" />
 
     <div>
       <h3 class="text-[16px] font-bold text-[#222]">{{ statusText }}</h3>
@@ -21,13 +21,13 @@
           ]"
         >
           <svg v-if="idx < currentStepIdx" class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          <div v-else-if="idx === currentStepIdx" class="w-2 h-2 rounded-full bg-[#FF7B22] animate-pulse" />
+          <div v-else-if="idx === currentStepIdx" class="w-2 h-2 rounded-full bg-[#FF6B2D] animate-pulse" />
           <div v-else class="w-2 h-2 rounded-full bg-[#DDD]" />
         </div>
         <span
           :class="[
             'text-[13px]',
-            idx < currentStepIdx ? 'text-green-600' : idx === currentStepIdx ? 'text-[#FF7B22] font-medium' : 'text-[#BBB]'
+            idx < currentStepIdx ? 'text-green-600' : idx === currentStepIdx ? 'text-[#FF6B2D] font-medium' : 'text-[#BBB]'
           ]"
         >{{ step }}</span>
       </div>

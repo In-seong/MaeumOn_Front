@@ -1,17 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <AgentAppHeader />
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
+      <header class="flex items-center h-[56px] px-5">
+        <span class="text-[18px] font-bold text-[#1c1c1c]">양식</span>
+      </header>
 
-      <main class="overflow-y-auto" style="height: calc(100dvh - 66px - 60px);">
+      <main class="overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <!-- 탭 -->
-        <div class="flex border-b border-[#E8E8E8] bg-white sticky top-0 z-10">
+        <div class="flex gap-2 px-4 py-3 sticky top-0 z-10">
           <button
             :class="[
-              'flex-1 py-3 text-[14px] font-medium transition-colors border-b-2 -mb-px',
+              'px-5 py-2 rounded-full text-[14px] font-medium transition-colors',
               activeTab === 'award'
-                ? 'text-[#FF7B22] border-[#FF7B22]'
-                : 'text-[#999] border-transparent',
+                ? 'bg-[#FF6B2D] text-white'
+                : 'bg-white text-[#999] border border-[#E8E8E8]',
             ]"
             @click="activeTab = 'award'"
           >
@@ -19,10 +21,10 @@
           </button>
           <button
             :class="[
-              'flex-1 py-3 text-[14px] font-medium transition-colors border-b-2 -mb-px',
+              'px-5 py-2 rounded-full text-[14px] font-medium transition-colors',
               activeTab === 'form'
-                ? 'text-[#FF7B22] border-[#FF7B22]'
-                : 'text-[#999] border-transparent',
+                ? 'bg-[#FF6B2D] text-white'
+                : 'bg-white text-[#999] border border-[#E8E8E8]',
             ]"
             @click="activeTab = 'form'"
           >
@@ -31,7 +33,7 @@
         </div>
 
         <!-- 시상안 탭 -->
-        <div v-if="activeTab === 'award'" class="px-4 py-4">
+        <div v-if="activeTab === 'award'" class="px-4 py-3">
           <!-- 월 네비게이션 -->
           <div class="flex items-center justify-between mb-4">
             <button
@@ -88,7 +90,7 @@
           <!-- 빈 상태 -->
           <div v-else-if="!filteredAwardItems.length" class="py-16 text-center">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-[#FFF0E5] flex items-center justify-center">
-              <span class="material-symbols-outlined text-[28px] text-[#FF7B22]">emoji_events</span>
+              <span class="material-symbols-outlined text-[28px] text-[#FF6B2D]">emoji_events</span>
             </div>
             <p class="text-[14px] text-[#999]">해당 월에 등록된 시상안이 없습니다.</p>
           </div>
@@ -112,14 +114,14 @@
               </div>
               <div class="p-2.5">
                 <p class="text-[12px] font-medium text-[#333] truncate">{{ item.title }}</p>
-                <p v-if="item.company_name" class="text-[11px] text-[#FF7B22] truncate">{{ item.company_name }}</p>
+                <p v-if="item.company_name" class="text-[11px] text-[#FF6B2D] truncate">{{ item.company_name }}</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- 청구서 탭 -->
-        <div v-if="activeTab === 'form'" class="px-4 py-4">
+        <div v-if="activeTab === 'form'" class="px-4 py-3">
           <!-- 카테고리 필터 -->
           <div class="flex gap-2 mb-3 overflow-x-auto">
             <button
@@ -258,7 +260,7 @@
             v-for="(_, idx) in previewAllItems"
             :key="idx"
             class="w-1.5 h-1.5 rounded-full transition-colors"
-            :class="idx === previewIndex ? 'bg-[#FF7B22]' : 'bg-white/30'"
+            :class="idx === previewIndex ? 'bg-[#FF6B2D]' : 'bg-white/30'"
           />
         </div>
         <button
@@ -276,7 +278,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import AgentAppHeader from '../../components/layout/AgentAppHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import { fetchAwardPlans, fetchAwardPlanMonths, fetchFormDownloads, getFormDownloadUrl } from '../../services/agentApi'
 import type { AwardPlanItem, FormDownloadItem } from '../../services/agentApi'
@@ -287,7 +288,7 @@ const activeTab = ref<'award' | 'form'>('award')
 const awardCategory = ref<string | null>(null)
 
 const awardCategoryTabs = [
-  { key: null, label: '전체', color: '#FF7B22' },
+  { key: null, label: '전체', color: '#FF6B2D' },
   { key: 'non-life', label: '손보', color: '#3B82F6' },
   { key: 'life', label: '생보', color: '#8B5CF6' },
   { key: 'cooperative', label: '공제', color: '#10B981' },

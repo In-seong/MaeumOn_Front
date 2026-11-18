@@ -27,6 +27,24 @@ export const deleteAccount = () =>
 export const fetchDashboard = () =>
   api.get<ApiResponse<DashboardSummary>>(`${BASE}/dashboard`)
 
+// ===== Dashboard Full =====
+export interface DashboardFullData {
+  header: { agent_name: string; branch_name: string; today: string }
+  checklist: { unregistered_db: number; incomplete_claims: number; pending_consultations: number }
+  db_distributions: Array<{
+    assignment_id: number
+    assignment_date: string | null
+    deadline: string | null
+    customer_name: string
+    customer_phone: string
+    hospital: string
+    customer_id: string
+  }>
+}
+
+export const fetchDashboardFull = () =>
+  api.get<ApiResponse<DashboardFullData>>(`${BASE}/dashboard/full`)
+
 // ===== Today Tasks (오늘의 할일) =====
 export const fetchTodayTasks = () =>
   api.get<ApiResponse<DashboardTask[]>>(`${BASE}/dashboard/today-tasks`)

@@ -1,14 +1,14 @@
 <template>
   <button
     type="button"
-    class="w-full text-left bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4 transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#FF7B22] focus:ring-inset"
+    class="w-full text-left bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-4 transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#FF6B2D] focus:ring-inset"
     @click="$emit('select', claim.claim_id)"
   >
     <!-- Top: Customer Name + Status -->
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center gap-2">
         <span class="text-[15px] font-semibold text-[#222]">{{ claim.customer?.name ?? '-' }}</span>
-        <span class="text-[12px] font-medium text-[#FF7B22] bg-[#FFF3ED] px-2 py-0.5 rounded-full">
+        <span class="text-[12px] font-medium text-[#FF6B2D] bg-[#FFF3ED] px-2 py-0.5 rounded-full">
           {{ claim.claim_type }}
         </span>
       </div>

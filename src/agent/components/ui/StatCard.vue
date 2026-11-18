@@ -61,13 +61,13 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const colorMap: Record<string, { border: string; text: string }> = {
-  orange: { border: 'bg-[#FF7B22]', text: 'text-[#FF7B22]' },
+  orange: { border: 'bg-[#FF6B2D]', text: 'text-[#FF6B2D]' },
   blue: { border: 'bg-[#4285F4]', text: 'text-[#4285F4]' },
   green: { border: 'bg-[#1FBD53]', text: 'text-[#1FBD53]' },
   purple: { border: 'bg-[#9B59B6]', text: 'text-[#9B59B6]' },
 }
 
-const fallback = { border: 'bg-[#FF7B22]', text: 'text-[#FF7B22]' }
+const fallback = { border: 'bg-[#FF6B2D]', text: 'text-[#FF6B2D]' }
 const topBorderColor = computed(() => colorMap[props.color]?.border ?? fallback.border)
 const valueColor = computed(() => colorMap[props.color]?.text ?? fallback.text)
 

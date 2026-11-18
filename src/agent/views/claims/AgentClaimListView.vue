@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader title="청구 관리" />
 
-      <main class="px-5 py-3 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px - 60px)', 80)" @focusin="handleFocusIn">
+      <main class="px-5 py-3 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 80)" @focusin="handleFocusIn">
         <!-- Search + New Claim Button Row -->
         <div class="flex items-center gap-2 mb-4">
           <div class="relative flex-1">
@@ -20,7 +20,7 @@
               type="text"
               :value="store.searchQuery"
               placeholder="고객명, 보험사, 청구유형 검색"
-              class="w-full pl-10 pr-4 py-3 bg-white rounded-[12px] border border-[#E8E8E8] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22] transition-colors"
+              class="w-full pl-10 pr-4 py-3 bg-white rounded-[12px] border border-[#E8E8E8] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D] transition-colors"
               aria-label="청구 검색"
               @input="store.setSearchQuery(($event.target as HTMLInputElement).value)"
             />
@@ -38,7 +38,7 @@
           </div>
           <button
             type="button"
-            class="flex-shrink-0 px-3 py-3 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.97] transition-all"
+            class="flex-shrink-0 px-3 py-3 bg-[#FF6B2D] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.97] transition-all"
             @click="router.push('/claims/new')"
           >
             + 새 청구
@@ -55,7 +55,7 @@
             :class="[
               'flex-shrink-0 px-3 py-1.5 rounded-full text-[12px] font-medium transition-all',
               store.filterStatus === chip.value
-                ? 'bg-[#FF7B22] text-white'
+                ? 'bg-[#FF6B2D] text-white'
                 : 'bg-white text-[#888] border border-[#E8E8E8]',
             ]"
             @click="store.setFilter(chip.value)"
@@ -90,7 +90,7 @@
         <!-- Empty State -->
         <div v-else class="flex flex-col items-center justify-center py-16">
           <div class="w-16 h-16 bg-[#FFF3ED] rounded-full flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg class="w-8 h-8 text-[#FF6B2D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>

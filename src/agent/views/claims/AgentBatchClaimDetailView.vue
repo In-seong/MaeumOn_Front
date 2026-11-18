@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="다중 청구 상세" />
       <main class="px-5 py-4 pb-24 overflow-y-auto" style="height: calc(100dvh - 56px);">
         <!-- 로딩 -->
         <div v-if="initialLoading" class="flex items-center justify-center py-20">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D]"></div>
         </div>
 
         <!-- 배치 상세 -->
@@ -27,7 +27,7 @@
             <div class="space-y-2">
               <div class="flex items-center gap-2">
                 <span class="text-[13px] text-[#888]">배치번호</span>
-                <span class="text-[14px] font-bold text-[#FF7B22]">#{{ batch.batch_claim_id }}</span>
+                <span class="text-[14px] font-bold text-[#FF6B2D]">#{{ batch.batch_claim_id }}</span>
               </div>
               <InfoRow label="생성일" :value="formatDate(batch.created_at)" />
               <!-- 진행상황 바 -->
@@ -36,7 +36,7 @@
                 <div class="flex-1 bg-[#E8E8E8] rounded-full h-2 overflow-hidden">
                   <div
                     class="h-full rounded-full transition-all"
-                    :class="batch.completed_count === batch.total_count ? 'bg-[#22C55E]' : 'bg-[#FF7B22]'"
+                    :class="batch.completed_count === batch.total_count ? 'bg-[#22C55E]' : 'bg-[#FF6B2D]'"
                     :style="{ width: progressPercent + '%' }"
                   ></div>
                 </div>
@@ -88,7 +88,7 @@
                     <a
                       v-if="claim.claim_form?.insurance_company?.contact_phone"
                       :href="`tel:${claim.claim_form.insurance_company.contact_phone}`"
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#FF7B22] text-[#FF7B22] text-[11px] font-medium active:scale-95 transition-transform"
+                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#FF6B2D] text-[#FF6B2D] text-[11px] font-medium active:scale-95 transition-transform"
                       @click.stop
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -119,8 +119,8 @@
                   </template>
                   <!-- 발송중/대기 -->
                   <template v-else-if="claim.fax_status === 'pending' || claim.fax_status === 'sending'">
-                    <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-[#FF7B22]"></div>
-                    <span class="text-[12px] font-medium text-[#FF7B22]">
+                    <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-[#FF6B2D]"></div>
+                    <span class="text-[12px] font-medium text-[#FF6B2D]">
                       {{ claim.fax_status === 'pending' ? '발송 대기중' : '발송중' }}
                     </span>
                   </template>
@@ -158,7 +158,7 @@
                   <button
                     v-if="canSendClaimFax(claim)"
                     :disabled="sendingClaimFaxId === claim.claim_id"
-                    class="flex-1 bg-[#FF7B22] text-white rounded-[8px] py-2 text-[12px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+                    class="flex-1 bg-[#FF6B2D] text-white rounded-[8px] py-2 text-[12px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
                     @click="handleSendClaimFax(claim.claim_id)"
                   >
                     {{ sendingClaimFaxId === claim.claim_id ? '발송중...' : (claim.fax_status === 'failed' ? '재발송' : '팩스 발송') }}
@@ -172,7 +172,7 @@
           <div v-if="unsentCount > 0" class="mb-6">
             <button
               :disabled="sendingBatchFax"
-              class="w-full bg-[#FF7B22] text-white rounded-[16px] py-4 text-[15px] font-bold active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+              class="w-full bg-[#FF6B2D] text-white rounded-[16px] py-4 text-[15px] font-bold active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
               @click="handleSendBatchFax"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -193,7 +193,7 @@
         <div v-else class="text-center py-20">
           <p class="text-[15px] text-[#888]">배치 정보를 찾을 수 없습니다.</p>
           <button
-            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
+            class="mt-4 bg-[#FF6B2D] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
             @click="goBack"
           >
             목록으로 돌아가기

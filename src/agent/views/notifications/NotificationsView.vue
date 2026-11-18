@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="알림" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <!-- Mark All Read -->
         <div v-if="unreadCount > 0" class="flex justify-end mb-3">
           <button
-            class="text-[13px] text-[#FF7B22] font-medium"
+            class="text-[13px] text-[#FF6B2D] font-medium"
             :disabled="markingAllRead"
             @click="handleMarkAllRead"
           >
@@ -41,7 +41,7 @@
                   <span class="text-[14px] font-semibold text-[#333]">{{ noti.title }}</span>
                   <span
                     v-if="!noti.is_read"
-                    class="w-2 h-2 rounded-full bg-[#FF7B22] flex-shrink-0"
+                    class="w-2 h-2 rounded-full bg-[#FF6B2D] flex-shrink-0"
                   />
                 </div>
                 <p class="text-[13px] text-[#666] leading-relaxed">{{ noti.content }}</p>
@@ -194,13 +194,13 @@ function iconBg(type: string): string {
 
 function iconColor(type: string): string {
   const map: Record<string, string> = {
-    consultation: '#FF7B22',
+    consultation: '#FF6B2D',
     obligation: '#FF3B30',
     distribution: '#4285F4',
     claim: '#1FBD53',
     survey: '#F5A623',
     schedule: '#8B5CF6',
-    ADMIN_MESSAGE: '#FF7B22',
+    ADMIN_MESSAGE: '#FF6B2D',
     NOTICE: '#4285F4',
     ASSIGNMENT: '#1FBD53',
     system: '#888',

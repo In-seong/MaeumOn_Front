@@ -14,7 +14,7 @@
             v-model="form.name"
             type="text"
             placeholder="이름을 입력하세요"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
         <div>
@@ -23,7 +23,7 @@
             v-model="form.username"
             type="text"
             placeholder="아이디를 입력하세요"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
         <div>
@@ -32,7 +32,7 @@
             v-model="form.password"
             type="password"
             placeholder="6자 이상 입력하세요"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
         <div>
@@ -41,7 +41,7 @@
             v-model="form.password_confirmation"
             type="password"
             placeholder="비밀번호를 다시 입력하세요"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
         <div>
@@ -50,7 +50,7 @@
             v-model="form.phone"
             type="text"
             placeholder="010-0000-0000"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
 
@@ -60,7 +60,7 @@
 
         <button
           type="submit"
-          class="w-full h-12 bg-[#FF7B22] text-white text-[15px] font-semibold rounded-lg hover:bg-[#E56D1E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+          class="w-full h-12 bg-[#FF6B2D] text-white text-[15px] font-semibold rounded-lg hover:bg-[#E56D1E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
           :disabled="loading"
         >
           {{ loading ? '가입 중...' : '회원가입' }}
@@ -69,7 +69,7 @@
 
       <p class="mt-6 text-[13px] text-[#888] text-center">
         이미 계정이 있으신가요?
-        <router-link to="/login" class="text-[#FF7B22] font-semibold">로그인</router-link>
+        <router-link to="/login" class="text-[#FF6B2D] font-semibold">로그인</router-link>
       </p>
     </div>
 
@@ -77,7 +77,7 @@
     <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="goToLogin">
       <div class="bg-white rounded-2xl p-8 max-w-[380px] w-full text-center shadow-xl">
         <div class="w-14 h-14 bg-[#FFF3ED] rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-7 h-7 text-[#FF7B22]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-7 h-7 text-[#FF6B2D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -87,7 +87,7 @@
           승인이 완료되면 앱에서 로그인해 주세요.
         </p>
         <button
-          class="w-full h-12 bg-[#FF7B22] text-white text-[15px] font-semibold rounded-lg hover:bg-[#E56D1E] transition-colors"
+          class="w-full h-12 bg-[#FF6B2D] text-white text-[15px] font-semibold rounded-lg hover:bg-[#E56D1E] transition-colors"
           @click="goToLogin"
         >
           확인

@@ -1,9 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <AgentAppHeader />
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
+      <header class="flex items-center h-[56px] px-5">
+        <span class="text-[18px] font-bold text-[#1c1c1c]">일정</span>
+      </header>
 
-      <main class="px-6 py-3 pb-20 overflow-y-auto" style="height: calc(100dvh - 66px - 60px);">
+      <main class="px-4 py-3 pb-24 overflow-y-auto" style="height: calc(100dvh - 56px);">
         <!-- Calendar -->
         <section class="mb-4">
           <ScheduleCalendar
@@ -86,7 +88,7 @@
                       :key="opt.value"
                       type="button"
                       class="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all"
-                      :class="form.event_type === opt.value ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
+                      :class="form.event_type === opt.value ? 'bg-[#FFF0E5] border-[#FF6B2D] text-[#FF6B2D]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
                       @click="form.event_type = opt.value"
                     >
                       {{ opt.label }}
@@ -104,7 +106,7 @@
                   <label class="text-[12px] text-[#888] mb-1.5 block font-medium">고객 (선택)</label>
                   <select
                     v-model="form.customer_id"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                   >
                     <option value="">없음</option>
                     <option v-for="c in customers" :key="c.customer_id" :value="c.customer_id">
@@ -141,7 +143,7 @@
                       :key="opt.value"
                       type="button"
                       class="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all"
-                      :class="form.reminder_days.includes(opt.value) ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
+                      :class="form.reminder_days.includes(opt.value) ? 'bg-[#FFF0E5] border-[#FF6B2D] text-[#FF6B2D]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
                       @click="toggleReminder(opt.value)"
                     >
                       {{ opt.label }}
@@ -181,7 +183,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import AgentAppHeader from '../../components/layout/AgentAppHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 import FormInput from '@user/components/form/FormInput.vue'

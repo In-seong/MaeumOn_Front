@@ -11,7 +11,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="이름 또는 전화번호로 검색"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] pr-10"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D] pr-10"
           @input="onSearch"
         />
         <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#BBB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -44,7 +44,7 @@
           v-model="form.customer_name"
           type="text"
           placeholder="홍길동"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D]"
         />
       </div>
 
@@ -54,7 +54,7 @@
           v-model="form.customer_phone"
           type="tel"
           placeholder="010-0000-0000"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D]"
         />
       </div>
 
@@ -63,7 +63,7 @@
         <input
           v-model="form.customer_birth_date"
           type="date"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D]"
         />
       </div>
 
@@ -75,7 +75,7 @@
             :key="g.value"
             :class="[
               'flex-1 py-2.5 rounded-[10px] text-[13px] font-medium border transition-colors',
-              form.customer_gender === g.value ? 'border-[#FF7B22] bg-[#FFF8F3] text-[#FF7B22]' : 'border-[#E0E0E0] text-[#888]'
+              form.customer_gender === g.value ? 'border-[#FF6B2D] bg-[#FFF8F3] text-[#FF6B2D]' : 'border-[#E0E0E0] text-[#888]'
             ]"
             @click="form.customer_gender = g.value"
           >
@@ -88,7 +88,7 @@
         <label class="block text-[12px] text-[#888] mb-1">통신사</label>
         <select
           v-model="form.customer_telecom"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] bg-white"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D] bg-white"
         >
           <option value="">선택</option>
           <option v-for="t in telecomOptions" :key="t" :value="t">{{ t }}</option>
@@ -101,13 +101,13 @@
           v-model="form.customer_address"
           type="text"
           placeholder="주소"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] mb-2"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D] mb-2"
         />
         <input
           v-model="form.customer_detailed_address"
           type="text"
           placeholder="상세주소"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22]"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D]"
         />
       </div>
     </div>

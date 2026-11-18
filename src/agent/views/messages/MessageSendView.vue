@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader title="메시지 발송" />
 
-      <main class="px-6 py-3 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-6 py-3 overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <!-- 업데이트 진행중 안내 -->
         <div class="flex flex-col items-center justify-center py-20">
           <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#FFF0E5] flex items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
             </svg>
           </div>
@@ -28,7 +28,7 @@
             class="flex-1 py-2.5 rounded-[12px] text-[13px] font-semibold transition-all"
             :class="
               messageStore.sendMethod === tab.value
-                ? 'bg-[#FF7B22] text-white'
+                ? 'bg-[#FF6B2D] text-white'
                 : 'bg-white border border-[#E0E0E0] text-[#555]'
             "
             @click="messageStore.sendMethod = tab.value"
@@ -56,7 +56,7 @@
             <div class="mt-4">
               <label class="text-[13px] font-medium text-[#555] mb-1.5 block">이미지 첨부</label>
               <div
-                class="border-2 border-dashed border-[#E0E0E0] rounded-[12px] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#FF7B22] transition-colors"
+                class="border-2 border-dashed border-[#E0E0E0] rounded-[12px] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#FF6B2D] transition-colors"
                 @click="triggerFileInput"
               >
                 <template v-if="smsForm.imagePreview">
@@ -75,9 +75,9 @@
                 <template v-else>
                   <div class="w-10 h-10 rounded-full bg-[#FFF0E5] flex items-center justify-center">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M17 8L12 3L7 8" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M12 3V15" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M17 8L12 3L7 8" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 3V15" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </div>
                   <p class="text-[13px] font-medium text-[#555]">이미지 첨부</p>

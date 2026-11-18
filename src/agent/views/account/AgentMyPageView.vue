@@ -1,12 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <BackHeader title="마이페이지" />
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
+      <header class="flex items-center h-[56px] px-5">
+        <span class="text-[18px] font-bold text-[#1c1c1c]">마이페이지</span>
+      </header>
 
-      <main class="px-6 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px - 60px)', 80)" @focusin="handleFocusIn">
+      <main class="px-4 py-3 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 80)" @focusin="handleFocusIn">
         <!-- Profile Card -->
         <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)]">
-          <div class="w-[60px] h-[60px] bg-[#FF7B22] rounded-full flex items-center justify-center flex-shrink-0">
+          <div class="w-[60px] h-[60px] bg-[#FF6B2D] rounded-full flex items-center justify-center flex-shrink-0">
             <span class="text-white text-[22px] font-bold">{{ agentInitial }}</span>
           </div>
           <div>
@@ -22,7 +24,7 @@
               <h3 class="text-[15px] font-semibold text-[#333]">기본 정보</h3>
               <button
                 v-if="!isEditing"
-                class="text-[12px] text-[#FF7B22] font-medium"
+                class="text-[12px] text-[#FF6B2D] font-medium"
                 @click="startEdit"
               >
                 수정
@@ -47,7 +49,7 @@
                   <input
                     v-model="editForm.phone"
                     type="tel"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
                 <div>
@@ -55,7 +57,7 @@
                   <input
                     v-model="editForm.email"
                     type="email"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
                 <div>
@@ -63,7 +65,7 @@
                   <input
                     v-model="editForm.office_location"
                     type="text"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
               </div>
@@ -76,7 +78,7 @@
                 </button>
                 <button
                   :disabled="editSaving"
-                  class="flex-1 py-2.5 rounded-[10px] bg-[#FF7B22] text-white text-[13px] font-medium active:bg-[#E56A1A] disabled:opacity-50"
+                  class="flex-1 py-2.5 rounded-[10px] bg-[#FF6B2D] text-white text-[13px] font-medium active:bg-[#E56A1A] disabled:opacity-50"
                   @click="handleSaveProfile"
                 >
                   {{ editSaving ? '저장 중...' : '저장' }}
@@ -115,12 +117,12 @@
               </div>
               <button
                 class="relative w-[44px] h-[24px] rounded-full transition-colors"
-                :class="birthdayAlarmEnabled ? 'bg-[#FF7B22]' : 'bg-[#DDD]'"
+                :class="birthdayAlarmEnabled ? 'bg-[#FF6B2D]' : 'bg-[#DDD]'"
                 @click="toggleBirthdayAlarm"
               >
                 <span
-                  class="absolute top-[2px] w-[20px] h-[20px] bg-white rounded-full shadow transition-transform"
-                  :class="birthdayAlarmEnabled ? 'translate-x-[22px]' : 'translate-x-[2px]'"
+                  class="absolute left-[2px] top-[2px] w-[20px] h-[20px] bg-white rounded-full shadow transition-transform"
+                  :class="birthdayAlarmEnabled ? 'translate-x-[20px]' : 'translate-x-0'"
                 />
               </button>
             </div>
@@ -164,7 +166,7 @@
                     v-model="pwForm.current_password"
                     type="password"
                     placeholder="현재 비밀번호를 입력하세요"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
                 <div>
@@ -173,7 +175,7 @@
                     v-model="pwForm.new_password"
                     type="password"
                     placeholder="6자 이상"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
                 <div>
@@ -182,14 +184,14 @@
                     v-model="pwForm.new_password_confirmation"
                     type="password"
                     placeholder="새 비밀번호를 한번 더 입력하세요"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
               </div>
 
               <button
                 :disabled="pwSaving"
-                class="w-full mt-5 py-3 rounded-[12px] bg-[#FF7B22] text-white text-[14px] font-semibold active:bg-[#E56A1A] disabled:opacity-50"
+                class="w-full mt-5 py-3 rounded-[12px] bg-[#FF6B2D] text-white text-[14px] font-semibold active:bg-[#E56A1A] disabled:opacity-50"
                 @click="handleChangePassword"
               >
                 {{ pwSaving ? '변경 중...' : '비밀번호 변경' }}
@@ -325,7 +327,6 @@ import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { useToast } from '../../composables/useToast'
 import { changePassword as apiChangePassword, deleteAccount as apiDeleteAccount } from '../../services/agentApi'
-import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'

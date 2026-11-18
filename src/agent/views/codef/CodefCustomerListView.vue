@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#F8F8F8]">
+  <div class="min-h-screen bg-[#F4F5F7]">
     <BackHeader title="보험·건강 조회" />
 
     <div class="px-4 pt-3 pb-28">
@@ -13,14 +13,14 @@
           v-model="store.searchQuery"
           type="text"
           placeholder="고객명 또는 연락처 검색"
-          class="w-full pl-10 pr-4 py-3 bg-white border border-[#E8E8E8] rounded-[14px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22]"
+          class="w-full pl-10 pr-4 py-3 bg-white border border-[#E8E8E8] rounded-[14px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D]"
           @input="handleSearch"
         />
       </div>
 
       <!-- 로딩 -->
       <div v-if="store.customersLoading" class="text-center py-16">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto" />
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D] mx-auto" />
         <p class="mt-3 text-[13px] text-[#999]">불러오는 중...</p>
       </div>
 
@@ -34,7 +34,7 @@
         >
           <div class="flex items-center gap-3">
             <div class="w-[42px] h-[42px] rounded-full bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
-              <span class="text-[15px] font-bold text-[#FF7B22]">{{ c.name.charAt(0) }}</span>
+              <span class="text-[15px] font-bold text-[#FF6B2D]">{{ c.name.charAt(0) }}</span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-0.5">

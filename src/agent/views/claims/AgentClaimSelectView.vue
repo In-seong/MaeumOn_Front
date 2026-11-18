@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="보험금 청구" />
 
       <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 112)" @focusin="handleFocusIn">
@@ -34,7 +34,7 @@
               <div class="flex gap-2 mt-3">
                 <button
                   type="button"
-                  class="flex-1 py-2 rounded-[8px] bg-[#FF7B22] text-white text-[13px] font-semibold active:scale-[0.98] transition-transform"
+                  class="flex-1 py-2 rounded-[8px] bg-[#FF6B2D] text-white text-[13px] font-semibold active:scale-[0.98] transition-transform"
                   @click="resumeBatchDraft(draft.batch_claim_id)"
                 >이어쓰기</button>
                 <button
@@ -75,7 +75,7 @@
               <div class="flex gap-2 mt-3">
                 <button
                   type="button"
-                  class="flex-1 py-2 rounded-[8px] bg-[#FF7B22] text-white text-[13px] font-semibold active:scale-[0.98] transition-transform"
+                  class="flex-1 py-2 rounded-[8px] bg-[#FF6B2D] text-white text-[13px] font-semibold active:scale-[0.98] transition-transform"
                   @click="resumeDraft(draft)"
                 >이어쓰기</button>
                 <button
@@ -128,9 +128,9 @@
               <div class="flex items-center gap-3.5">
                 <div class="w-11 h-11 rounded-full bg-[#FFF0E5] flex items-center justify-center shrink-0">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="9" cy="7" r="4" stroke="#FF7B22" stroke-width="2"/>
-                    <path d="M22 21v-2a4 4 0 00-3-3.87" stroke="#FF7B22" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="9" cy="7" r="4" stroke="#FF6B2D" stroke-width="2"/>
+                    <path d="M22 21v-2a4 4 0 00-3-3.87" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
                 <div class="flex-1">
@@ -152,10 +152,10 @@
             <div class="flex items-center gap-2 mb-3">
               <span
                 class="w-6 h-6 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
-                :class="selectedCustomerId ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
+                :class="selectedCustomerId ? 'bg-[#FF6B2D] text-white' : 'bg-[#FF6B2D]/20 text-[#FF6B2D]'"
               >1</span>
               <h2 class="text-[15px] font-semibold text-[#222]">고객 선택</h2>
-              <span v-if="selectedCustomer" class="ml-auto text-[13px] text-[#FF7B22] font-medium">
+              <span v-if="selectedCustomer" class="ml-auto text-[13px] text-[#FF6B2D] font-medium">
                 {{ selectedCustomer.name }}
               </span>
             </div>
@@ -172,14 +172,14 @@
                 v-model="customerSearch"
                 type="text"
                 placeholder="고객명 또는 연락처 검색"
-                class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
+                class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
                 @input="handleCustomerSearch"
               />
             </div>
 
             <!-- 고객 목록 로딩 -->
             <div v-if="customerStore.loading" class="flex items-center justify-center py-6">
-              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
             </div>
 
             <!-- 고객 리스트 -->
@@ -194,7 +194,7 @@
                 class="flex items-center gap-3 px-4 py-3 rounded-[12px] text-left transition-all active:scale-[0.98]"
                 :class="
                   selectedCustomerId === customer.customer_id
-                    ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
+                    ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF6B2D]'
                     : 'bg-white border-[1.5px] border-transparent shadow-[0_0_6px_rgba(0,0,0,0.04)]'
                 "
                 @click="selectCustomer(customer.customer_id)"
@@ -203,7 +203,7 @@
                   class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-[13px] font-bold"
                   :class="
                     selectedCustomerId === customer.customer_id
-                      ? 'bg-[#FF7B22] text-white'
+                      ? 'bg-[#FF6B2D] text-white'
                       : 'bg-[#F0F0F0] text-[#999]'
                   "
                 >
@@ -217,7 +217,7 @@
                   v-if="selectedCustomerId === customer.customer_id"
                   width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"
                 >
-                  <circle cx="12" cy="12" r="10" fill="#FF7B22"/>
+                  <circle cx="12" cy="12" r="10" fill="#FF6B2D"/>
                   <path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
@@ -243,10 +243,10 @@
           <div class="flex items-center gap-2 mb-3">
             <span
               class="w-6 h-6 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
-              :class="selectedCompanies.length > 0 ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
+              :class="selectedCompanies.length > 0 ? 'bg-[#FF6B2D] text-white' : 'bg-[#FF6B2D]/20 text-[#FF6B2D]'"
             >{{ claimMode === 'customer' ? '2' : '1' }}</span>
             <h2 class="text-[15px] font-semibold text-[#222]">보험사 선택</h2>
-            <span v-if="selectedCompanies.length > 0" class="ml-auto text-[13px] text-[#FF7B22] font-medium">
+            <span v-if="selectedCompanies.length > 0" class="ml-auto text-[13px] text-[#FF6B2D] font-medium">
               {{ selectedCompanies.length }}개 선택
             </span>
           </div>
@@ -256,12 +256,12 @@
             <span
               v-for="entry in selectedCompanies"
               :key="entry.company.company_id"
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF0E5] text-[12px] font-semibold text-[#FF7B22] border border-[#FFD4B0]"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF0E5] text-[12px] font-semibold text-[#FF6B2D] border border-[#FFD4B0]"
             >
               {{ entry.company.company_name }}
               <button
                 type="button"
-                class="w-4 h-4 rounded-full flex items-center justify-center text-[#FF7B22] hover:bg-[#FF7B22] hover:text-white transition-colors"
+                class="w-4 h-4 rounded-full flex items-center justify-center text-[#FF6B2D] hover:bg-[#FF6B2D] hover:text-white transition-colors"
                 @click.stop="toggleCompany(entry.company)"
               >
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
@@ -280,7 +280,7 @@
               class="flex-1 py-2 rounded-[8px] text-[13px] font-semibold transition-all"
               :class="
                 activeCategory === tab.value
-                  ? 'bg-white text-[#FF7B22] shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
+                  ? 'bg-white text-[#FF6B2D] shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
                   : 'text-[#999]'
               "
               @click="activeCategory = tab.value"
@@ -288,7 +288,7 @@
           </div>
 
           <div v-if="claimStore.loadingCompanies" class="flex items-center justify-center py-6">
-            <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+            <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
           </div>
 
           <div v-else class="grid grid-cols-3 gap-2">
@@ -299,7 +299,7 @@
               class="relative flex flex-col items-center justify-center rounded-[12px] p-1.5 transition-all active:scale-[0.98]"
               :class="
                 isCompanySelected(company.company_id)
-                  ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
+                  ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF6B2D]'
                   : 'bg-white border-[1.5px] border-transparent shadow-[0_0_6px_rgba(0,0,0,0.04)]'
               "
               @click="toggleCompany(company)"
@@ -307,7 +307,7 @@
               <!-- 체크 표시 -->
               <div
                 v-if="isCompanySelected(company.company_id)"
-                class="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#FF7B22] flex items-center justify-center"
+                class="absolute top-1 right-1 w-5 h-5 rounded-full bg-[#FF6B2D] flex items-center justify-center"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                   <path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -340,7 +340,7 @@
           <div class="flex items-center gap-2 mb-3">
             <span
               class="w-6 h-6 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
-              :class="allFormsSelected ? 'bg-[#FF7B22] text-white' : 'bg-[#FF7B22]/20 text-[#FF7B22]'"
+              :class="allFormsSelected ? 'bg-[#FF6B2D] text-white' : 'bg-[#FF6B2D]/20 text-[#FF6B2D]'"
             >{{ claimMode === 'customer' ? '3' : '2' }}</span>
             <h2 class="text-[15px] font-semibold text-[#222]">양식 선택</h2>
           </div>
@@ -355,13 +355,13 @@
 
               <!-- 로딩 중 -->
               <div v-if="entry.loadingForms" class="flex items-center justify-center py-3">
-                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#FF7B22]"></div>
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#FF6B2D]"></div>
               </div>
 
               <!-- 양식 1개: 자동 선택 -->
               <div v-else-if="entry.forms.length === 1 && entry.formId" class="px-3 py-2 bg-[#FFF0E5] rounded-[8px]">
                 <p class="text-[13px] text-[#222]">{{ entry.forms[0]?.form_name }}</p>
-                <p class="text-[11px] text-[#FF7B22] mt-0.5">자동 선택</p>
+                <p class="text-[11px] text-[#FF6B2D] mt-0.5">자동 선택</p>
               </div>
 
               <!-- 양식 2개 이상: 선택 버튼 -->
@@ -373,7 +373,7 @@
                   class="text-left px-3 py-2 rounded-[8px] text-[13px] transition-all active:scale-[0.98]"
                   :class="
                     entry.formId === form.claim_form_id
-                      ? 'bg-[#FFF0E5] border border-[#FF7B22] font-semibold text-[#222]'
+                      ? 'bg-[#FFF0E5] border border-[#FF6B2D] font-semibold text-[#222]'
                       : 'bg-[#F8F8F8] border border-transparent text-[#666]'
                   "
                   @click="selectFormForCompany(entry.company.company_id, form.claim_form_id)"
@@ -406,7 +406,7 @@
           class="w-full py-3.5 rounded-[12px] text-[15px] font-semibold transition-all active:scale-[0.98]"
           :class="
             canProceed
-              ? 'bg-[#FF7B22] text-white shadow-[0_4px_16px_rgba(255,123,34,0.3)]'
+              ? 'bg-[#FF6B2D] text-white shadow-[0_4px_16px_rgba(255,123,34,0.3)]'
               : 'bg-[#E0E0E0] text-[#AAAAAA] cursor-not-allowed'
           "
           @click="goNext"

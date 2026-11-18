@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[22px] font-bold text-[#333]">문의하기</h1>
       <button
-        class="px-5 py-2.5 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
+        class="px-5 py-2.5 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
         @click="showCreateModal = true"
       >새 문의 작성</button>
     </div>
@@ -17,7 +17,7 @@
         :class="[
           'px-4 py-2 rounded-full text-[13px] font-medium transition-all',
           currentFilter === tab.value
-            ? 'bg-[#FF7B22] text-white'
+            ? 'bg-[#FF6B2D] text-white'
             : 'bg-white text-[#888] border border-[#E8E8E8] hover:bg-[#F8F8F8]',
         ]"
         @click="currentFilter = tab.value; loadInquiries()"
@@ -26,7 +26,7 @@
 
     <!-- 로딩 -->
     <div v-if="loading" class="flex justify-center py-16">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D]"></div>
     </div>
 
     <!-- 테이블 -->
@@ -69,7 +69,7 @@
     <!-- 빈 상태 -->
     <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-16 text-center">
       <div class="w-16 h-16 bg-[#FFF3ED] rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-8 h-8 text-[#FF6B2D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
@@ -100,7 +100,7 @@
               :class="[
                 'px-3 py-1.5 rounded-full text-[13px] font-medium transition-all',
                 form.category === cat.value
-                  ? 'bg-[#FF7B22] text-white'
+                  ? 'bg-[#FF6B2D] text-white'
                   : 'bg-[#F5F5F5] text-[#888] hover:bg-[#EBEBEB]',
               ]"
               @click="form.category = cat.value"
@@ -112,7 +112,7 @@
             v-model="form.title"
             type="text"
             placeholder="문의 제목을 입력하세요"
-            class="w-full px-4 py-3 text-[14px] border border-[#E0E0E0] rounded-[12px] mb-4 focus:outline-none focus:border-[#FF7B22]"
+            class="w-full px-4 py-3 text-[14px] border border-[#E0E0E0] rounded-[12px] mb-4 focus:outline-none focus:border-[#FF6B2D]"
           />
 
           <label class="block text-[13px] font-medium text-[#555] mb-1.5">내용</label>
@@ -120,7 +120,7 @@
             v-model="form.content"
             rows="6"
             placeholder="문의 내용을 상세히 작성해주세요"
-            class="w-full px-4 py-3 text-[14px] border border-[#E0E0E0] rounded-[12px] mb-4 resize-none focus:outline-none focus:border-[#FF7B22]"
+            class="w-full px-4 py-3 text-[14px] border border-[#E0E0E0] rounded-[12px] mb-4 resize-none focus:outline-none focus:border-[#FF6B2D]"
           ></textarea>
 
           <label class="block text-[13px] font-medium text-[#555] mb-1.5">첨부파일 (최대 3개)</label>
@@ -153,7 +153,7 @@
 
           <button
             :disabled="submitting || !form.title.trim() || !form.content.trim()"
-            class="w-full py-3.5 bg-[#FF7B22] text-white text-[15px] font-medium rounded-[12px] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#E56D1E] transition-colors"
+            class="w-full py-3.5 bg-[#FF6B2D] text-white text-[15px] font-medium rounded-[12px] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#E56D1E] transition-colors"
             @click="submitInquiry"
           >{{ submitting ? '등록 중...' : '문의 등록' }}</button>
         </div>
@@ -199,7 +199,7 @@
                 :key="idx"
                 :href="att.url"
                 target="_blank"
-                class="flex items-center gap-2 bg-[#F5F5F5] rounded-[8px] px-3 py-2 text-[13px] text-[#FF7B22] hover:bg-[#FFF3ED] transition-colors"
+                class="flex items-center gap-2 bg-[#F5F5F5] rounded-[8px] px-3 py-2 text-[13px] text-[#FF6B2D] hover:bg-[#FFF3ED] transition-colors"
               >
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -211,10 +211,10 @@
 
           <div v-if="selectedInquiry.answer" class="border-t border-[#E8E8E8] pt-4">
             <div class="flex items-center gap-2 mb-2">
-              <svg class="w-4 h-4 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-[#FF6B2D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
               </svg>
-              <span class="text-[13px] font-bold text-[#FF7B22]">관리자 답변</span>
+              <span class="text-[13px] font-bold text-[#FF6B2D]">관리자 답변</span>
               <span v-if="selectedInquiry.answered_at" class="text-[11px] text-[#999]">{{ formatDate(selectedInquiry.answered_at) }}</span>
             </div>
             <div class="bg-[#FFF3ED] rounded-[12px] p-4">

@@ -14,7 +14,7 @@
             v-model="username"
             type="text"
             placeholder="아이디를 입력하세요"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
         <div>
@@ -23,7 +23,7 @@
             v-model="password"
             type="password"
             placeholder="비밀번호를 입력하세요"
-            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF7B22] focus:ring-1 focus:ring-[#FF7B22] transition-colors"
+            class="w-full h-11 px-4 border border-[#E0E0E0] rounded-lg text-[14px] focus:outline-none focus:border-[#FF6B2D] focus:ring-1 focus:ring-[#FF6B2D] transition-colors"
           />
         </div>
 
@@ -31,7 +31,7 @@
           <input
             v-model="saveId"
             type="checkbox"
-            class="w-4 h-4 rounded border-[#E8E8E8] text-[#FF7B22] focus:ring-[#FF7B22]"
+            class="w-4 h-4 rounded border-[#E8E8E8] text-[#FF6B2D] focus:ring-[#FF6B2D]"
           />
           <span class="text-[13px] text-[#888]">아이디 저장</span>
         </label>
@@ -42,7 +42,7 @@
 
         <button
           type="submit"
-          class="w-full h-12 bg-[#FF7B22] text-white text-[15px] font-semibold rounded-lg hover:bg-[#E56D1E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full h-12 bg-[#FF6B2D] text-white text-[15px] font-semibold rounded-lg hover:bg-[#E56D1E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="agentAuthStore.loading"
         >
           {{ agentAuthStore.loading ? '로그인 중...' : '로그인' }}
@@ -51,7 +51,7 @@
 
       <p class="mt-6 text-[13px] text-[#888] text-center">
         계정이 없으신가요?
-        <router-link to="/register" class="text-[#FF7B22] font-semibold">회원가입</router-link>
+        <router-link to="/register" class="text-[#FF6B2D] font-semibold">회원가입</router-link>
       </p>
     </div>
   </div>

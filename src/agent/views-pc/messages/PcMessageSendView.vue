@@ -6,7 +6,7 @@
     <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
       <div class="flex flex-col items-center justify-center py-20">
         <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-[#FFF0E5] flex items-center justify-center">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
           </svg>
         </div>

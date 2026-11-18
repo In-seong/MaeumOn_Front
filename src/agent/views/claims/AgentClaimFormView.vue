@@ -1,11 +1,11 @@
 <template>
-  <div class="h-screen overflow-hidden bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-full flex flex-col bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="h-screen overflow-hidden bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-full flex flex-col bg-[#F4F5F7]">
       <BackHeader :title="isDraftMode ? '청구서 이어쓰기' : (isEditMode ? '청구서 수정' : (customerId ? '대리 청구서 작성' : '청구서 작성'))" :custom-back="true" @back="handleHeaderBack" />
       <main class="flex-1 flex flex-col min-h-0" @focusin="handleFocusIn">
         <!-- 로딩 -->
         <div v-if="loading" class="flex items-center justify-center py-20 px-5">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D]"></div>
           <p class="ml-3 text-[13px] text-[#999]">{{ isEditMode ? '청구 정보를 불러오는 중...' : '양식 정보를 불러오는 중...' }}</p>
         </div>
 
@@ -21,7 +21,7 @@
                 {{ claimStore.selectedClaimForm.form_name }}
               </p>
               <!-- 대리 작성 고객 표시 -->
-              <p v-if="customerStore.selectedCustomer" class="text-[12px] text-[#FF7B22] mt-1">
+              <p v-if="customerStore.selectedCustomer" class="text-[12px] text-[#FF6B2D] mt-1">
                 고객: {{ customerStore.selectedCustomer.name }} 님 대리 작성
               </p>
             </div>
@@ -42,10 +42,10 @@
                 <button
                   type="button"
                   class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]"
-                  :class="allConsentsAgreed ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'"
+                  :class="allConsentsAgreed ? 'bg-[#FF6B2D] text-white' : 'bg-[#FFF3ED] text-[#333]'"
                   @click="toggleAllConsents"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="allConsentsAgreed ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="allConsentsAgreed" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="allConsentsAgreed ? 'white' : '#FF6B2D'" stroke-width="2"/><path v-if="allConsentsAgreed" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   <span class="text-[15px] font-semibold">전체 동의</span>
                 </button>
 
@@ -55,11 +55,11 @@
                     v-for="item in CONSENT_ITEMS"
                     :key="item.id"
                     class="flex items-center gap-3 p-3 bg-white border rounded-[12px] cursor-pointer transition-colors"
-                    :class="consentAgreed[item.id] ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+                    :class="consentAgreed[item.id] ? 'border-[#FF6B2D]' : 'border-[#E8E8E8]'"
                     @click="openConsentOverlay(item)"
                   >
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="shrink-0" @click.stop="toggleConsentItem(item.id)">
-                      <circle cx="12" cy="12" r="10" :fill="consentAgreed[item.id] ? '#FF7B22' : 'none'" :stroke="consentAgreed[item.id] ? '#FF7B22' : '#D0D0D0'" stroke-width="2"/>
+                      <circle cx="12" cy="12" r="10" :fill="consentAgreed[item.id] ? '#FF6B2D' : 'none'" :stroke="consentAgreed[item.id] ? '#FF6B2D' : '#D0D0D0'" stroke-width="2"/>
                       <path v-if="consentAgreed[item.id]" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="flex-1 text-[14px] text-[#333]">
@@ -78,11 +78,11 @@
                     v-for="field in step1CheckboxFields"
                     :key="field.form_field_id"
                     class="flex items-center gap-3 p-3 bg-white border rounded-[12px] cursor-pointer transition-colors"
-                    :class="isStep1CheckboxChecked(field) ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+                    :class="isStep1CheckboxChecked(field) ? 'border-[#FF6B2D]' : 'border-[#E8E8E8]'"
                     @click="toggleStep1Checkbox(field)"
                   >
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="shrink-0">
-                      <circle cx="12" cy="12" r="10" :fill="isStep1CheckboxChecked(field) ? '#FF7B22' : 'none'" :stroke="isStep1CheckboxChecked(field) ? '#FF7B22' : '#D0D0D0'" stroke-width="2"/>
+                      <circle cx="12" cy="12" r="10" :fill="isStep1CheckboxChecked(field) ? '#FF6B2D' : 'none'" :stroke="isStep1CheckboxChecked(field) ? '#FF6B2D' : '#D0D0D0'" stroke-width="2"/>
                       <path v-if="isStep1CheckboxChecked(field)" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="flex-1 text-[14px] text-[#333]">
@@ -115,8 +115,8 @@
                 <!-- 피보험자 섹션 -->
                 <CardSection v-if="insuredStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">피보험자 정보</p>
-                  <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillInsured()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF6B2D] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillInsured()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF6B2D'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
                   </button>
                   <div class="flex flex-col gap-4">
@@ -127,7 +127,7 @@
                             {{ field.field_label }}
                             <span v-if="field.is_required" class="text-[#FF0000]">*</span>
                           </label>
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF7B22]">
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF6B2D]">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
                             다시 쓰기
                           </button>
@@ -144,11 +144,11 @@
                             @touchmove="drawSignature($event)"
                             @touchend="endSignatureDraw"
                           ></canvas>
-                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF6B2D] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
                         </div>
                         <div v-else class="text-center">
                           <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF6B2D] underline">다시 서명</button>
                         </div>
                       </div>
                       <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
@@ -159,8 +159,8 @@
                 <!-- 수익자 섹션 -->
                 <CardSection v-if="beneficiaryStepFields.length > 0" class="mb-4">
                   <p class="text-[15px] font-semibold text-[#222] mb-3">보험 수익자 정보</p>
-                  <button type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillBeneficiaryFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillBeneficiaryFromContractor = !autoFillBeneficiaryFromContractor; handleAutoFillBeneficiary()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillBeneficiaryFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillBeneficiaryFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <button type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillBeneficiaryFromContractor ? 'bg-[#FF6B2D] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillBeneficiaryFromContractor = !autoFillBeneficiaryFromContractor; handleAutoFillBeneficiary()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillBeneficiaryFromContractor ? 'white' : '#FF6B2D'" stroke-width="2"/><path v-if="autoFillBeneficiaryFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '피보험자와 동일' }}</span>
                   </button>
                   <div class="flex flex-col gap-4">
@@ -171,7 +171,7 @@
                             {{ field.field_label }}
                             <span v-if="field.is_required" class="text-[#FF0000]">*</span>
                           </label>
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF7B22]">
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF6B2D]">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
                             다시 쓰기
                           </button>
@@ -188,11 +188,11 @@
                             @touchmove="drawSignature($event)"
                             @touchend="endSignatureDraw"
                           ></canvas>
-                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF6B2D] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
                         </div>
                         <div v-else class="text-center">
                           <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF6B2D] underline">다시 서명</button>
                         </div>
                       </div>
                       <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
@@ -210,7 +210,7 @@
                             {{ field.field_label }}
                             <span v-if="field.is_required" class="text-[#FF0000]">*</span>
                           </label>
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF7B22]">
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF6B2D]">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
                             다시 쓰기
                           </button>
@@ -227,11 +227,11 @@
                             @touchmove="drawSignature($event)"
                             @touchend="endSignatureDraw"
                           ></canvas>
-                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF6B2D] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
                         </div>
                         <div v-else class="text-center">
                           <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF6B2D] underline">다시 서명</button>
                         </div>
                       </div>
                       <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
@@ -242,8 +242,8 @@
 
               <!-- 접두어 없이 wizard_step=4로만 지정된 경우 -->
               <CardSection v-else class="mb-4">
-                <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillStep4()">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <button v-if="hasContractorStep || customerId" type="button" class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]" :class="autoFillInsuredFromContractor ? 'bg-[#FF6B2D] text-white' : 'bg-[#FFF3ED] text-[#333]'" @click="autoFillInsuredFromContractor = !autoFillInsuredFromContractor; handleAutoFillStep4()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillInsuredFromContractor ? 'white' : '#FF6B2D'" stroke-width="2"/><path v-if="autoFillInsuredFromContractor" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   <span class="text-[14px] font-medium">{{ hasContractorStep ? '계약자와 동일' : '고객 정보와 동일' }}</span>
                 </button>
                 <div class="flex flex-col gap-4">
@@ -254,7 +254,7 @@
                           {{ field.field_label }}
                           <span v-if="field.is_required" class="text-[#FF0000]">*</span>
                         </label>
-                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF7B22]">
+                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF6B2D]">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
                           다시 쓰기
                         </button>
@@ -271,11 +271,11 @@
                           @touchmove="drawSignature($event)"
                           @touchend="endSignatureDraw"
                         ></canvas>
-                        <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                        <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF6B2D] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
                       </div>
                       <div v-else class="text-center">
                         <img :src="claimStore.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
-                        <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                        <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF6B2D] underline">다시 서명</button>
                       </div>
                     </div>
                     <ClaimFieldInput v-else :field="field" :model-value="claimStore.fieldValues[field.form_field_id] || ''" @update:model-value="setFieldValueWithSync(field, $event)" @format-input="formatFieldInput" />
@@ -292,10 +292,10 @@
                   v-if="currentStep === 3 && customerId"
                   type="button"
                   class="flex items-center gap-2.5 w-full p-3 rounded-[12px] mb-4 transition-all active:scale-[0.98]"
-                  :class="autoFillFromCustomer ? 'bg-[#FF7B22] text-white' : 'bg-[#FFF3ED] text-[#333]'"
+                  :class="autoFillFromCustomer ? 'bg-[#FF6B2D] text-white' : 'bg-[#FFF3ED] text-[#333]'"
                   @click="autoFillFromCustomer = !autoFillFromCustomer; handleAutoFillFromCustomer()"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillFromCustomer ? 'white' : '#FF7B22'" stroke-width="2"/><path v-if="autoFillFromCustomer" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" :stroke="autoFillFromCustomer ? 'white' : '#FF6B2D'" stroke-width="2"/><path v-if="autoFillFromCustomer" d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   <span class="text-[14px] font-medium">고객 정보와 동일</span>
                 </button>
 
@@ -309,7 +309,7 @@
                           {{ field.field_label }}
                           <span v-if="field.is_required" class="text-[#FF0000]">*</span>
                         </label>
-                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF7B22]">
+                        <button type="button" @click="resetSignature(field.form_field_id)" class="flex items-center gap-1 text-[11px] text-[#999] active:text-[#FF6B2D]">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
                           다시 쓰기
                         </button>
@@ -329,7 +329,7 @@
                         <button
                           type="button"
                           @click="completeSignature(field.form_field_id)"
-                          class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform"
+                          class="mt-2 w-full py-2 bg-[#FF6B2D] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform"
                         >서명 완료</button>
                       </div>
                       <div v-else class="text-center">
@@ -341,7 +341,7 @@
                         <button
                           type="button"
                           @click="resetSignature(field.form_field_id)"
-                          class="mt-2 text-[13px] text-[#FF7B22] underline"
+                          class="mt-2 text-[13px] text-[#FF6B2D] underline"
                         >다시 서명</button>
                       </div>
                     </div>
@@ -442,7 +442,7 @@
                 type="button"
                 :disabled="savingDraft"
                 @click="handleSaveDraft"
-                class="border-[1.5px] border-[#FF7B22] text-[#FF7B22] bg-white rounded-[12px] py-3.5 px-4 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+                class="border-[1.5px] border-[#FF6B2D] text-[#FF6B2D] bg-white rounded-[12px] py-3.5 px-4 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
               >{{ savingDraft ? '저장 중...' : '임시저장' }}</button>
 
               <button
@@ -450,7 +450,7 @@
                 type="button"
                 @click="goNextStep"
                 :disabled="!isCurrentStepValid"
-                class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
+                class="flex-1 bg-[#FF6B2D] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
               >{{ nextButtonText }}</button>
 
               <!-- 마지막 스텝: draft 모드 → "제출하기", 일반 → "청구서 생성/수정" -->
@@ -459,7 +459,7 @@
                 type="button"
                 :disabled="!isFormValid || submitting"
                 @click="handleSubmitDraft"
-                class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
+                class="flex-1 bg-[#FF6B2D] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
               >
                 {{ submitting ? '처리 중...' : '제출하기' }}
               </button>
@@ -467,7 +467,7 @@
                 v-if="isLastStep && !isDraftMode"
                 type="submit"
                 :disabled="!isFormValid || submitting"
-                class="flex-1 bg-[#FF7B22] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
+                class="flex-1 bg-[#FF6B2D] text-white rounded-[12px] py-3.5 text-[15px] font-semibold active:scale-[0.98] transition-transform disabled:bg-[#E0E0E0] disabled:text-[#999]"
               >
                 {{ submitting ? '처리 중...' : submitButtonText }}
               </button>
@@ -479,7 +479,7 @@
           <p class="text-[15px] text-[#888]">양식 정보를 찾을 수 없습니다.</p>
           <button
             @click="goBack"
-            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
+            class="mt-4 bg-[#FF6B2D] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
           >
             양식 선택으로 돌아가기
           </button>

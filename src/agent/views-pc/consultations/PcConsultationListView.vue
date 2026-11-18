@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[20px] font-bold text-[#333]">상담요청 목록</h1>
       <span class="text-[13px] text-[#888]">
-        총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>건
+        총 <span class="font-semibold text-[#FF6B2D]">{{ store.total }}</span>건
       </span>
     </div>
 
@@ -15,8 +15,8 @@
         :class="[
           'px-4 py-2 rounded-full text-[13px] font-medium transition-colors',
           store.filterStatus === tab.value
-            ? 'bg-[#FF7B22] text-white'
-            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF7B22] hover:text-[#FF7B22]',
+            ? 'bg-[#FF6B2D] text-white'
+            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF6B2D] hover:text-[#FF6B2D]',
         ]"
         @click="store.setFilter(tab.value)"
       >
@@ -34,7 +34,7 @@
 
     <!-- 로딩 -->
     <div v-if="store.loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
       <p class="mt-2 text-[14px] text-[#999]">불러오는 중...</p>
     </div>
 
@@ -77,7 +77,7 @@
               </template>
               <template v-else>
                 <button
-                  class="text-[13px] text-[#FF7B22] font-medium hover:text-[#E56D1E] transition-colors"
+                  class="text-[13px] text-[#FF6B2D] font-medium hover:text-[#E56D1E] transition-colors"
                   @click.stop="openAnswer(consultation)"
                 >
                   답변하기
@@ -98,7 +98,7 @@
         <div class="flex items-center justify-center gap-1">
           <button
             :disabled="store.currentPage <= 1"
-            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             @click="goToPage(store.currentPage - 1)"
           >
             이전
@@ -109,8 +109,8 @@
             :class="[
               'px-3 py-1.5 rounded-[8px] text-[13px] transition-colors',
               page === store.currentPage
-                ? 'bg-[#FF7B22] text-white'
-                : 'text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]',
+                ? 'bg-[#FF6B2D] text-white'
+                : 'text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D]',
             ]"
             @click="goToPage(page)"
           >
@@ -118,7 +118,7 @@
           </button>
           <button
             :disabled="store.currentPage >= store.lastPage"
-            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             @click="goToPage(store.currentPage + 1)"
           >
             다음
@@ -140,7 +140,7 @@
           <textarea
             v-model="answerText"
             placeholder="답변 내용을 입력하세요"
-            class="w-full p-3 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22] resize-none transition-colors"
+            class="w-full p-3 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D] resize-none transition-colors"
             rows="4"
           />
           <div class="flex gap-3 mt-4">
@@ -151,7 +151,7 @@
               취소
             </button>
             <button
-              class="flex-1 py-2.5 bg-[#FF7B22] text-white rounded-[12px] text-[14px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+              class="flex-1 py-2.5 bg-[#FF6B2D] text-white rounded-[12px] text-[14px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
               :disabled="!answerText.trim()"
               @click="submitAnswer"
             >

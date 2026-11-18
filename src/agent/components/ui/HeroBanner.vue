@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gradient-to-r from-[#FF7B22] to-[#FF9F5A] rounded-[16px] p-5 text-white">
+  <div class="bg-gradient-to-r from-[#FF6B2D] to-[#FF9F5A] rounded-[16px] p-5 text-white">
     <p class="text-[13px] opacity-90 mb-1">{{ todayDate }}</p>
     <h2 class="text-[18px] font-bold mb-3">오늘의 일정</h2>
     <div class="flex items-center gap-4">

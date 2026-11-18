@@ -30,7 +30,7 @@
           다시 촬영
         </button>
         <button
-          class="flex-1 py-2.5 bg-[#FF7B22] text-white text-[13px] font-bold rounded-[10px] disabled:opacity-40"
+          class="flex-1 py-2.5 bg-[#FF6B2D] text-white text-[13px] font-bold rounded-[10px] disabled:opacity-40"
           :disabled="uploading"
           @click="upload"
         >

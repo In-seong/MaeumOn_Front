@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader title="고객 등록" />
 
       <main class="px-5 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 80)" @focusin="handleFocusIn">
@@ -13,21 +13,21 @@
               <div>
                 <div class="flex items-center gap-1 mb-1.5">
                   <label class="text-[13px] font-medium text-[#555]">이름</label>
-                  <span class="text-[#FF7B22] text-[12px]">*</span>
+                  <span class="text-[#FF6B2D] text-[12px]">*</span>
                 </div>
                 <input
                   v-model="form.name"
                   type="text"
                   placeholder="고객 이름을 입력하세요"
                   required
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
 
               <div>
                 <div class="flex items-center gap-1 mb-1.5">
                   <label class="text-[13px] font-medium text-[#555]">연락처</label>
-                  <span class="text-[#FF7B22] text-[12px]">*</span>
+                  <span class="text-[#FF6B2D] text-[12px]">*</span>
                 </div>
                 <input
                   :value="form.phone"
@@ -36,7 +36,7 @@
                   placeholder="010-0000-0000"
                   required
                   maxlength="13"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   @input="handlePhoneInput"
                 />
               </div>
@@ -51,7 +51,7 @@
                   inputmode="numeric"
                   placeholder="000000-0000000"
                   maxlength="14"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   @input="handleResidentNumberInput"
                 />
               </div>
@@ -72,7 +72,7 @@
                     :key="g.value"
                     type="button"
                     class="flex-1 py-3 rounded-[12px] text-[14px] font-medium border transition-all"
-                    :class="form.gender === g.value ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
+                    :class="form.gender === g.value ? 'bg-[#FFF0E5] border-[#FF6B2D] text-[#FF6B2D]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
                     @click="form.gender = form.gender === g.value ? '' : g.value; autoFilledFromRrn.gender = false"
                   >
                     {{ g.label }}
@@ -86,7 +86,7 @@
                 <input
                   v-model="form.birth_date"
                   type="date"
-                  class="w-full min-w-0 bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full min-w-0 bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   @change="autoFilledFromRrn.birth_date = false"
                 />
               </div>
@@ -132,7 +132,7 @@
                 <label class="text-[13px] font-medium text-[#555] mb-1.5 block">통신사</label>
                 <select
                   v-model="form.telecom"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                 >
                   <option value="">선택안함</option>
                   <option v-for="t in telecomOptions" :key="t" :value="t">{{ t }}</option>
@@ -144,7 +144,7 @@
                 <label class="text-[13px] font-medium text-[#555] mb-1.5 block">가입경로</label>
                 <select
                   v-model="form.acquisition_channel"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                 >
                   <option value="">선택안함</option>
                   <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
@@ -157,7 +157,7 @@
                   v-model="form.acquisition_note"
                   type="text"
                   placeholder="가입경로 관련 메모"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
             </div>

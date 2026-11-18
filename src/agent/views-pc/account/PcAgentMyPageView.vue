@@ -8,7 +8,7 @@
         <!-- Profile Card -->
         <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
           <div class="flex items-center gap-5">
-            <div class="w-[72px] h-[72px] bg-[#FF7B22] rounded-full flex items-center justify-center flex-shrink-0">
+            <div class="w-[72px] h-[72px] bg-[#FF6B2D] rounded-full flex items-center justify-center flex-shrink-0">
               <span class="text-white text-[26px] font-bold">{{ agentInitial }}</span>
             </div>
             <div>
@@ -24,7 +24,7 @@
             <h2 class="text-[16px] font-semibold text-[#333]">기본 정보</h2>
             <button
               v-if="!isEditing"
-              class="text-[13px] text-[#FF7B22] font-medium hover:text-[#E56D1E] transition-colors cursor-pointer"
+              class="text-[13px] text-[#FF6B2D] font-medium hover:text-[#E56D1E] transition-colors cursor-pointer"
               @click="startEdit"
             >
               수정
@@ -51,7 +51,7 @@
                 <input
                   v-model="editForm.phone"
                   type="tel"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -59,7 +59,7 @@
                 <input
                   v-model="editForm.email"
                   type="email"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -67,7 +67,7 @@
                 <input
                   v-model="editForm.office_location"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
             </div>
@@ -80,7 +80,7 @@
               </button>
               <button
                 :disabled="editSaving"
-                class="px-6 py-2.5 rounded-lg bg-[#FF7B22] text-white text-[13px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+                class="px-6 py-2.5 rounded-lg bg-[#FF6B2D] text-white text-[13px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
                 @click="handleSaveProfile"
               >
                 {{ editSaving ? '저장 중...' : '저장' }}
@@ -120,7 +120,7 @@
             </div>
             <button
               class="relative w-[44px] h-[24px] rounded-full transition-colors cursor-pointer"
-              :class="birthdayAlarmEnabled ? 'bg-[#FF7B22]' : 'bg-[#DDD]'"
+              :class="birthdayAlarmEnabled ? 'bg-[#FF6B2D]' : 'bg-[#DDD]'"
               @click="toggleBirthdayAlarm"
             >
               <span
@@ -172,7 +172,7 @@
                   v-model="pwForm.current_password"
                   type="password"
                   placeholder="현재 비밀번호를 입력하세요"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -181,7 +181,7 @@
                   v-model="pwForm.new_password"
                   type="password"
                   placeholder="6자 이상"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -190,14 +190,14 @@
                   v-model="pwForm.new_password_confirmation"
                   type="password"
                   placeholder="새 비밀번호를 한번 더 입력하세요"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
             </div>
 
             <button
               :disabled="pwSaving"
-              class="w-full mt-5 py-3 rounded-lg bg-[#FF7B22] text-white text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+              class="w-full mt-5 py-3 rounded-lg bg-[#FF6B2D] text-white text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
               @click="handleChangePassword"
             >
               {{ pwSaving ? '변경 중...' : '비밀번호 변경' }}

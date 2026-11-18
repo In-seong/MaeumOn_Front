@@ -5,12 +5,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-[800px]">
       <!-- 고객 선택 후 조회 -->
       <button
-        class="bg-white rounded-[16px] border border-[#E8E8E8] shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-6 text-left hover:border-[#FF7B22] hover:shadow-md transition-all"
+        class="bg-white rounded-[16px] border border-[#E8E8E8] shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-6 text-left hover:border-[#FF6B2D] hover:shadow-md transition-all"
         @click="$router.push({ name: 'codef-customers' })"
       >
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-full bg-[#FFF0E5] flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-[24px] text-[#FF7B22]">person_search</span>
+            <span class="material-symbols-outlined text-[24px] text-[#FF6B2D]">person_search</span>
           </div>
           <div>
             <p class="text-[16px] font-semibold text-[#222]">고객 선택 후 조회</p>
@@ -52,18 +52,18 @@
               <div>
                 <label class="text-[13px] font-medium text-[#555] mb-1.5 block">이름 <span class="text-red-500">*</span></label>
                 <input v-model="form.name" type="text" placeholder="홍길동"
-                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22]" />
+                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D]" />
               </div>
               <div>
                 <label class="text-[13px] font-medium text-[#555] mb-1.5 block">주민등록번호 <span class="text-red-500">*</span></label>
                 <input v-model="form.resident_number" type="text" placeholder="000000-0000000" maxlength="14"
-                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22]"
+                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D]"
                   @input="formatResidentNumber" />
               </div>
               <div>
                 <label class="text-[13px] font-medium text-[#555] mb-1.5 block">휴대폰 번호 <span class="text-red-500">*</span></label>
                 <input v-model="form.phone" type="tel" placeholder="01012345678" maxlength="11"
-                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22]" />
+                  class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D]" />
               </div>
               <p v-if="errorMsg" class="text-[13px] text-red-500">{{ errorMsg }}</p>
             </div>
@@ -71,7 +71,7 @@
               <button
                 :disabled="!canSubmit || submitting"
                 class="w-full py-3.5 rounded-[12px] text-[15px] font-semibold transition-all"
-                :class="canSubmit && !submitting ? 'bg-[#FF7B22] text-white hover:bg-[#E66A1A]' : 'bg-[#E8E8E8] text-[#BBB] cursor-not-allowed'"
+                :class="canSubmit && !submitting ? 'bg-[#FF6B2D] text-white hover:bg-[#E66A1A]' : 'bg-[#E8E8E8] text-[#BBB] cursor-not-allowed'"
                 @click="handleDirectSearch"
               >
                 <span v-if="submitting" class="flex items-center justify-center gap-2">

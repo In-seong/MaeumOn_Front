@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[20px] font-bold text-[#333]">청구 관리</h1>
       <button
-        class="px-4 py-2.5 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
+        class="px-4 py-2.5 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
         @click="router.push('/claims/new')"
       >
         + 새 청구
@@ -23,12 +23,12 @@
           type="text"
           :value="store.searchQuery"
           placeholder="고객명, 보험사, 청구유형 검색"
-          class="w-full pl-10 pr-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22] transition-colors"
+          class="w-full pl-10 pr-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D] transition-colors"
           @input="store.setSearchQuery(($event.target as HTMLInputElement).value)"
         />
       </div>
       <span class="text-[13px] text-[#888] whitespace-nowrap">
-        총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>건
+        총 <span class="font-semibold text-[#FF6B2D]">{{ store.total }}</span>건
       </span>
     </div>
 
@@ -40,8 +40,8 @@
         :class="[
           'px-4 py-2 rounded-full text-[13px] font-medium transition-colors',
           store.filterStatus === chip.value
-            ? 'bg-[#FF7B22] text-white'
-            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF7B22] hover:text-[#FF7B22]',
+            ? 'bg-[#FF6B2D] text-white'
+            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF6B2D] hover:text-[#FF6B2D]',
         ]"
         @click="store.setFilter(chip.value)"
       >
@@ -59,7 +59,7 @@
 
     <!-- 로딩 -->
     <div v-if="store.loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
       <p class="mt-2 text-[14px] text-[#999]">불러오는 중...</p>
     </div>
 
@@ -114,7 +114,7 @@
         <div class="flex items-center justify-center gap-1">
           <button
             :disabled="store.currentPage <= 1"
-            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             @click="goToPage(store.currentPage - 1)"
           >
             이전
@@ -125,8 +125,8 @@
             :class="[
               'px-3 py-1.5 rounded-[8px] text-[13px] transition-colors',
               page === store.currentPage
-                ? 'bg-[#FF7B22] text-white'
-                : 'text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]',
+                ? 'bg-[#FF6B2D] text-white'
+                : 'text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D]',
             ]"
             @click="goToPage(page)"
           >
@@ -134,7 +134,7 @@
           </button>
           <button
             :disabled="store.currentPage >= store.lastPage"
-            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             @click="goToPage(store.currentPage + 1)"
           >
             다음

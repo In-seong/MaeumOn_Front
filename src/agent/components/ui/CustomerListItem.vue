@@ -6,7 +6,7 @@
     >
       <!-- Avatar -->
       <div class="w-[44px] h-[44px] rounded-full bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
-        <span class="text-[16px] font-bold text-[#FF7B22]">
+        <span class="text-[16px] font-bold text-[#FF6B2D]">
           {{ customer.name.charAt(0) }}
         </span>
       </div>

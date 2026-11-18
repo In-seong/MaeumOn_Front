@@ -27,7 +27,7 @@
               :class="[
                 'w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0',
                 idx + 1 < currentStep ? 'bg-green-100 text-green-600' :
-                idx + 1 === currentStep ? 'bg-[#FF7B22] text-white' :
+                idx + 1 === currentStep ? 'bg-[#FF6B2D] text-white' :
                 'bg-[#F0F0F0] text-[#BBB]'
               ]"
             >
@@ -104,7 +104,7 @@
             이전
           </button>
           <button
-            class="px-8 py-2.5 bg-[#FF7B22] text-white text-[14px] font-bold rounded-[10px] hover:bg-[#E86B15] transition-colors disabled:opacity-40"
+            class="px-8 py-2.5 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[10px] hover:bg-[#E86B15] transition-colors disabled:opacity-40"
             :disabled="!canNext"
             @click="nextStep"
           >

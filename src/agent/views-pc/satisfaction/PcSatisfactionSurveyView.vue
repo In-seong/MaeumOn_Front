@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[20px] font-bold text-[#333]">만족도 조사</h1>
       <button
-        class="px-4 py-2.5 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
+        class="px-4 py-2.5 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
         @click="showSendModal = true"
       >
         + 새 설문 발송
@@ -15,7 +15,7 @@
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5 text-center">
         <p class="text-[13px] text-[#888] mb-2">평균 만족도</p>
         <div class="flex items-center justify-center gap-2">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF7B22" stroke="#FF7B22" stroke-width="2">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF6B2D" stroke="#FF6B2D" stroke-width="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
           <span class="text-[28px] font-bold text-[#333]">{{ averageRating }}</span>
@@ -23,7 +23,7 @@
       </div>
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5 text-center">
         <p class="text-[13px] text-[#888] mb-2">응답 현황</p>
-        <p class="text-[28px] font-bold text-[#FF7B22]">{{ respondedCount }}<span class="text-[16px] text-[#999] font-normal"> / {{ surveys.length }}</span></p>
+        <p class="text-[28px] font-bold text-[#FF6B2D]">{{ respondedCount }}<span class="text-[16px] text-[#999] font-normal"> / {{ surveys.length }}</span></p>
       </div>
       <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5 text-center">
         <p class="text-[13px] text-[#888] mb-2">응답률</p>
@@ -39,8 +39,8 @@
         :class="[
           'px-4 py-2 rounded-full text-[13px] font-medium transition-colors',
           activeFilter === tab.value
-            ? 'bg-[#FF7B22] text-white'
-            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF7B22] hover:text-[#FF7B22]',
+            ? 'bg-[#FF6B2D] text-white'
+            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF6B2D] hover:text-[#FF6B2D]',
         ]"
         @click="activeFilter = tab.value"
       >
@@ -56,7 +56,7 @@
 
     <!-- 로딩 -->
     <div v-if="loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
       <p class="mt-2 text-[14px] text-[#999]">불러오는 중...</p>
     </div>
 
@@ -98,8 +98,8 @@
                     v-for="star in 5"
                     :key="star"
                     width="14" height="14" viewBox="0 0 24 24"
-                    :fill="star <= (item.rating ?? 0) ? '#FF7B22' : '#E8E8E8'"
-                    :stroke="star <= (item.rating ?? 0) ? '#FF7B22' : '#E8E8E8'"
+                    :fill="star <= (item.rating ?? 0) ? '#FF6B2D' : '#E8E8E8'"
+                    :stroke="star <= (item.rating ?? 0) ? '#FF6B2D' : '#E8E8E8'"
                     stroke-width="1"
                   >
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -136,7 +136,7 @@
                 v-model="sendForm.customerId"
                 type="text"
                 placeholder="고객 ID를 입력하세요"
-                class="w-full px-3 py-2.5 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22] transition-colors"
+                class="w-full px-3 py-2.5 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D] transition-colors"
               />
             </div>
             <div>
@@ -145,7 +145,7 @@
                 v-model="sendForm.surveyTitle"
                 type="text"
                 placeholder="설문 제목을 입력하세요"
-                class="w-full px-3 py-2.5 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22] transition-colors"
+                class="w-full px-3 py-2.5 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D] transition-colors"
               />
             </div>
             <div>
@@ -153,7 +153,7 @@
               <textarea
                 v-model="sendForm.surveyContent"
                 placeholder="설문 내용을 입력하세요"
-                class="w-full p-3 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22] resize-none transition-colors"
+                class="w-full p-3 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D] resize-none transition-colors"
                 rows="4"
               />
             </div>
@@ -165,7 +165,7 @@
                 취소
               </button>
               <button
-                class="flex-1 py-2.5 bg-[#FF7B22] text-white rounded-[12px] text-[14px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+                class="flex-1 py-2.5 bg-[#FF6B2D] text-white rounded-[12px] text-[14px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
                 :disabled="sending || !sendForm.customerId || !sendForm.surveyTitle || !sendForm.surveyContent"
                 @click="handleSendSurvey"
               >

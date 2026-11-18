@@ -5,7 +5,7 @@
         <p class="text-[15px] font-semibold text-[#333]">{{ distribution.customer?.name ?? '-' }}</p>
         <p class="text-[13px] text-[#888] mt-0.5">{{ distribution.customer?.phone ?? '-' }}</p>
       </div>
-      <span v-if="distribution.assignment_type" class="text-[12px] text-[#FF7B22] bg-[#FFF3ED] px-2 py-0.5 rounded-full font-medium">
+      <span v-if="distribution.assignment_type" class="text-[12px] text-[#FF6B2D] bg-[#FFF3ED] px-2 py-0.5 rounded-full font-medium">
         {{ distribution.assignment_type }}
       </span>
     </div>
@@ -25,13 +25,13 @@
     <div class="mt-3 flex gap-2">
       <button
         v-if="distribution.customer?.customer_id"
-        class="flex-1 py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform border-2 border-[#FF7B22] text-[#FF7B22] bg-white"
+        class="flex-1 py-2.5 text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform border-2 border-[#FF6B2D] text-[#FF6B2D] bg-white"
         @click="router.push({ name: 'customer-detail', params: { id: distribution.customer.customer_id } })"
       >
         고객 정보
       </button>
       <button
-        class="flex-1 py-2.5 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+        class="flex-1 py-2.5 bg-[#FF6B2D] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
         @click="$emit('edit', distribution.assignment_id, distribution.notes)"
       >
         메모 수정

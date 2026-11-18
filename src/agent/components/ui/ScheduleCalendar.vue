@@ -53,7 +53,7 @@
         <span
           v-if="cell.hasSchedule"
           class="w-1 h-1 rounded-full mt-0.5"
-          :class="isSelected(cell.dateStr) ? 'bg-white' : 'bg-[#FF7B22]'"
+          :class="isSelected(cell.dateStr) ? 'bg-white' : 'bg-[#FF6B2D]'"
         />
         <span v-else class="w-1 h-1 mt-0.5" />
       </button>
@@ -135,7 +135,7 @@ function isSelected(dateStr: string): boolean {
 
 function cellClass(cell: CalendarCell): string {
   if (!cell.date) return ''
-  if (isSelected(cell.dateStr)) return 'bg-[#FF7B22]'
+  if (isSelected(cell.dateStr)) return 'bg-[#FF6B2D]'
   if (cell.isToday) return 'bg-[#FFF0E5]'
   return 'hover:bg-[#F5F5F5]'
 }
@@ -143,7 +143,7 @@ function cellClass(cell: CalendarCell): string {
 function dateTextClass(cell: CalendarCell): string {
   if (!cell.date) return ''
   if (isSelected(cell.dateStr)) return 'text-white font-bold'
-  if (cell.isToday) return 'text-[#FF7B22] font-bold'
+  if (cell.isToday) return 'text-[#FF6B2D] font-bold'
   if (cell.dayOfWeek === 0) return 'text-[#FF3B30]'
   if (cell.dayOfWeek === 6) return 'text-[#4285F4]'
   return 'text-[#333]'

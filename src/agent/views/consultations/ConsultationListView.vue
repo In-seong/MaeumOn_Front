@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader title="상담요청 목록" />
 
-      <main class="px-5 py-3 pb-20 overflow-y-auto" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-5 py-3 pb-24 overflow-y-auto" style="height: calc(100dvh - 56px);">
         <!-- Status Filter Tabs -->
         <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide" role="tablist" aria-label="상담 상태 필터">
           <button
@@ -14,7 +14,7 @@
             :class="[
               'flex-shrink-0 px-3.5 py-2 rounded-full text-[13px] font-medium transition-all',
               store.filterStatus === tab.value
-                ? 'bg-[#FF7B22] text-white'
+                ? 'bg-[#FF6B2D] text-white'
                 : 'bg-white text-[#888] border border-[#E8E8E8]',
             ]"
             @click="store.setFilter(tab.value)"
@@ -49,7 +49,7 @@
         <!-- Empty State -->
         <div v-else class="flex flex-col items-center justify-center py-16">
           <div class="w-16 h-16 bg-[#FFF3ED] rounded-full flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-[#FF7B22]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg class="w-8 h-8 text-[#FF6B2D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>

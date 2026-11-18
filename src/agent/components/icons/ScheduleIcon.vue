@@ -18,5 +18,5 @@ const props = withDefaults(defineProps<Props>(), {
   active: false
 })
 
-const colorClass = computed(() => props.active ? 'text-[#FF7B22]' : 'text-[#B0B0B0]')
+const colorClass = computed(() => props.active ? 'text-[#FF6B2D]' : 'text-[#B0B0B0]')
 </script>

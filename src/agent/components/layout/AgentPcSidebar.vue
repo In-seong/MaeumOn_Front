@@ -136,7 +136,7 @@ function toggleGroup(gi: number) {
     <div class="h-16 flex items-center justify-between px-5 border-b border-[#E8E8E8] shrink-0">
       <router-link to="/" class="flex items-center gap-2" @click="emit('close')">
         <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-7 h-7" />
-        <span class="text-[20px] font-bold"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
+        <span class="text-[20px] font-bold"><span class="text-[#FF6B2D]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
         <span class="text-[13px] text-[#999] font-medium">설계사</span>
       </router-link>
       <button class="lg:hidden text-[#999] hover:text-[#333]" @click="emit('close')">
@@ -154,7 +154,7 @@ function toggleGroup(gi: number) {
                 :class="[
                   'flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] transition-colors',
                   isActive(item)
-                    ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium'
+                    ? 'bg-[#FFF3ED] text-[#FF6B2D] font-medium'
                     : 'text-[#555] hover:bg-[#F8F8F8] hover:text-[#333]',
                 ]"
                 @click="emit('close')"
@@ -174,14 +174,14 @@ function toggleGroup(gi: number) {
             <span
               :class="[
                 'text-[11px] font-semibold uppercase tracking-wider',
-                groupHasActive(group) ? 'text-[#FF7B22]' : 'text-[#AAAAAA]',
+                groupHasActive(group) ? 'text-[#FF6B2D]' : 'text-[#AAAAAA]',
               ]"
             >{{ group.title }}</span>
             <span
               :class="[
                 'material-symbols-outlined text-[16px] transition-transform duration-200',
                 isCollapsed(gi) ? '' : 'rotate-180',
-                groupHasActive(group) ? 'text-[#FF7B22]' : 'text-[#CCCCCC]',
+                groupHasActive(group) ? 'text-[#FF6B2D]' : 'text-[#CCCCCC]',
               ]"
             >expand_more</span>
           </button>
@@ -198,7 +198,7 @@ function toggleGroup(gi: number) {
                   :class="[
                     'flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] transition-colors',
                     isActive(item)
-                      ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium'
+                      ? 'bg-[#FFF3ED] text-[#FF6B2D] font-medium'
                       : 'text-[#555] hover:bg-[#F8F8F8] hover:text-[#333]',
                   ]"
                   @click="emit('close')"
@@ -221,7 +221,7 @@ function toggleGroup(gi: number) {
             :class="[
               'flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] transition-colors',
               isActive(item)
-                ? 'bg-[#FFF3ED] text-[#FF7B22] font-medium'
+                ? 'bg-[#FFF3ED] text-[#FF6B2D] font-medium'
                 : 'text-[#555] hover:bg-[#F8F8F8] hover:text-[#333]',
             ]"
             @click="emit('close')"

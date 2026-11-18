@@ -1,17 +1,24 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
-      <BackHeader title="고객 관리" />
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
+      <header class="flex items-center h-[56px] px-5">
+        <button v-if="showBack" class="mr-2 -ml-1 p-1" @click="router.back()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18l-6-6 6-6" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="text-[18px] font-bold text-[#1c1c1c]">고객 관리</span>
+      </header>
 
       <main
         ref="scrollContainer"
-        class="px-5 overflow-y-auto"
-        :style="mainStyle('calc(100dvh - 56px - 60px)', 80)"
+        class="px-4 py-3 pb-24 overflow-y-auto"
+        :style="mainStyle('calc(100dvh - 56px)', 80)"
         @scroll="handleScroll"
         @focusin="handleFocusIn"
       >
         <!-- Search -->
-        <div class="relative mb-3 mt-2">
+        <div class="relative mb-3">
           <div class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/>
@@ -22,7 +29,7 @@
             v-model="store.searchQuery"
             type="text"
             placeholder="고객명 또는 연락처 검색"
-            class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
+            class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
             @input="handleSearch"
           />
         </div>
@@ -30,7 +37,7 @@
         <!-- Sort + Count Row -->
         <div class="flex items-center justify-between mb-3">
           <span class="text-[13px] text-[#888]">
-            총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>명
+            총 <span class="font-semibold text-[#FF6B2D]">{{ store.total }}</span>명
           </span>
           <select
             v-model="store.sortBy"
@@ -81,7 +88,7 @@
 
       <!-- Floating Add Button -->
       <button
-        class="absolute bottom-[76px] right-5 w-[52px] h-[52px] rounded-full bg-[#FF7B22] text-white shadow-[0_4px_16px_rgba(255,123,34,0.4)] flex items-center justify-center active:scale-95 transition-transform z-30"
+        class="absolute bottom-[76px] right-5 w-[52px] h-[52px] rounded-full bg-[#FF6B2D] text-white shadow-[0_4px_16px_rgba(255,123,34,0.4)] flex items-center justify-center active:scale-95 transition-transform z-30"
         @click="router.push({ name: 'customer-add' })"
         aria-label="고객 추가"
       >
@@ -96,16 +103,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
-import BackHeader from '@user/components/layout/BackHeader.vue'
 import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CustomerListItem from '../../components/ui/CustomerListItem.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 
 const { handleFocusIn, mainStyle } = useKeyboardSafe()
+const route = useRoute()
 const router = useRouter()
+const showBack = computed(() => route.query.from === 'home')
 const store = useCustomerStore()
 
 const scrollContainer = ref<HTMLElement | null>(null)

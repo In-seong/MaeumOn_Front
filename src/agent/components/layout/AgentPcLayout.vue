@@ -28,7 +28,7 @@ async function handleLogout() {
     <div class="flex-1 flex flex-col min-w-0">
       <header class="h-14 lg:h-16 bg-white border-b border-[#E8E8E8] flex items-center justify-between px-4 lg:px-6 shrink-0 sticky top-0 z-30">
         <button
-          class="lg:hidden text-[#555] hover:text-[#FF7B22] transition-colors"
+          class="lg:hidden text-[#555] hover:text-[#FF6B2D] transition-colors"
           @click="sidebarOpen = true"
         >
           <span class="material-symbols-outlined text-[24px]">menu</span>
@@ -36,7 +36,7 @@ async function handleLogout() {
 
         <div class="lg:hidden flex items-center gap-1.5">
           <img src="/icons/LogoIcon.svg" alt="ON:CARE" class="w-6 h-6" />
-          <span class="text-[16px] font-bold"><span class="text-[#EE7623]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
+          <span class="text-[16px] font-bold"><span class="text-[#FF6B2D]">ON:</span><span class="text-[#1c1c1c]">CARE</span></span>
         </div>
 
         <div class="hidden lg:block" />
@@ -44,7 +44,7 @@ async function handleLogout() {
         <div class="flex items-center gap-3 lg:gap-4">
           <button
             @click="router.push('/notifications')"
-            class="relative text-[#999] hover:text-[#FF7B22] transition-colors"
+            class="relative text-[#999] hover:text-[#FF6B2D] transition-colors"
           >
             <span class="material-symbols-outlined text-[22px]">notifications</span>
             <span

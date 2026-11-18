@@ -23,7 +23,7 @@
             {{ formattedSelectedDate }}
           </h2>
           <button
-            class="px-3 py-1.5 bg-[#FF7B22] text-white text-[13px] font-medium rounded-lg hover:bg-[#E56D1E] transition-colors"
+            class="px-3 py-1.5 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-lg hover:bg-[#E56D1E] transition-colors"
             @click="openAddModal"
           >
             + 일정 추가
@@ -88,7 +88,7 @@
                     :key="opt.value"
                     type="button"
                     class="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-all cursor-pointer"
-                    :class="form.event_type === opt.value ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999] hover:border-[#CCC]'"
+                    :class="form.event_type === opt.value ? 'bg-[#FFF0E5] border-[#FF6B2D] text-[#FF6B2D]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999] hover:border-[#CCC]'"
                     @click="form.event_type = opt.value"
                   >
                     {{ opt.label }}
@@ -106,7 +106,7 @@
                 <label class="text-[13px] text-[#888] mb-1.5 block font-medium">고객 (선택)</label>
                 <select
                   v-model="form.customer_id"
-                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none cursor-pointer"
+                  class="w-full bg-[#F8F8F8] rounded-lg px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none cursor-pointer"
                 >
                   <option value="">없음</option>
                   <option v-for="c in customers" :key="c.customer_id" :value="c.customer_id">
@@ -143,7 +143,7 @@
                     :key="opt.value"
                     type="button"
                     class="px-3 py-1.5 rounded-full text-[13px] font-medium border transition-all cursor-pointer"
-                    :class="form.reminder_days.includes(opt.value) ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999] hover:border-[#CCC]'"
+                    :class="form.reminder_days.includes(opt.value) ? 'bg-[#FFF0E5] border-[#FF6B2D] text-[#FF6B2D]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999] hover:border-[#CCC]'"
                     @click="toggleReminder(opt.value)"
                   >
                     {{ opt.label }}
@@ -159,7 +159,7 @@
               />
 
               <button
-                class="w-full mt-2 py-3 rounded-lg bg-[#FF7B22] text-white text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+                class="w-full mt-2 py-3 rounded-lg bg-[#FF6B2D] text-white text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
                 :disabled="saving"
                 @click="handleSubmit"
               >

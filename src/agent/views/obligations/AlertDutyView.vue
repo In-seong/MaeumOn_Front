@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="알릴의무 관리" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <!-- Urgency Filter Tabs -->
         <div class="flex gap-2 mb-5 overflow-x-auto scrollbar-hide -mx-6 px-6">
           <button
@@ -11,7 +11,7 @@
             :key="tab.value"
             class="flex-shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold transition-colors"
             :class="activeFilter === tab.value
-              ? 'bg-[#FF7B22] text-white'
+              ? 'bg-[#FF6B2D] text-white'
               : 'bg-white text-[#888] border border-[#E0E0E0]'"
             @click="activeFilter = tab.value"
           >

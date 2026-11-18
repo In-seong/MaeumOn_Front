@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="만족도 조사" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <!-- Average Rating Card -->
         <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)] p-5 mb-5 text-center">
           <p class="text-[13px] text-[#888] mb-2">평균 만족도</p>
           <div class="flex items-center justify-center gap-2">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="#FF7B22" stroke="#FF7B22" stroke-width="2">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#FF6B2D" stroke="#FF6B2D" stroke-width="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
             <span class="text-[32px] font-bold text-[#333]">{{ averageRating }}</span>
@@ -18,7 +18,7 @@
 
         <!-- Send Survey Button -->
         <button
-          class="w-full mb-5 py-3 bg-[#FF7B22] text-white text-[14px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+          class="w-full mb-5 py-3 bg-[#FF6B2D] text-white text-[14px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
           @click="showSendModal = true"
         >
           새 설문 발송하기
@@ -31,7 +31,7 @@
             :key="tab.value"
             class="flex-shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold transition-colors"
             :class="activeFilter === tab.value
-              ? 'bg-[#FF7B22] text-white'
+              ? 'bg-[#FF6B2D] text-white'
               : 'bg-white text-[#888] border border-[#E0E0E0]'"
             @click="activeFilter = tab.value"
           >

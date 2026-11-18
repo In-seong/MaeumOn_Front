@@ -3,13 +3,13 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[20px] font-bold text-[#333]">기업 배분</h1>
       <span class="text-[13px] text-[#888]">
-        총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>건
+        총 <span class="font-semibold text-[#FF6B2D]">{{ store.total }}</span>건
       </span>
     </div>
 
     <!-- 로딩 -->
     <div v-if="store.loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
       <p class="mt-2 text-[14px] text-[#999]">불러오는 중...</p>
     </div>
 
@@ -54,7 +54,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatDate(item.assigned_at ?? item.created_at) }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-right">
                 <button
-                  class="text-[13px] text-[#FF7B22] font-medium hover:text-[#E56D1E] transition-colors"
+                  class="text-[13px] text-[#FF6B2D] font-medium hover:text-[#E56D1E] transition-colors"
                   @click="openEditForm(item.id, item.notes)"
                 >
                   메모 수정
@@ -74,7 +74,7 @@
           <div class="flex items-center justify-center gap-1">
             <button
               :disabled="store.currentPage <= 1"
-              class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               @click="goToPage(store.currentPage - 1)"
             >
               이전
@@ -85,8 +85,8 @@
               :class="[
                 'px-3 py-1.5 rounded-[8px] text-[13px] transition-colors',
                 page === store.currentPage
-                  ? 'bg-[#FF7B22] text-white'
-                  : 'text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22]',
+                  ? 'bg-[#FF6B2D] text-white'
+                  : 'text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D]',
               ]"
               @click="goToPage(page)"
             >
@@ -94,7 +94,7 @@
             </button>
             <button
               :disabled="store.currentPage >= store.lastPage"
-              class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF7B22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              class="px-3 py-1.5 rounded-[8px] text-[13px] text-[#555] hover:bg-[#FFF3ED] hover:text-[#FF6B2D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               @click="goToPage(store.currentPage + 1)"
             >
               다음
@@ -116,7 +116,7 @@
           <textarea
             v-model="editNotes"
             placeholder="메모를 입력하세요"
-            class="w-full p-3 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF7B22] resize-none transition-colors"
+            class="w-full p-3 border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#999] outline-none focus:border-[#FF6B2D] resize-none transition-colors"
             rows="3"
           />
           <div class="flex gap-3 mt-4">
@@ -127,7 +127,7 @@
               취소
             </button>
             <button
-              class="flex-1 py-2.5 bg-[#FF7B22] text-white rounded-[12px] text-[14px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+              class="flex-1 py-2.5 bg-[#FF6B2D] text-white rounded-[12px] text-[14px] font-medium hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
               :disabled="processing"
               @click="confirmEdit"
             >
@@ -214,7 +214,7 @@ function statusLabel(status: string): string {
 function statusClass(status: string): string {
   const map: Record<string, string> = {
     NEW: 'bg-blue-100 text-blue-700',
-    IN_PROGRESS: 'bg-[#FFF3ED] text-[#FF7B22]',
+    IN_PROGRESS: 'bg-[#FFF3ED] text-[#FF6B2D]',
     COMPLETED: 'bg-green-100 text-green-700',
     CANCELLED: 'bg-gray-100 text-gray-600',
   }

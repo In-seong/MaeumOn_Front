@@ -54,7 +54,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     <button
       type="button"
       class="w-full px-4 py-3 bg-white rounded-[12px] text-[14px] outline-none border transition-colors text-left flex items-center justify-between"
-      :class="open ? 'border-[#FF7B22]' : 'border-[#E8E8E8]'"
+      :class="open ? 'border-[#FF6B2D]' : 'border-[#E8E8E8]'"
       @click="toggle"
     >
       <span :class="modelValue ? 'text-[#333]' : 'text-[#B0B0B0]'">
@@ -80,7 +80,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             class="px-4 py-2.5 text-[14px] cursor-pointer transition-colors"
             :class="[
               modelValue === opt.value
-                ? 'bg-[#FFF0E5] text-[#FF7B22] font-medium is-active'
+                ? 'bg-[#FFF0E5] text-[#FF6B2D] font-medium is-active'
                 : 'text-[#333] hover:bg-[#F8F8F8] active:bg-[#F0F0F0]'
             ]"
             @click="select(opt.value)"

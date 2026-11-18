@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- 총 금액 헤더 -->
-    <div class="bg-gradient-to-br from-[#FF7B22] to-[#FF9F5A] rounded-[16px] p-6 text-center text-white">
+    <div class="bg-gradient-to-br from-[#FF6B2D] to-[#FF9F5A] rounded-[16px] p-6 text-center text-white">
       <p class="text-[13px] opacity-80">총 숨은 보험금 (추정)</p>
       <p class="text-[32px] font-black mt-1">{{ formatCurrency(totalAmount) }}</p>
       <p class="text-[12px] opacity-70 mt-2">{{ results.length }}건의 미청구 항목이 발견되었습니다</p>
@@ -37,7 +37,7 @@
           <div><span class="text-[#999]">진단명</span> <span class="text-[#333] ml-1">{{ r.diagnosis || '-' }}</span></div>
           <div><span class="text-[#999]">진료구분</span> <span class="text-[#333] ml-1">{{ r.treatment_type || '-' }}</span></div>
           <div><span class="text-[#999]">진료비</span> <span class="text-[#333] ml-1">{{ formatCurrency(r.total_cost) }}</span></div>
-          <div><span class="text-[#999]">추정 청구액</span> <span class="text-[#FF7B22] font-bold ml-1">{{ formatCurrency(r.estimated_claim_amount) }}</span></div>
+          <div><span class="text-[#999]">추정 청구액</span> <span class="text-[#FF6B2D] font-bold ml-1">{{ formatCurrency(r.estimated_claim_amount) }}</span></div>
         </div>
 
         <div v-if="r.matched_insurance_product" class="mt-3 pt-2 border-t border-[#F0F0F0]">
@@ -52,7 +52,7 @@
     <div class="space-y-2 pt-2">
       <button
         v-if="results.length > 0"
-        class="w-full py-3.5 bg-[#FF7B22] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform"
+        class="w-full py-3.5 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform"
         @click="emit('start-claim')"
       >
         보험금 청구하기
@@ -97,7 +97,7 @@ function statusLabel(s: string): string {
 
 function statusClass(s: string): string {
   const map: Record<string, string> = {
-    unclaimed: 'bg-orange-50 text-[#FF7B22]',
+    unclaimed: 'bg-orange-50 text-[#FF6B2D]',
     claiming: 'bg-blue-50 text-blue-600',
     claimed: 'bg-green-50 text-green-600',
     not_applicable: 'bg-gray-100 text-[#999]',

@@ -18,7 +18,7 @@ const previewItem = ref<AwardPlanItem | null>(null)
 const awardCategory = ref<string | null>(null)
 
 const awardCategoryTabs = [
-  { key: null, label: '전체', color: '#FF7B22' },
+  { key: null, label: '전체', color: '#FF6B2D' },
   { key: 'non-life', label: '손해보험', color: '#3B82F6' },
   { key: 'life', label: '생명보험', color: '#8B5CF6' },
   { key: 'cooperative', label: '공제조합', color: '#10B981' },
@@ -143,7 +143,7 @@ onMounted(async () => {
         :class="[
           'px-5 py-3 text-[15px] font-medium transition-colors border-b-2 -mb-px',
           activeTab === 'award'
-            ? 'text-[#FF7B22] border-[#FF7B22]'
+            ? 'text-[#FF6B2D] border-[#FF6B2D]'
             : 'text-[#999] border-transparent hover:text-[#555]',
         ]"
         @click="activeTab = 'award'"
@@ -154,7 +154,7 @@ onMounted(async () => {
         :class="[
           'px-5 py-3 text-[15px] font-medium transition-colors border-b-2 -mb-px',
           activeTab === 'form'
-            ? 'text-[#FF7B22] border-[#FF7B22]'
+            ? 'text-[#FF6B2D] border-[#FF6B2D]'
             : 'text-[#999] border-transparent hover:text-[#555]',
         ]"
         @click="activeTab = 'form'"
@@ -249,7 +249,7 @@ onMounted(async () => {
           </div>
           <div class="p-3">
             <p class="text-[13px] font-medium text-[#333] truncate">{{ item.title }}</p>
-            <p v-if="item.company_name" class="text-[11px] text-[#FF7B22] mt-0.5 truncate">{{ item.company_name }}</p>
+            <p v-if="item.company_name" class="text-[11px] text-[#FF6B2D] mt-0.5 truncate">{{ item.company_name }}</p>
             <p class="text-[11px] text-[#999] mt-0.5">{{ item.file_name }}</p>
           </div>
         </div>
@@ -348,7 +348,7 @@ onMounted(async () => {
           <div class="flex items-center justify-between w-full mb-3">
             <h3 class="text-white text-[16px] font-medium truncate max-w-[60vw]">{{ previewItem.title }}</h3>
             <button
-              class="text-white hover:text-[#FF7B22] transition-colors ml-4"
+              class="text-white hover:text-[#FF6B2D] transition-colors ml-4"
               @click="previewItem = null"
             >
               <span class="material-symbols-outlined text-[28px]">close</span>

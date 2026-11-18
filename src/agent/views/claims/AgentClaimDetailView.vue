@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="청구 상세" />
-      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 96)" @focusin="handleFocusIn">
+      <main class="px-5 py-4 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 96)" @focusin="handleFocusIn">
         <!-- 로딩 -->
         <div v-if="store.loading" class="flex items-center justify-center py-20">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D]"></div>
         </div>
 
         <!-- 청구 상세 -->
@@ -29,7 +29,7 @@
                 <a
                   v-if="claim.claim_form?.insurance_company?.contact_phone"
                   :href="`tel:${claim.claim_form.insurance_company.contact_phone}`"
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF7B22] text-[#FF7B22] text-[12px] font-medium active:scale-95 transition-transform"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF6B2D] text-[#FF6B2D] text-[12px] font-medium active:scale-95 transition-transform"
                   @click.stop
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -47,7 +47,7 @@
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="text-[13px] text-[#888]">청구번호</span>
-                <span class="text-[14px] font-bold text-[#FF7B22]">#{{ claim.claim_id }}</span>
+                <span class="text-[14px] font-bold text-[#FF6B2D]">#{{ claim.claim_id }}</span>
               </div>
               <div v-if="claim.customer" class="flex items-center gap-2">
                 <span class="text-[13px] text-[#888]">고객명</span>
@@ -129,12 +129,12 @@
                       v-model="faxNumber"
                       type="tel"
                       placeholder="02-1234-5678"
-                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                      class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF6B2D] transition-colors"
                     />
                   </div>
                   <button
                     :disabled="sendingFax"
-                    class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+                    class="w-full bg-[#FF6B2D] text-white rounded-[12px] py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
                     @click="handleSendFax"
                   >
                     {{ sendingFax ? '발송 중...' : '팩스 재발송' }}
@@ -159,8 +159,8 @@
                 class="py-2"
               >
                 <div class="flex items-center gap-2 mb-3">
-                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
-                  <span class="text-[14px] font-medium text-[#FF7B22]">
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF6B2D]"></div>
+                  <span class="text-[14px] font-medium text-[#FF6B2D]">
                     {{ claim.fax_status === 'pending' ? '발송 대기중...' : '팩스 발송중...' }}
                   </span>
                 </div>
@@ -194,7 +194,7 @@
                     v-model="faxNumber"
                     type="tel"
                     placeholder="02-1234-5678"
-                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF6B2D] transition-colors"
                   />
                 </div>
                 <button
@@ -214,7 +214,7 @@
                     v-model="faxNumber"
                     type="tel"
                     placeholder="02-1234-5678"
-                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF7B22] transition-colors"
+                    class="w-full px-4 py-3 bg-[#F8F8F8] rounded-[12px] text-[14px] text-[#333] outline-none border border-[#E8E8E8] focus:border-[#FF6B2D] transition-colors"
                   />
                   <p class="mt-1.5 text-[11px] text-[#999]">
                     보험사 기본 팩스번호가 입력되어 있습니다. 변경 가능합니다.
@@ -222,7 +222,7 @@
                 </div>
                 <button
                   :disabled="sendingFax"
-                  class="w-full bg-[#FF7B22] text-white rounded-[12px] py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
+                  class="w-full bg-[#FF6B2D] text-white rounded-[12px] py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform disabled:opacity-50"
                   @click="handleSendFax"
                 >
                   {{ sendingFax ? '발송 중...' : '팩스 발송' }}
@@ -280,7 +280,7 @@
                   <button
                     v-if="doc.document_url"
                     type="button"
-                    class="text-[12px] text-[#FF7B22] font-semibold flex-shrink-0"
+                    class="text-[12px] text-[#FF6B2D] font-semibold flex-shrink-0"
                     @click="openDocViewer(doc)"
                   >
                     보기
@@ -364,12 +364,12 @@
             <!-- 수정 버튼 (pending 상태) -->
             <button
               v-if="claim.claim_status === 'pending'"
-              class="w-full bg-white border border-[#FF7B22] text-[#FF7B22] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+              class="w-full bg-white border border-[#FF6B2D] text-[#FF6B2D] rounded-[12px] py-3.5 text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
               @click="goToEdit"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#FF7B22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#FF6B2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               청구서 수정
             </button>
@@ -392,7 +392,7 @@
         <div v-else class="text-center py-20">
           <p class="text-[15px] text-[#888]">청구 정보를 찾을 수 없습니다.</p>
           <button
-            class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
+            class="mt-4 bg-[#FF6B2D] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold active:scale-[0.98] transition-transform"
             @click="goBack"
           >
             목록으로 돌아가기

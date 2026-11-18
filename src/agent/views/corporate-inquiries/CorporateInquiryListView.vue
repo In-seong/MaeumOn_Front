@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="기업 배분" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <div class="mb-4">
           <p class="text-[13px] text-[#888]">
-            총 <span class="font-semibold text-[#FF7B22]">{{ store.total }}</span>건
+            총 <span class="font-semibold text-[#FF6B2D]">{{ store.total }}</span>건
           </p>
         </div>
 
@@ -57,7 +57,7 @@
             <p v-if="item.notes" class="text-[12px] text-[#666] mt-2 line-clamp-2">{{ item.notes }}</p>
 
             <button
-              class="mt-3 w-full py-2.5 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+              class="mt-3 w-full py-2.5 bg-[#FF6B2D] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
               @click="openEditForm(item.id, item.notes)"
             >
               메모 수정
@@ -153,7 +153,7 @@ function statusLabel(status: string): string {
 function statusClass(status: string): string {
   const map: Record<string, string> = {
     NEW: 'bg-blue-50 text-[#1565C0]',
-    IN_PROGRESS: 'bg-[#FFF3ED] text-[#FF7B22]',
+    IN_PROGRESS: 'bg-[#FFF3ED] text-[#FF6B2D]',
     COMPLETED: 'bg-[#E8F5E9] text-[#2E7D32]',
     CANCELLED: 'bg-gray-100 text-gray-600',
   }

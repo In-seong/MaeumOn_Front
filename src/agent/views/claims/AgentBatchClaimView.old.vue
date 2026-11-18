@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader :title="isDraftMode ? '다중 청구 이어쓰기' : '다중 보험 청구'" :custom-back="true" @back="handleHeaderBack" />
 
       <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 112)" @focusin="handleFocusIn">
 
         <!-- 로딩 -->
         <div v-if="batchStore.loading && !initialLoaded" class="flex items-center justify-center py-20">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D]"></div>
           <p class="ml-3 text-[13px] text-[#999]">불러오는 중...</p>
         </div>
 
@@ -21,15 +21,15 @@
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all"
               :class="
                 currentStep === s.step
-                  ? 'bg-[#FF7B22] text-white'
+                  ? 'bg-[#FF6B2D] text-white'
                   : currentStep > s.step
-                    ? 'bg-[#FFF0E5] text-[#FF7B22]'
+                    ? 'bg-[#FFF0E5] text-[#FF6B2D]'
                     : 'bg-[#F0F0F0] text-[#999]'
               "
               @click="currentStep > s.step ? (currentStep = s.step) : undefined"
             >
               <template v-if="currentStep > s.step">
-                <span class="w-5 h-5 rounded-full flex items-center justify-center bg-[#FF7B22] text-white">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center bg-[#FF6B2D] text-white">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -44,16 +44,16 @@
             <p class="text-[16px] font-bold text-[#222] mb-4">고객을 선택하세요</p>
 
             <!-- 선택된 고객 표시 -->
-            <div v-if="batchStore.selectedCustomer" class="rounded-[16px] bg-[#FFF0E5] border-[1.5px] border-[#FF7B22] p-4 mb-4">
+            <div v-if="batchStore.selectedCustomer" class="rounded-[16px] bg-[#FFF0E5] border-[1.5px] border-[#FF6B2D] p-4 mb-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-[#FF7B22] text-white flex items-center justify-center text-[15px] font-bold shrink-0">
+                <div class="w-10 h-10 rounded-full bg-[#FF6B2D] text-white flex items-center justify-center text-[15px] font-bold shrink-0">
                   {{ batchStore.selectedCustomer.name.charAt(0) }}
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-[15px] font-semibold text-[#222]">{{ batchStore.selectedCustomer.name }}</p>
                   <p class="text-[12px] text-[#888]">{{ batchStore.selectedCustomer.phone }}</p>
                 </div>
-                <button type="button" @click="clearCustomer" class="text-[12px] text-[#FF7B22] font-medium">변경</button>
+                <button type="button" @click="clearCustomer" class="text-[12px] text-[#FF6B2D] font-medium">변경</button>
               </div>
             </div>
 
@@ -70,14 +70,14 @@
                   v-model="customerSearch"
                   type="text"
                   placeholder="고객명 또는 연락처 검색"
-                  class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
+                  class="w-full bg-white rounded-[12px] pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] shadow-[0_0_6px_rgba(0,0,0,0.05)]"
                   @input="handleCustomerSearch"
                 />
               </div>
 
               <!-- 로딩 -->
               <div v-if="batchStore.loadingCustomers" class="flex items-center justify-center py-6">
-                <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+                <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
               </div>
 
               <!-- 고객 리스트 -->
@@ -121,7 +121,7 @@
 
             <!-- 보험사 로딩 -->
             <div v-if="batchStore.loadingCompanies" class="flex items-center justify-center py-10">
-              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
             </div>
 
             <template v-else>
@@ -134,7 +134,7 @@
                   class="w-full text-left rounded-[12px] px-4 py-3 transition-all active:scale-[0.98]"
                   :class="
                     batchStore.isCompanySelected(company.company_id)
-                      ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF7B22]'
+                      ? 'bg-[#FFF0E5] border-[1.5px] border-[#FF6B2D]'
                       : 'bg-white border-[1.5px] border-transparent shadow-[0_0_6px_rgba(0,0,0,0.04)]'
                   "
                   @click="batchStore.toggleCompany(company)"
@@ -143,7 +143,7 @@
                     <div
                       class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-all"
                       :class="batchStore.isCompanySelected(company.company_id)
-                        ? 'bg-[#FF7B22] border-[#FF7B22]'
+                        ? 'bg-[#FF6B2D] border-[#FF6B2D]'
                         : 'bg-white border-[#CCCCCC]'
                       "
                     >
@@ -157,16 +157,16 @@
                   <!-- 양식 선택 (체크된 보험사만) -->
                   <div v-if="batchStore.isCompanySelected(company.company_id)" class="mt-3 ml-8">
                     <div v-if="getEntryForCompany(company.company_id)?.loadingForm" class="flex items-center gap-2 py-1">
-                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF6B2D]"></div>
                       <span class="text-[12px] text-[#999]">양식 로딩 중...</span>
                     </div>
                     <template v-else>
-                      <div v-if="getEntryForCompany(company.company_id)?.availableForms.length === 1" class="text-[12px] text-[#FF7B22] font-medium">
+                      <div v-if="getEntryForCompany(company.company_id)?.availableForms.length === 1" class="text-[12px] text-[#FF6B2D] font-medium">
                         양식: {{ getEntryForCompany(company.company_id)?.claimForm?.form_name }}
                       </div>
                       <select
                         v-else-if="(getEntryForCompany(company.company_id)?.availableForms.length ?? 0) > 1"
-                        class="w-full text-[13px] border border-[#E8E8E8] rounded-[8px] px-3 py-2 outline-none focus:border-[#FF7B22] bg-white"
+                        class="w-full text-[13px] border border-[#E8E8E8] rounded-[8px] px-3 py-2 outline-none focus:border-[#FF6B2D] bg-white"
                         :value="getEntryForCompany(company.company_id)?.claimForm?.claim_form_id ?? ''"
                         @change="handleFormSelect(company.company_id, Number(($event.target as HTMLSelectElement).value))"
                       >
@@ -202,7 +202,7 @@
                 class="shrink-0 px-3 py-2 rounded-[10px] text-[12px] font-semibold transition-all whitespace-nowrap"
                 :class="
                   batchStore.activeTabIndex === idx
-                    ? 'bg-[#FF7B22] text-white'
+                    ? 'bg-[#FF6B2D] text-white'
                     : 'bg-white text-[#666] border border-[#E8E8E8]'
                 "
                 @click="batchStore.activeTabIndex = idx"
@@ -251,7 +251,7 @@
                   <div
                     class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-all"
                     :class="isAutoFillChecked
-                      ? 'bg-[#FF7B22] border-[#FF7B22]'
+                      ? 'bg-[#FF6B2D] border-[#FF6B2D]'
                       : 'bg-white border-[#CCCCCC]'
                     "
                   >
@@ -285,13 +285,13 @@
                     <div v-for="field in consentFields" :key="field.form_field_id">
                       <label class="flex items-start gap-2.5 cursor-pointer p-3 rounded-[10px] border transition-all"
                         :class="currentEntry?.fieldValues[field.form_field_id] === 'agree'
-                          ? 'border-[#FF7B22] bg-[#FFF8F3]'
+                          ? 'border-[#FF6B2D] bg-[#FFF8F3]'
                           : 'border-[#E8E8E8] bg-white'"
                       >
                         <div
                           class="w-5 h-5 rounded border-[1.5px] flex items-center justify-center shrink-0 mt-0.5 transition-all"
                           :class="currentEntry?.fieldValues[field.form_field_id] === 'agree'
-                            ? 'bg-[#FF7B22] border-[#FF7B22]'
+                            ? 'bg-[#FF6B2D] border-[#FF6B2D]'
                             : 'bg-white border-[#CCCCCC]'"
                         >
                           <svg v-if="currentEntry?.fieldValues[field.form_field_id] === 'agree'" width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -316,7 +316,7 @@
                       type="button"
                       class="w-full py-2.5 rounded-[10px] text-[13px] font-semibold transition-all"
                       :class="consentFields.every(f => currentEntry?.fieldValues[f.form_field_id] === 'agree')
-                        ? 'bg-[#FF7B22] text-white'
+                        ? 'bg-[#FF6B2D] text-white'
                         : 'border border-[#E0E0E0] text-[#555]'"
                       @click="handleToggleAllConsent()"
                     >
@@ -350,11 +350,11 @@
                             @touchmove="drawSignature($event)"
                             @touchend="endSignatureDraw"
                           ></canvas>
-                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF7B22] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
+                          <button type="button" @click="completeSignature(field.form_field_id)" class="mt-2 w-full py-2 bg-[#FF6B2D] text-white rounded-[8px] text-[13px] font-medium active:scale-[0.98] transition-transform">서명 완료</button>
                         </div>
                         <div v-else class="text-center">
                           <img :src="currentEntry.fieldValues[field.form_field_id]" alt="서명" class="h-24 mx-auto border border-[#E8E8E8] rounded-[8px] bg-white" />
-                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF7B22] underline">다시 서명</button>
+                          <button type="button" @click="resetSignature(field.form_field_id)" class="mt-2 text-[13px] text-[#FF6B2D] underline">다시 서명</button>
                         </div>
                       </div>
                       <!-- 일반 필드 -->
@@ -396,7 +396,7 @@
                 <button
                   v-if="innerStep < maxInnerStep"
                   type="button"
-                  class="flex-1 py-3 rounded-[12px] bg-[#FF7B22] text-white text-[14px] font-semibold shadow-[0_4px_16px_rgba(255,123,34,0.3)] active:scale-[0.98] transition-transform"
+                  class="flex-1 py-3 rounded-[12px] bg-[#FF6B2D] text-white text-[14px] font-semibold shadow-[0_4px_16px_rgba(255,123,34,0.3)] active:scale-[0.98] transition-transform"
                   @click="innerStep++"
                 >다음</button>
               </div>
@@ -404,7 +404,7 @@
 
             <!-- 양식이 로드되지 않은 경우 -->
             <div v-else class="flex items-center justify-center py-10">
-              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
               <p class="ml-2 text-[13px] text-[#999]">양식 로딩 중...</p>
             </div>
           </div>
@@ -434,12 +434,12 @@
               </div>
 
               <div class="flex gap-2">
-                <label class="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                <label class="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                   서류 선택
                   <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="handleCommonFileSelect" />
                 </label>
-                <label class="flex items-center justify-center gap-1.5 py-3 px-4 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                <label class="flex items-center justify-center gap-1.5 py-3 px-4 rounded-[10px] border border-dashed border-[#CCCCCC] text-[13px] text-[#888] cursor-pointer hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
                   촬영
                   <input type="file" class="hidden" accept="image/*" capture="environment" @change="handleCommonFileSelect" />
@@ -469,12 +469,12 @@
                   </div>
 
                   <div class="flex gap-1.5">
-                    <label class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                    <label class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                       선택
                       <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="(e) => handlePerClaimFileSelect(e, idx)" />
                     </label>
-                    <label class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                    <label class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-[8px] border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
                       촬영
                       <input type="file" class="hidden" accept="image/*" capture="environment" @change="(e) => handlePerClaimFileSelect(e, idx)" />
@@ -532,7 +532,7 @@
                 <button
                   v-if="getRequiredUnfilledCount(idx) > 0"
                   type="button"
-                  class="text-[12px] text-[#FF7B22] font-medium"
+                  class="text-[12px] text-[#FF6B2D] font-medium"
                   @click="goToEntryInput(idx)"
                 >→ 입력하러 가기</button>
 
@@ -572,7 +572,7 @@
             v-if="currentStep >= 2 && currentStep <= 4"
             type="button"
             :disabled="batchStore.loading"
-            class="py-3.5 px-5 rounded-[12px] text-[14px] font-semibold border-[1.5px] border-[#FF7B22] text-[#FF7B22] bg-white active:scale-[0.98] transition-all"
+            class="py-3.5 px-5 rounded-[12px] text-[14px] font-semibold border-[1.5px] border-[#FF6B2D] text-[#FF6B2D] bg-white active:scale-[0.98] transition-all"
             @click="handleSaveDraft"
           >
             {{ batchStore.loading ? '저장 중...' : '임시저장' }}
@@ -585,7 +585,7 @@
             class="flex-1 py-3.5 rounded-[12px] text-[15px] font-semibold transition-all active:scale-[0.98]"
             :class="
               canProceedMain
-                ? 'bg-[#FF7B22] text-white shadow-[0_4px_16px_rgba(255,123,34,0.3)]'
+                ? 'bg-[#FF6B2D] text-white shadow-[0_4px_16px_rgba(255,123,34,0.3)]'
                 : 'bg-[#E0E0E0] text-[#AAAAAA] cursor-not-allowed'
             "
             @click="handleMainAction"

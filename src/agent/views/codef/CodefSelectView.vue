@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="보험·건강 조회" />
 
       <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100dvh - 56px);">
@@ -15,7 +15,7 @@
             >
               <div class="flex items-center gap-4">
                 <div class="w-11 h-11 rounded-full bg-[#FFF0E5] flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-[22px] text-[#FF7B22]">person_search</span>
+                  <span class="material-symbols-outlined text-[22px] text-[#FF6B2D]">person_search</span>
                 </div>
                 <div>
                   <p class="text-[15px] font-semibold text-[#222]">고객 선택 후 조회</p>
@@ -53,18 +53,18 @@
             <div>
               <label class="text-[13px] font-medium text-[#555] mb-1 block">이름 <span class="text-red-500">*</span></label>
               <input v-model="form.name" type="text" placeholder="홍길동"
-                class="w-full px-4 py-3 bg-white border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22]" />
+                class="w-full px-4 py-3 bg-white border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D]" />
             </div>
             <div>
               <label class="text-[13px] font-medium text-[#555] mb-1 block">주민등록번호 <span class="text-red-500">*</span></label>
               <input v-model="form.resident_number" type="text" placeholder="000000-0000000" maxlength="14"
-                class="w-full px-4 py-3 bg-white border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22]"
+                class="w-full px-4 py-3 bg-white border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D]"
                 @input="formatResidentNumber" />
             </div>
             <div>
               <label class="text-[13px] font-medium text-[#555] mb-1 block">휴대폰 번호 <span class="text-red-500">*</span></label>
               <input v-model="form.phone" type="tel" placeholder="01012345678" maxlength="11"
-                class="w-full px-4 py-3 bg-white border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF7B22]" />
+                class="w-full px-4 py-3 bg-white border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] placeholder-[#BBB] outline-none focus:border-[#FF6B2D]" />
             </div>
           </div>
 
@@ -73,7 +73,7 @@
           <button
             :disabled="!canSubmit || submitting"
             class="w-full mt-6 py-3.5 rounded-[12px] text-[15px] font-semibold transition-all"
-            :class="canSubmit && !submitting ? 'bg-[#FF7B22] text-white active:scale-[0.98]' : 'bg-[#E8E8E8] text-[#BBB]'"
+            :class="canSubmit && !submitting ? 'bg-[#FF6B2D] text-white active:scale-[0.98]' : 'bg-[#E8E8E8] text-[#BBB]'"
             @click="handleDirectSearch"
           >
             <span v-if="submitting" class="flex items-center justify-center gap-2">

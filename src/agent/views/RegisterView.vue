@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
     <div class="w-full max-w-[402px] h-screen relative flex flex-col items-center justify-center px-8">
       <!-- Logo -->
       <div class="flex flex-col items-center gap-2 mb-8">
@@ -55,7 +55,7 @@
 
       <p class="mt-6 text-[13px] text-[#888]">
         이미 계정이 있으신가요?
-        <router-link to="/login" class="text-[#FF7B22] font-semibold">로그인</router-link>
+        <router-link to="/login" class="text-[#FF6B2D] font-semibold">로그인</router-link>
       </p>
     </div>
 
@@ -63,7 +63,7 @@
     <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="goToLogin">
       <div class="bg-white rounded-2xl p-8 mx-6 max-w-[340px] w-full text-center shadow-xl">
         <div class="w-14 h-14 bg-[#FFF3ED] rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-7 h-7 text-[#FF7B22]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-7 h-7 text-[#FF6B2D]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>

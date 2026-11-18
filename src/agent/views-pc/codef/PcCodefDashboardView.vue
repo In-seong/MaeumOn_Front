@@ -1,7 +1,7 @@
 <template>
   <div class="p-6">
     <div class="flex items-center gap-3 mb-6">
-      <button class="text-[#999] hover:text-[#FF7B22] transition-colors" @click="router.push({ name: 'codef' })">
+      <button class="text-[#999] hover:text-[#FF6B2D] transition-colors" @click="router.push({ name: 'codef' })">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
       <h1 class="text-[20px] font-bold text-[#333]">{{ customerName }} — 보험·건강 조회</h1>
@@ -14,7 +14,7 @@
         :key="tab.key"
         :class="[
           'flex-1 py-2 rounded-[8px] text-[13px] font-medium transition-colors',
-          activeTab === tab.key ? 'bg-white text-[#FF7B22] shadow-sm' : 'text-[#888] hover:text-[#555]'
+          activeTab === tab.key ? 'bg-white text-[#FF6B2D] shadow-sm' : 'text-[#888] hover:text-[#555]'
         ]"
         @click="switchTab(tab.key)"
       >
@@ -24,14 +24,14 @@
 
     <!-- 로딩 -->
     <div v-if="store.tabLoading" class="text-center py-16">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
     </div>
 
     <!-- 보험 계약 탭 -->
     <div v-else-if="activeTab === 'insurance'">
       <div class="flex justify-end mb-4">
         <button
-          class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors"
+          class="px-4 py-2 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors"
           @click="showCreditModal = true"
         >
           보험 조회
@@ -87,7 +87,7 @@
           <button
             :class="[
               'px-4 py-1.5 rounded-[8px] text-[13px] font-medium transition-colors',
-              medicalSubTab === 'hospital' ? 'bg-white text-[#FF7B22] shadow-sm' : 'text-[#888] hover:text-[#555]'
+              medicalSubTab === 'hospital' ? 'bg-white text-[#FF6B2D] shadow-sm' : 'text-[#888] hover:text-[#555]'
             ]"
             @click="medicalSubTab = 'hospital'"
           >
@@ -96,7 +96,7 @@
           <button
             :class="[
               'px-4 py-1.5 rounded-[8px] text-[13px] font-medium transition-colors',
-              medicalSubTab === 'pharmacy' ? 'bg-white text-[#FF7B22] shadow-sm' : 'text-[#888] hover:text-[#555]'
+              medicalSubTab === 'pharmacy' ? 'bg-white text-[#FF6B2D] shadow-sm' : 'text-[#888] hover:text-[#555]'
             ]"
             @click="medicalSubTab = 'pharmacy'"
           >
@@ -112,7 +112,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             엑셀 다운로드
           </button>
-          <button class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('medical')">진료 조회</button>
+          <button class="px-4 py-2 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('medical')">진료 조회</button>
         </div>
       </div>
 
@@ -137,11 +137,11 @@
               {{ item.label }}
             </span>
             <span class="w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0"
-              :class="item.found ? 'bg-[#FF7B22] text-white' : 'bg-[#E8E8E8] text-[#CCC]'">
+              :class="item.found ? 'bg-[#FF6B2D] text-white' : 'bg-[#E8E8E8] text-[#CCC]'">
               {{ item.found ? 'O' : 'X' }}
             </span>
             <template v-if="item.found">
-              <span class="text-[12px] text-[#FF7B22] font-medium min-w-[32px] text-right">{{ item.count }}건</span>
+              <span class="text-[12px] text-[#FF6B2D] font-medium min-w-[32px] text-right">{{ item.count }}건</span>
               <svg class="w-3.5 h-3.5 text-[#999] shrink-0 transition-transform" :class="expandedClassification === item.key ? 'rotate-90' : ''"
                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
             </template>
@@ -160,9 +160,9 @@
             <template v-else-if="item.type === 'grouped'">
               <div v-for="group in getClassificationGroups(item.key)" :key="group.diagnosis_code" class="mb-3 last:mb-0">
                 <div class="flex items-center gap-2 py-2 bg-[#FFF3ED] rounded-[8px] px-3">
-                  <span class="px-2 py-0.5 bg-[#FF7B22] text-white rounded text-[11px] font-medium shrink-0">{{ group.diagnosis_code }}</span>
+                  <span class="px-2 py-0.5 bg-[#FF6B2D] text-white rounded text-[11px] font-medium shrink-0">{{ group.diagnosis_code }}</span>
                   <span class="text-[13px] text-[#333] font-medium flex-1 truncate">{{ group.diagnosis_name }}</span>
-                  <span class="text-[13px] text-[#FF7B22] font-bold shrink-0">{{ group.displayValue }}</span>
+                  <span class="text-[13px] text-[#FF6B2D] font-bold shrink-0">{{ group.displayValue }}</span>
                 </div>
                 <div v-for="rec in group.records.slice(0, 5)" :key="rec.record_id"
                      class="flex items-center gap-2 py-1.5 pl-4 text-[11px] text-[#999]">
@@ -210,10 +210,10 @@
           <table class="w-full text-[12px] border-collapse">
             <thead>
               <tr>
-                <th rowspan="2" class="border border-[#E8E8E8] bg-[#FFF3ED] text-[#FF7B22] px-3 py-2 text-center font-semibold whitespace-nowrap align-middle">
+                <th rowspan="2" class="border border-[#E8E8E8] bg-[#FFF3ED] text-[#FF6B2D] px-3 py-2 text-center font-semibold whitespace-nowrap align-middle">
                   3개월<br/>이내<span class="text-red-500">*</span>
                 </th>
-                <th colspan="11" class="border border-[#E8E8E8] bg-[#FFF3ED] text-[#FF7B22] px-3 py-1.5 text-center font-semibold">
+                <th colspan="11" class="border border-[#E8E8E8] bg-[#FFF3ED] text-[#FF6B2D] px-3 py-1.5 text-center font-semibold">
                   N년이내 입원/수술
                 </th>
                 <th rowspan="2" class="border border-[#E8E8E8] bg-[#FFE4EC] text-[#E91E63] px-3 py-2 text-center font-semibold whitespace-nowrap align-middle">
@@ -229,7 +229,7 @@
             <tbody>
               <tr>
                 <td class="border border-[#E8E8E8] px-3 py-2.5 text-center font-bold text-[14px]"
-                  :class="store.disclosureCheck.hospital_visit_3months ? 'text-[#FF7B22] bg-[#FFF8F3]' : 'text-[#CCC]'">
+                  :class="store.disclosureCheck.hospital_visit_3months ? 'text-[#FF6B2D] bg-[#FFF8F3]' : 'text-[#CCC]'">
                   {{ store.disclosureCheck.hospital_visit_3months ? 'O' : 'X' }}
                 </td>
                 <td v-for="n in 11" :key="n" class="border border-[#E8E8E8] px-2 py-2.5 text-center text-[13px]"
@@ -261,7 +261,7 @@
         </div>
       </div>
       <div v-else-if="store.disclosureCheckLoading" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-8 mb-5 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22] mx-auto" />
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D] mx-auto" />
         <p class="text-[13px] text-[#999] mt-2">알릴의무 체크 로딩 중...</p>
       </div>
 
@@ -281,7 +281,7 @@
           </thead>
           <tbody class="divide-y divide-[#F0F0F0]">
             <tr v-for="rec in filteredMedicalRecords" :key="rec.record_id" class="hover:bg-[#FAFAFA] transition-colors cursor-pointer" @click="selectedMedical = rec">
-              <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ formatDate(rec.treatment_date) }} <span v-if="getDaysAgo(rec.treatment_date)" class="text-[#FF7B22]">{{ getDaysAgo(rec.treatment_date) }}</span></td>
+              <td class="px-5 py-3.5 text-[13px] text-[#999]">{{ formatDate(rec.treatment_date) }} <span v-if="getDaysAgo(rec.treatment_date)" class="text-[#FF6B2D]">{{ getDaysAgo(rec.treatment_date) }}</span></td>
               <td class="px-5 py-3.5 text-[13px] font-medium text-[#333]">{{ rec.hospital_name || '-' }}</td>
               <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ rec.department || '-' }}</td>
               <td class="px-5 py-3.5 text-[13px] text-[#666]">
@@ -300,7 +300,7 @@
     <!-- 건강검진 탭 -->
     <div v-else-if="activeTab === 'checkup'">
       <div class="flex justify-end mb-4">
-        <button class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('checkup')">검진 조회</button>
+        <button class="px-4 py-2 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('checkup')">검진 조회</button>
       </div>
       <div v-if="store.checkups.length === 0" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-16 text-center">
         <p class="text-[14px] text-[#999]">조회된 검진 결과가 없습니다</p>
@@ -364,7 +364,7 @@
     <!-- 건강나이 탭 -->
     <div v-else-if="activeTab === 'healthAge'">
       <div class="flex justify-end mb-4">
-        <button class="px-4 py-2 bg-[#FF7B22] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('healthAge')">건강나이 조회</button>
+        <button class="px-4 py-2 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors" @click="startSimpleAuth('healthAge')">건강나이 조회</button>
       </div>
       <div v-if="!store.healthAge" class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-16 text-center">
         <p class="text-[14px] text-[#999]">조회된 건강나이 정보가 없습니다</p>
@@ -375,7 +375,7 @@
             <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center"
               :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'bg-green-50' : 'bg-orange-50'">
               <span class="text-[28px] font-bold"
-                :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'text-green-600' : 'text-[#FF7B22]'">
+                :class="(store.healthAge.health_age ?? 0) <= (store.healthAge.chronological_age ?? 0) ? 'text-green-600' : 'text-[#FF6B2D]'">
                 {{ store.healthAge.health_age ?? '-' }}
               </span>
             </div>
@@ -413,7 +413,7 @@
               class="bg-[#F8F8F8] rounded-[12px] px-4 py-3">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-[14px] font-medium text-[#333]">{{ item.resRiskFactor }}</span>
-                <span class="text-[14px] font-semibold text-[#FF7B22]">{{ item.resState }}</span>
+                <span class="text-[14px] font-semibold text-[#FF6B2D]">{{ item.resState }}</span>
               </div>
               <p v-if="item.resType" class="text-[12px] text-[#999]">{{ item.resType }}</p>
               <p v-if="item.resRecommendValue" class="text-[12px] text-[#BBB] mt-0.5">권장: {{ item.resRecommendValue }}</p>
@@ -428,9 +428,9 @@
       <div class="bg-white rounded-[16px] w-[420px] p-6">
         <h3 class="text-[17px] font-bold text-[#222] mb-5">내보험다보여 로그인</h3>
         <div class="space-y-3">
-          <input v-model="creditId" type="text" placeholder="아이디" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]" @input="creditError = ''" />
+          <input v-model="creditId" type="text" placeholder="아이디" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF6B2D]" @input="creditError = ''" />
           <div class="relative">
-            <input v-model="creditPw" :type="creditPwVisible ? 'text' : 'password'" placeholder="비밀번호" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full px-4 py-3 pr-11 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22]" @input="creditError = ''" />
+            <input v-model="creditPw" :type="creditPwVisible ? 'text' : 'password'" placeholder="비밀번호" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full px-4 py-3 pr-11 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF6B2D]" @input="creditError = ''" />
             <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#999] hover:text-[#666]" @click="creditPwVisible = !creditPwVisible">
               <svg v-if="creditPwVisible" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke-width="1.5"/></svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -440,7 +440,7 @@
         <p v-if="creditError" class="text-[13px] text-red-500 mt-2 px-1">{{ creditError }}</p>
         <div class="flex gap-3 mt-6">
           <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showCreditModal = false">취소</button>
-          <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!creditId || !creditPw || fetchLoading" @click="doFetchInsurance">
+          <button class="flex-1 py-3 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!creditId || !creditPw || fetchLoading" @click="doFetchInsurance">
             {{ fetchLoading ? '조회 중...' : '조회' }}
           </button>
         </div>
@@ -462,12 +462,12 @@
             v-model="secureNoCode"
             type="text"
             placeholder="보안문자 입력"
-            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22] mb-2"
+            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF6B2D] mb-2"
           />
           <p v-if="authError" class="text-[13px] text-red-500 text-center mt-3 px-1">{{ authError }}</p>
           <div class="flex gap-3 mt-4">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showAuthModal = false">취소</button>
-            <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!secureNoCode || fetchLoading" @click="doConfirmAuth">
+            <button class="flex-1 py-3 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!secureNoCode || fetchLoading" @click="doConfirmAuth">
               {{ fetchLoading ? '확인 중...' : '확인' }}
             </button>
           </div>
@@ -481,7 +481,7 @@
             type="text"
             inputmode="numeric"
             placeholder="인증번호 입력"
-            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22] mb-2"
+            class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF6B2D] mb-2"
           />
           <div class="bg-[#FFF8F3] border border-[#FFE0C8] rounded-[10px] px-4 py-3 mt-2">
             <p class="text-[13px] text-[#B85A00] text-center leading-[20px]">
@@ -491,7 +491,7 @@
           <p v-if="authError" class="text-[13px] text-red-500 text-center mt-3 px-1">{{ authError }}</p>
           <div class="flex gap-3 mt-4">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showAuthModal = false">취소</button>
-            <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!smsAuthCode || fetchLoading" @click="doConfirmAuth">
+            <button class="flex-1 py-3 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!smsAuthCode || fetchLoading" @click="doConfirmAuth">
               {{ fetchLoading ? '확인 중...' : '인증 확인' }}
             </button>
           </div>
@@ -500,7 +500,7 @@
         <!-- 2-Way 대기: 간편인증 -->
         <div v-else-if="twoWayPending">
           <div class="flex justify-center py-5">
-            <div class="w-14 h-14 border-4 border-[#F0F0F0] border-t-[#FF7B22] rounded-full animate-spin" />
+            <div class="w-14 h-14 border-4 border-[#F0F0F0] border-t-[#FF6B2D] rounded-full animate-spin" />
           </div>
           <p class="text-[15px] text-[#555] text-center mt-2">고객 휴대폰에서 간편인증을 완료해주세요</p>
           <p class="text-[13px] text-[#999] text-center mt-2">카카오톡 또는 PASS 앱 확인</p>
@@ -512,7 +512,7 @@
           <p v-if="authError" class="text-[13px] text-red-500 text-center mt-3 px-1">{{ authError }}</p>
           <div class="flex gap-3 mt-5">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showAuthModal = false">취소</button>
-            <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="fetchLoading" @click="doConfirmAuth">
+            <button class="flex-1 py-3 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="fetchLoading" @click="doConfirmAuth">
               {{ fetchLoading ? '확인 중...' : '인증 완료' }}
             </button>
           </div>
@@ -521,15 +521,15 @@
           <div class="space-y-3 mb-3">
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">이름</label>
-              <input v-model="authUserName" type="text" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF7B22]" />
+              <input v-model="authUserName" type="text" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF6B2D]" />
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">전화번호</label>
-              <input v-model="authPhoneNo" type="tel" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF7B22]" />
+              <input v-model="authPhoneNo" type="tel" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF6B2D]" />
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">주민등록번호</label>
-              <input :value="authIdentity" @input="onIdentityInput" type="text" maxlength="14" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF7B22]" placeholder="000000-0000000" />
+              <input :value="authIdentity" @input="onIdentityInput" type="text" maxlength="14" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] text-[#333] outline-none focus:border-[#FF6B2D]" placeholder="000000-0000000" />
             </div>
             <div>
               <label class="text-[12px] text-[#999] mb-1 block">통신사</label>
@@ -550,7 +550,7 @@
           <p v-if="authError" class="text-[13px] text-red-500 mt-2 px-1">{{ authError }}</p>
           <div class="flex gap-3 mt-3">
             <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showAuthModal = false">취소</button>
-            <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!authTelecom || fetchLoading" @click="doFetchAuth">
+            <button class="flex-1 py-3 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!authTelecom || fetchLoading" @click="doFetchAuth">
               {{ fetchLoading ? '요청 중...' : '인증 요청' }}
             </button>
           </div>
@@ -563,10 +563,10 @@
       <div class="bg-white rounded-[16px] w-[420px] p-6">
         <h3 class="text-[17px] font-bold text-[#222] mb-5">추가 인증</h3>
         <p class="text-[13px] text-[#666] mb-3">SMS 인증번호를 입력해주세요</p>
-        <input v-model="creditSmsCode" type="text" placeholder="인증번호" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF7B22] mb-5" />
+        <input v-model="creditSmsCode" type="text" placeholder="인증번호" class="w-full px-4 py-3 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] text-[14px] outline-none focus:border-[#FF6B2D] mb-5" />
         <div class="flex gap-3">
           <button class="flex-1 py-3 bg-[#F0F0F0] text-[#666] text-[14px] font-medium rounded-[12px] hover:bg-[#E8E8E8] transition-colors" @click="showCreditTwoWay = false">취소</button>
-          <button class="flex-1 py-3 bg-[#FF7B22] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!creditSmsCode || fetchLoading" @click="doConfirmInsurance">
+          <button class="flex-1 py-3 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors disabled:opacity-50" :disabled="!creditSmsCode || fetchLoading" @click="doConfirmInsurance">
             {{ fetchLoading ? '확인 중...' : '확인' }}
           </button>
         </div>
@@ -589,7 +589,7 @@
                 <p class="text-[16px] font-semibold text-[#222]">{{ selectedMedical.hospital_name || '병원명 없음' }}</p>
                 <p v-if="selectedMedical.department" class="text-[13px] text-[#999] mt-0.5">{{ selectedMedical.department }}</p>
               </div>
-              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }} <span v-if="getDaysAgo(selectedMedical.treatment_date)" class="text-[#FF7B22]">{{ getDaysAgo(selectedMedical.treatment_date) }}</span></span>
+              <span class="text-[13px] text-[#999]">{{ formatDate(selectedMedical.treatment_date) }} <span v-if="getDaysAgo(selectedMedical.treatment_date)" class="text-[#FF6B2D]">{{ getDaysAgo(selectedMedical.treatment_date) }}</span></span>
             </div>
             <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
               <div v-if="selectedMedical.treatment_type" class="flex justify-between"><span class="text-[#999]">진료유형</span><span class="text-[#333]">{{ selectedMedical.treatment_type }}</span></div>

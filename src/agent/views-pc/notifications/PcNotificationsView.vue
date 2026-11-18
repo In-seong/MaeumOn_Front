@@ -4,7 +4,7 @@
       <h1 class="text-[20px] font-bold text-[#333]">알림</h1>
       <button
         v-if="unreadCount > 0"
-        class="text-[13px] text-[#FF7B22] font-medium hover:text-[#E56D1E] transition-colors disabled:opacity-50"
+        class="text-[13px] text-[#FF6B2D] font-medium hover:text-[#E56D1E] transition-colors disabled:opacity-50"
         :disabled="markingAllRead"
         @click="handleMarkAllRead"
       >
@@ -14,7 +14,7 @@
 
     <!-- 로딩 -->
     <div v-if="loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
       <p class="mt-2 text-[14px] text-[#999]">불러오는 중...</p>
     </div>
 
@@ -44,7 +44,7 @@
             <td class="px-6 py-4 text-center">
               <span
                 v-if="!noti.is_read"
-                class="inline-block w-2.5 h-2.5 rounded-full bg-[#FF7B22]"
+                class="inline-block w-2.5 h-2.5 rounded-full bg-[#FF6B2D]"
               />
               <span v-else class="text-[12px] text-[#CCC]">--</span>
             </td>
@@ -202,13 +202,13 @@ function typeLabel(type: string): string {
 
 function typeChipClass(type: string): string {
   const map: Record<string, string> = {
-    consultation: 'bg-[#FFF0E5] text-[#FF7B22]',
+    consultation: 'bg-[#FFF0E5] text-[#FF6B2D]',
     obligation: 'bg-[#FFE5E5] text-[#FF3B30]',
     distribution: 'bg-[#E8F0FE] text-[#4285F4]',
     claim: 'bg-[#E8F9EE] text-[#1FBD53]',
     survey: 'bg-[#FFF4E5] text-[#F5A623]',
     schedule: 'bg-[#F3E8FF] text-[#8B5CF6]',
-    ADMIN_MESSAGE: 'bg-[#FFF0E5] text-[#FF7B22]',
+    ADMIN_MESSAGE: 'bg-[#FFF0E5] text-[#FF6B2D]',
     NOTICE: 'bg-[#E8F0FE] text-[#4285F4]',
     ASSIGNMENT: 'bg-[#E8F9EE] text-[#1FBD53]',
     system: 'bg-[#F5F5F5] text-[#888]',

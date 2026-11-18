@@ -9,7 +9,7 @@
         <label class="block text-[12px] text-[#888] mb-1">통신사</label>
         <select
           v-model="telecom"
-          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF7B22] bg-white"
+          class="w-full px-3 py-2.5 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:border-[#FF6B2D] bg-white"
         >
           <option value="">선택</option>
           <option v-for="t in telecomCodes" :key="t.value" :value="t.value">{{ t.label }}</option>
@@ -24,7 +24,7 @@
             :key="m.value"
             :class="[
               'py-3 rounded-[10px] text-[13px] font-medium border transition-colors text-center',
-              loginTypeLevel === m.value ? 'border-[#FF7B22] bg-[#FFF8F3] text-[#FF7B22]' : 'border-[#E0E0E0] text-[#888]'
+              loginTypeLevel === m.value ? 'border-[#FF6B2D] bg-[#FFF8F3] text-[#FF6B2D]' : 'border-[#E0E0E0] text-[#888]'
             ]"
             @click="loginTypeLevel = m.value"
           >
@@ -36,19 +36,19 @@
 
     <!-- 인증 진행 상태 -->
     <div v-if="authStatus === 'requesting'" class="bg-white rounded-[14px] border border-[#E8E8E8] p-6 text-center">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto mb-4" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto mb-4" />
       <p class="text-[14px] text-[#333] font-medium">인증 요청 중...</p>
       <p class="text-[12px] text-[#999] mt-1">잠시만 기다려주세요.</p>
     </div>
 
-    <div v-else-if="authStatus === 'waiting'" class="bg-white rounded-[14px] border border-[#FF7B22] p-6 text-center">
-      <svg class="w-12 h-12 text-[#FF7B22] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+    <div v-else-if="authStatus === 'waiting'" class="bg-white rounded-[14px] border border-[#FF6B2D] p-6 text-center">
+      <svg class="w-12 h-12 text-[#FF6B2D] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
       <p class="text-[14px] text-[#333] font-bold">간편인증 앱을 확인해주세요</p>
       <p class="text-[12px] text-[#999] mt-2">고객 휴대폰의 인증 앱에서 인증을 완료해주세요.</p>
-      <p class="text-[12px] text-[#FF7B22] mt-2 font-medium">제한시간 3분</p>
+      <p class="text-[12px] text-[#FF6B2D] mt-2 font-medium">제한시간 3분</p>
 
       <button
-        class="mt-4 w-full py-3 bg-[#FF7B22] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform"
+        class="mt-4 w-full py-3 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform"
         :disabled="confirming"
         @click="confirmAuth"
       >
@@ -67,7 +67,7 @@
       <p class="text-[14px] text-[#333] font-bold">인증 실패</p>
       <p class="text-[12px] text-red-500 mt-1">{{ errorMsg }}</p>
       <button
-        class="mt-4 w-full py-2.5 border border-[#FF7B22] text-[#FF7B22] text-[13px] font-medium rounded-[12px]"
+        class="mt-4 w-full py-2.5 border border-[#FF6B2D] text-[#FF6B2D] text-[13px] font-medium rounded-[12px]"
         @click="resetAuth"
       >
         다시 시도
@@ -77,7 +77,7 @@
     <!-- 인증 요청 버튼 -->
     <button
       v-if="authStatus === 'idle'"
-      class="w-full py-3.5 bg-[#FF7B22] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
+      class="w-full py-3.5 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
       :disabled="!canRequest"
       @click="requestAuth"
     >

@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader :title="customer?.name ?? '고객 상세'">
         <template #right>
           <div v-if="customer" class="relative">
@@ -46,7 +46,7 @@
         <CardSection class="mt-3">
           <div class="flex items-center gap-3">
             <div class="w-[52px] h-[52px] rounded-full bg-[#FFF0E5] flex items-center justify-center flex-shrink-0">
-              <span class="text-[20px] font-bold text-[#FF7B22]">
+              <span class="text-[20px] font-bold text-[#FF6B2D]">
                 {{ customer.name.charAt(0) }}
               </span>
             </div>
@@ -78,7 +78,7 @@
 
         <!-- CTA: 보험금 청구하기 -->
         <button
-          class="w-full mt-3 py-3 rounded-[12px] bg-[#FF7B22] text-white text-[14px] font-semibold shadow-[0_2px_10px_rgba(255,123,34,0.3)] active:bg-[#E56A1A] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          class="w-full mt-3 py-3 rounded-[12px] bg-[#FF6B2D] text-white text-[14px] font-semibold shadow-[0_2px_10px_rgba(255,123,34,0.3)] active:bg-[#E56A1A] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           @click="goToClaim"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -97,7 +97,7 @@
             class="flex-1 py-2.5 text-[13px] font-medium transition-all relative"
             :class="
               activeTab === tab.key
-                ? 'text-[#FF7B22]'
+                ? 'text-[#FF6B2D]'
                 : 'text-[#AAAAAA]'
             "
             @click="activeTab = tab.key"
@@ -105,7 +105,7 @@
             {{ tab.label }}
             <div
               v-if="activeTab === tab.key"
-              class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-[#FF7B22] rounded-full"
+              class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-[#FF6B2D] rounded-full"
             />
           </button>
         </div>
@@ -116,14 +116,14 @@
         <div v-if="activeTab === 'info'">
           <!-- 수정 모드 -->
           <CardSection v-if="isEditing">
-            <h4 class="text-[13px] font-semibold text-[#FF7B22] mb-3">정보 수정</h4>
+            <h4 class="text-[13px] font-semibold text-[#FF6B2D] mb-3">정보 수정</h4>
             <div class="flex flex-col gap-3">
               <div>
                 <label class="text-[12px] text-[#888] mb-1 block">이름 *</label>
                 <input
                   v-model="editForm.name"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -133,7 +133,7 @@
                   type="tel"
                   inputmode="numeric"
                   maxlength="13"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   @input="handleEditPhoneInput"
                 />
               </div>
@@ -144,7 +144,7 @@
                   type="tel"
                   inputmode="numeric"
                   maxlength="14"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   @input="handleEditRrnInput"
                 />
               </div>
@@ -156,7 +156,7 @@
                     :key="g.value"
                     type="button"
                     class="flex-1 py-2.5 rounded-[10px] text-[13px] font-medium border transition-all"
-                    :class="editForm.gender === g.value ? 'bg-[#FFF0E5] border-[#FF7B22] text-[#FF7B22]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
+                    :class="editForm.gender === g.value ? 'bg-[#FFF0E5] border-[#FF6B2D] text-[#FF6B2D]' : 'bg-[#F8F8F8] border-[#E8E8E8] text-[#999]'"
                     @click="editForm.gender = editForm.gender === g.value ? '' : g.value; autoFilledFromRrn.gender = false"
                   >
                     {{ g.label }}
@@ -168,7 +168,7 @@
                 <input
                   v-model="editForm.birth_date"
                   type="date"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   @change="autoFilledFromRrn.birth_date = false"
                 />
               </div>
@@ -177,7 +177,7 @@
                 <input
                   v-model="editForm.email"
                   type="email"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -185,7 +185,7 @@
                 <input
                   v-model="editForm.address"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -193,7 +193,7 @@
                 <input
                   v-model="editForm.detailed_address"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -201,14 +201,14 @@
                 <input
                   v-model="editForm.job"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
                 <label class="text-[12px] text-[#888] mb-1 block">통신사</label>
                 <select
                   v-model="editForm.telecom"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                 >
                   <option value="">선택안함</option>
                   <option v-for="t in telecomOptions" :key="t" :value="t">{{ t }}</option>
@@ -220,14 +220,14 @@
                   v-model="editForm.hospital"
                   type="text"
                   placeholder="병원명 입력"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
                 <label class="text-[12px] text-[#888] mb-1 block">가입경로</label>
                 <select
                   v-model="editForm.acquisition_channel"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                 >
                   <option value="">선택안함</option>
                   <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
@@ -239,7 +239,7 @@
                   v-model="editForm.acquisition_note"
                   type="text"
                   placeholder="가입경로 관련 메모"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
             </div>
@@ -252,7 +252,7 @@
               </button>
               <button
                 :disabled="editSaving"
-                class="flex-1 py-2.5 rounded-[10px] bg-[#FF7B22] text-white text-[13px] font-medium active:bg-[#E56A1A] disabled:opacity-50"
+                class="flex-1 py-2.5 rounded-[10px] bg-[#FF6B2D] text-white text-[13px] font-medium active:bg-[#E56A1A] disabled:opacity-50"
                 @click="handleSaveEdit"
               >
                 {{ editSaving ? '저장 중...' : '저장' }}
@@ -270,7 +270,7 @@
                 <button
                   v-if="customer.resident_number_masked"
                   type="button"
-                  class="p-1 text-[#AAAAAA] active:text-[#FF7B22]"
+                  class="p-1 text-[#AAAAAA] active:text-[#FF6B2D]"
                   :disabled="rrnLoading"
                   @click="toggleRrn"
                 >
@@ -307,7 +307,7 @@
 
           <!-- 계약 추가/수정 폼 -->
           <CardSection v-if="showContractForm">
-            <h4 class="text-[13px] font-semibold text-[#FF7B22] mb-3">
+            <h4 class="text-[13px] font-semibold text-[#FF6B2D] mb-3">
               {{ editingContractId ? '계약 수정' : '계약 등록' }}
             </h4>
             <div class="contract-form flex flex-col gap-3">
@@ -315,7 +315,7 @@
                 <label class="text-[12px] text-[#888] mb-1 block">보험사 *</label>
                 <select
                   v-model="contractForm.company_id"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                 >
                   <option value="">선택해주세요</option>
                   <option v-for="c in insuranceCompanies" :key="c.company_id" :value="c.company_id">
@@ -329,7 +329,7 @@
                   v-model="contractForm.insurance_product"
                   type="text"
                   placeholder="예: 무배당 건강보험"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div>
@@ -337,7 +337,7 @@
                 <input
                   v-model="contractForm.contract_number"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
@@ -348,7 +348,7 @@
                     type="number"
                     inputmode="numeric"
                     placeholder="원"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
                 <div class="min-w-0">
@@ -356,7 +356,7 @@
                   <input
                     v-model="contractForm.contract_date"
                     type="date"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
               </div>
@@ -365,7 +365,7 @@
                 <input
                   v-model="contractForm.expiration_date"
                   type="date"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
@@ -373,7 +373,7 @@
                   <label class="text-[12px] text-[#888] mb-1 block">계약상태</label>
                   <select
                     v-model="contractForm.contract_status"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] appearance-none"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                   >
                     <option v-for="s in contractStatusOptions" :key="s.value" :value="s.value">
                       {{ s.label }}
@@ -386,7 +386,7 @@
                     v-model="contractForm.payment_method"
                     type="text"
                     placeholder="예: 월납"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
               </div>
@@ -395,7 +395,7 @@
                 <input
                   v-model="contractForm.notes"
                   type="text"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
             </div>
@@ -408,7 +408,7 @@
               </button>
               <button
                 :disabled="contractSaving"
-                class="flex-1 py-2.5 rounded-[10px] bg-[#FF7B22] text-white text-[13px] font-medium active:bg-[#E56A1A] disabled:opacity-50"
+                class="flex-1 py-2.5 rounded-[10px] bg-[#FF6B2D] text-white text-[13px] font-medium active:bg-[#E56A1A] disabled:opacity-50"
                 @click="handleSaveContract"
               >
                 {{ contractSaving ? '저장 중...' : (editingContractId ? '수정' : '등록') }}
@@ -430,7 +430,7 @@
                   :variant="contractStatusVariant(contract.contract_status)"
                 />
                 <button
-                  class="p-1.5 text-[#AAAAAA] active:text-[#FF7B22]"
+                  class="p-1.5 text-[#AAAAAA] active:text-[#FF6B2D]"
                   @click="startContractEdit(contract)"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -562,7 +562,7 @@
         <div v-if="activeTab === 'memos'">
           <!-- Sort Toggle -->
           <div v-if="store.memos.length > 0" class="flex items-center justify-between mb-3">
-            <span class="text-[13px] text-[#888]">총 <span class="font-semibold text-[#FF7B22]">{{ store.memos.length }}</span>건</span>
+            <span class="text-[13px] text-[#888]">총 <span class="font-semibold text-[#FF6B2D]">{{ store.memos.length }}</span>건</span>
             <button
               class="flex items-center gap-1 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-full px-3 py-1.5 active:bg-[#F5F5F5] transition-colors"
               @click="toggleMemoSort"
@@ -584,12 +584,12 @@
                   v-model="editMemoTitle"
                   type="text"
                   placeholder="제목 (선택)"
-                  class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] mb-2 text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] mb-2 text-[#333]"
                 />
                 <textarea
                   v-model="editMemoContent"
                   rows="3"
-                  class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] resize-none text-[#333]"
+                  class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] resize-none text-[#333]"
                 />
                 <!-- 기존 첨부파일 -->
                 <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
@@ -636,7 +636,7 @@
                     취소
                   </button>
                   <button
-                    class="flex-1 py-2 rounded-[8px] bg-[#FF7B22] text-white text-[12px] active:bg-[#E56A1A]"
+                    class="flex-1 py-2 rounded-[8px] bg-[#FF6B2D] text-white text-[12px] active:bg-[#E56A1A]"
                     @click="handleSaveMemoEdit(memo.memo_id)"
                   >
                     저장
@@ -666,7 +666,7 @@
                   </div>
                   <div class="flex items-center gap-1 flex-shrink-0 ml-2">
                     <button
-                      class="p-1.5 text-[#AAAAAA] active:text-[#FF7B22]"
+                      class="p-1.5 text-[#AAAAAA] active:text-[#FF6B2D]"
                       @click="startMemoEdit(memo)"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -697,7 +697,7 @@
               v-model="newMemoTitle"
               type="text"
               placeholder="제목 (선택)"
-              class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333] mb-2"
+              class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] mb-2"
             />
             <FormTextarea
               v-model="newMemoContent"
@@ -727,7 +727,7 @@
               <input
                 v-model="newMemoDate"
                 type="date"
-                class="flex-1 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors text-[#333]"
+                class="flex-1 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
               />
               <ActionButton @click="handleAddMemo">
                 저장

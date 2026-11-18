@@ -5,7 +5,7 @@
     <!-- Clickable Summary Row -->
     <button
       type="button"
-      class="w-full text-left p-4 focus:outline-none focus:ring-2 focus:ring-[#FF7B22] focus:ring-inset rounded-[16px]"
+      class="w-full text-left p-4 focus:outline-none focus:ring-2 focus:ring-[#FF6B2D] focus:ring-inset rounded-[16px]"
       :aria-expanded="isExpanded"
       :aria-controls="`consultation-detail-${consultation.consultation_id}`"
       @click="toggleExpand"
@@ -18,7 +18,7 @@
 
       <!-- Consultation Type -->
       <div class="mb-1.5">
-        <span class="text-[12px] font-medium text-[#FF7B22] bg-[#FFF3ED] px-2 py-0.5 rounded-full">
+        <span class="text-[12px] font-medium text-[#FF6B2D] bg-[#FFF3ED] px-2 py-0.5 rounded-full">
           {{ consultation.consultation_type }}
         </span>
       </div>

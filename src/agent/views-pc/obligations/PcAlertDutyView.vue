@@ -26,8 +26,8 @@
         :class="[
           'px-4 py-2 rounded-full text-[13px] font-medium transition-colors',
           activeFilter === tab.value
-            ? 'bg-[#FF7B22] text-white'
-            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF7B22] hover:text-[#FF7B22]',
+            ? 'bg-[#FF6B2D] text-white'
+            : 'bg-white text-[#888] border border-[#E8E8E8] hover:border-[#FF6B2D] hover:text-[#FF6B2D]',
         ]"
         @click="activeFilter = tab.value"
       >
@@ -43,7 +43,7 @@
 
     <!-- 로딩 -->
     <div v-if="loading" class="text-center py-10">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22] mx-auto" />
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D] mx-auto" />
       <p class="mt-2 text-[14px] text-[#999]">불러오는 중...</p>
     </div>
 

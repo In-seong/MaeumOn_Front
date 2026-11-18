@@ -2,7 +2,7 @@
   <div class="p-6">
     <!-- 상단 네비게이션 -->
     <div class="flex items-center gap-3 mb-6">
-      <button type="button" class="text-[14px] text-[#888] hover:text-[#FF7B22] transition-colors" @click="handleHeaderBack">
+      <button type="button" class="text-[14px] text-[#888] hover:text-[#FF6B2D] transition-colors" @click="handleHeaderBack">
         &larr; 목록으로
       </button>
       <span class="text-[#E0E0E0]">|</span>
@@ -14,7 +14,7 @@
     <div class="max-w-3xl mx-auto">
       <!-- 로딩 -->
       <div v-if="batchStore.loading && !initialLoaded" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7B22]"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B2D]"></div>
         <p class="ml-3 text-[13px] text-[#999]">불러오는 중...</p>
       </div>
 
@@ -25,16 +25,16 @@
           <div v-if="setupStep === 1" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
             <p class="text-[18px] font-bold text-[#222] mb-4">고객을 선택하세요</p>
 
-            <div v-if="batchStore.selectedCustomer" class="rounded-xl bg-[#FFF3ED] border-[1.5px] border-[#FF7B22] p-4 mb-4">
+            <div v-if="batchStore.selectedCustomer" class="rounded-xl bg-[#FFF3ED] border-[1.5px] border-[#FF6B2D] p-4 mb-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-[#FF7B22] text-white flex items-center justify-center text-[15px] font-bold shrink-0">
+                <div class="w-10 h-10 rounded-full bg-[#FF6B2D] text-white flex items-center justify-center text-[15px] font-bold shrink-0">
                   {{ batchStore.selectedCustomer.name.charAt(0) }}
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-[15px] font-semibold text-[#222]">{{ batchStore.selectedCustomer.name }}</p>
                   <p class="text-[12px] text-[#888]">{{ batchStore.selectedCustomer.phone }}</p>
                 </div>
-                <button type="button" @click="clearCustomer" class="text-[13px] text-[#FF7B22] font-medium hover:underline">변경</button>
+                <button type="button" @click="clearCustomer" class="text-[13px] text-[#FF6B2D] font-medium hover:underline">변경</button>
               </div>
             </div>
 
@@ -44,15 +44,15 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/><path d="M16 16L20 20" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
                 </div>
                 <input v-model="customerSearch" type="text" placeholder="고객명 또는 연락처 검색"
-                  class="w-full bg-white rounded-xl pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF7B22] transition-colors"
+                  class="w-full bg-white rounded-xl pl-10 pr-4 py-3 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors"
                   @input="handleCustomerSearch" />
               </div>
               <div v-if="batchStore.loadingCustomers" class="flex items-center justify-center py-6">
-                <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+                <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
               </div>
               <div v-else-if="batchStore.customerSearchResults.length > 0" class="flex flex-col gap-2 max-h-[400px] overflow-y-auto rounded-xl">
                 <button v-for="customer in batchStore.customerSearchResults" :key="customer.customer_id" type="button"
-                  class="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all hover:bg-[#FFF8F3] bg-white border-[1.5px] border-transparent hover:border-[#FF7B22]"
+                  class="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all hover:bg-[#FFF8F3] bg-white border-[1.5px] border-transparent hover:border-[#FF6B2D]"
                   @click="handleSelectCustomer(customer)">
                   <div class="w-9 h-9 rounded-full bg-[#F0F0F0] text-[#999] flex items-center justify-center shrink-0 text-[13px] font-bold">{{ customer.name.charAt(0) }}</div>
                   <div class="flex-1 min-w-0">
@@ -69,7 +69,7 @@
             <div class="mt-4 flex justify-end">
               <button type="button" :disabled="!batchStore.selectedCustomer"
                 class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
-                :class="batchStore.selectedCustomer ? 'bg-[#FF7B22] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'"
+                :class="batchStore.selectedCustomer ? 'bg-[#FF6B2D] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'"
                 @click="setupStep = 2">다음: 보험사 선택</button>
             </div>
           </div>
@@ -80,17 +80,17 @@
             <p class="text-[13px] text-[#999] mb-4">청구할 보험사를 선택하세요</p>
 
             <div v-if="batchStore.loadingCompanies" class="flex items-center justify-center py-10">
-              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF7B22]"></div>
+              <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#FF6B2D]"></div>
             </div>
             <template v-else>
               <div class="grid grid-cols-2 gap-3 mb-4">
                 <button v-for="company in batchStore.insuranceCompanies" :key="company.company_id" type="button"
                   class="w-full text-left rounded-xl px-4 py-3 transition-all hover:shadow-md"
-                  :class="batchStore.isCompanySelected(company.company_id) ? 'bg-[#FFF3ED] border-[1.5px] border-[#FF7B22]' : 'bg-white border-[1.5px] border-[#E8E8E8] hover:border-[#FF7B22]'"
+                  :class="batchStore.isCompanySelected(company.company_id) ? 'bg-[#FFF3ED] border-[1.5px] border-[#FF6B2D]' : 'bg-white border-[1.5px] border-[#E8E8E8] hover:border-[#FF6B2D]'"
                   @click="batchStore.toggleCompany(company)">
                   <div class="flex items-center gap-3">
                     <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                      :class="batchStore.isCompanySelected(company.company_id) ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                      :class="batchStore.isCompanySelected(company.company_id) ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
                       <svg v-if="batchStore.isCompanySelected(company.company_id)" width="10" height="8" viewBox="0 0 12 10" fill="none">
                         <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
@@ -99,15 +99,15 @@
                   </div>
                   <div v-if="batchStore.isCompanySelected(company.company_id)" class="mt-2 ml-8">
                     <div v-if="getEntryForCompany(company.company_id)?.loadingForm" class="flex items-center gap-2 py-1">
-                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF7B22]"></div>
+                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FF6B2D]"></div>
                       <span class="text-[12px] text-[#999]">양식 로딩 중...</span>
                     </div>
                     <template v-else>
-                      <div v-if="getEntryForCompany(company.company_id)?.availableForms.length === 1" class="text-[12px] text-[#FF7B22] font-medium">
+                      <div v-if="getEntryForCompany(company.company_id)?.availableForms.length === 1" class="text-[12px] text-[#FF6B2D] font-medium">
                         양식: {{ getEntryForCompany(company.company_id)?.claimForm?.form_name }}
                       </div>
                       <select v-else-if="(getEntryForCompany(company.company_id)?.availableForms.length ?? 0) > 1"
-                        class="w-full text-[13px] border border-[#E8E8E8] rounded-lg px-3 py-2 outline-none focus:border-[#FF7B22] bg-white"
+                        class="w-full text-[13px] border border-[#E8E8E8] rounded-lg px-3 py-2 outline-none focus:border-[#FF6B2D] bg-white"
                         :value="getEntryForCompany(company.company_id)?.claimForm?.claim_form_id ?? ''"
                         @change="handleFormSelect(company.company_id, Number(($event.target as HTMLSelectElement).value))">
                         <option value="" disabled>양식을 선택하세요</option>
@@ -125,11 +125,11 @@
             </template>
 
             <div class="flex gap-3 justify-end mt-4">
-              <button type="button" class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border border-[#E5E5E5] text-[#666] hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors"
+              <button type="button" class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border border-[#E5E5E5] text-[#666] hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors"
                 @click="setupStep = 1">이전</button>
               <button type="button" :disabled="!batchStore.allFormsLoaded || batchStore.selectedEntries.length === 0"
                 class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
-                :class="batchStore.allFormsLoaded && batchStore.selectedEntries.length > 0 ? 'bg-[#FF7B22] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'"
+                :class="batchStore.allFormsLoaded && batchStore.selectedEntries.length > 0 ? 'bg-[#FF6B2D] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'"
                 @click="enterWizard">양식 입력 시작</button>
             </div>
           </div>
@@ -140,14 +140,14 @@
           <!-- 프로그레스 바 -->
           <div class="mb-6">
             <div class="h-[3px] bg-[#F0F0F0] rounded-full">
-              <div class="h-full bg-[#FF7B22] rounded-full transition-all duration-300"
+              <div class="h-full bg-[#FF6B2D] rounded-full transition-all duration-300"
                 :style="{ width: `${(activeStepIndex + 1) / activeSteps.length * 100}%` }"></div>
             </div>
             <div class="flex gap-2 mt-3 flex-wrap">
               <button v-for="(s, i) in activeSteps" :key="s" type="button"
                 class="px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all"
-                :class="currentStep === s ? 'bg-[#FF7B22] text-white'
-                  : i < activeStepIndex ? 'bg-[#FFF3ED] text-[#FF7B22] hover:bg-[#FFE4CC] cursor-pointer'
+                :class="currentStep === s ? 'bg-[#FF6B2D] text-white'
+                  : i < activeStepIndex ? 'bg-[#FFF3ED] text-[#FF6B2D] hover:bg-[#FFE4CC] cursor-pointer'
                   : 'bg-[#F0F0F0] text-[#999]'"
                 @click="i < activeStepIndex ? (currentStep = s) : undefined">
                 {{ STEP_TITLES[s] || '' }}
@@ -164,7 +164,7 @@
               class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-4 transition-colors"
               :class="allConsentsChecked ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
               <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                :class="allConsentsChecked ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                :class="allConsentsChecked ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
                 <svg v-if="allConsentsChecked" width="12" height="10" viewBox="0 0 12 10" fill="none">
                   <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
@@ -174,9 +174,9 @@
             <div class="flex flex-col gap-2">
               <button v-for="item in CONSENT_ITEMS" :key="item.id" type="button" @click="toggleConsent(item.id)"
                 class="w-full flex items-center gap-3 bg-white border rounded-[14px] p-4 transition-colors text-left hover:shadow-sm"
-                :class="consentState[item.id] ? 'border-[#FF7B22]' : 'border-[#E5E5E5]'">
+                :class="consentState[item.id] ? 'border-[#FF6B2D]' : 'border-[#E5E5E5]'">
                 <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                  :class="consentState[item.id] ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                  :class="consentState[item.id] ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
                   <svg v-if="consentState[item.id]" width="12" height="10" viewBox="0 0 12 10" fill="none">
                     <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
@@ -198,7 +198,7 @@
               class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-5 transition-colors hover:shadow-sm"
               :class="autoFillContractor ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
               <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                :class="autoFillContractor ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                :class="autoFillContractor ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
                 <svg v-if="autoFillContractor" width="12" height="10" viewBox="0 0 12 10" fill="none">
                   <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
@@ -211,7 +211,7 @@
               class="w-full flex items-center gap-3 rounded-[14px] p-4 mb-5 transition-colors hover:shadow-sm"
               :class="autoFillInsured ? 'bg-[#FFF3ED]' : 'bg-[#F0F0F5]'">
               <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                :class="autoFillInsured ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'">
+                :class="autoFillInsured ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'">
                 <svg v-if="autoFillInsured" width="12" height="10" viewBox="0 0 12 10" fill="none">
                   <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
@@ -224,10 +224,10 @@
               <div class="flex gap-3">
                 <button type="button" @click="autoTransferAccount = true"
                   class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors hover:shadow-sm"
-                  :class="autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">네</button>
+                  :class="autoTransferAccount ? 'border-[#FF6B2D] bg-[#FFF3ED] text-[#FF6B2D]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">네</button>
                 <button type="button" @click="autoTransferAccount = false"
                   class="flex-1 h-[52px] rounded-[12px] text-[15px] font-medium border-[1.5px] transition-colors hover:shadow-sm"
-                  :class="!autoTransferAccount ? 'border-[#FF7B22] bg-[#FFF3ED] text-[#FF7B22]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">아니오</button>
+                  :class="!autoTransferAccount ? 'border-[#FF6B2D] bg-[#FFF3ED] text-[#FF6B2D]' : 'border-[#E5E5E5] bg-white text-[#6B7280]'">아니오</button>
               </div>
               <p v-if="autoTransferAccount && !allHaveAutoTransfer" class="mt-2 text-[12px] text-[#F59E0B]">
                 ※ 일부 보험사는 자동이체 계좌 수령을 지원하지 않아, 해당 보험사는 계좌 정보를 직접 입력해야 합니다.
@@ -243,7 +243,7 @@
                 <div>
                   <div v-if="field.entries.length > 1" class="flex flex-wrap gap-1 mb-1">
                     <span v-for="e in field.entries" :key="e.formFieldId"
-                      class="text-[10px] px-1.5 py-0.5 bg-[#FFF3ED] text-[#FF7B22] rounded-full">{{ e.companyName }}</span>
+                      class="text-[10px] px-1.5 py-0.5 bg-[#FFF3ED] text-[#FF6B2D] rounded-full">{{ e.companyName }}</span>
                   </div>
                   <ClaimFieldInput :field="fieldToFormField(field)" :model-value="batchStore.getUnifiedValue(field)"
                     @update:model-value="(val: string) => batchStore.setUnifiedValue(field, val)"
@@ -274,8 +274,8 @@
             <template v-for="(entry, idx) in batchStore.selectedEntries" :key="'spec-' + idx">
               <template v-if="specificFieldsForStep(currentStep, idx).length > 0">
                 <div class="mt-6 mb-3 flex items-center gap-2">
-                  <span class="w-[6px] h-[6px] rounded-full bg-[#FF7B22]"></span>
-                  <p class="text-[13px] font-semibold text-[#FF7B22]">{{ entry.company.company_name }}</p>
+                  <span class="w-[6px] h-[6px] rounded-full bg-[#FF6B2D]"></span>
+                  <p class="text-[13px] font-semibold text-[#FF6B2D]">{{ entry.company.company_name }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-5">
                   <template v-for="field in specificFieldsForStep(currentStep, idx)" :key="field.key">
@@ -297,7 +297,7 @@
               <p class="text-[18px] font-bold text-[#1A1A1A] mb-1">공통 서류</p>
               <p class="text-[13px] text-[#6B7280] mb-4">전체 보험사에 동일하게 첨부됩니다 (최대 20장, 파일당 20MB)</p>
 
-              <label class="flex items-center justify-center gap-2 h-[52px] border-2 border-dashed border-[#E5E5E5] rounded-[12px] cursor-pointer hover:border-[#FF7B22] transition-colors mb-4">
+              <label class="flex items-center justify-center gap-2 h-[52px] border-2 border-dashed border-[#E5E5E5] rounded-[12px] cursor-pointer hover:border-[#FF6B2D] transition-colors mb-4">
                 <span class="material-symbols-outlined text-[20px] text-[#6B7280]">add_photo_alternate</span>
                 <span class="text-[14px] text-[#6B7280] font-medium">사진/서류 추가</span>
                 <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="handleCommonFileSelect" />
@@ -333,7 +333,7 @@
                       <button type="button" @click="batchStore.removePerClaimDocument(idx, doc.id)" class="text-[11px] text-[#FF4444] hover:underline">삭제</button>
                     </div>
                   </div>
-                  <label class="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">
+                  <label class="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-dashed border-[#CCCCCC] text-[12px] text-[#888] cursor-pointer hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">
                     서류 추가
                     <input type="file" class="hidden" multiple accept="image/*,.pdf,.doc,.docx" @change="(e) => handlePerClaimFileSelect(e, idx)" />
                   </label>
@@ -354,7 +354,7 @@
                   <div class="flex items-center justify-between mb-3">
                     <p class="text-[15px] font-bold text-[#1A1A1A]">{{ entry.company.company_name }}</p>
                     <span class="text-[12px] font-medium px-2 py-0.5 rounded-full"
-                      :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF7B22]'">
+                      :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF6B2D]'">
                       {{ progressPercent(idx) }}%
                     </span>
                   </div>
@@ -367,7 +367,7 @@
                     </template>
                   </div>
                   <button v-if="progressPercent(idx) < 100" type="button" @click="goToFirstIncompleteStep()"
-                    class="mt-3 text-[12px] text-[#FF7B22] font-medium hover:underline">미입력 항목 채우기 →</button>
+                    class="mt-3 text-[12px] text-[#FF6B2D] font-medium hover:underline">미입력 항목 채우기 →</button>
                 </div>
               </div>
 
@@ -382,7 +382,7 @@
           <div v-else-if="currentStep === 9" class="bg-white rounded-xl border border-[#E8E8E8] p-6">
             <div class="flex items-center justify-between mb-1">
               <p class="text-[18px] font-bold text-[#1A1A1A]">서명</p>
-              <button type="button" @click="resetSignature" class="flex items-center gap-1 text-[12px] text-[#999] hover:text-[#FF7B22] transition-colors">
+              <button type="button" @click="resetSignature" class="flex items-center gap-1 text-[12px] text-[#999] hover:text-[#FF6B2D] transition-colors">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-5.07-11.36L23 10"/></svg>
                 다시 쓰기
               </button>
@@ -400,9 +400,9 @@
               </div>
               <div class="flex gap-3 mt-3">
                 <button type="button" @click="clearCanvas"
-                  class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-[#6B7280] border border-[#E5E5E5] hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">지우기</button>
+                  class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-[#6B7280] border border-[#E5E5E5] hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">지우기</button>
                 <button type="button" @click="completeSignature"
-                  class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-white bg-[#FF7B22] hover:bg-[#E86D1A] transition-colors">서명 완료</button>
+                  class="flex-1 h-[44px] rounded-[12px] text-[14px] font-medium text-white bg-[#FF6B2D] hover:bg-[#E86D1A] transition-colors">서명 완료</button>
               </div>
             </div>
             <div v-else class="text-center">
@@ -410,7 +410,7 @@
                 <img :src="signatureDataUrl" alt="서명" class="max-h-[120px]" />
               </div>
               <div class="mt-3">
-                <button type="button" @click="resetSignature" class="text-[13px] text-[#FF7B22] font-medium hover:underline">다시 서명</button>
+                <button type="button" @click="resetSignature" class="text-[13px] text-[#FF6B2D] font-medium hover:underline">다시 서명</button>
               </div>
             </div>
           </div>
@@ -424,7 +424,7 @@
               <div v-for="(entry, idx) in batchStore.selectedEntries" :key="'final-' + idx"
                 class="flex items-center gap-3 bg-[#F6F6F8] rounded-[14px] p-4">
                 <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center text-[16px] font-bold shrink-0"
-                  :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF7B22]'">
+                  :class="progressPercent(idx) === 100 ? 'bg-[#E8F8EE] text-[#34C759]' : 'bg-[#FFF3ED] text-[#FF6B2D]'">
                   {{ progressPercent(idx) === 100 ? '✓' : '!' }}
                 </span>
                 <div class="flex-1 min-w-0">
@@ -432,7 +432,7 @@
                   <p class="text-[12px] text-[#6B7280]">{{ entry.claimForm?.form_name || '' }}</p>
                 </div>
                 <span class="text-[13px] font-semibold shrink-0"
-                  :class="progressPercent(idx) === 100 ? 'text-[#34C759]' : 'text-[#FF7B22]'">
+                  :class="progressPercent(idx) === 100 ? 'text-[#34C759]' : 'text-[#FF6B2D]'">
                   {{ progressPercent(idx) }}%
                 </span>
               </div>
@@ -446,7 +446,7 @@
             <div class="bg-[#F6F6F8] rounded-[14px] p-4">
               <label class="flex items-start gap-3 cursor-pointer">
                 <span class="w-[24px] h-[24px] rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors"
-                  :class="finalConsentChecked ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D1D1D6] bg-white'"
+                  :class="finalConsentChecked ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D1D1D6] bg-white'"
                   @click="finalConsentChecked = !finalConsentChecked">
                   <svg v-if="finalConsentChecked" width="12" height="10" viewBox="0 0 12 10" fill="none">
                     <path d="M1 5L4.5 8.5L11 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -466,15 +466,15 @@
           <div class="flex gap-3 justify-between mt-6">
             <div class="flex gap-3">
               <button type="button" @click="handleWizardBack"
-                class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border border-[#E5E5E5] text-[#666] hover:border-[#FF7B22] hover:text-[#FF7B22] transition-colors">이전</button>
+                class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border border-[#E5E5E5] text-[#666] hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors">이전</button>
               <button v-if="currentStep <= 7" type="button" @click="handleSaveDraft" :disabled="batchStore.loading"
-                class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border-[1.5px] border-[#FF7B22] text-[#FF7B22] bg-white hover:bg-[#FFF8F3] transition-colors">
+                class="px-6 py-3 rounded-[28px] text-[14px] font-semibold border-[1.5px] border-[#FF6B2D] text-[#FF6B2D] bg-white hover:bg-[#FFF8F3] transition-colors">
                 {{ batchStore.loading ? '저장 중...' : '임시저장' }}
               </button>
             </div>
             <button type="button" @click="handleCTA" :disabled="!canProceed || batchStore.loading"
               class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
-              :class="canProceed && !batchStore.loading ? 'bg-[#FF7B22] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'">
+              :class="canProceed && !batchStore.loading ? 'bg-[#FF6B2D] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'">
               <span v-if="batchStore.loading">처리 중...</span>
               <span v-else>{{ ctaText }}</span>
             </button>

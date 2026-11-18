@@ -9,7 +9,7 @@
     <div v-if="items.length === 0" class="flex flex-col items-center py-6">
       <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="32" cy="32" r="28" fill="#FFF3ED" stroke="#FFD4B8" stroke-width="1.5"/>
-        <path d="M22 32L28 38L42 24" stroke="#FF7B22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 32L28 38L42 24" stroke="#FF6B2D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <p class="mt-3 text-[14px] font-medium text-[#999]">배분된 고객이 없습니다</p>
       <p class="text-[12px] text-[#BBB] mt-1">DB배분이 되면 여기에 표시됩니다</p>
@@ -28,7 +28,7 @@
         <button
           v-if="item.canToggle"
           class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-          :class="item.done ? 'bg-[#FF7B22] border-[#FF7B22]' : 'border-[#D0D0D0]'"
+          :class="item.done ? 'bg-[#FF6B2D] border-[#FF6B2D]' : 'border-[#D0D0D0]'"
           @click.stop="$emit('toggle', item.id)"
         >
           <svg v-if="item.done" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>

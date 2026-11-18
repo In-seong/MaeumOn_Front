@@ -3,7 +3,7 @@
     <!-- 헤더 -->
     <div class="flex items-center gap-3 mb-6">
       <button
-        class="text-[14px] text-[#888] hover:text-[#FF7B22] transition-colors"
+        class="text-[14px] text-[#888] hover:text-[#FF6B2D] transition-colors"
         @click="goBack"
       >
         &larr; 목록으로
@@ -13,7 +13,7 @@
 
     <!-- 로딩 -->
     <div v-if="initialLoading" class="flex items-center justify-center py-20">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF7B22]"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF6B2D]"></div>
     </div>
 
     <!-- 배치 상세 -->
@@ -37,7 +37,7 @@
           <div class="space-y-2">
             <div class="flex items-center gap-2">
               <span class="text-[13px] text-[#888]">배치번호</span>
-              <span class="text-[14px] font-bold text-[#FF7B22]">#{{ batch.batch_claim_id }}</span>
+              <span class="text-[14px] font-bold text-[#FF6B2D]">#{{ batch.batch_claim_id }}</span>
             </div>
             <InfoRow label="생성일" :value="formatDate(batch.created_at)" />
             <!-- 진행상황 바 -->
@@ -46,7 +46,7 @@
               <div class="flex-1 bg-[#E8E8E8] rounded-full h-2.5 overflow-hidden">
                 <div
                   class="h-full rounded-full transition-all"
-                  :class="batch.completed_count === batch.total_count ? 'bg-[#22C55E]' : 'bg-[#FF7B22]'"
+                  :class="batch.completed_count === batch.total_count ? 'bg-[#22C55E]' : 'bg-[#FF6B2D]'"
                   :style="{ width: progressPercent + '%' }"
                 ></div>
               </div>
@@ -74,7 +74,7 @@
         <div v-if="unsentCount > 0">
           <button
             :disabled="sendingBatchFax"
-            class="w-full bg-[#FF7B22] text-white rounded-xl py-3.5 text-[15px] font-bold hover:bg-[#E56D1E] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            class="w-full bg-[#FF6B2D] text-white rounded-xl py-3.5 text-[15px] font-bold hover:bg-[#E56D1E] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             @click="handleSendBatchFax"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -140,8 +140,8 @@
               </template>
               <!-- 발송중/대기 -->
               <template v-else-if="claim.fax_status === 'pending' || claim.fax_status === 'sending'">
-                <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-[#FF7B22]"></div>
-                <span class="text-[12px] font-medium text-[#FF7B22]">
+                <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-[#FF6B2D]"></div>
+                <span class="text-[12px] font-medium text-[#FF6B2D]">
                   {{ claim.fax_status === 'pending' ? '발송 대기중' : '발송중' }}
                 </span>
               </template>
@@ -179,7 +179,7 @@
               <button
                 v-if="canSendClaimFax(claim)"
                 :disabled="sendingClaimFaxId === claim.claim_id"
-                class="flex-1 bg-[#FF7B22] text-white rounded-[8px] py-2 text-[12px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
+                class="flex-1 bg-[#FF6B2D] text-white rounded-[8px] py-2 text-[12px] font-semibold hover:bg-[#E56D1E] transition-colors disabled:opacity-50"
                 @click="handleSendClaimFax(claim.claim_id)"
               >
                 {{ sendingClaimFaxId === claim.claim_id ? '발송중...' : (claim.fax_status === 'failed' ? '재발송' : '팩스 발송') }}
@@ -194,7 +194,7 @@
     <div v-if="!initialLoading && !batch" class="text-center py-20">
       <p class="text-[15px] text-[#888]">배치 정보를 찾을 수 없습니다.</p>
       <button
-        class="mt-4 bg-[#FF7B22] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors"
+        class="mt-4 bg-[#FF6B2D] text-white rounded-[12px] px-6 py-3 text-[14px] font-semibold hover:bg-[#E56D1E] transition-colors"
         @click="goBack"
       >
         목록으로 돌아가기

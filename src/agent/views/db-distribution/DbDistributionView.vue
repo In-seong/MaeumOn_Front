@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF] flex justify-center">
-    <div class="w-full max-w-[402px] min-h-screen relative bg-gradient-to-b from-[#FFF3ED] to-[#FFFFFF]">
+  <div class="min-h-screen bg-[#E8E9EB] flex justify-center">
+    <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="배분 관리" />
 
-      <main class="px-6 py-4 overflow-y-auto pb-20" style="height: calc(100dvh - 56px - 60px);">
+      <main class="px-6 py-4 overflow-y-auto pb-24" style="height: calc(100dvh - 56px);">
         <!-- 탭 -->
         <div class="flex gap-1 mb-4 bg-[#F5F5F5] rounded-[12px] p-1">
           <button
@@ -12,7 +12,7 @@
             :class="[
               'flex-1 py-2 text-[13px] font-medium rounded-[10px] transition-colors',
               activeTab === tab.key
-                ? 'bg-white text-[#FF7B22] shadow-sm'
+                ? 'bg-white text-[#FF6B2D] shadow-sm'
                 : 'text-[#888] hover:text-[#555]',
             ]"
             @click="switchTab(tab.key)"
@@ -25,7 +25,7 @@
         <template v-if="activeTab === 'db'">
           <div class="mb-4">
             <p class="text-[13px] text-[#888]">
-              총 <span class="font-semibold text-[#FF7B22]">{{ dbStore.total + dbStore.claimAssignments.length }}</span>건
+              총 <span class="font-semibold text-[#FF6B2D]">{{ dbStore.total + dbStore.claimAssignments.length }}</span>건
             </p>
           </div>
 
@@ -56,7 +56,7 @@
         <template v-if="activeTab === 'corporate'">
           <div class="mb-4">
             <p class="text-[13px] text-[#888]">
-              총 <span class="font-semibold text-[#FF7B22]">{{ corpStore.total }}</span>건
+              총 <span class="font-semibold text-[#FF6B2D]">{{ corpStore.total }}</span>건
             </p>
           </div>
 
@@ -107,7 +107,7 @@
               <p v-if="item.notes" class="text-[12px] text-[#666] mt-2 line-clamp-2">{{ item.notes }}</p>
 
               <button
-                class="mt-3 w-full py-2.5 bg-[#FF7B22] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+                class="mt-3 w-full py-2.5 bg-[#FF6B2D] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
                 @click="openCorpEditForm(item.id, item.notes)"
               >
                 메모 수정
@@ -295,7 +295,7 @@ function corpStatusLabel(status: string): string {
 function corpStatusClass(status: string): string {
   const map: Record<string, string> = {
     NEW: 'bg-blue-50 text-[#1565C0]',
-    IN_PROGRESS: 'bg-[#FFF3ED] text-[#FF7B22]',
+    IN_PROGRESS: 'bg-[#FFF3ED] text-[#FF6B2D]',
     COMPLETED: 'bg-[#E8F5E9] text-[#2E7D32]',
     CANCELLED: 'bg-gray-100 text-gray-600',
   }

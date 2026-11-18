@@ -10,7 +10,7 @@
         :class="
           schedule.is_completed
             ? 'bg-[#1FBD53] border-[#1FBD53]'
-            : 'border-[#D0D0D0] active:border-[#FF7B22]'
+            : 'border-[#D0D0D0] active:border-[#FF6B2D]'
         "
         :aria-label="schedule.is_completed ? '완료 취소' : '완료 처리'"
         @click="emit('toggle', schedule.event_id)"
@@ -60,7 +60,7 @@
       <div class="flex items-center gap-1 shrink-0">
         <button
           v-if="schedule.source === 'manual'"
-          class="p-1.5 text-[#AAAAAA] active:text-[#FF7B22]"
+          class="p-1.5 text-[#AAAAAA] active:text-[#FF6B2D]"
           @click="emit('edit', schedule.event_id)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -94,7 +94,7 @@ const emit = defineEmits<{
 }>()
 
 const typeConfig: Record<CalendarEventType, { label: string; variant: 'primary' | 'info' | 'success' | 'default' | 'danger' | 'warning'; bar: string }> = {
-  manual: { label: '일정', variant: 'primary', bar: 'bg-[#FF7B22]' },
+  manual: { label: '일정', variant: 'primary', bar: 'bg-[#FF6B2D]' },
   birthday: { label: '생일', variant: 'info', bar: 'bg-[#E91E63]' },
   contract_expiry: { label: '만기', variant: 'danger', bar: 'bg-[#F44336]' },
   insurance_expiry: { label: '보험만기', variant: 'warning', bar: 'bg-[#FF9800]' },

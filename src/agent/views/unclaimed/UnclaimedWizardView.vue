@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#F8F8F8]">
+  <div class="min-h-screen bg-[#F4F5F7]">
     <!-- 헤더 -->
     <div class="sticky top-0 z-10 bg-white border-b border-[#E8E8E8]">
       <div class="flex items-center h-[52px] px-4">
@@ -17,7 +17,7 @@
           :key="s"
           :class="[
             'h-1 rounded-full flex-1 transition-colors',
-            s <= currentStep ? 'bg-[#FF7B22]' : 'bg-[#E8E8E8]'
+            s <= currentStep ? 'bg-[#FF6B2D]' : 'bg-[#E8E8E8]'
           ]"
         />
       </div>
@@ -77,7 +77,7 @@
       class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E8E8] p-4 safe-area-bottom"
     >
       <button
-        class="w-full py-3.5 bg-[#FF7B22] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
+        class="w-full py-3.5 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
         :disabled="!canNext"
         @click="nextStep"
       >
