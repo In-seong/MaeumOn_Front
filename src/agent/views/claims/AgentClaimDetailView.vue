@@ -399,8 +399,6 @@
           </button>
         </div>
       </main>
-      <AgentBottomNav />
-
       <!-- 수익자 변경 모달 -->
       <Transition name="fade">
         <div v-if="showBeneficiaryModal" class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" @click.self="showBeneficiaryModal = false">
@@ -517,7 +515,6 @@ import { updateBeneficiary, uploadAgentClaimDocument, deleteAgentClaimDocument }
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import type { InsuranceClaim as SharedInsuranceClaim } from '@shared/types'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'

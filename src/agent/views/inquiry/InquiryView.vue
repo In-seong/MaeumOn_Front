@@ -70,8 +70,6 @@
           <p class="text-[13px] text-[#BBB] mt-1">새 문의를 작성해보세요</p>
         </div>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 
@@ -240,7 +238,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import { fetchMyInquiries, createInquiry } from '../../services/agentApi'
 import type { InquiryItem } from '../../types'
 

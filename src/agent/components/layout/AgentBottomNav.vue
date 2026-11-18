@@ -1,6 +1,6 @@
 <template>
   <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[402px] z-50 px-4 pb-3 pt-0 pointer-events-none">
-    <nav ref="navRef" class="nav-glass relative flex rounded-[28px] h-[60px] pointer-events-auto">
+    <nav class="nav-glass relative flex rounded-[28px] h-[60px] pointer-events-auto">
       <!-- 슬라이딩 인디케이터 래퍼: 각 탭과 같은 너비, translateX로 이동 -->
       <div
         class="absolute top-0 h-full flex items-center justify-center pointer-events-none"
@@ -99,20 +99,10 @@ function getActiveIndex(): number {
 }
 
 onMounted(() => {
-  const prevIdx = Number(sessionStorage.getItem('__nav_prev_idx') ?? '0')
-  const targetIdx = getActiveIndex()
-  if (prevIdx !== targetIdx) {
-    activeIndex.value = prevIdx
-    nextTick(() => {
-      requestAnimationFrame(() => {
-        isSliding.value = true
-        activeIndex.value = targetIdx
-      })
-    })
-  } else {
-    activeIndex.value = targetIdx
-    nextTick(() => { isSliding.value = true })
-  }
+  activeIndex.value = getActiveIndex()
+  nextTick(() => {
+    isSliding.value = true
+  })
 })
 
 watch(() => route.path, () => {
@@ -136,7 +126,6 @@ function isActive(item: NavItem): boolean {
 
 function navigateTo(item: NavItem, idx: number): void {
   if (activeIndex.value === idx) return
-  sessionStorage.setItem('__nav_prev_idx', String(activeIndex.value))
   activeIndex.value = idx
   router.push(item.path)
 }

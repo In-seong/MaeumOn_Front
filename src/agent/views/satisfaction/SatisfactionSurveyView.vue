@@ -101,8 +101,6 @@
           </div>
         </Transition>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -110,7 +108,6 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import SurveyListItem from '../../components/ui/SurveyListItem.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'

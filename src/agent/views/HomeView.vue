@@ -34,7 +34,7 @@
         <!-- 숨은 보험금 배너 -->
         <section class="mb-4">
           <button
-            class="w-full relative overflow-hidden bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] px-4 py-[22px] text-left active:scale-[0.98] transition-transform"
+            class="w-full relative overflow-hidden bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 px-4 py-[22px] text-left active:scale-[0.98] transition-transform"
             @click="router.push('/unclaimed')"
           >
             <span class="block text-[15px] font-bold text-[#333]">숨은 보험금</span>
@@ -50,7 +50,7 @@
 
         <!-- DB 배분 고객 -->
         <section v-if="dbDistributions.length > 0" class="mb-4">
-          <div class="bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] p-4">
+          <div class="bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 p-4">
             <div class="flex items-center justify-between mb-3">
               <h3 class="text-[16px] font-bold text-[#333]">DB 배분 고객</h3>
               <span class="text-[16px] font-bold text-[#FF6B2D]">{{ dbDistributions.length }}명</span>
@@ -82,8 +82,6 @@
           </div>
         </section>
       </main>
-
-      <AgentBottomNav />
 
       <!-- 팝업 공지 모달 -->
       <div
@@ -123,7 +121,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AgentAppHeader from '../components/layout/AgentAppHeader.vue'
-import AgentBottomNav from '../components/layout/AgentBottomNav.vue'
 import AgentQuickMenu from '../components/ui/AgentQuickMenu.vue'
 import { useAgentAuthStore } from '../stores/agentAuthStore'
 import { useNotificationStore } from '../stores/notificationStore'

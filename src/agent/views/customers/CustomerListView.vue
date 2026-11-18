@@ -96,8 +96,6 @@
           <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
       </button>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -106,7 +104,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CustomerListItem from '../../components/ui/CustomerListItem.vue'
 import { useCustomerStore } from '../../stores/customerStore'
 

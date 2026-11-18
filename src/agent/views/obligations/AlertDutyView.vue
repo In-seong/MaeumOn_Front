@@ -57,8 +57,6 @@
           <p class="text-[14px] text-[#BBB]">해당 기간의 알릴의무 항목이 없습니다</p>
         </div>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -66,7 +64,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ObligationItem from '../../components/ui/ObligationItem.vue'
 import { fetchObligations } from '../../services/agentApi'
 import type { DisclosureObligation } from '../../types'

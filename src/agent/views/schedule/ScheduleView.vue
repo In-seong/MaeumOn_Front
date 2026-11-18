@@ -53,8 +53,6 @@
         </section>
       </main>
 
-      <AgentBottomNav />
-
       <!-- Add/Edit Schedule Modal -->
       <Teleport to="body">
         <Transition name="slide-up">
@@ -183,7 +181,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 import FormInput from '@user/components/form/FormInput.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'

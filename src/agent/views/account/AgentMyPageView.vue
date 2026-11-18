@@ -136,8 +136,6 @@
         <p class="text-center text-[12px] text-[#CCC] mt-4">마음온 에이전트 {{ appVersion }}</p>
       </main>
 
-      <AgentBottomNav />
-
       <!-- 비밀번호 변경 모달 -->
       <Teleport to="body">
         <Transition name="slide-up">
@@ -327,7 +325,6 @@ import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { useToast } from '../../composables/useToast'
 import { changePassword as apiChangePassword, deleteAccount as apiDeleteAccount } from '../../services/agentApi'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'

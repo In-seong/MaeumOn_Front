@@ -100,8 +100,6 @@
           </p>
         </div>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -111,7 +109,6 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import ClaimListItem from '../../components/ui/ClaimListItem.vue'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 

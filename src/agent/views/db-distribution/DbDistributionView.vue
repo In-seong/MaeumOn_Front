@@ -176,8 +176,6 @@
           </div>
         </Transition>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -187,7 +185,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useDbDistributionStore } from '../../stores/dbDistributionStore'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import DbDistributionItem from '../../components/ui/DbDistributionItem.vue'
 import ClaimAssignmentItem from '../../components/ui/ClaimAssignmentItem.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'

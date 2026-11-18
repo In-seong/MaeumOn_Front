@@ -184,8 +184,6 @@
           </div>
         </div>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 
@@ -278,7 +276,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import { fetchAwardPlans, fetchAwardPlanMonths, fetchFormDownloads, getFormDownloadUrl } from '../../services/agentApi'
 import type { AwardPlanItem, FormDownloadItem } from '../../services/agentApi'
 

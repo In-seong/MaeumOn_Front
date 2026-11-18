@@ -191,8 +191,6 @@
         </section>
         </template>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -200,7 +198,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import CardSection from '@user/components/ui/CardSection.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'

@@ -66,8 +66,6 @@
         </div>
       </main>
 
-      <AgentBottomNav />
-
       <!-- 메모 수정 바텀시트 -->
       <Transition name="slide-up">
         <div
@@ -103,7 +101,6 @@
 import { ref, onMounted } from 'vue'
 import { useCorporateInquiryStore } from '../../stores/corporateInquiryStore'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import FormTextarea from '@user/components/form/FormTextarea.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 

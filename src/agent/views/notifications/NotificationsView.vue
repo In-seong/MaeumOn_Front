@@ -70,8 +70,6 @@
           <p class="text-[14px] text-[#BBB]">알림이 없습니다</p>
         </div>
       </main>
-
-      <AgentBottomNav />
     </div>
   </div>
 </template>
@@ -80,7 +78,6 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import BackHeader from '@user/components/layout/BackHeader.vue'
-import AgentBottomNav from '../../components/layout/AgentBottomNav.vue'
 import { useNotificationStore } from '../../stores/notificationStore'
 import type { AgentNotification } from '../../types'
 
