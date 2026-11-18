@@ -320,6 +320,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { useToast } from '../../composables/useToast'
@@ -331,6 +332,7 @@ import InfoRow from '@user/components/ui/InfoRow.vue'
 import ActionButton from '@user/components/ui/ActionButton.vue'
 
 const { handleFocusIn, mainStyle } = useKeyboardSafe()
+const router = useRouter()
 const authStore = useAgentAuthStore()
 const toast = useToast()
 
@@ -471,6 +473,7 @@ onMounted(() => {
 
 // ===== 메뉴 =====
 const menuItems = [
+  { label: '문의하기', action: () => router.push('/inquiry') },
   { label: '비밀번호 변경', action: () => openPwModal() },
   { label: '앱 정보', action: () => { showAppInfoModal.value = true } },
   { label: '회원 탈퇴', action: () => { showDeleteModal.value = true }, danger: true },

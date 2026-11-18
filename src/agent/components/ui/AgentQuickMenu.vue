@@ -119,7 +119,6 @@ const allMenuItems = [
   { icon: 'db', label: 'DB배분', sub: '배분 내역 관리', path: '/db-distribution', bgClass: 'bg-[#FFF3ED]', review: true },
   { icon: 'codef', label: '보험·건강', sub: '보험 건강정보 조회', path: '/codef', bgClass: 'bg-[#FFF3ED]', review: false },
   // { icon: 'unclaimed', label: '숨은보험금', sub: '미청구 의료비 찾기', path: '/unclaimed', bgClass: 'bg-[#FFF3ED]', review: false },
-  { icon: 'inquiry', label: '문의하기', sub: '본사에 문의·건의', path: '/inquiry', bgClass: 'bg-[#FFF3ED]', review: true },
 ]
 
 const menuItems = computed(() =>
