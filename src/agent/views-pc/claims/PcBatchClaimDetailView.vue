@@ -164,7 +164,7 @@
               <button
                 v-if="claim.generated_pdf_url"
                 class="flex-1 bg-[#F8F8F8] text-[#555] rounded-[8px] py-2 text-[12px] font-medium hover:bg-[#EEEEEE] transition-colors"
-                @click="openPdf(claim.generated_pdf_url)"
+                @click="openPdf(claim.generated_pdf_url, claim.claim_id)"
               >
                 PDF 보기
               </button>
@@ -224,6 +224,7 @@ import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
 import { useToast } from '../../composables/useToast'
+import api from '@shared/api'
 
 const toast = useToast()
 
@@ -361,8 +362,25 @@ async function handleSendBatchFax(): Promise<void> {
   }
 }
 
-function openPdf(url?: string): void {
-  if (url) window.open(url, '_blank')
+async function openPdf(url?: string, claimId?: number): Promise<void> {
+  if (!claimId) {
+    if (url) window.open(url, '_blank')
+    return
+  }
+  try {
+    const res = await api.get(`/agent/claims/${claimId}/download/pdf`, { responseType: 'blob' })
+    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = `청구서_${claimId}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+  } catch {
+    toast.showToast('PDF 다운로드에 실패했습니다.', 'error')
+  }
 }
 
 function goToClaimDetail(claimId: number): void {

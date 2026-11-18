@@ -505,6 +505,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { updateBeneficiary, uploadAgentClaimDocument, deleteAgentClaimDocument } from '../../services/agentApi'
+import api from '@shared/api'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import type { InsuranceClaim as SharedInsuranceClaim } from '@shared/types'
 import CardSection from '@user/components/ui/CardSection.vue'
@@ -670,9 +671,21 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + 'MB'
 }
 
-function downloadPdf(): void {
-  if (claim.value?.generated_pdf_url) {
-    window.open(claim.value.generated_pdf_url, '_blank')
+async function downloadPdf(): Promise<void> {
+  if (!claim.value) return
+  try {
+    const res = await api.get(`/agent/claims/${claim.value.claim_id}/download/pdf`, { responseType: 'blob' })
+    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `청구서_${claim.value.claim_id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch {
+    toast.showToast('PDF 다운로드에 실패했습니다.', 'error')
   }
 }
 
