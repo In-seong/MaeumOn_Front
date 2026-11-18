@@ -30,7 +30,7 @@ export const fetchDashboard = () =>
 // ===== Dashboard Full =====
 export interface DashboardFullData {
   header: { agent_name: string; branch_name: string; today: string }
-  checklist: { unregistered_db: number; incomplete_claims: number; pending_consultations: number }
+  checklist: { unregistered_db: number; incomplete_claims: number; pending_consultations: number; unconfirmed_assignments: number }
   db_distributions: Array<{
     assignment_id: number
     assignment_date: string | null
@@ -241,6 +241,12 @@ export const fetchDbDistribution = (id: number) =>
 
 export const processDbDistribution = (id: number, data: { notes?: string }) =>
   api.put<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}/process`, data)
+
+export const confirmAssignment = (id: number) =>
+  api.put<ApiResponse<DbDistribution>>(`${BASE}/assignments/${id}/confirm`)
+
+export const confirmAllAssignments = () =>
+  api.put<ApiResponse<{ confirmed_count: number }>>(`${BASE}/assignments/confirm-all`)
 
 export const fetchClaimAssignments = () =>
   api.get<ApiResponse<ClaimAssignment[]>>(`${BASE}/claim-assignments`)

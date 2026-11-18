@@ -22,7 +22,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-[#F8F8F8]">
+  <div class="flex min-h-screen bg-[#F4F5F7]">
     <AgentPcSidebar :open="sidebarOpen" @close="sidebarOpen = false" />
 
     <div class="flex-1 flex flex-col min-w-0">

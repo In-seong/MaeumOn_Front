@@ -10,20 +10,20 @@
           <p class="text-[13px] text-[#888] mt-0.5">오늘도 건강하고 행복한 하루 되세요!</p>
         </section>
 
-        <!-- 상태바 -->
+        <!-- 상태바: 미확인 건수 -->
         <section class="mb-4">
-          <div class="flex items-center bg-[#FF6B2D] rounded-xl px-5 py-[16px]">
+          <button
+            class="w-full flex items-center justify-between bg-[#FF6B2D] rounded-xl px-5 py-[16px] active:opacity-90 transition-opacity"
+            @click="router.push('/db-distribution')"
+          >
             <div class="flex items-center gap-1 text-white text-[14px] font-bold">
-              <span>상주</span>
-              <span>{{ statusCounts.assigned }}건</span>
-              <span class="mx-2 opacity-70 font-extrabold">|</span>
-              <span>배분</span>
-              <span>{{ statusCounts.distributed }}건</span>
-              <span class="mx-2 opacity-70 font-extrabold">|</span>
-              <span>반려</span>
-              <span>{{ statusCounts.rejected }}건</span>
+              <span>미확인 배분</span>
+              <span>{{ unconfirmedCount }}건</span>
             </div>
-          </div>
+            <svg v-if="unconfirmedCount > 0" width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0">
+              <path d="M9 6l6 6-6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </section>
 
         <!-- 퀵 메뉴 -->
@@ -86,7 +86,7 @@
       <!-- 팝업 공지 모달 -->
       <div
         v-if="currentPopup"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/85"
         @click.self="dismissPopup(false)"
       >
         <div class="relative w-[85vw] max-w-[360px]">
@@ -134,7 +134,7 @@ const notificationStore = useNotificationStore()
 const unreadCount = computed(() => notificationStore.unreadCount)
 const agentName = computed(() => agentAuthStore.agentName)
 
-const statusCounts = ref({ assigned: 0, distributed: 0, rejected: 0 })
+const unconfirmedCount = ref(0)
 const dbDistributions = ref<DashboardFullData['db_distributions']>([])
 
 function formatDate(dateStr: string | null): string {
@@ -235,11 +235,7 @@ onMounted(async () => {
     fetchDashboardFull().then(res => {
       const data = res.data?.data
       if (data) {
-        statusCounts.value = {
-          assigned: data.checklist.unregistered_db,
-          distributed: data.db_distributions.length,
-          rejected: data.checklist.incomplete_claims,
-        }
+        unconfirmedCount.value = data.checklist.unconfirmed_assignments
         dbDistributions.value = data.db_distributions
       }
     }).catch(() => { /* silent */ }),
