@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] min-h-screen relative bg-[#F4F5F7]">
       <BackHeader title="보험금 청구" />
 
-      <main class="px-5 py-4 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 112)" @focusin="handleFocusIn">
+      <main class="px-5 py-4 pb-28 overflow-y-auto" style="height: calc(100dvh - 56px);" @focusin="handleFocusIn">
 
         <!-- 배치 임시저장 목록 -->
         <section v-if="!claimMode && batchClaimStore.batchDrafts.length > 0" class="mt-2 mb-5">
@@ -394,26 +394,24 @@
         <div v-if="claimStore.error" class="p-3 bg-[#FFE5E5] rounded-[8px] text-[13px] text-[#FF0000] mb-4">
           {{ claimStore.error }}
         </div>
-      </main>
 
-      <!-- 하단 버튼 -->
-      <div class="absolute bottom-[76px] left-0 right-0 p-5 bg-gradient-to-t from-white via-white to-transparent pt-8">
-        <!-- 모드 선택 전에는 버튼 숨김 -->
-        <button
-          v-if="claimMode"
-          type="button"
-          :disabled="!canProceed"
-          class="w-full py-3.5 rounded-[12px] text-[15px] font-semibold transition-all active:scale-[0.98]"
-          :class="
-            canProceed
-              ? 'bg-[#FF6B2D] text-white shadow-[0_4px_16px_rgba(255,123,34,0.3)]'
-              : 'bg-[#E0E0E0] text-[#AAAAAA] cursor-not-allowed'
-          "
-          @click="goNext"
-        >
-          다음 단계
-        </button>
-      </div>
+        <!-- 다음 단계 버튼 -->
+        <div v-if="claimMode" class="mt-4 mb-2">
+          <button
+            type="button"
+            :disabled="!canProceed"
+            class="w-full py-3.5 rounded-[12px] text-[15px] font-semibold transition-all active:scale-[0.98]"
+            :class="
+              canProceed
+                ? 'bg-[#FF6B2D] text-white shadow-[0_4px_16px_rgba(255,123,34,0.3)]'
+                : 'bg-[#E0E0E0] text-[#AAAAAA] cursor-not-allowed'
+            "
+            @click="goNext"
+          >
+            다음 단계
+          </button>
+        </div>
+      </main>
     </div>
   </div>
 </template>
@@ -430,7 +428,7 @@ import { useAgentClaimStore } from '../../stores/agentClaimStore'
 import { useAgentBatchClaimStore } from '../../stores/agentBatchClaimStore'
 import { fetchClaimForms as apiFetchClaimForms } from '../../services/agentApi'
 
-const { handleFocusIn, mainStyle } = useKeyboardSafe()
+const { handleFocusIn } = useKeyboardSafe()
 const router = useRouter()
 const route = useRoute()
 const customerStore = useCustomerStore()
