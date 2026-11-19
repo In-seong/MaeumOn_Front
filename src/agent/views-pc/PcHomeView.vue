@@ -1,6 +1,26 @@
 <template>
   <div class="p-6 bg-[#F4F5F7] min-h-full">
-    <h1 class="text-[20px] font-bold text-[#333] mb-6">대시보드</h1>
+    <!-- 인사말 -->
+    <div class="mb-5">
+      <h1 class="text-[22px] font-bold text-[#1c1c1c]">안녕하세요! {{ agentName }}님</h1>
+      <p class="text-[13px] text-[#888] mt-1">오늘도 건강하고 행복한 하루 되세요!</p>
+    </div>
+
+    <!-- 상태바 -->
+    <div class="mb-6">
+      <div class="flex items-center bg-[#FF6B2D] rounded-xl px-6 py-[16px] max-w-[480px]">
+        <div class="flex items-center gap-1 text-white text-[14px] font-bold">
+          <span>상주</span>
+          <span>{{ statusCounts.assigned }}건</span>
+          <span class="mx-2 opacity-70 font-extrabold">|</span>
+          <span>배분</span>
+          <span>{{ statusCounts.distributed }}건</span>
+          <span class="mx-2 opacity-70 font-extrabold">|</span>
+          <span>반려</span>
+          <span>{{ statusCounts.rejected }}건</span>
+        </div>
+      </div>
+    </div>
 
     <!-- 퀵메뉴 2행 3열 -->
     <div class="grid grid-cols-3 gap-4 mb-6">
@@ -24,67 +44,57 @@
     </div>
 
     <div class="grid grid-cols-3 gap-6">
-      <!-- 오늘의 할일 -->
-      <div class="col-span-2 bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 p-5">
-        <h2 class="text-[16px] font-semibold text-[#333] mb-4">오늘의 할일</h2>
-        <div v-if="todayTasks.length === 0" class="text-[13px] text-[#999] py-6 text-center">
-          오늘 할일이 없습니다
-        </div>
-        <ul v-else class="space-y-2">
-          <li
-            v-for="task in todayTasks"
-            :key="task.id"
-            class="flex items-center gap-3 p-3 rounded-lg hover:bg-[#FAFAFA] transition-colors"
-            :class="{ 'opacity-50': task.is_completed }"
-          >
-            <button
-              v-if="task.can_toggle"
-              class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-              :class="task.is_completed ? 'border-[#FF6B2D] bg-[#FF6B2D]' : 'border-[#D0D0D0]'"
-              @click="toggleTodo(task.id)"
-            >
-              <span v-if="task.is_completed" class="material-symbols-outlined text-[14px] text-white">check</span>
-            </button>
-            <span v-else class="w-5 h-5 rounded-full bg-[#F0F0F0] shrink-0" />
-            <div class="flex-1 min-w-0 cursor-pointer" @click="task.route && router.push(task.route)">
-              <p class="text-[13px] text-[#333] truncate" :class="{ 'line-through': task.is_completed }">{{ task.title }}</p>
-              <p v-if="task.subtitle" class="text-[11px] text-[#999] truncate">{{ task.subtitle }}</p>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <!-- 숨은 보험금 배너 -->
+      <button
+        class="col-span-1 relative overflow-hidden bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 px-5 py-6 text-left hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow min-h-[120px]"
+        @click="router.push('/unclaimed')"
+      >
+        <span class="block text-[16px] font-bold text-[#333]">숨은 보험금</span>
+        <span class="block text-[13px] text-[#888] mt-1">미청구 의료비 찾기</span>
+        <img
+          :src="`${baseUrl}icons/3d/07_find_insurance_money.png`"
+          alt="숨은 보험금"
+          class="absolute -bottom-[30px] right-1 w-[140px] h-[140px] object-contain pointer-events-none"
+          loading="lazy"
+        />
+      </button>
 
-      <!-- 다가오는 일정 -->
-      <div class="bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 p-5">
+      <!-- DB 배분 고객 -->
+      <div class="col-span-2 bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-[16px] font-semibold text-[#333]">다가오는 일정</h2>
-          <button class="text-[12px] text-[#FF6B2D] font-medium hover:underline" @click="router.push('/schedule')">전체보기</button>
+          <h2 class="text-[16px] font-semibold text-[#333]">DB 배분 고객</h2>
+          <span v-if="dbDistributions.length > 0" class="text-[16px] font-bold text-[#FF6B2D]">{{ dbDistributions.length }}명</span>
         </div>
-        <div v-if="upcomingEvents.length === 0" class="text-[13px] text-[#999] py-6 text-center">
-          예정된 일정이 없습니다
+        <div v-if="dbDistributions.length === 0" class="text-[13px] text-[#999] py-6 text-center">
+          배분된 고객이 없습니다
         </div>
-        <div v-else class="space-y-2.5">
-          <div
-            v-for="event in upcomingEvents.slice(0, 8)"
-            :key="event.event_id"
-            class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[#FAFAFA] cursor-pointer transition-colors"
-            @click="router.push('/schedule')"
+        <div v-else class="flex flex-col divide-y divide-[#F0F0F0]">
+          <button
+            v-for="item in dbDistributions.slice(0, 10)"
+            :key="item.assignment_id"
+            class="flex items-center gap-3 py-3 first:pt-0 last:pb-0 text-left hover:bg-[#FAFAFA] transition-colors rounded-lg px-2 -mx-2"
+            @click="goToCustomer(item.customer_id)"
           >
-            <span class="material-symbols-outlined text-[18px] text-[#FF6B2D]">{{ eventTypeIcon[event.event_type] ?? 'push_pin' }}</span>
+            <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
+              <img :src="`${baseUrl}icons/nav/message.svg`" alt="" class="w-7 h-7" />
+            </div>
             <div class="flex-1 min-w-0">
-              <p class="text-[13px] font-medium text-[#333] truncate">{{ event.title }}</p>
-              <p class="text-[11px] text-[#999]">
-                {{ eventTypeLabel(event) }}
-                <template v-if="event.customer">· {{ event.customer.name }}</template>
+              <p class="text-[14px] font-bold text-[#333] truncate">
+                {{ item.customer_name }}
+                <span class="text-[14px] text-[#333] font-bold ml-1">청구 신청 배정</span>
+              </p>
+              <p class="text-[12px] text-[#999] mt-0.5">
+                {{ formatDate(item.assignment_date) }} · {{ formatPhone(item.customer_phone) }}
               </p>
             </div>
-            <span class="text-[12px] shrink-0" :class="daysUntilVariant(event.event_date)">
-              {{ daysUntil(event.event_date) }}
-            </span>
-          </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0">
+              <path d="M9 6l6 6-6 6" stroke="#CCC" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
+
     <!-- 팝업 공지 모달 -->
     <div
       v-if="currentPopup"
@@ -121,23 +131,21 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useScheduleStore } from '../stores/scheduleStore'
-import { useNotificationStore } from '../stores/notificationStore'
 import { useAgentAuthStore } from '../stores/agentAuthStore'
-import { fetchTodayTasks, toggleScheduleComplete, fetchActivePopupNotices } from '../services/agentApi'
-import type { PopupNoticeItem } from '../services/agentApi'
-import type { CalendarEvent, DashboardTask } from '../types'
+import { useNotificationStore } from '../stores/notificationStore'
+import { fetchDashboardFull, fetchActivePopupNotices } from '../services/agentApi'
+import type { DashboardFullData, PopupNoticeItem } from '../services/agentApi'
 
 const router = useRouter()
-const scheduleStore = useScheduleStore()
-const notificationStore = useNotificationStore()
+const baseUrl = import.meta.env.BASE_URL
 const authStore = useAgentAuthStore()
-
-const upcomingEvents = computed(() => scheduleStore.upcomingEvents)
+const notificationStore = useNotificationStore()
+const agentName = computed(() => authStore.agentName)
 
 const isReviewAccount = computed(() => authStore.agent?.employee_number === 'TEST001')
 
-const baseUrl = import.meta.env.BASE_URL
+const statusCounts = ref({ assigned: 0, distributed: 0, rejected: 0 })
+const dbDistributions = ref<DashboardFullData['db_distributions']>([])
 
 const allQuickMenuItems = [
   { image: '01_customer_management.png', label: '고객관리', sub: '고객 목록 관리', path: '/customers', review: true },
@@ -152,46 +160,29 @@ const quickMenuItems = computed(() =>
   isReviewAccount.value ? allQuickMenuItems.filter(i => i.review) : allQuickMenuItems
 )
 
-const eventTypeIcon: Record<string, string> = {
-  birthday: 'cake',
-  contract_expiry: 'description',
-  insurance_expiry: 'directions_car',
-  manual: 'push_pin',
-}
-
-function eventTypeLabel(event: CalendarEvent): string {
-  const map: Record<string, string> = {
-    birthday: '생일',
-    contract_expiry: '보험 만기',
-    insurance_expiry: '자동차보험 만기',
-    manual: '일정',
-  }
-  return map[event.event_type] ?? '일정'
-}
-
-function daysUntil(dateStr: string): string {
+function formatDate(dateStr: string | null): string {
   if (!dateStr) return '-'
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
-  if (isNaN(target.getTime())) return '-'
-  const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diff === 0) return '오늘'
-  if (diff === 1) return '내일'
-  if (diff < 0) return `${Math.abs(diff)}일 전`
-  return `${diff}일 후`
+  const parts = dateStr.split('-')
+  const m = parts[1]
+  const d = parts[2]
+  if (!m || !d) return '-'
+  return `${parseInt(m)}/${parseInt(d)}`
 }
 
-function daysUntilVariant(dateStr: string): string {
-  if (!dateStr) return 'text-[#999]'
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const target = new Date(dateStr.slice(0, 10) + 'T00:00:00')
-  if (isNaN(target.getTime())) return 'text-[#999]'
-  const diff = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diff <= 1) return 'text-[#FF4444] font-semibold'
-  if (diff <= 7) return 'text-[#FF6B2D] font-semibold'
-  return 'text-[#999]'
+function formatPhone(phone: string): string {
+  if (!phone) return '-'
+  const digits = phone.replace(/\D/g, '')
+  if (digits.length === 11) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
+  }
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+  return phone
+}
+
+function goToCustomer(customerId: string) {
+  router.push(`/customers/${customerId}`)
 }
 
 // 팝업 공지
@@ -238,29 +229,20 @@ async function loadPopupNotices() {
   } catch { /* silent */ }
 }
 
-const todayTasks = ref<DashboardTask[]>([])
-
-async function toggleTodo(id: string) {
-  const task = todayTasks.value.find(t => t.id === id)
-  if (!task || !task.can_toggle) return
-  task.is_completed = !task.is_completed
-  try {
-    if (task.type === 'calendar' && task.related_id) {
-      await toggleScheduleComplete(task.related_id)
-    }
-  } catch {
-    task.is_completed = !task.is_completed
-  }
-}
-
 onMounted(async () => {
   await Promise.all([
-    scheduleStore.loadMonth(),
-    scheduleStore.loadUpcoming(30),
     notificationStore.refreshUnreadCount(),
-    fetchTodayTasks().then(res => {
-      todayTasks.value = res.data?.data ?? []
-    }).catch(() => {}),
+    fetchDashboardFull().then(res => {
+      const data = res.data?.data
+      if (data) {
+        statusCounts.value = {
+          assigned: data.checklist.unregistered_db,
+          distributed: data.checklist.unconfirmed_assignments,
+          rejected: data.checklist.incomplete_claims,
+        }
+        dbDistributions.value = data.db_distributions
+      }
+    }).catch(() => { /* silent */ }),
     loadPopupNotices(),
   ])
 })
