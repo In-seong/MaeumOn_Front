@@ -361,8 +361,7 @@
 
     <!-- 하단 CTA -->
     <div v-if="batchStore.allFormsLoaded"
-      class="fixed bottom-0 left-0 right-0 bg-white z-20 pt-3 px-5"
-      style="padding-bottom: max(env(safe-area-inset-bottom, 8px), 8px);">
+      class="fixed bottom-[76px] left-0 right-0 bg-white z-20 pt-3 px-5 pb-2">
       <div class="max-w-[402px] mx-auto">
         <button @click="handleCTA" :disabled="!canProceed || batchStore.loading"
           class="w-full h-[56px] rounded-[28px] text-[16px] font-bold transition-colors"

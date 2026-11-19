@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader title="청구 관리" />
 
-      <main class="px-5 py-3 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 80)" @focusin="handleFocusIn">
+      <main class="px-5 py-3 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 96)" @focusin="handleFocusIn">
         <!-- Search + New Claim Button Row -->
         <div class="flex items-center gap-2 mb-4">
           <div class="relative flex-1">

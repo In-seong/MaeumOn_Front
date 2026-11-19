@@ -3,7 +3,7 @@
     <div class="w-full max-w-[402px] h-screen relative bg-[#F4F5F7]">
       <BackHeader title="고객 등록" />
 
-      <main class="px-5 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 80)" @focusin="handleFocusIn">
+      <main class="px-5 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 96)" @focusin="handleFocusIn">
         <form class="mt-3 flex flex-col gap-4" @submit.prevent="handleSubmit">
           <!-- Required Fields Section -->
           <CardSection>

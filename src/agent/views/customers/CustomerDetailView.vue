@@ -38,7 +38,7 @@
       <main
         v-if="customer"
         class="px-5 overflow-y-auto"
-        :style="mainStyle('calc(100dvh - 56px)', 80)"
+        :style="mainStyle('calc(100dvh - 56px)', 96)"
         @click="showMenu = false"
         @focusin="handleFocusIn"
       >

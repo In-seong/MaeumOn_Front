@@ -428,7 +428,7 @@
           </div>
 
           <!-- 하단 고정 버튼 영역 -->
-          <div class="shrink-0 flex gap-3 px-5 py-3 bg-white border-t border-[#F0F0F0]">
+          <div class="shrink-0 flex gap-3 px-5 py-3 pb-24 bg-white border-t border-[#F0F0F0]">
               <button
                 v-if="!isFirstStep"
                 type="button"

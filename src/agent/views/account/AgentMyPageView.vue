@@ -5,7 +5,7 @@
         <span class="text-[18px] font-bold text-[#1c1c1c]">마이페이지</span>
       </header>
 
-      <main class="px-4 py-3 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 80)" @focusin="handleFocusIn">
+      <main class="px-4 py-3 pb-24 overflow-y-auto" :style="mainStyle('calc(100dvh - 56px)', 96)" @focusin="handleFocusIn">
         <!-- Profile Card -->
         <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.1)]">
           <div class="w-[60px] h-[60px] bg-[#FF6B2D] rounded-full flex items-center justify-center flex-shrink-0">
