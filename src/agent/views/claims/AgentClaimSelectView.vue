@@ -397,7 +397,7 @@
       </main>
 
       <!-- 하단 버튼 -->
-      <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-white via-white to-transparent pt-8">
+      <div class="absolute bottom-[76px] left-0 right-0 p-5 bg-gradient-to-t from-white via-white to-transparent pt-8">
         <!-- 모드 선택 전에는 버튼 숨김 -->
         <button
           v-if="claimMode"
