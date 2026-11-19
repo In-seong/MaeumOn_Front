@@ -27,7 +27,7 @@
 
       <template v-else>
         <!-- ========== Step 1: 약관 동의 ========== -->
-        <div v-if="currentStep === 1" class="px-5 pt-6 pb-[120px]">
+        <div v-if="currentStep === 1" class="px-5 pt-6 pb-4">
           <p class="text-[22px] font-bold text-[#1A1A1A] mb-1">약관 동의</p>
           <p class="text-[14px] text-[#6B7280] mb-6">보험금 청구를 위한 약관에 동의해주세요</p>
 
@@ -67,7 +67,7 @@
         </div>
 
         <!-- ========== Steps 2-6: 필드 입력 ========== -->
-        <div v-else-if="currentStep >= 2 && currentStep <= 6" class="px-5 pt-6 pb-[120px]">
+        <div v-else-if="currentStep >= 2 && currentStep <= 6" class="px-5 pt-6 pb-4">
           <p class="text-[22px] font-bold text-[#1A1A1A] mb-1">{{ STEP_TITLES[currentStep] }}</p>
           <p class="text-[14px] text-[#6B7280] mb-6">{{ STEP_SUBTITLES[currentStep] || '' }}</p>
 
@@ -181,7 +181,7 @@
         </div>
 
         <!-- ========== Step 7: 증빙 서류 ========== -->
-        <div v-else-if="currentStep === 7" class="px-5 pt-6 pb-[120px]">
+        <div v-else-if="currentStep === 7" class="px-5 pt-6 pb-4">
           <p class="text-[22px] font-bold text-[#1A1A1A] mb-1">증빙 서류</p>
           <p class="text-[14px] text-[#6B7280] mb-6">진단서, 영수증 등 청구에 필요한 서류를 첨부해주세요</p>
 
@@ -217,7 +217,7 @@
         </div>
 
         <!-- ========== Step 8: 청구 내용 확인 ========== -->
-        <div v-else-if="currentStep === 8" class="px-5 pt-6 pb-[120px]">
+        <div v-else-if="currentStep === 8" class="px-5 pt-6 pb-4">
           <p class="text-[22px] font-bold text-[#1A1A1A] mb-1">청구 내용 확인</p>
           <p class="text-[14px] text-[#6B7280] mb-6">입력하신 내용을 확인해주세요</p>
 
@@ -256,7 +256,7 @@
         </div>
 
         <!-- ========== Step 9: 서명 ========== -->
-        <div v-else-if="currentStep === 9" class="px-5 pt-6 pb-[120px]">
+        <div v-else-if="currentStep === 9" class="px-5 pt-6 pb-4">
           <div class="flex items-center justify-between mb-1">
             <p class="text-[22px] font-bold text-[#1A1A1A]">서명</p>
             <button type="button" @click="resetSignature" class="flex items-center gap-1 text-[12px] text-[#999] active:text-[#FF6B2D]">
@@ -306,7 +306,7 @@
         </div>
 
         <!-- ========== Step 10: 최종 확인 ========== -->
-        <div v-else-if="currentStep === 10" class="px-5 pt-6 pb-[120px]">
+        <div v-else-if="currentStep === 10" class="px-5 pt-6 pb-4">
           <p class="text-[22px] font-bold text-[#1A1A1A] mb-1">최종 확인</p>
           <p class="text-[14px] text-[#6B7280] mb-6">
             {{ batchStore.selectedEntries.length }}개 보험사에 청구서를 제출합니다
@@ -357,12 +357,9 @@
           </div>
         </div>
       </template>
-    </div>
 
-    <!-- 하단 CTA -->
-    <div v-if="batchStore.allFormsLoaded"
-      class="fixed bottom-[76px] left-0 right-0 bg-white z-20 pt-3 px-5 pb-2">
-      <div class="max-w-[402px] mx-auto">
+      <!-- 하단 CTA -->
+      <div v-if="batchStore.allFormsLoaded" class="px-5 pt-3 pb-28">
         <button @click="handleCTA" :disabled="!canProceed || batchStore.loading"
           class="w-full h-[56px] rounded-[28px] text-[16px] font-bold transition-colors"
           :class="canProceed && !batchStore.loading

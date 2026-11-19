@@ -12,7 +12,7 @@
         <!-- 위저드 폼 -->
         <form v-else-if="claimStore.selectedClaimForm" class="flex-1 flex flex-col min-h-0" @submit.prevent="handleSubmit">
           <!-- 스크롤 영역 -->
-          <div class="flex-1 overflow-y-auto min-h-0 px-5 py-4" :style="{ paddingBottom: keyboardPadding > 0 ? keyboardPadding + 16 + 'px' : '16px' }">
+          <div class="flex-1 overflow-y-auto min-h-0 px-5 py-4 pb-28" :style="{ paddingBottom: keyboardPadding > 0 ? keyboardPadding + 16 + 'px' : undefined }">
           <!-- 양식 정보 -->
           <CardSection class="mb-4">
             <div>
@@ -425,10 +425,8 @@
               {{ claimStore.error }}
             </div>
 
-          </div>
-
-          <!-- 하단 고정 버튼 영역 -->
-          <div class="shrink-0 flex gap-3 px-5 py-3 pb-24 bg-white border-t border-[#F0F0F0]">
+            <!-- 하단 버튼 영역 -->
+            <div class="flex gap-3 pt-4 pb-4">
               <button
                 v-if="!isFirstStep"
                 type="button"
@@ -471,6 +469,7 @@
               >
                 {{ submitting ? '처리 중...' : submitButtonText }}
               </button>
+            </div>
           </div>
         </form>
 

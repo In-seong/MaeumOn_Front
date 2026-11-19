@@ -24,7 +24,7 @@
     </div>
 
     <!-- 컨텐츠 -->
-    <div class="px-4 pt-4 pb-28">
+    <div class="px-4 pt-4 pb-4">
       <StepCustomerInfo
         v-if="currentStep === 1"
         v-model="customerForm"
@@ -69,20 +69,16 @@
         @start-claim="startClaim"
         @new-session="resetWizard"
       />
-    </div>
-
-    <!-- 하단 버튼 -->
-    <div
-      v-if="showBottomBtn"
-      class="fixed bottom-[76px] left-0 right-0 bg-white border-t border-[#E8E8E8] p-4"
-    >
-      <button
-        class="w-full py-3.5 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
-        :disabled="!canNext"
-        @click="nextStep"
-      >
-        {{ nextBtnText }}
-      </button>
+      <!-- 하단 버튼 -->
+      <div v-if="showBottomBtn" class="mt-4 pb-24">
+        <button
+          class="w-full py-3.5 bg-[#FF6B2D] text-white text-[14px] font-bold rounded-[12px] active:scale-[0.98] transition-transform disabled:opacity-40"
+          :disabled="!canNext"
+          @click="nextStep"
+        >
+          {{ nextBtnText }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
