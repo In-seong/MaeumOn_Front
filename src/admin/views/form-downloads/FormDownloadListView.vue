@@ -9,6 +9,7 @@ import {
   fetchAwardPlans,
   createAwardPlan,
   deleteAwardPlan,
+  reorderAwardPlans,
 } from '../../services/adminApi'
 import type { FormDownloadItem, AwardPlanItem } from '../../types'
 
@@ -269,6 +270,32 @@ function triggerAddFiles() {
   input.click()
 }
 
+// ===== 시상안 드래그앤드롭 순서 변경 =====
+const dragIndex = ref<number | null>(null)
+
+function onDragStart(index: number) {
+  dragIndex.value = index
+}
+
+function onDragOver(e: DragEvent, index: number) {
+  e.preventDefault()
+  if (dragIndex.value === null || dragIndex.value === index) return
+  const dragged = awardItems.value[dragIndex.value]
+  if (!dragged) return
+  awardItems.value.splice(dragIndex.value, 1)
+  awardItems.value.splice(index, 0, dragged)
+  dragIndex.value = index
+}
+
+async function onDragEnd() {
+  if (dragIndex.value === null) return
+  dragIndex.value = null
+  const items = awardItems.value.map((item, i) => ({ id: item.id, sort_order: i }))
+  try {
+    await reorderAwardPlans(items)
+  } catch { /* silent */ }
+}
+
 onMounted(loadItems)
 </script>
 
@@ -527,9 +554,14 @@ onMounted(loadItems)
               </div>
               <div v-else class="grid grid-cols-3 gap-3">
                 <div
-                  v-for="ap in awardItems"
+                  v-for="(ap, idx) in awardItems"
                   :key="ap.id"
-                  class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden group"
+                  draggable="true"
+                  class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden group cursor-grab active:cursor-grabbing"
+                  :class="{ 'opacity-50 ring-2 ring-[#FF7B22]': dragIndex === idx }"
+                  @dragstart="onDragStart(idx)"
+                  @dragover="onDragOver($event, idx)"
+                  @dragend="onDragEnd"
                 >
                   <div
                     class="aspect-[3/4] bg-[#F5F5F5] flex items-center justify-center cursor-pointer relative overflow-hidden"

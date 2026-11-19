@@ -595,6 +595,9 @@ export const updateAwardPlan = (id: number, data: FormData) =>
 export const deleteAwardPlan = (id: number) =>
   api.delete<ApiResponse<null>>(`${BASE}/award-plans/${id}`)
 
+export const reorderAwardPlans = (items: { id: number; sort_order: number }[]) =>
+  api.post<ApiResponse<null>>(`${BASE}/award-plans/reorder`, { items })
+
 // ===== 유지보수 요청 =====
 export const fetchMaintenanceTasks = (params?: Record<string, unknown>) =>
   api.get<ApiResponse<LaravelPagination<MaintenanceTask>>>(`${BASE}/maintenance-tasks`, { params })
