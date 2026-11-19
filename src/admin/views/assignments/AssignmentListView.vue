@@ -636,7 +636,9 @@ async function submitRecall() {
       alert(`배분이 ${label}되었습니다.`)
     }
   } catch (e: any) {
-    alert(e.response?.data?.message || `${label}에 실패했습니다.`)
+    const msg = e.response?.data?.message || `${label}에 실패했습니다.`
+    alert(msg)
+    fetchData()
   } finally {
     recallSubmitting.value = false
   }

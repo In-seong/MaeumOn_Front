@@ -39,12 +39,20 @@ export const usePerformanceStore = defineStore('performance', () => {
   async function loadAgentPerformances(params?: {
     page?: number
     per_page?: number
+    sort_by?: string
+    sort_dir?: string
+    [key: string]: unknown
   }) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await fetchAgentPerformances(params as Record<string, unknown>)
+      const apiParams: Record<string, unknown> = { ...params }
+      if (dateFrom.value && dateTo.value) {
+        apiParams.date_from = dateFrom.value
+        apiParams.date_to = dateTo.value
+      }
+      const response = await fetchAgentPerformances(apiParams)
       const { data, ...paginationData } = response.data.data
       agentPerformances.value = data
       pagination.value = paginationData

@@ -44,7 +44,6 @@ const navGroups = computed<NavGroup[]>(() => {
         { label: '고객 목록', icon: 'people', to: '/customers' },
         { label: '상담 요청', icon: 'forum', to: '/consultations' },
         { label: 'DB 배분', icon: 'swap_horiz', to: '/db-distribution' },
-        { label: '기업 배분', icon: 'business', to: '/corporate-inquiries' },
       ],
     },
   ]
@@ -63,11 +62,10 @@ const navGroups = computed<NavGroup[]>(() => {
 
   const taskItems: NavItem[] = [
     { label: '일정 관리', icon: 'event', to: '/schedule' },
-    { label: '알릴의무', icon: 'security', to: '/alert-duty' },
   ]
   if (!isReviewAccount.value) {
-    taskItems.push({ label: '보험·건강 조회', icon: 'health_and_safety', to: '/codef' })
-    // taskItems.push({ label: '숨은 보험금', icon: 'search_insights', to: '/unclaimed' })
+    taskItems.push({ label: '보험·건강', icon: 'health_and_safety', to: '/codef' })
+    taskItems.push({ label: '숨은 보험금 찾기', icon: 'search_insights', to: '/unclaimed' })
   }
   groups.push({ title: '업무 관리', collapsible: true, items: taskItems })
 
@@ -75,7 +73,8 @@ const navGroups = computed<NavGroup[]>(() => {
     title: '기타',
     collapsible: true,
     items: [
-      { label: '양식 다운로드', icon: 'download', to: '/statistics' },
+      { label: '통계', icon: 'bar_chart', to: '/statistics' },
+      { label: '문의하기', icon: 'chat', to: '/inquiry' },
       { label: '메시지 발송', icon: 'send', to: '/messages/send' },
       { label: '알림', icon: 'notifications', to: '/notifications' },
     ],

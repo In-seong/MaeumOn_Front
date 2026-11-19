@@ -460,6 +460,7 @@ function toggleSort(key: string) {
     sortField.value = key
     sortDirection.value = 'asc'
   }
+  fetchAgentTable(1)
 }
 
 async function reloadSummary() {
@@ -471,11 +472,17 @@ async function reloadSummary() {
 
 function onSearchDate() {
   reloadSummary()
+  fetchAgentTable(1)
 }
 
 async function fetchAgentTable(page = 1) {
   tableLoading.value = true
-  await store.loadAgentPerformances({ page, ...branchStore.getBranchParam() })
+  await store.loadAgentPerformances({
+    page,
+    sort_by: sortField.value,
+    sort_dir: sortDirection.value,
+    ...branchStore.getBranchParam(),
+  })
   tableLoading.value = false
 }
 
