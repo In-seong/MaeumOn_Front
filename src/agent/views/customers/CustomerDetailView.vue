@@ -312,6 +312,38 @@
             </h4>
             <div class="contract-form flex flex-col gap-3">
               <div>
+                <label class="text-[12px] text-[#888] mb-1 block">계약자</label>
+                <input
+                  v-model="contractForm.contractor"
+                  type="text"
+                  placeholder="계약자명"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+                />
+              </div>
+              <div>
+                <label class="text-[12px] text-[#888] mb-1 flex items-center gap-2">
+                  피보험자
+                  <label class="flex items-center gap-1 cursor-pointer">
+                    <input
+                      v-model="sameAsContractor"
+                      type="checkbox"
+                      class="w-3.5 h-3.5 accent-[#FF6B2D]"
+                    />
+                    <span class="text-[11px] text-[#999]">상동</span>
+                  </label>
+                </label>
+                <input
+                  v-model="contractForm.insured_person"
+                  :disabled="sameAsContractor"
+                  type="text"
+                  :placeholder="sameAsContractor ? contractForm.contractor || '계약자와 동일' : '피보험자명'"
+                  :class="[
+                    'w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors',
+                    sameAsContractor ? 'text-[#999]' : 'text-[#333]',
+                  ]"
+                />
+              </div>
+              <div>
                 <label class="text-[12px] text-[#888] mb-1 block">보험사 *</label>
                 <select
                   v-model="contractForm.company_id"
@@ -329,14 +361,6 @@
                   v-model="contractForm.insurance_product"
                   type="text"
                   placeholder="예: 무배당 건강보험"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
-              </div>
-              <div>
-                <label class="text-[12px] text-[#888] mb-1 block">증권번호</label>
-                <input
-                  v-model="contractForm.contract_number"
-                  type="text"
                   class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
@@ -359,14 +383,6 @@
                     class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                   />
                 </div>
-              </div>
-              <div>
-                <label class="text-[12px] text-[#888] mb-1 block">만기일</label>
-                <input
-                  v-model="contractForm.expiration_date"
-                  type="date"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div class="min-w-0">
@@ -444,9 +460,13 @@
               </div>
             </div>
             <div class="border-t border-[#F5F5F5] pt-2 mt-1">
-              <div v-if="contract.contract_number" class="flex items-center justify-between text-[12px] mb-1">
-                <span class="text-[#AAAAAA]">증권번호</span>
-                <span class="text-[#666]">{{ contract.contract_number }}</span>
+              <div v-if="contract.contractor" class="flex items-center justify-between text-[12px] mb-1">
+                <span class="text-[#AAAAAA]">계약자</span>
+                <span class="text-[#666]">{{ contract.contractor }}</span>
+              </div>
+              <div v-if="contract.insured_person" class="flex items-center justify-between text-[12px] mb-1">
+                <span class="text-[#AAAAAA]">피보험자</span>
+                <span class="text-[#666]">{{ contract.insured_person }}</span>
               </div>
               <div class="flex items-center justify-between text-[12px] mb-1">
                 <span class="text-[#AAAAAA]">계약금액</span>
@@ -455,10 +475,6 @@
               <div class="flex items-center justify-between text-[12px]">
                 <span class="text-[#AAAAAA]">체결일</span>
                 <span class="text-[#666]">{{ contract.contract_date ? formatDate(contract.contract_date) : '-' }}</span>
-              </div>
-              <div v-if="contract.expiration_date" class="flex items-center justify-between text-[12px] mt-1">
-                <span class="text-[#AAAAAA]">만기일</span>
-                <span class="text-[#666]">{{ formatDate(contract.expiration_date) }}</span>
               </div>
               <div v-if="contract.payment_method" class="flex items-center justify-between text-[12px] mt-1">
                 <span class="text-[#AAAAAA]">납입방법</span>
@@ -475,7 +491,7 @@
             v-if="store.contracts.length === 0 && !showContractForm"
             class="flex flex-col items-center py-12"
           >
-            <p class="text-[14px] text-[#AAAAAA]">가입된 보험이 없습니다</p>
+            <p class="text-[14px] text-[#AAAAAA]">체결된 보험이 없습니다</p>
           </div>
         </div>
 
@@ -829,15 +845,16 @@ const editingContractId = ref<number | null>(null)
 const contractSaving = ref(false)
 const contractForm = ref({
   company_id: '' as string | number,
+  contractor: '',
+  insured_person: '',
   insurance_product: '',
-  contract_number: '',
   contract_amount: '',
   contract_date: '',
-  expiration_date: '',
   contract_status: 'active',
   payment_method: '',
   notes: '',
 })
+const sameAsContractor = ref(false)
 
 const contractStatusOptions = [
   { value: 'active', label: '유지중' },
@@ -848,15 +865,16 @@ const contractStatusOptions = [
 function resetContractForm(): void {
   contractForm.value = {
     company_id: '',
+    contractor: '',
+    insured_person: '',
     insurance_product: '',
-    contract_number: '',
     contract_amount: '',
     contract_date: '',
-    expiration_date: '',
     contract_status: 'active',
     payment_method: '',
     notes: '',
   }
+  sameAsContractor.value = false
   editingContractId.value = null
   showContractForm.value = false
 }
@@ -871,15 +889,16 @@ function startContractEdit(contract: Contract): void {
   editingContractId.value = contract.contract_id
   contractForm.value = {
     company_id: contract.company_id ?? '',
+    contractor: contract.contractor ?? '',
+    insured_person: contract.insured_person ?? '',
     insurance_product: contract.insurance_product ?? '',
-    contract_number: contract.contract_number ?? '',
     contract_amount: contract.contract_amount ?? '',
     contract_date: (contract.contract_date ?? '').slice(0, 10),
-    expiration_date: (contract.expiration_date ?? '').slice(0, 10),
     contract_status: contract.contract_status ?? 'active',
     payment_method: contract.payment_method ?? '',
     notes: contract.notes ?? '',
   }
+  sameAsContractor.value = !!(contract.contractor && contract.insured_person && contract.contractor === contract.insured_person)
   showContractForm.value = true
 }
 
@@ -896,11 +915,11 @@ async function handleSaveContract(): Promise<void> {
   try {
     const payload = {
       company_id: Number(contractForm.value.company_id),
+      contractor: contractForm.value.contractor.trim() || undefined,
+      insured_person: sameAsContractor.value ? contractForm.value.contractor.trim() || undefined : contractForm.value.insured_person.trim() || undefined,
       insurance_product: contractForm.value.insurance_product.trim(),
-      contract_number: contractForm.value.contract_number.trim() || undefined,
       contract_amount: contractForm.value.contract_amount ? String(contractForm.value.contract_amount) : undefined,
       contract_date: contractForm.value.contract_date || undefined,
-      expiration_date: contractForm.value.expiration_date || undefined,
       contract_status: contractForm.value.contract_status,
       payment_method: contractForm.value.payment_method.trim() || undefined,
       notes: contractForm.value.notes.trim() || undefined,
@@ -959,7 +978,7 @@ const channelOptions = ['DB배분', '지인소개', '온라인', '텔레마케�
 
 const tabs: Tab[] = [
   { key: 'info', label: '기본정보' },
-  { key: 'contracts', label: '가입보험' },
+  { key: 'contracts', label: '체결보험' },
   { key: 'claims', label: '청구이력' },
   { key: 'inquiries', label: '보험조회' },
   { key: 'memos', label: '메모' },

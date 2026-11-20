@@ -79,6 +79,8 @@ export interface Contract {
   company_id?: number        // FK to insurance_company
   contract_number?: string
   insurance_product?: string // 보험상품명
+  contractor?: string        // 계약자
+  insured_person?: string    // 피보험자
   contract_amount?: string   // decimal
   contract_date?: string
   expiration_date?: string
