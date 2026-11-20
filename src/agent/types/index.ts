@@ -343,6 +343,7 @@ export interface DbDistribution {
   admin_id?: number
   assignment_type?: string
   assignment_date?: string
+  confirmed_at?: string | null
   notes?: string
   created_by_id?: string
   updated_by_id?: string

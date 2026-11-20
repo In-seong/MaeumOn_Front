@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { DbDistribution, ClaimAssignment } from '../types'
-import { fetchDbDistributions, fetchClaimAssignments, processDbDistribution } from '../services/agentApi'
+import { fetchDbDistributions, fetchClaimAssignments, processDbDistribution, confirmAssignment, confirmAllAssignments } from '../services/agentApi'
 
 export const useDbDistributionStore = defineStore('dbDistribution', () => {
   const distributions = ref<DbDistribution[]>([])
@@ -58,6 +58,36 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
     }
   }
 
+  async function confirm(id: number) {
+    try {
+      await confirmAssignment(id)
+      const index = distributions.value.findIndex(d => d.assignment_id === id)
+      if (index !== -1) {
+        distributions.value.splice(index, 1)
+        total.value = Math.max(0, total.value - 1)
+      }
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '확인 처리에 실패했습니다.'
+      throw e
+    }
+  }
+
+  async function confirmAll() {
+    try {
+      const res = await confirmAllAssignments()
+      const count = res.data.data?.confirmed_count ?? 0
+      if (count > 0) {
+        await loadDistributions()
+      }
+      return count
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+      error.value = msg || '전체 확인 처리에 실패했습니다.'
+      throw e
+    }
+  }
+
   return {
     distributions,
     claimAssignments,
@@ -68,5 +98,7 @@ export const useDbDistributionStore = defineStore('dbDistribution', () => {
     total,
     loadDistributions,
     process,
+    confirm,
+    confirmAll,
   }
 })

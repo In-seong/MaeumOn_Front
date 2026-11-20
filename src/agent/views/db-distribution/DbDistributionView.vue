@@ -43,6 +43,7 @@
                 v-else
                 :distribution="item.data"
                 @edit="openEditForm"
+                @confirm="handleConfirm"
               />
             </template>
           </div>
@@ -222,6 +223,14 @@ const mergedList = computed(() => {
   }))
   return [...claims, ...dists].sort((a, b) => b.date - a.date)
 })
+
+async function handleConfirm(id: number) {
+  try {
+    await dbStore.confirm(id)
+  } catch {
+    // Error handled in store
+  }
+}
 
 // DB배분 메모 수정
 const editingId = ref<number | null>(null)

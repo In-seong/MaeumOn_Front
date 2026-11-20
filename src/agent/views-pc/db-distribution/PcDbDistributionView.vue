@@ -104,7 +104,7 @@
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">No.</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">고객명</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">연락처</th>
-                <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">배분유형</th>
+                <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden md:table-cell">상태</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider hidden lg:table-cell">메모</th>
                 <th class="px-6 py-3 text-left text-[12px] font-medium text-[#999] uppercase tracking-wider">배분일</th>
                 <th class="px-6 py-3 text-right text-[12px] font-medium text-[#999] uppercase tracking-wider">관리</th>
@@ -126,15 +126,25 @@
                     <span v-else class="text-[#333]">{{ item.customer?.name || '-' }}</span>
                   </td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666]">{{ formatPhone(item.customer?.phone) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#666] hidden md:table-cell">{{ item.assignment_type || '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                  <span v-if="!item.confirmed_at" class="px-2 py-0.5 text-[12px] font-medium rounded-full bg-[#FFF3ED] text-[#FF6B2D]">신규</span>
+                  <span v-else class="text-[14px] text-[#999]">확인됨</span>
+                </td>
                 <td class="px-6 py-4 text-[14px] text-[#666] max-w-[200px] truncate hidden lg:table-cell">{{ item.notes || '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-[14px] text-[#999]">{{ formatDate(item.assignment_date ?? item.created_at) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right">
+                <td class="px-6 py-4 whitespace-nowrap text-right flex gap-2 justify-end">
                   <button
                     class="text-[13px] text-[#FF6B2D] font-medium hover:text-[#E56D1E] transition-colors"
                     @click="openEditForm(item.assignment_id, item.notes)"
                   >
                     메모 수정
+                  </button>
+                  <button
+                    v-if="!item.confirmed_at"
+                    class="text-[13px] text-[#4CAF50] font-medium hover:text-[#388E3C] transition-colors"
+                    @click="handleConfirm(item.assignment_id)"
+                  >
+                    확인
                   </button>
                 </td>
               </tr>
@@ -369,6 +379,14 @@ function switchTab(tab: 'db' | 'corporate') {
   activeTab.value = tab
   if (tab === 'corporate' && corpStore.inquiries.length === 0 && !corpStore.loading) {
     corpStore.loadInquiries()
+  }
+}
+
+async function handleConfirm(id: number) {
+  try {
+    await dbStore.confirm(id)
+  } catch {
+    // Error handled in store
   }
 }
 

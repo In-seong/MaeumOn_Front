@@ -5,8 +5,8 @@
         <p class="text-[15px] font-semibold text-[#333]">{{ distribution.customer?.name ?? '-' }}</p>
         <p class="text-[13px] text-[#888] mt-0.5">{{ distribution.customer?.phone ?? '-' }}</p>
       </div>
-      <span v-if="distribution.assignment_type" class="text-[12px] text-[#FF6B2D] bg-[#FFF3ED] px-2 py-0.5 rounded-full font-medium">
-        {{ distribution.assignment_type }}
+      <span v-if="!distribution.confirmed_at" class="text-[12px] text-[#FF6B2D] bg-[#FFF3ED] px-2 py-0.5 rounded-full font-medium">
+        신규
       </span>
     </div>
 
@@ -36,6 +36,13 @@
       >
         메모 수정
       </button>
+      <button
+        v-if="!distribution.confirmed_at"
+        class="flex-1 py-2.5 bg-[#4CAF50] text-white text-[13px] font-semibold rounded-[12px] active:scale-[0.98] transition-transform"
+        @click="$emit('confirm', distribution.assignment_id)"
+      >
+        확인
+      </button>
     </div>
   </div>
 </template>
@@ -63,5 +70,6 @@ function formatDate(raw: string): string {
 
 defineEmits<{
   edit: [id: number, notes?: string]
+  confirm: [id: number]
 }>()
 </script>
