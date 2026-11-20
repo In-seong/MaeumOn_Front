@@ -339,10 +339,12 @@ async function downloadExcel() {
     })
     const customers = res.data.data.data as AdminCustomer[]
     const rows = customers.map(c => {
-      const latestMemo = (c as any).latest_memo
-      const memoText = latestMemo
-        ? [latestMemo.title, latestMemo.content].filter(Boolean).join(' - ')
+      const memos = (c as any).memos as Array<{ title?: string; content?: string }> | undefined
+      const memoText = memos?.length
+        ? memos.map((m: { title?: string; content?: string }) => [m.title, m.content].filter(Boolean).join(' - ')).join('\n')
         : ''
+      const branches = (c as any).agent?.branches as Array<{ branch_name: string }> | undefined
+      const branchName = branches?.map((b: { branch_name: string }) => b.branch_name).join(', ') ?? ''
       return {
         name: c.name,
         gender: c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : c.gender ?? '',
@@ -350,6 +352,7 @@ async function downloadExcel() {
         phone: formatPhone(c.phone),
         address: [c.address, c.detailed_address].filter(Boolean).join(' '),
         agent_name: c.agent?.name ?? '',
+        branch_name: branchName,
         hospital: c.hospital ?? '',
         created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
         memo: memoText,
@@ -363,6 +366,7 @@ async function downloadExcel() {
       { key: 'phone', label: '휴대전화' },
       { key: 'address', label: '주소' },
       { key: 'agent_name', label: '담당 설계사' },
+      { key: 'branch_name', label: '지사' },
       { key: 'hospital', label: '병원' },
       { key: 'created_at', label: '등록일시' },
       { key: 'memo', label: '메모' },

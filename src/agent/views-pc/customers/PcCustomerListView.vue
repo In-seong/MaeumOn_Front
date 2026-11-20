@@ -2,12 +2,21 @@
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-[20px] font-bold text-[#333]">고객 관리</h1>
-      <button
-        class="px-4 py-2.5 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
-        @click="router.push({ name: 'customer-add' })"
-      >
-        + 고객 등록
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          :disabled="excelLoading"
+          class="px-4 py-2.5 border border-[#FF6B2D] text-[#FF6B2D] text-[14px] font-medium rounded-[12px] hover:bg-[#FFF3ED] transition-colors disabled:opacity-50"
+          @click="downloadExcel"
+        >
+          {{ excelLoading ? '다운로드 중...' : '엑셀 다운로드' }}
+        </button>
+        <button
+          class="px-4 py-2.5 bg-[#FF6B2D] text-white text-[14px] font-medium rounded-[12px] hover:bg-[#E56D1E] transition-colors"
+          @click="router.push({ name: 'customer-add' })"
+        >
+          + 고객 등록
+        </button>
+      </div>
     </div>
 
     <!-- 검색 + 정렬 -->
@@ -128,12 +137,62 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomerStore } from '../../stores/customerStore'
+import { fetchCustomers } from '../../services/agentApi'
+import { exportToExcel } from '@shared/utils/exportExcel'
+import type { Customer } from '../../types'
 
 const router = useRouter()
 const store = useCustomerStore()
+
+const excelLoading = ref(false)
+
+async function downloadExcel() {
+  excelLoading.value = true
+  try {
+    const res = await fetchCustomers({
+      search: store.searchQuery || undefined,
+      per_page: 9999,
+      export: true,
+      sort_by: store.sortBy,
+      sort_direction: 'desc',
+    })
+    const customers = res.data.data.data as Customer[]
+    const rows = customers.map(c => {
+      const memos = (c as unknown as Record<string, unknown>).memos as Array<{ title?: string; content?: string }> | undefined
+      const memoText = memos?.length
+        ? memos.map((m: { title?: string; content?: string }) => [m.title, m.content].filter(Boolean).join(' - ')).join('\n')
+        : ''
+      return {
+        name: c.name,
+        gender: c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : c.gender ?? '',
+        age: calcAge(c.birth_date),
+        phone: formatPhone(c.phone),
+        address: [c.address, c.detailed_address].filter(Boolean).join(' '),
+        hospital: c.hospital ?? '',
+        created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
+        memo: memoText,
+      }
+    })
+    exportToExcel(rows, [
+      { key: '__index__', label: '번호' },
+      { key: 'name', label: '이름' },
+      { key: 'gender', label: '성별' },
+      { key: 'age', label: '나이' },
+      { key: 'phone', label: '휴대전화' },
+      { key: 'address', label: '주소' },
+      { key: 'hospital', label: '병원' },
+      { key: 'created_at', label: '등록일시' },
+      { key: 'memo', label: '메모' },
+    ], '고객관리')
+  } catch {
+    alert('엑셀 다운로드에 실패했습니다.')
+  } finally {
+    excelLoading.value = false
+  }
+}
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
