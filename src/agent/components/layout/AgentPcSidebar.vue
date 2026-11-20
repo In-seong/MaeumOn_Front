@@ -74,6 +74,7 @@ const navGroups = computed<NavGroup[]>(() => {
     collapsible: true,
     items: [
       { label: '통계', icon: 'bar_chart', to: '/statistics' },
+      { label: '양식 다운로드', icon: 'description', to: '/forms' },
       { label: '문의하기', icon: 'chat', to: '/inquiry' },
       { label: '메시지 발송', icon: 'send', to: '/messages/send' },
       { label: '알림', icon: 'notifications', to: '/notifications' },

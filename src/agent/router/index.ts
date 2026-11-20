@@ -174,6 +174,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/forms',
+      name: 'forms',
+      component: adaptiveView(
+        () => import('../views/forms/FormsView.vue'),
+        () => import('../views-pc/forms/PcFormsView.vue')
+      ),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/db-distribution',
       name: 'db-distribution',
       component: adaptiveView(

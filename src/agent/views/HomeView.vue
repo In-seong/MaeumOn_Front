@@ -31,23 +31,6 @@
           <AgentQuickMenu />
         </section>
 
-        <!-- 숨은 보험금 배너 -->
-        <section class="mb-4">
-          <button
-            class="w-full relative overflow-hidden bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 px-4 py-[22px] text-left active:scale-[0.98] transition-transform"
-            @click="router.push('/unclaimed')"
-          >
-            <span class="block text-[15px] font-bold text-[#333]">숨은 보험금</span>
-            <span class="block text-[12px] text-[#888] mt-0.5">미청구 의료비 찾기</span>
-            <img
-              :src="`${baseUrl}icons/3d/07_find_insurance_money.png`"
-              alt="숨은 보험금"
-              class="absolute -bottom-[40px] right-1 w-[175px] h-[175px] object-contain pointer-events-none"
-              loading="lazy"
-            />
-          </button>
-        </section>
-
         <!-- DB 배분 고객 -->
         <section v-if="dbDistributions.length > 0" class="mb-4">
           <div class="bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.06)] border border-white/80 p-4">
