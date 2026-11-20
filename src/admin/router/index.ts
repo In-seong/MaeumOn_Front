@@ -255,18 +255,14 @@ const router = createRouter({
       component: () => import('../views/popup-notices/PopupNoticeListView.vue'),
       meta: { requiresAuth: true, superOnly: true },
     },
-    // 청구 신청 관리
-    {
-      path: '/claim-requests',
-      name: 'claim-requests',
-      component: () => import('../views/claim-requests/ClaimRequestListView.vue'),
-      meta: { requiresAuth: true },
-    },
+    // 청구 신청 관리 → 청구 관리 탭으로 리다이렉트
     {
       path: '/claim-requests/statistics',
-      name: 'claim-request-statistics',
-      component: () => import('../views/claim-requests/ClaimRequestStatisticsView.vue'),
-      meta: { requiresAuth: true },
+      redirect: '/claims?tab=statistics',
+    },
+    {
+      path: '/claim-requests',
+      redirect: '/claims?tab=requests',
     },
     // CODEF API 로그 (슈퍼 관리자)
     {

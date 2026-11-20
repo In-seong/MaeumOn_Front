@@ -1,6 +1,24 @@
 <template>
   <div class="p-4 lg:p-6">
-    <h1 class="text-[22px] font-bold text-[#333] mb-6">청구 관리</h1>
+    <h1 class="text-[22px] font-bold text-[#333] mb-4">청구 관리</h1>
+
+    <!-- 탭 -->
+    <div class="flex border-b border-[#E8E8E8] mb-6">
+      <button
+        v-for="tab in tabs"
+        :key="tab.key"
+        @click="switchTab(tab.key)"
+        :class="[
+          'px-4 py-2.5 text-[14px] font-medium border-b-2 -mb-px transition-colors',
+          activeTab === tab.key
+            ? 'text-[#FF7B22] border-[#FF7B22]'
+            : 'text-[#999] border-transparent hover:text-[#555]',
+        ]"
+      >{{ tab.label }}</button>
+    </div>
+
+    <!-- 탭: 청구 처리 -->
+    <div v-show="activeTab === 'claims'">
 
     <!-- 필터 -->
     <div class="mb-4 flex flex-wrap gap-3">
@@ -184,12 +202,19 @@
         </div>
       </div>
     </Teleport>
+    </div>
+
+    <!-- 탭: 상주 접수 -->
+    <ClaimRequestList v-if="requestsLoaded" v-show="activeTab === 'requests'" embedded />
+
+    <!-- 탭: 배정 통계 -->
+    <ClaimRequestStatistics v-if="statisticsLoaded" v-show="activeTab === 'statistics'" embedded />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, watch, defineAsyncComponent } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { claimApi } from '@shared/services/insuranceApi'
 import { CLAIM_STATUS_OPTIONS } from '@shared/types'
 import { useBranchStore } from '../stores/branchStore'
@@ -197,11 +222,34 @@ import { useSortable } from '../composables/useSortable'
 import Pagination from '../components/Pagination.vue'
 import type { InsuranceClaim, PaginatedResponse } from '@shared/types'
 
+const ClaimRequestList = defineAsyncComponent(() => import('./claim-requests/ClaimRequestListView.vue'))
+const ClaimRequestStatistics = defineAsyncComponent(() => import('./claim-requests/ClaimRequestStatisticsView.vue'))
+
+const tabs = [
+  { key: 'claims', label: '청구 처리' },
+  { key: 'requests', label: '상주 접수' },
+  { key: 'statistics', label: '배정 통계' },
+]
+
+const router = useRouter()
+const route = useRoute()
+const activeTab = ref((route.query.tab as string) || 'claims')
+const requestsLoaded = ref(activeTab.value === 'requests')
+const statisticsLoaded = ref(activeTab.value === 'statistics')
+
+function switchTab(key: string) {
+  activeTab.value = key
+  router.replace({ query: key === 'claims' ? {} : { tab: key } })
+}
+
+watch(activeTab, (v) => {
+  if (v === 'requests') requestsLoaded.value = true
+  if (v === 'statistics') statisticsLoaded.value = true
+})
+
 const claims = ref<InsuranceClaim[]>([])
 const pagination = ref<Omit<PaginatedResponse<InsuranceClaim>, 'data'> | null>(null)
 const loading = ref(false)
-
-const router = useRouter()
 const branchStore = useBranchStore()
 const statusOptions = CLAIM_STATUS_OPTIONS
 const { toggleSort, sortParams, sortIcon } = useSortable()

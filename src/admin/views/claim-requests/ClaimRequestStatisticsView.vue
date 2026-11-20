@@ -1,7 +1,7 @@
 <template>
-  <div class="p-4 lg:p-6">
+  <div :class="embedded ? '' : 'p-4 lg:p-6'">
     <div class="flex items-center gap-3 mb-6">
-      <h1 class="text-[22px] font-bold text-[#333]">배정 통계</h1>
+      <h1 v-if="!embedded" class="text-[22px] font-bold text-[#333]">배정 통계</h1>
       <button
         @click="downloadExcel"
         :disabled="excelLoading"
@@ -227,6 +227,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+
+withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false })
+
 import { useClaimRequestStatStore } from '../../stores/claimRequestStatStore'
 import { useDateRange } from '../../composables/useDateRange'
 import { exportToExcel } from '@shared/utils/exportExcel'

@@ -56,7 +56,7 @@ const navGroups: NavGroup[] = [
       { label: '양식 관리', icon: 'description', to: '/templates', match: ['/templates'], superOnly: true },
       { label: '다운로드 파일관리', icon: 'download', to: '/form-downloads', match: ['/form-downloads'], superOnly: true },
       { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'], superOnly: true },
-      { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims'] },
+      { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims', '/claim-requests'] },
     ],
   },
   {
@@ -66,8 +66,6 @@ const navGroups: NavGroup[] = [
       { label: '병원 관리', icon: 'local_hospital', to: '/hospitals', match: ['/hospitals'], superOnly: true },
       { label: '건강검진 센터', icon: 'health_and_safety', to: '/health-centers', match: ['/health-centers'], superOnly: true },
       { label: '예약 관리', icon: 'event_note', to: '/reservations', match: ['/reservations'] },
-      { label: '청구 신청 관리', icon: 'assignment', to: '/claim-requests', match: ['/claim-requests'] },
-      { label: '배정 통계', icon: 'leaderboard', to: '/claim-requests/statistics', match: ['/claim-requests/statistics'] },
       { label: '배너 관리', icon: 'image', to: '/banners', match: ['/banners'], superOnly: true },
       { label: '팝업 공지', icon: 'campaign', to: '/popup-notices', match: ['/popup-notices'], superOnly: true },
     ],

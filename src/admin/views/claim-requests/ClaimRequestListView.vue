@@ -1,6 +1,6 @@
 <template>
-  <div class="p-4 lg:p-6">
-    <h1 class="text-[22px] font-bold text-[#333] mb-6">청구 신청 관리</h1>
+  <div :class="embedded ? '' : 'p-4 lg:p-6'">
+    <h1 v-if="!embedded" class="text-[22px] font-bold text-[#333] mb-6">청구 신청 관리</h1>
 
     <div class="mb-4 flex flex-wrap gap-3">
       <input v-model="filters.search" type="text" placeholder="이름 또는 전화번호 검색"
@@ -247,6 +247,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+
+withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false })
+
 import { fetchAdminClaimRequests, assignClaimRequest, fetchAgents } from '../../services/adminApi'
 import { useBranchStore } from '../../stores/branchStore'
 import { useSortable } from '../../composables/useSortable'
