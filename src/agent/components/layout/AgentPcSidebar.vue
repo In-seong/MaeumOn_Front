@@ -27,6 +27,7 @@ interface NavGroup {
 }
 
 const isReviewAccount = computed(() => authStore.agent?.employee_number === 'TEST001')
+const canSeeStatistics = computed(() => authStore.agent?.employee_number === 'jiwon7345')
 
 const navGroups = computed<NavGroup[]>(() => {
   const groups: NavGroup[] = [
@@ -69,17 +70,17 @@ const navGroups = computed<NavGroup[]>(() => {
   }
   groups.push({ title: '업무 관리', collapsible: true, items: taskItems })
 
-  groups.push({
-    title: '기타',
-    collapsible: true,
-    items: [
-      { label: '통계', icon: 'bar_chart', to: '/statistics' },
-      { label: '양식 다운로드', icon: 'description', to: '/forms' },
-      { label: '문의하기', icon: 'chat', to: '/inquiry' },
-      { label: '메시지 발송', icon: 'send', to: '/messages/send' },
-      { label: '알림', icon: 'notifications', to: '/notifications' },
-    ],
-  })
+  const etcItems: NavItem[] = []
+  if (canSeeStatistics.value) {
+    etcItems.push({ label: '통계', icon: 'bar_chart', to: '/statistics' })
+  }
+  etcItems.push(
+    { label: '양식 다운로드', icon: 'description', to: '/forms' },
+    { label: '문의하기', icon: 'chat', to: '/inquiry' },
+    { label: '메시지 발송', icon: 'send', to: '/messages/send' },
+    { label: '알림', icon: 'notifications', to: '/notifications' },
+  )
+  groups.push({ title: '기타', collapsible: true, items: etcItems })
 
   return groups
 })
