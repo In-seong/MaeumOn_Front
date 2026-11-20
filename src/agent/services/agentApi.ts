@@ -30,6 +30,23 @@ export const fetchDashboard = () =>
 // ===== Dashboard Full =====
 export interface DashboardFullData {
   header: { agent_name: string; branch_name: string; today: string }
+  today_schedules: Array<{
+    event_id: number
+    event_type: string
+    title: string
+    start_time: string | null
+    end_time: string | null
+    customer?: { name: string } | null
+  }>
+  performance: {
+    contracts_count: number
+    contracts_amount: number
+    db_count: number
+    conversion_rate: number
+    new_customers: number
+    branch_rank: number | null
+    branch_total: number | null
+  }
   checklist: { unregistered_db: number; incomplete_claims: number; pending_consultations: number; unconfirmed_assignments: number }
   db_distributions: Array<{
     assignment_id: number
@@ -39,6 +56,20 @@ export interface DashboardFullData {
     customer_phone: string
     hospital: string
     customer_id: string
+  }>
+  customer_alerts: Array<{
+    type: 'renewal' | 'birthday'
+    customer_name: string
+    customer_id: string
+    date: string | null
+    label: string
+  }>
+  notices: Array<{
+    notice_id: number
+    title: string
+    notice_type: string | null
+    is_pinned: boolean
+    created_at: string
   }>
 }
 
