@@ -198,6 +198,7 @@
                 <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase w-[50px]">No.</th>
                 <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">고객명</th>
                 <th class="px-4 py-3 text-center text-[12px] font-medium text-[#999] uppercase">DB</th>
+                <th class="px-4 py-3 text-center text-[12px] font-medium text-[#999] uppercase">반려</th>
                 <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">병원</th>
                 <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">배분일시</th>
                 <th class="px-4 py-3 text-left text-[12px] font-medium text-[#999] uppercase">메모</th>
@@ -211,6 +212,12 @@
                   <span :class="dbTypeColor(item.db_type)" class="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-full">
                     {{ dbTypeLabel(item.db_type) }}
                   </span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <span v-if="item.rejection" class="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-full bg-red-100 text-red-700">
+                    {{ item.rejection }}
+                  </span>
+                  <span v-else class="text-[#CCC]">-</span>
                 </td>
                 <td class="px-4 py-3 text-[13px] text-[#666]">{{ item.hospital_name || '-' }}</td>
                 <td class="px-4 py-3 text-[13px] text-[#999]">{{ formatDateTime(item.assigned_at) }}</td>
@@ -285,6 +292,7 @@ async function downloadExcel() {
       customer_name: string
       db_type: string
       hospital_name: string | null
+      rejection: string | null
       assigned_at: string | null
       memo: string | null
     }>
@@ -293,6 +301,7 @@ async function downloadExcel() {
       customer_name: d.customer_name,
       hospital_name: d.hospital_name ?? '',
       db_type: dbTypeLabel(d.db_type),
+      rejection: d.rejection ?? '',
       assigned_at: d.assigned_at ?? '',
       memo: d.memo ?? '',
     }))
@@ -302,6 +311,7 @@ async function downloadExcel() {
       { key: 'customer_name', label: '고객명' },
       { key: 'hospital_name', label: '병원' },
       { key: 'db_type', label: 'DB' },
+      { key: 'rejection', label: '반려' },
       { key: 'assigned_at', label: '배분일시' },
       { key: 'memo', label: '메모' },
     ], '배정통계')

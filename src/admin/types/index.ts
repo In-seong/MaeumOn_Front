@@ -417,6 +417,7 @@ export interface ClaimRequestStatDetail {
   customer_name: string
   db_type: 'resident' | 'distribution' | 'corporate'
   hospital_name: string | null
+  rejection: string | null
   assigned_at: string
   memo: string | null
 }
