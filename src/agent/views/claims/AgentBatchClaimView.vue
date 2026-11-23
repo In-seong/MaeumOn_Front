@@ -360,12 +360,12 @@
 
       <!-- 하단 CTA -->
       <div v-if="batchStore.allFormsLoaded" class="px-5 pt-3 pb-28">
-        <button @click="handleCTA" :disabled="!canProceed || batchStore.loading"
+        <button @click="handleCTA" :disabled="!canProceed || batchStore.loading || submitting"
           class="w-full h-[56px] rounded-[28px] text-[16px] font-bold transition-colors"
-          :class="canProceed && !batchStore.loading
+          :class="canProceed && !batchStore.loading && !submitting
             ? 'bg-[#FF6B2D] text-white active:bg-[#E86D1A]'
             : 'bg-[#FFD4B3] text-white'">
-          <span v-if="batchStore.loading" class="flex items-center justify-center gap-2">
+          <span v-if="batchStore.loading || submitting" class="flex items-center justify-center gap-2">
             <span class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
             처리 중...
           </span>
@@ -395,6 +395,7 @@ const { handleFocusIn, mainStyle } = useKeyboardSafe()
 
 // ===== Step Definitions =====
 const currentStep = ref(1)
+const submitting = ref(false)
 
 const STEP_TITLES: Record<number, string> = {
   1: '약관 동의',
@@ -896,44 +897,49 @@ async function handleSaveDraft() {
 }
 
 async function handleSubmit() {
-  if (!canProceed.value) return
+  if (!canProceed.value || submitting.value) return
+  submitting.value = true
 
-  let resultBatch: import('../../types').BatchClaim | null = null
+  try {
+    let resultBatch: import('../../types').BatchClaim | null = null
 
-  if (batchStore.currentBatch) {
-    const batch = await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
-    if (batch && !batchStore.error) {
-      const result = await batchStore.submitDraft(batch.batch_claim_id)
-      if (result) resultBatch = result
+    if (batchStore.currentBatch) {
+      const batch = await batchStore.updateDraft(batchStore.currentBatch.batch_claim_id)
+      if (batch && !batchStore.error) {
+        const result = await batchStore.submitDraft(batch.batch_claim_id)
+        if (result) resultBatch = result
+      }
+    } else {
+      const batch = await batchStore.createBatch()
+      if (batch && !batchStore.error) resultBatch = batch
     }
-  } else {
-    const batch = await batchStore.createBatch()
-    if (batch && !batchStore.error) resultBatch = batch
-  }
 
-  if (resultBatch && resultBatch.claims && batchStore.commonDocuments.length > 0) {
-    const claimIds = resultBatch.claims.map(c => c.claim_id)
-    const failedFiles: string[] = []
-    for (const doc of batchStore.commonDocuments) {
-      for (const claimId of claimIds) {
-        try {
-          const res = await uploadAgentClaimDocument(claimId, doc.file)
-          if (!res.data.success) failedFiles.push(doc.name)
-        } catch {
-          failedFiles.push(doc.name)
+    if (resultBatch && resultBatch.claims && batchStore.commonDocuments.length > 0) {
+      const claimIds = resultBatch.claims.map(c => c.claim_id)
+      const failedFiles: string[] = []
+      for (const doc of batchStore.commonDocuments) {
+        for (const claimId of claimIds) {
+          try {
+            const res = await uploadAgentClaimDocument(claimId, doc.file)
+            if (!res.data.success) failedFiles.push(doc.name)
+          } catch {
+            failedFiles.push(doc.name)
+          }
         }
       }
+      if (failedFiles.length > 0) {
+        const unique = [...new Set(failedFiles)]
+        alert(`다음 파일 업로드에 실패했습니다:\n${unique.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
+      }
     }
-    if (failedFiles.length > 0) {
-      const unique = [...new Set(failedFiles)]
-      alert(`다음 파일 업로드에 실패했습니다:\n${unique.join('\n')}\n\n청구 상세에서 다시 첨부해주세요.`)
-    }
-  }
 
-  if (resultBatch) {
-    router.replace(`/batch-claims/${resultBatch.batch_claim_id}`)
+    if (resultBatch) {
+      router.replace(`/batch-claims/${resultBatch.batch_claim_id}`)
+    }
+    if (batchStore.error) alert(batchStore.error)
+  } finally {
+    submitting.value = false
   }
-  if (batchStore.error) alert(batchStore.error)
 }
 
 // ===== Lifecycle =====

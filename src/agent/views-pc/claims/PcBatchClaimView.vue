@@ -472,10 +472,10 @@
                 {{ batchStore.loading ? '저장 중...' : '임시저장' }}
               </button>
             </div>
-            <button type="button" @click="handleCTA" :disabled="!canProceed || batchStore.loading"
+            <button type="button" @click="handleCTA" :disabled="!canProceed || batchStore.loading || submitting"
               class="px-8 py-3 rounded-[28px] text-[15px] font-bold transition-colors"
-              :class="canProceed && !batchStore.loading ? 'bg-[#FF6B2D] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'">
-              <span v-if="batchStore.loading">처리 중...</span>
+              :class="canProceed && !batchStore.loading && !submitting ? 'bg-[#FF6B2D] text-white hover:bg-[#E86D1A]' : 'bg-[#FFD4B3] text-white cursor-not-allowed'">
+              <span v-if="batchStore.loading || submitting">처리 중...</span>
               <span v-else>{{ ctaText }}</span>
             </button>
           </div>
@@ -532,6 +532,7 @@ function enterWizard() {
 
 // ===== Wizard Step Definitions =====
 const currentStep = ref(1)
+const submitting = ref(false)
 
 const STEP_TITLES: Record<number, string> = {
   1: '약관 동의', 2: '진단 정보', 3: '사고·청구 내용', 4: '계약자 정보',
@@ -967,30 +968,37 @@ async function handleSaveDraft() {
 }
 
 async function handleSubmitBatch() {
-  let result
-  if (isDraftMode.value && batchStore.currentBatch) {
-    result = await batchStore.submitDraft(batchStore.currentBatch.batch_claim_id)
-  } else {
-    result = await batchStore.createBatch()
-  }
+  if (submitting.value) return
+  submitting.value = true
 
-  if (result && result.claims && result.claims.length > 0) {
-    const { uploadAgentClaimDocument } = await import('../../services/agentApi')
-    for (let i = 0; i < batchStore.selectedEntries.length; i++) {
-      const entry = batchStore.selectedEntries[i]
-      if (!entry?.claimForm) continue
-      const matchedClaim = result.claims.find((c: { claim_form_id?: number }) => c.claim_form_id === entry.claimForm!.claim_form_id)
-      if (!matchedClaim) continue
-      const claimId = matchedClaim.claim_id
-      for (const doc of batchStore.commonDocuments) { try { await uploadAgentClaimDocument(claimId, doc.file) } catch { /* */ } }
-      const perDocs = batchStore.perClaimDocuments[i] || []
-      for (const doc of perDocs) { try { await uploadAgentClaimDocument(claimId, doc.file) } catch { /* */ } }
+  try {
+    let result
+    if (isDraftMode.value && batchStore.currentBatch) {
+      result = await batchStore.submitDraft(batchStore.currentBatch.batch_claim_id)
+    } else {
+      result = await batchStore.createBatch()
     }
-    toast.showToast('일괄 제출이 완료되었습니다.')
-    router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
-  } else if (result) {
-    toast.showToast('일괄 제출이 완료되었습니다.')
-    router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
+
+    if (result && result.claims && result.claims.length > 0) {
+      const { uploadAgentClaimDocument } = await import('../../services/agentApi')
+      for (let i = 0; i < batchStore.selectedEntries.length; i++) {
+        const entry = batchStore.selectedEntries[i]
+        if (!entry?.claimForm) continue
+        const matchedClaim = result.claims.find((c: { claim_form_id?: number }) => c.claim_form_id === entry.claimForm!.claim_form_id)
+        if (!matchedClaim) continue
+        const claimId = matchedClaim.claim_id
+        for (const doc of batchStore.commonDocuments) { try { await uploadAgentClaimDocument(claimId, doc.file) } catch { /* */ } }
+        const perDocs = batchStore.perClaimDocuments[i] || []
+        for (const doc of perDocs) { try { await uploadAgentClaimDocument(claimId, doc.file) } catch { /* */ } }
+      }
+      toast.showToast('일괄 제출이 완료되었습니다.')
+      router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
+    } else if (result) {
+      toast.showToast('일괄 제출이 완료되었습니다.')
+      router.push({ name: 'agent-batch-claim-detail', params: { id: result.batch_claim_id } })
+    }
+  } finally {
+    submitting.value = false
   }
 }
 
