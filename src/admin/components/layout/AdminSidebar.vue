@@ -57,6 +57,7 @@ const navGroups: NavGroup[] = [
       { label: '다운로드 파일관리', icon: 'download', to: '/form-downloads', match: ['/form-downloads'], superOnly: true },
       { label: '동의서 관리', icon: 'verified_user', to: '/consent-templates', match: ['/consent-templates'], superOnly: true },
       { label: '청구 관리', icon: 'receipt_long', to: '/claims', match: ['/claims', '/claim-requests'] },
+      { label: '배정 통계', icon: 'leaderboard', to: '/claim-statistics', match: ['/claim-statistics'] },
     ],
   },
   {

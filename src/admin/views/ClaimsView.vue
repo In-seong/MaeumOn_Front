@@ -206,9 +206,6 @@
 
     <!-- 탭: 상주 접수 -->
     <ClaimRequestList v-if="requestsLoaded" v-show="activeTab === 'requests'" embedded />
-
-    <!-- 탭: 배정 통계 -->
-    <ClaimRequestStatistics v-if="statisticsLoaded" v-show="activeTab === 'statistics'" embedded />
   </div>
 </template>
 
@@ -223,19 +220,16 @@ import Pagination from '../components/Pagination.vue'
 import type { InsuranceClaim, PaginatedResponse } from '@shared/types'
 
 const ClaimRequestList = defineAsyncComponent(() => import('./claim-requests/ClaimRequestListView.vue'))
-const ClaimRequestStatistics = defineAsyncComponent(() => import('./claim-requests/ClaimRequestStatisticsView.vue'))
 
 const tabs = [
   { key: 'claims', label: '청구 처리' },
   { key: 'requests', label: '상주 접수' },
-  { key: 'statistics', label: '배정 통계' },
 ]
 
 const router = useRouter()
 const route = useRoute()
 const activeTab = ref((route.query.tab as string) || 'claims')
 const requestsLoaded = ref(activeTab.value === 'requests')
-const statisticsLoaded = ref(activeTab.value === 'statistics')
 
 function switchTab(key: string) {
   activeTab.value = key
@@ -244,7 +238,6 @@ function switchTab(key: string) {
 
 watch(activeTab, (v) => {
   if (v === 'requests') requestsLoaded.value = true
-  if (v === 'statistics') statisticsLoaded.value = true
 })
 
 const claims = ref<InsuranceClaim[]>([])

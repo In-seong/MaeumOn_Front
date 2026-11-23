@@ -255,10 +255,17 @@ const router = createRouter({
       component: () => import('../views/popup-notices/PopupNoticeListView.vue'),
       meta: { requiresAuth: true, superOnly: true },
     },
+    // 배정 통계 (독립 메뉴)
+    {
+      path: '/claim-statistics',
+      name: 'claim-statistics',
+      component: () => import('../views/claim-requests/ClaimRequestStatisticsView.vue'),
+      meta: { requiresAuth: true },
+    },
     // 청구 신청 관리 → 청구 관리 탭으로 리다이렉트
     {
       path: '/claim-requests/statistics',
-      redirect: '/claims?tab=statistics',
+      redirect: '/claim-statistics',
     },
     {
       path: '/claim-requests',
