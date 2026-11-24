@@ -161,10 +161,11 @@ async function downloadExcel() {
     })
     const customers = res.data.data.data as Customer[]
     const rows = customers.map(c => {
-      const memos = (c as unknown as Record<string, unknown>).memos as Array<{ title?: string; content?: string }> | undefined
+      const memos = (c as unknown as Record<string, unknown>).memos as Array<{ title?: string; content?: string; category?: string; progress?: string }> | undefined
       const memoText = memos?.length
         ? memos.map((m: { title?: string; content?: string }) => [m.title, m.content].filter(Boolean).join(' - ')).join('\n')
         : ''
+      const latestMemo = memos?.[0]
       return {
         name: c.name,
         gender: c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : c.gender ?? '',
@@ -173,6 +174,8 @@ async function downloadExcel() {
         address: [c.address, c.detailed_address].filter(Boolean).join(' '),
         hospital: c.hospital ?? '',
         created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
+        category: latestMemo?.category ?? '',
+        progress: latestMemo?.progress ?? '',
         memo: memoText,
       }
     })
@@ -185,6 +188,8 @@ async function downloadExcel() {
       { key: 'address', label: '주소' },
       { key: 'hospital', label: '병원' },
       { key: 'created_at', label: '등록일시' },
+      { key: 'category', label: '분류' },
+      { key: 'progress', label: '진도' },
       { key: 'memo', label: '메모' },
     ], '고객관리')
   } catch {

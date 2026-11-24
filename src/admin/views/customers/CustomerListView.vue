@@ -339,10 +339,11 @@ async function downloadExcel() {
     })
     const customers = res.data.data.data as AdminCustomer[]
     const rows = customers.map(c => {
-      const memos = (c as any).memos as Array<{ title?: string; content?: string }> | undefined
+      const memos = (c as any).memos as Array<{ title?: string; content?: string; category?: string; progress?: string }> | undefined
       const memoText = memos?.length
         ? memos.map((m: { title?: string; content?: string }) => [m.title, m.content].filter(Boolean).join(' - ')).join('\n')
         : ''
+      const latestMemo = memos?.[0]
       const branches = (c as any).agent?.branches as Array<{ branch_name: string }> | undefined
       const branchName = branches?.map((b: { branch_name: string }) => b.branch_name).join(', ') ?? ''
       return {
@@ -355,6 +356,8 @@ async function downloadExcel() {
         branch_name: branchName,
         hospital: c.hospital ?? '',
         created_at: c.created_at ? c.created_at.slice(0, 16).replace('T', ' ') : '',
+        category: latestMemo?.category ?? '',
+        progress: latestMemo?.progress ?? '',
         memo: memoText,
       }
     })
@@ -369,6 +372,8 @@ async function downloadExcel() {
       { key: 'branch_name', label: '지사' },
       { key: 'hospital', label: '병원' },
       { key: 'created_at', label: '등록일시' },
+      { key: 'category', label: '분류' },
+      { key: 'progress', label: '진도' },
       { key: 'memo', label: '메모' },
     ], '고객관리')
   } catch {

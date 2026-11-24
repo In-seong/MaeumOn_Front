@@ -132,7 +132,7 @@ export const useCustomerStore = defineStore('customer', () => {
     }
   }
 
-  async function createMemo(customerId: string, data: { title?: string; content: string; memo_date: string }) {
+  async function createMemo(customerId: string, data: { title?: string; content: string; memo_date: string; category?: string; progress?: string }) {
     loading.value = true
     error.value = null
 
@@ -148,7 +148,7 @@ export const useCustomerStore = defineStore('customer', () => {
     }
   }
 
-  async function updateMemo(memoId: number, data: { title?: string; content?: string; memo_date?: string }) {
+  async function updateMemo(memoId: number, data: { title?: string; content?: string; memo_date?: string; category?: string; progress?: string }) {
     loading.value = true
     error.value = null
 

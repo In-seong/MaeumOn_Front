@@ -243,6 +243,35 @@
               placeholder="제목 (선택)"
               class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
             />
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-[13px] text-[#888] mb-1 block">분류</label>
+                <select
+                  v-model="memoForm.category"
+                  class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                >
+                  <option value="">선택</option>
+                  <option value="상조DB">상조DB</option>
+                  <option value="배분DB">배분DB</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[13px] text-[#888] mb-1 block">진도</label>
+                <select
+                  v-model="memoForm.progress"
+                  class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                >
+                  <option value="">선택</option>
+                  <option value="1차">1차</option>
+                  <option value="2차">2차</option>
+                  <option value="3차">3차</option>
+                  <option value="4차">4차</option>
+                  <option value="5차">5차</option>
+                  <option value="미해결">미해결</option>
+                </select>
+              </div>
+            </div>
             <textarea
               v-model="memoForm.content"
               placeholder="메모 내용을 입력하세요"
@@ -277,6 +306,35 @@
                 placeholder="제목 (선택)"
                 class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] mb-3"
               />
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label class="text-[13px] text-[#888] mb-1 block">분류</label>
+                  <select
+                    v-model="editMemoForm.category"
+                    class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                  >
+                    <option value="">선택</option>
+                    <option value="상조DB">상조DB</option>
+                    <option value="배분DB">배분DB</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[13px] text-[#888] mb-1 block">진도</label>
+                  <select
+                    v-model="editMemoForm.progress"
+                    class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                  >
+                    <option value="">선택</option>
+                    <option value="1차">1차</option>
+                    <option value="2차">2차</option>
+                    <option value="3차">3차</option>
+                    <option value="4차">4차</option>
+                    <option value="5차">5차</option>
+                    <option value="미해결">미해결</option>
+                  </select>
+                </div>
+              </div>
               <textarea
                 v-model="editMemoForm.content"
                 rows="3"
@@ -305,6 +363,10 @@
               <div class="flex items-start justify-between mb-2">
                 <div>
                   <h4 v-if="memo.title" class="text-[14px] font-medium text-[#333]">{{ memo.title }}</h4>
+                  <div v-if="memo.category || memo.progress" class="flex gap-2 mt-1 mb-1">
+                    <span v-if="memo.category" class="text-[11px] px-2 py-0.5 rounded-full bg-[#FFF0E5] text-[#FF6B2D]">{{ memo.category }}</span>
+                    <span v-if="memo.progress" class="text-[11px] px-2 py-0.5 rounded-full bg-[#E3F2FD] text-[#1976D2]">{{ memo.progress }}</span>
+                  </div>
                   <div class="flex items-center gap-2 mt-1">
                     <span class="text-[12px] text-[#999]">{{ formatDate(memo.memo_date) }}</span>
                     <span class="text-[12px] text-[#CCCCCC]">|</span>
@@ -384,11 +446,15 @@ const tabs = [
 const memoForm = ref({
   title: '',
   content: '',
+  category: '',
+  progress: '',
 })
 
 const editMemoForm = ref({
   title: '',
   content: '',
+  category: '',
+  progress: '',
 })
 
 const customer = computed(() => store.selectedCustomer)
@@ -509,8 +575,10 @@ async function handleCreateMemo() {
       title: memoForm.value.title || undefined,
       content: memoForm.value.content,
       memo_date: todayString(),
+      category: memoForm.value.category || undefined,
+      progress: memoForm.value.progress || undefined,
     })
-    memoForm.value = { title: '', content: '' }
+    memoForm.value = { title: '', content: '', category: '', progress: '' }
   } catch (e: any) {
     alert(e.response?.data?.message || '메모 등록에 실패했습니다.')
   } finally {
@@ -523,12 +591,14 @@ function startEditMemo(memo: Memo) {
   editMemoForm.value = {
     title: memo.title || '',
     content: memo.content,
+    category: memo.category || '',
+    progress: memo.progress || '',
   }
 }
 
 function cancelEditMemo() {
   editingMemoId.value = null
-  editMemoForm.value = { title: '', content: '' }
+  editMemoForm.value = { title: '', content: '', category: '', progress: '' }
 }
 
 async function handleUpdateMemo(memoId: number) {
@@ -537,6 +607,8 @@ async function handleUpdateMemo(memoId: number) {
     await store.updateMemo(memoId, {
       title: editMemoForm.value.title || undefined,
       content: editMemoForm.value.content,
+      category: editMemoForm.value.category || undefined,
+      progress: editMemoForm.value.progress || undefined,
     })
     editingMemoId.value = null
   } catch (e: any) {

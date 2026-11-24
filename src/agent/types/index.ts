@@ -187,6 +187,8 @@ export interface Memo {
   author_type: string
   title?: string
   content: string
+  category?: string
+  progress?: string
   memo_date: string
   attachments?: string[] | null
   attachment_urls?: MemoAttachment[]
