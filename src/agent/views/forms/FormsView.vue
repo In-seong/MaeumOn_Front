@@ -276,6 +276,17 @@
       </div>
     </div>
   </Teleport>
+
+  <!-- 양식 PDF 인앱 뷰어 -->
+  <Teleport to="body">
+    <div v-if="pdfDocOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
+      <div class="flex items-center justify-between px-4 py-3 bg-black/50">
+        <span class="text-white text-[14px] font-medium">양식 보기</span>
+        <button @click="pdfDocOpen = false; pdfDocUrl = ''" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">닫기</button>
+      </div>
+      <iframe :src="pdfDocUrl" class="flex-1 w-full bg-white" />
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -354,6 +365,8 @@ const formItems = ref<FormDownloadItem[]>([])
 const formLoading = ref(false)
 const formCategory = ref<'non-life' | 'life' | 'cooperative'>('non-life')
 const downloading = ref<number | null>(null)
+const pdfDocUrl = ref('')
+const pdfDocOpen = ref(false)
 
 const categoryTabs = [
   { key: 'non-life' as const, label: '손보', color: '#3B82F6' },
@@ -380,7 +393,8 @@ async function downloadForm(item: FormDownloadItem, type: 'claim' | 'dental') {
   try {
     const res = await getFormDownloadUrl(item.id, type)
     const { url } = res.data.data
-    window.open(url, '_blank')
+    pdfDocUrl.value = url
+    pdfDocOpen.value = true
   } finally {
     downloading.value = null
   }

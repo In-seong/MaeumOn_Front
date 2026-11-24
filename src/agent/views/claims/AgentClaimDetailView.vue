@@ -446,6 +446,15 @@
       </Transition>
     </div>
 
+    <!-- 첨부파일 PDF 인앱 뷰어 -->
+    <div v-if="pdfDocOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
+      <div class="flex items-center justify-between px-4 py-3 bg-black/50">
+        <span class="text-white text-[14px] font-medium">PDF 보기</span>
+        <button @click="pdfDocOpen = false; pdfDocUrl = ''" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">닫기</button>
+      </div>
+      <iframe :src="pdfDocUrl" class="flex-1 w-full bg-white" />
+    </div>
+
     <!-- PDF 청구서 뷰어 모달 -->
     <div v-if="showPdfViewer && claim?.generated_image_urls?.length" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
       <div class="flex items-center justify-between px-4 py-3 bg-black/50">
@@ -538,6 +547,10 @@ const deletingDocId = ref<number | null>(null)
 const showPdfViewer = ref(false)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
+// ===== 첨부파일 PDF 인앱 뷰어 =====
+const pdfDocUrl = ref('')
+const pdfDocOpen = ref(false)
+
 // ===== 청구서 이미지 확대 뷰어 =====
 const viewerOpen = ref(false)
 const viewerImageUrl = ref('')
@@ -571,7 +584,8 @@ function openDocViewer(doc: { document_url?: string; document_file_name?: string
   if (!doc.document_url) return
   const name = (doc.document_file_name ?? '').toLowerCase()
   if (name.endsWith('.pdf')) {
-    window.location.href = doc.document_url
+    pdfDocUrl.value = doc.document_url
+    pdfDocOpen.value = true
     return
   }
   viewerIndex.value = 0
