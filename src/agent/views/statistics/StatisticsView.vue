@@ -217,12 +217,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAgentAuthStore } from '../../stores/agentAuthStore'
 import { fetchDashboardFull } from '../../services/agentApi'
 import type { DashboardFullData } from '../../services/agentApi'
 
 const router = useRouter()
-const authStore = useAgentAuthStore()
 
 const dashboard = ref<DashboardFullData | null>(null)
 
@@ -312,10 +310,6 @@ function deadlineLabel(dateStr: string | null | undefined): string {
 }
 
 onMounted(async () => {
-  if (authStore.agent?.employee_number !== 'jiwon7345') {
-    router.replace('/')
-    return
-  }
   try {
     const res = await fetchDashboardFull()
     dashboard.value = res.data?.data ?? null

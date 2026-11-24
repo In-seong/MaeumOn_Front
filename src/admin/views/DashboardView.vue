@@ -278,8 +278,8 @@ onMounted(async () => {
           <span class="w-[55px] text-right">청구처리</span>
         </div>
 
-        <!-- 상위 랭킹 -->
-        <div v-if="dashboard.agent_ranking.top.length > 0" class="space-y-2">
+        <!-- 설계사 랭킹 -->
+        <div v-if="dashboard.agent_ranking.top.length > 0" class="space-y-2 max-h-[400px] overflow-y-auto">
           <div
             v-for="(agent, idx) in dashboard.agent_ranking.top"
             :key="agent.agent_id"

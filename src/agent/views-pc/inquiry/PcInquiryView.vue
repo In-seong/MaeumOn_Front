@@ -291,7 +291,8 @@ async function loadInquiries() {
     const params: Record<string, unknown> = {}
     if (currentFilter.value !== 'all') params.status = currentFilter.value
     const res = await fetchMyInquiries(params)
-    inquiries.value = res.data.data ?? []
+    const payload = res.data.data
+    inquiries.value = Array.isArray(payload) ? payload : (payload?.data ?? [])
   } catch {
     inquiries.value = []
   } finally {
