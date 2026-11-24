@@ -447,13 +447,7 @@
     </div>
 
     <!-- 첨부파일 PDF 인앱 뷰어 -->
-    <div v-if="pdfDocOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
-      <div class="flex items-center justify-between px-4 py-3 bg-black/50">
-        <span class="text-white text-[14px] font-medium">PDF 보기</span>
-        <button @click="pdfDocOpen = false; pdfDocUrl = ''" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">닫기</button>
-      </div>
-      <iframe :src="pdfDocUrl" class="flex-1 w-full bg-white" />
-    </div>
+    <PdfViewerOverlay :open="pdfDocOpen" :url="pdfDocUrl" @close="pdfDocOpen = false; pdfDocUrl = ''" />
 
     <!-- PDF 청구서 뷰어 모달 -->
     <div v-if="showPdfViewer && claim?.generated_image_urls?.length" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
@@ -528,6 +522,7 @@ import CardSection from '@user/components/ui/CardSection.vue'
 import InfoRow from '@user/components/ui/InfoRow.vue'
 import StatusBadge from '@user/components/ui/StatusBadge.vue'
 import { useToast } from '../../composables/useToast'
+import PdfViewerOverlay from '@shared/components/PdfViewerOverlay.vue'
 
 const toast = useToast()
 const { handleFocusIn, mainStyle } = useKeyboardSafe()

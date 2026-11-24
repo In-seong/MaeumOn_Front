@@ -278,21 +278,14 @@
   </Teleport>
 
   <!-- 양식 PDF 인앱 뷰어 -->
-  <Teleport to="body">
-    <div v-if="pdfDocOpen" class="fixed inset-0 z-[60] bg-black/90 flex flex-col">
-      <div class="flex items-center justify-between px-4 py-3 bg-black/50">
-        <span class="text-white text-[14px] font-medium">양식 보기</span>
-        <button @click="pdfDocOpen = false; pdfDocUrl = ''" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30">닫기</button>
-      </div>
-      <iframe :src="pdfDocUrl" class="flex-1 w-full bg-white" />
-    </div>
-  </Teleport>
+  <PdfViewerOverlay :open="pdfDocOpen" :url="pdfDocUrl" title="양식 보기" @close="pdfDocOpen = false; pdfDocUrl = ''" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { fetchAwardPlans, fetchAwardPlanMonths, fetchFormDownloads, getFormDownloadUrl } from '../../services/agentApi'
 import type { AwardPlanItem, FormDownloadItem } from '../../services/agentApi'
+import PdfViewerOverlay from '@shared/components/PdfViewerOverlay.vue'
 
 const activeTab = ref<'award' | 'form'>('award')
 
