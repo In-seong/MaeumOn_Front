@@ -46,7 +46,7 @@
               <span class="text-[15px] font-bold text-[#333]">
                 {{ selectedYear }}년 {{ selectedMonth }}월
               </span>
-              <span class="text-[12px] text-[#999] ml-1">({{ filteredAwardItems.length }}건)</span>
+              <span class="text-[12px] text-[#999] ml-1">({{ awardGroups.length }}건)</span>
             </div>
             <button
               class="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#F0F0F0]"
@@ -78,7 +78,7 @@
               @click="awardCategory = tab.key"
             >
               {{ tab.label }}
-              <span class="ml-0.5 text-[11px] opacity-80">({{ tab.key ? awardItems.filter(i => i.category === tab.key).length : awardItems.length }})</span>
+              <span class="ml-0.5 text-[11px] opacity-80">({{ tab.key ? allAwardGroups.filter(g => g.category === tab.key).length : allAwardGroups.length }})</span>
             </button>
           </div>
 
@@ -88,33 +88,37 @@
           </div>
 
           <!-- 빈 상태 -->
-          <div v-else-if="!filteredAwardItems.length" class="py-16 text-center">
+          <div v-else-if="!awardGroups.length" class="py-16 text-center">
             <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-[#FFF0E5] flex items-center justify-center">
               <span class="material-symbols-outlined text-[28px] text-[#FF6B2D]">emoji_events</span>
             </div>
             <p class="text-[14px] text-[#999]">해당 월에 등록된 시상안이 없습니다.</p>
           </div>
 
-          <!-- 카드 그리드 (2열) -->
+          <!-- 회사별 그리드 (2열) -->
           <div v-else class="grid grid-cols-2 gap-3">
             <div
-              v-for="item in filteredAwardItems"
-              :key="item.id"
+              v-for="group in awardGroups"
+              :key="group.key"
               class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden active:scale-[0.98] transition-transform"
-              @click="openPreview(item)"
+              @click="openGroupPreview(group)"
             >
-              <div class="aspect-[3/4] bg-[#F5F5F5] flex items-center justify-center overflow-hidden">
+              <div class="aspect-[3/4] bg-[#F5F5F5] flex items-center justify-center overflow-hidden relative">
                 <img
-                  v-if="item.thumbnail_url"
-                  :src="item.thumbnail_url"
-                  :alt="item.title"
+                  v-if="group.thumbnail.thumbnail_url"
+                  :src="group.thumbnail.thumbnail_url"
+                  :alt="group.company_name"
                   class="w-full h-full object-cover"
                 />
                 <span v-else class="material-symbols-outlined text-[36px] text-[#CCC]">description</span>
+                <span
+                  v-if="group.items.length > 1"
+                  class="absolute top-1.5 right-1.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+                >{{ group.items.length }}p</span>
               </div>
               <div class="p-2.5">
-                <p class="text-[12px] font-medium text-[#333] truncate">{{ item.title }}</p>
-                <p v-if="item.company_name" class="text-[11px] text-[#FF6B2D] truncate">{{ item.company_name }}</p>
+                <p class="text-[12px] font-medium text-[#333] truncate">{{ group.company_name }}</p>
+                <p v-if="group.items.length > 1" class="text-[11px] text-[#999]">{{ group.items.length }}장</p>
               </div>
             </div>
           </div>
@@ -297,6 +301,54 @@ const filteredAwardItems = computed(() =>
     : awardItems.value
 )
 
+interface AwardGroup {
+  key: string
+  company_name: string
+  category?: string
+  thumbnail: AwardPlanItem
+  items: AwardPlanItem[]
+}
+
+const allAwardGroups = computed<AwardGroup[]>(() => {
+  const map = new Map<string, AwardGroup>()
+  for (const item of awardItems.value) {
+    const key = item.company_name ?? item.title
+    const existing = map.get(key)
+    if (existing) {
+      existing.items.push(item)
+    } else {
+      map.set(key, {
+        key,
+        company_name: item.company_name ?? item.title,
+        category: item.category,
+        thumbnail: item,
+        items: [item],
+      })
+    }
+  }
+  return Array.from(map.values())
+})
+
+const awardGroups = computed<AwardGroup[]>(() => {
+  const map = new Map<string, AwardGroup>()
+  for (const item of filteredAwardItems.value) {
+    const key = item.company_name ?? item.title
+    const existing = map.get(key)
+    if (existing) {
+      existing.items.push(item)
+    } else {
+      map.set(key, {
+        key,
+        company_name: item.company_name ?? item.title,
+        category: item.category,
+        thumbnail: item,
+        items: [item],
+      })
+    }
+  }
+  return Array.from(map.values())
+})
+
 // ===== 청구서 양식 =====
 const formItems = ref<FormDownloadItem[]>([])
 const formLoading = ref(false)
@@ -409,10 +461,11 @@ function resetTransform() {
   panY.value = 0
 }
 
-function openPreview(item: AwardPlanItem) {
-  previewAllItems.value = [...awardItems.value]
-  previewIndex.value = previewAllItems.value.findIndex(i => i.id === item.id)
-  previewItem.value = item
+function openGroupPreview(group: AwardGroup) {
+  previewAllItems.value = [...group.items]
+  previewIndex.value = 0
+  const first = group.items[0]
+  previewItem.value = first ?? null
   resetTransform()
 }
 

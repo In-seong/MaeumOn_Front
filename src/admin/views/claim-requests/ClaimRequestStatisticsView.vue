@@ -68,13 +68,6 @@
       </div>
       <div :class="[
         'rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]',
-        store.summary.total_recall > 0 ? 'bg-[#FFF5F5]' : 'bg-white'
-      ]">
-        <div :class="['text-[13px] mb-1', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#999]']">회수</div>
-        <div :class="['text-[28px] font-bold', store.summary.total_recall > 0 ? 'text-[#E86A33]' : 'text-[#333]']">{{ store.summary.total_recall ?? 0 }}</div>
-      </div>
-      <div :class="[
-        'rounded-[14px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-5 min-w-[150px]',
         (store.summary.total_reject ?? 0) > 0 ? 'bg-[#FFF5F5]' : 'bg-white'
       ]">
         <div :class="['text-[13px] mb-1', (store.summary.total_reject ?? 0) > 0 ? 'text-[#E53935]' : 'text-[#999]']">반려</div>
@@ -140,7 +133,6 @@
             <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">상주 DB</th>
             <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">배분 DB</th>
             <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">기업 DB</th>
-            <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">회수</th>
             <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">반려</th>
             <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">합계</th>
           </tr>
@@ -148,11 +140,10 @@
         <tbody class="divide-y divide-[#F0F0F0]">
           <tr v-for="(row, index) in store.agents" :key="row.agent_id" class="hover:bg-[#FFF8F3] transition-colors">
             <td class="px-5 lg:px-6 py-3.5 text-[15px] text-[#999]">{{ index + 1 }}</td>
-            <td class="px-5 lg:px-6 py-3.5 text-[15px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="openDetail(row)">{{ row.agent_name }}</td>
+            <td :class="['px-5 lg:px-6 py-3.5 text-[15px] font-medium cursor-pointer hover:text-[#FF7B22] hover:underline', row.is_inactive ? 'text-[#BBB]' : 'text-[#333]']" @click="openDetail(row)">{{ row.agent_name }}</td>
             <td class="px-5 lg:px-6 py-3.5 text-[16px] text-center text-[#2196F3] font-semibold">{{ row.resident }}</td>
             <td class="px-5 lg:px-6 py-3.5 text-[16px] text-center text-[#FF7B22] font-semibold">{{ row.distribution }}</td>
             <td class="px-5 lg:px-6 py-3.5 text-[16px] text-center text-[#4CAF50] font-semibold">{{ row.corporate }}</td>
-            <td :class="['px-5 lg:px-6 py-3.5 text-[16px] text-center', (row.recall ?? 0) > 0 ? 'text-[#E86A33] font-bold' : 'text-[#999]']">{{ row.recall ?? 0 }}</td>
             <td :class="['px-5 lg:px-6 py-3.5 text-[16px] text-center', (row.reject ?? 0) > 0 ? 'text-[#E53935] font-bold' : 'text-[#999]']">{{ row.reject ?? 0 }}</td>
             <td class="px-5 lg:px-6 py-3.5 text-[16px] text-center font-bold text-[#333]">{{ row.total }}</td>
           </tr>
@@ -164,7 +155,6 @@
             <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#2196F3]">{{ store.summary.total_resident }}</td>
             <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#FF7B22]">{{ store.summary.total_distribution }}</td>
             <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#4CAF50]">{{ store.summary.total_corporate }}</td>
-            <td :class="['px-5 lg:px-6 py-3 text-[15px] text-center font-bold', (store.summary.total_recall ?? 0) > 0 ? 'text-[#E86A33]' : 'text-[#999]']">{{ store.summary.total_recall ?? 0 }}</td>
             <td :class="['px-5 lg:px-6 py-3 text-[15px] text-center font-bold', (store.summary.total_reject ?? 0) > 0 ? 'text-[#E53935]' : 'text-[#999]']">{{ store.summary.total_reject ?? 0 }}</td>
             <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#333]">{{ store.summary.total }}</td>
           </tr>

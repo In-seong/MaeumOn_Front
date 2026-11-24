@@ -381,6 +381,7 @@ export interface AdminClaimRequestFile {
 export interface ClaimRequestStatAgentRow {
   agent_id: string
   agent_name: string
+  is_inactive?: boolean
   resident: number
   distribution: number
   corporate: number

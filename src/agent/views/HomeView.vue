@@ -6,22 +6,22 @@
       <main class="px-4 py-3 pb-24 overflow-y-auto" style="height: calc(100dvh - 56px);">
         <!-- 인사말 -->
         <section class="mb-3">
-          <h2 class="text-[20px] font-bold text-[#1c1c1c]">안녕하세요! {{ agentName }}님</h2>
-          <p class="text-[13px] text-[#888] mt-0.5">오늘도 건강하고 행복한 하루 되세요!</p>
+          <h2 class="text-[20px] font-bold text-[#1c1c1c]">안녕하세요 {{ agentName }}님</h2>
+          <p class="text-[13px] text-[#888] mt-0.5 flex items-center gap-0.5">오늘도 건강하고 행복한 하루 되세요<span class="material-symbols-outlined text-[14px] text-[#FF6B2D]" style="font-variation-settings: 'FILL' 1;">favorite</span></p>
         </section>
 
         <!-- 상태바 -->
         <section class="mb-4">
           <div class="flex items-center bg-[#FF6B2D] rounded-xl px-5 py-[16px]">
-            <div class="flex items-center gap-1 text-white text-[14px] font-bold">
+            <div class="flex items-center gap-1 text-white text-[14px] font-medium">
               <span>상주</span>
-              <span>{{ statusCounts.assigned }}건</span>
+              <span class="font-extrabold">{{ statusCounts.assigned }}건</span>
               <span class="mx-2 opacity-70 font-extrabold">|</span>
               <span>배분</span>
-              <span>{{ statusCounts.distributed }}건</span>
+              <span class="font-extrabold">{{ statusCounts.distributed }}건</span>
               <span class="mx-2 opacity-70 font-extrabold">|</span>
               <span>반려</span>
-              <span>{{ statusCounts.rejected }}건</span>
+              <span class="font-extrabold">{{ statusCounts.rejected }}건</span>
             </div>
           </div>
         </section>

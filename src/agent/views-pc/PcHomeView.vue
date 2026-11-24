@@ -2,22 +2,22 @@
   <div class="p-6 bg-[#F4F5F7] min-h-full">
     <!-- 인사말 -->
     <div class="mb-5">
-      <h1 class="text-[22px] font-bold text-[#1c1c1c]">안녕하세요! {{ agentName }}님</h1>
-      <p class="text-[13px] text-[#888] mt-1">오늘도 건강하고 행복한 하루 되세요!</p>
+      <h1 class="text-[22px] font-bold text-[#1c1c1c]">안녕하세요 {{ agentName }}님</h1>
+      <p class="text-[13px] text-[#888] mt-1 flex items-center gap-0.5">오늘도 건강하고 행복한 하루 되세요<span class="material-symbols-outlined text-[14px] text-[#FF6B2D]" style="font-variation-settings: 'FILL' 1;">favorite</span></p>
     </div>
 
     <!-- 상태바 -->
     <div class="mb-6">
       <div class="flex items-center bg-[#FF6B2D] rounded-xl px-6 py-[16px] max-w-[480px]">
-        <div class="flex items-center gap-1 text-white text-[14px] font-bold">
+        <div class="flex items-center gap-1 text-white text-[14px] font-medium">
           <span>상주</span>
-          <span>{{ statusCounts.assigned }}건</span>
+          <span class="font-extrabold">{{ statusCounts.assigned }}건</span>
           <span class="mx-2 opacity-70 font-extrabold">|</span>
           <span>배분</span>
-          <span>{{ statusCounts.distributed }}건</span>
+          <span class="font-extrabold">{{ statusCounts.distributed }}건</span>
           <span class="mx-2 opacity-70 font-extrabold">|</span>
           <span>반려</span>
-          <span>{{ statusCounts.rejected }}건</span>
+          <span class="font-extrabold">{{ statusCounts.rejected }}건</span>
         </div>
       </div>
     </div>
