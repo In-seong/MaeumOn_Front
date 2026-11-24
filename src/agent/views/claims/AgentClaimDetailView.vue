@@ -571,7 +571,7 @@ function openDocViewer(doc: { document_url?: string; document_file_name?: string
   if (!doc.document_url) return
   const name = (doc.document_file_name ?? '').toLowerCase()
   if (name.endsWith('.pdf')) {
-    window.open(doc.document_url, '_blank')
+    window.location.href = doc.document_url
     return
   }
   viewerIndex.value = 0
