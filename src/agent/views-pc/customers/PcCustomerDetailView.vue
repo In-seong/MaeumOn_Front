@@ -338,7 +338,7 @@
                           class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                         >
                           <option value="">선택</option>
-                          <option value="상조DB">상조DB</option>
+                          <option value="상주DB">상주DB</option>
                           <option value="배분DB">배분DB</option>
                           <option value="기타">기타</option>
                         </select>
@@ -483,7 +483,7 @@
                     class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
                   >
                     <option value="">선택</option>
-                    <option value="상조DB">상조DB</option>
+                    <option value="상주DB">상주DB</option>
                     <option value="배분DB">배분DB</option>
                     <option value="기타">기타</option>
                   </select>
