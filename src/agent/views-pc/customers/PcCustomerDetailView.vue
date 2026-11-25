@@ -170,14 +170,6 @@
               />
             </div>
             <div>
-              <label class="text-[13px] text-[#888] mb-1 block">이메일</label>
-              <input
-                v-model="editForm.email"
-                type="email"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-            <div>
               <label class="text-[13px] text-[#888] mb-1 block">주소</label>
               <input
                 v-model="editForm.address"
@@ -280,7 +272,6 @@
             </div>
             <InfoRow label="성별" :value="genderLabel(customer.gender)" />
             <InfoRow label="생년월일" :value="customer.birth_date ? formatDate(customer.birth_date) : '-'" />
-            <InfoRow label="이메일" :value="customer.email ?? '-'" />
           </div>
           <div class="bg-white rounded-xl border border-[#E8E8E8] p-5">
             <h4 class="text-[14px] font-semibold text-[#333] mb-3">추가 정보</h4>
@@ -297,9 +288,69 @@
 
         <!-- ===== 메모 섹션 (기본정보 하단) ===== -->
         <div class="border-t border-[#E8E8E8] mt-6 pt-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- 메모 목록 (2컬럼) -->
-            <div class="lg:col-span-2">
+          <!-- 메모 추가 폼 (상단) -->
+          <div class="bg-white rounded-xl border border-[#E8E8E8] p-5 mb-6">
+            <h4 class="text-[14px] font-semibold text-[#333] mb-4">메모 추가</h4>
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
+              <div>
+                <label class="text-[13px] text-[#888] mb-1 block">진도</label>
+                <select
+                  v-model="newMemoProgress"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+                >
+                  <option value="">선택</option>
+                  <option value="1차">1차</option>
+                  <option value="2차">2차</option>
+                  <option value="3차">3차</option>
+                  <option value="4차">4차</option>
+                  <option value="5차">5차</option>
+                  <option value="체결">체결</option>
+                  <option value="미체결">미체결</option>
+                </select>
+              </div>
+              <div class="lg:col-span-2">
+                <FormTextarea
+                  v-model="newMemoContent"
+                  placeholder="메모를 입력하세요"
+                  :rows="2"
+                />
+              </div>
+              <div class="flex items-center gap-3">
+                <input
+                  v-model="newMemoDate"
+                  type="date"
+                  class="flex-1 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+                />
+                <button
+                  class="px-5 py-2.5 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors whitespace-nowrap"
+                  @click="handleAddMemo"
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 flex items-center gap-3">
+              <input ref="newMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onNewMemoFileChange" />
+              <button
+                class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-2 hover:bg-[#F5F5F5] transition-colors"
+                @click="newMemoFileInput?.click()"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                파일 첨부 (최대 5개)
+              </button>
+              <div v-if="newMemoFiles.length > 0" class="flex flex-wrap gap-2">
+                <div v-for="(file, idx) in newMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[12px] text-[#666]">
+                  <span class="max-w-[150px] truncate">{{ file.name }}</span>
+                  <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="newMemoFiles.splice(idx, 1)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 메모 목록 -->
+          <div>
               <!-- 정렬 토글 -->
               <div v-if="store.memos.length > 0" class="flex items-center justify-between mb-4">
                 <span class="text-[13px] text-[#888]">총 <span class="font-semibold text-[#FF6B2D]">{{ store.memos.length }}</span>건</span>
@@ -324,41 +375,21 @@
                 >
                   <!-- 수정 모드 -->
                   <div v-if="editingMemoId === memo.memo_id">
-                    <input
-                      v-model="editMemoTitle"
-                      type="text"
-                      placeholder="제목 (선택)"
-                      class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] mb-2 text-[#333]"
-                    />
-                    <div class="grid grid-cols-2 gap-3 mb-2">
-                      <div>
-                        <label class="text-[13px] text-[#888] mb-1 block">분류</label>
-                        <select
-                          v-model="editMemoCategory"
-                          class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                        >
-                          <option value="">선택</option>
-                          <option value="상주DB">상주DB</option>
-                          <option value="배분DB">배분DB</option>
-                          <option value="기타">기타</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label class="text-[13px] text-[#888] mb-1 block">진도</label>
-                        <select
-                          v-model="editMemoProgress"
-                          class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                        >
-                          <option value="">선택</option>
-                          <option value="1차">1차</option>
-                          <option value="2차">2차</option>
-                          <option value="3차">3차</option>
-                          <option value="4차">4차</option>
-                          <option value="5차">5차</option>
-                          <option value="체결">체결</option>
-                          <option value="미체결">미체결</option>
-                        </select>
-                      </div>
+                    <div class="mb-2">
+                      <label class="text-[13px] text-[#888] mb-1 block">진도</label>
+                      <select
+                        v-model="editMemoProgress"
+                        class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+                      >
+                        <option value="">선택</option>
+                        <option value="1차">1차</option>
+                        <option value="2차">2차</option>
+                        <option value="3차">3차</option>
+                        <option value="4차">4차</option>
+                        <option value="5차">5차</option>
+                        <option value="체결">체결</option>
+                        <option value="미체결">미체결</option>
+                      </select>
                     </div>
                     <textarea
                       v-model="editMemoContent"
@@ -418,10 +449,8 @@
                   <div v-else>
                     <div class="flex items-start justify-between">
                       <div class="flex-1">
-                        <p v-if="memo.title" class="text-[14px] font-semibold text-[#333] mb-1">{{ memo.title }}</p>
-                        <div v-if="memo.category || memo.progress" class="flex gap-2 mb-1">
-                          <span v-if="memo.category" class="text-[11px] px-2 py-0.5 rounded-full bg-[#FFF0E5] text-[#FF6B2D]">{{ memo.category }}</span>
-                          <span v-if="memo.progress" class="text-[11px] px-2 py-0.5 rounded-full bg-[#E3F2FD] text-[#1976D2]">{{ memo.progress }}</span>
+                        <div v-if="memo.progress" class="flex gap-2 mb-1">
+                          <span class="text-[11px] px-2 py-0.5 rounded-full bg-[#E3F2FD] text-[#1976D2]">{{ memo.progress }}</span>
                         </div>
                         <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-line">{{ memo.content }}</p>
                         <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
@@ -465,86 +494,6 @@
                   <p class="text-[14px] text-[#AAAAAA]">작성된 메모가 없습니다</p>
                 </div>
               </div>
-            </div>
-
-            <!-- 메모 추가 폼 (우측 사이드) -->
-            <div class="bg-white rounded-xl border border-[#E8E8E8] p-5 h-fit sticky top-6">
-              <h4 class="text-[14px] font-semibold text-[#333] mb-4">메모 추가</h4>
-              <input
-                v-model="newMemoTitle"
-                type="text"
-                placeholder="제목 (선택)"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] mb-3"
-              />
-              <div class="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label class="text-[13px] text-[#888] mb-1 block">분류</label>
-                  <select
-                    v-model="newMemoCategory"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                  >
-                    <option value="">선택</option>
-                    <option value="상주DB">상주DB</option>
-                    <option value="배분DB">배분DB</option>
-                    <option value="기타">기타</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-[13px] text-[#888] mb-1 block">진도</label>
-                  <select
-                    v-model="newMemoProgress"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                  >
-                    <option value="">선택</option>
-                    <option value="1차">1차</option>
-                    <option value="2차">2차</option>
-                    <option value="3차">3차</option>
-                    <option value="4차">4차</option>
-                    <option value="5차">5차</option>
-                    <option value="체결">체결</option>
-                          <option value="미체결">미체결</option>
-                  </select>
-                </div>
-              </div>
-              <FormTextarea
-                v-model="newMemoContent"
-                placeholder="메모를 입력하세요"
-                :rows="4"
-              />
-              <!-- 파일 첨부 -->
-              <div class="mt-3">
-                <input ref="newMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onNewMemoFileChange" />
-                <button
-                  class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-2 hover:bg-[#F5F5F5] transition-colors"
-                  @click="newMemoFileInput?.click()"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                  파일 첨부 (최대 5개)
-                </button>
-                <div v-if="newMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-2">
-                  <div v-for="(file, idx) in newMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[12px] text-[#666]">
-                    <span class="max-w-[150px] truncate">{{ file.name }}</span>
-                    <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="newMemoFiles.splice(idx, 1)">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-3">
-                <label class="text-[12px] text-[#888] mb-1 block">날짜</label>
-                <input
-                  v-model="newMemoDate"
-                  type="date"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
-              </div>
-              <button
-                class="w-full mt-4 py-2.5 bg-[#FF6B2D] text-white text-[13px] font-medium rounded-[10px] hover:bg-[#E56D1E] transition-colors"
-                @click="handleAddMemo"
-              >
-                저장
-              </button>
-            </div>
           </div>
         </div>
       </div>
