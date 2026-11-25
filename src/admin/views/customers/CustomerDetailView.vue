@@ -189,7 +189,8 @@
                   <option value="3차">3차</option>
                   <option value="4차">4차</option>
                   <option value="5차">5차</option>
-                  <option value="미해결">미해결</option>
+                  <option value="체결">체결</option>
+                  <option value="미체결">미체결</option>
                 </select>
               </div>
             </div>
@@ -249,7 +250,8 @@
                       <option value="3차">3차</option>
                       <option value="4차">4차</option>
                       <option value="5차">5차</option>
-                      <option value="미해결">미해결</option>
+                      <option value="체결">체결</option>
+                  <option value="미체결">미체결</option>
                     </select>
                   </div>
                 </div>
