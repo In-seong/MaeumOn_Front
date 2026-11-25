@@ -234,13 +234,16 @@
                 </select>
               </div>
               <div>
-                <label class="text-[12px] text-[#888] mb-1 block">기타</label>
-                <input
-                  v-model="editForm.acquisition_note"
-                  type="text"
-                  placeholder="가입경로 관련 메모"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
+                <label class="text-[12px] text-[#888] mb-1 block">분류</label>
+                <select
+                  v-model="editForm.category"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+                >
+                  <option value="">선택안함</option>
+                  <option value="상주DB">상주DB</option>
+                  <option value="배분DB">배분DB</option>
+                  <option value="기타">기타</option>
+                </select>
               </div>
             </div>
             <div class="flex gap-2 mt-4">
@@ -288,7 +291,7 @@
             <InfoRow label="통신사" :value="customer.telecom ?? '-'" />
             <InfoRow label="병원" :value="customer.hospital ?? '-'" />
             <InfoRow label="가입경로" :value="formatAcquisitionChannel(customer.acquisition_channel)" />
-            <InfoRow label="기타" :value="customer.acquisition_note ?? '-'" />
+            <InfoRow label="분류" :value="(customer as any).category ?? '-'" />
             <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
           </CardSection>
 
@@ -326,7 +329,7 @@
                   <div class="grid grid-cols-2 gap-2 mb-2">
                     <select v-model="editMemoCategory" class="bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] text-[#333]">
                       <option value="">분류 선택</option>
-                      <option value="상조DB">상조DB</option>
+                      <option value="상주DB">상주DB</option>
                       <option value="배분DB">배분DB</option>
                       <option value="기타">기타</option>
                     </select>
@@ -460,7 +463,7 @@
               <div class="grid grid-cols-2 gap-2 mb-2">
                 <select v-model="newMemoCategory" class="bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]">
                   <option value="">분류 선택</option>
-                  <option value="상조DB">상조DB</option>
+                  <option value="상주DB">상주DB</option>
                   <option value="배분DB">배분DB</option>
                   <option value="기타">기타</option>
                 </select>
@@ -1011,6 +1014,7 @@ const editForm = ref({
   hospital: '',
   acquisition_channel: '',
   acquisition_note: '',
+  category: '',
 })
 
 const genderOptions = [
@@ -1114,6 +1118,7 @@ function handleStartEdit(): void {
     hospital: customer.value.hospital ?? '',
     acquisition_channel: customer.value.acquisition_channel ?? '',
     acquisition_note: customer.value.acquisition_note ?? '',
+    category: (customer.value as any).category ?? '',
   }
   isEditing.value = true
   activeTab.value = 'info'
@@ -1202,6 +1207,7 @@ async function handleSaveEdit(): Promise<void> {
       hospital: editForm.value.hospital || undefined,
       acquisition_channel: editForm.value.acquisition_channel || undefined,
       acquisition_note: editForm.value.acquisition_note || undefined,
+      category: editForm.value.category || undefined,
     })
     isEditing.value = false
     toast.showToast('고객 정보가 수정되었습니다.')

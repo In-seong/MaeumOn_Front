@@ -11,6 +11,7 @@ const authStore = useAuthStore()
 const branchStore = useBranchStore()
 const dashboard = ref<DashboardSummary | null>(null)
 const loading = ref(false)
+const showAllAgents = ref(false)
 
 const now = new Date()
 const startDate = ref(formatDate(new Date(now.getFullYear(), now.getMonth(), 1)))
@@ -69,6 +70,12 @@ function getBarWidth(count: number, max: number): string {
   if (max <= 0) return '0%'
   return Math.min((count / max) * 100, 100) + '%'
 }
+
+const displayedAgents = computed(() => {
+  if (!dashboard.value) return []
+  const top = dashboard.value.agent_ranking.top
+  return showAllAgents.value ? top : top.slice(0, 5)
+})
 
 const maxRankingScore = computed(() => {
   if (!dashboard.value) return 1
@@ -258,9 +265,9 @@ onMounted(async () => {
           </div>
           <span
             class="text-[13px] text-[#FF7B22] font-medium cursor-pointer hover:underline"
-            @click="router.push('/performance')"
+            @click="showAllAgents = !showAllAgents"
           >
-            전체 {{ dashboard.agent_ranking.total_agents }}명 →
+            {{ showAllAgents ? '5명만 보기 ←' : `전체 ${dashboard.agent_ranking.total_agents}명 →` }}
           </span>
         </div>
 
@@ -281,7 +288,7 @@ onMounted(async () => {
         <!-- 설계사 랭킹 -->
         <div v-if="dashboard.agent_ranking.top.length > 0" class="space-y-2 max-h-[400px] overflow-y-auto">
           <div
-            v-for="(agent, idx) in dashboard.agent_ranking.top"
+            v-for="(agent, idx) in displayedAgents"
             :key="agent.agent_id"
             class="flex items-center gap-1 text-[13px] cursor-pointer hover:bg-[#FAFAFA] rounded-[8px] px-1 -mx-1 transition"
             @click="router.push(`/agents/${agent.agent_id}`)"

@@ -138,12 +138,193 @@
             <p class="text-[14px] text-[#333]">{{ formatAcquisitionChannel((customer as any).acquisition_channel) }}</p>
           </div>
           <div>
+            <p class="text-[12px] text-[#999] mb-1">분류</p>
+            <p class="text-[14px] text-[#333]">
+              <span v-if="(customer as any).category" class="inline-block px-2 py-0.5 rounded-full text-[12px] bg-[#FFF0E5] text-[#FF6B2D]">{{ (customer as any).category }}</span>
+              <span v-else>-</span>
+            </p>
+          </div>
+          <div>
             <p class="text-[12px] text-[#999] mb-1">담당 설계사</p>
             <p class="text-[14px] text-[#333]">{{ customer.agent?.name || '-' }}</p>
           </div>
           <div>
             <p class="text-[12px] text-[#999] mb-1">등록일</p>
             <p class="text-[14px] text-[#333]">{{ formatDate(customer.created_at) }}</p>
+          </div>
+        </div>
+
+        <!-- 메모 섹션 (기본정보 하단) -->
+        <div class="border-t border-[#E8E8E8] mt-6 pt-6">
+          <h3 class="text-[15px] font-medium text-[#333] mb-4">메모</h3>
+          <form @submit.prevent="handleCreateMemo" class="space-y-3 mb-4">
+            <input
+              v-model="memoForm.title"
+              type="text"
+              placeholder="제목 (선택)"
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
+            />
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-[13px] text-[#888] mb-1 block">분류</label>
+                <select
+                  v-model="memoForm.category"
+                  class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                >
+                  <option value="">선택</option>
+                  <option value="상주DB">상주DB</option>
+                  <option value="배분DB">배분DB</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[13px] text-[#888] mb-1 block">진도</label>
+                <select
+                  v-model="memoForm.progress"
+                  class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                >
+                  <option value="">선택</option>
+                  <option value="1차">1차</option>
+                  <option value="2차">2차</option>
+                  <option value="3차">3차</option>
+                  <option value="4차">4차</option>
+                  <option value="5차">5차</option>
+                  <option value="미해결">미해결</option>
+                </select>
+              </div>
+            </div>
+            <textarea
+              v-model="memoForm.content"
+              placeholder="메모 내용을 입력하세요"
+              rows="3"
+              required
+              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] resize-none"
+            ></textarea>
+            <div class="flex justify-end">
+              <button
+                type="submit"
+                :disabled="memoSubmitting || !memoForm.content.trim()"
+                class="px-4 py-2 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] disabled:opacity-50 transition-colors text-[14px] font-medium"
+              >
+                {{ memoSubmitting ? '저장 중...' : '메모 저장' }}
+              </button>
+            </div>
+          </form>
+
+          <div v-if="store.memos.length > 0" class="space-y-3">
+            <div
+              v-for="memo in store.memos"
+              :key="memo.memo_id"
+              class="bg-[#FAFAFA] rounded-[12px] p-4"
+            >
+              <div v-if="editingMemoId === memo.memo_id">
+                <input
+                  v-model="editMemoForm.title"
+                  type="text"
+                  placeholder="제목 (선택)"
+                  class="w-full px-4 py-2.5 bg-white border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] mb-3"
+                />
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <label class="text-[13px] text-[#888] mb-1 block">분류</label>
+                    <select
+                      v-model="editMemoForm.category"
+                      class="w-full px-4 py-2.5 bg-white border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                    >
+                      <option value="">선택</option>
+                      <option value="상주DB">상주DB</option>
+                      <option value="배분DB">배분DB</option>
+                      <option value="기타">기타</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-[13px] text-[#888] mb-1 block">진도</label>
+                    <select
+                      v-model="editMemoForm.progress"
+                      class="w-full px-4 py-2.5 bg-white border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
+                    >
+                      <option value="">선택</option>
+                      <option value="1차">1차</option>
+                      <option value="2차">2차</option>
+                      <option value="3차">3차</option>
+                      <option value="4차">4차</option>
+                      <option value="5차">5차</option>
+                      <option value="미해결">미해결</option>
+                    </select>
+                  </div>
+                </div>
+                <textarea
+                  v-model="editMemoForm.content"
+                  rows="3"
+                  required
+                  class="w-full px-4 py-2.5 bg-white border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] resize-none mb-3"
+                ></textarea>
+                <div class="flex justify-end gap-2">
+                  <button
+                    @click="cancelEditMemo"
+                    class="px-3 py-1.5 border border-[#E0E0E0] text-[#555] rounded-[12px] hover:bg-[#FAFAFA] transition-colors text-[13px]"
+                  >
+                    취소
+                  </button>
+                  <button
+                    @click="handleUpdateMemo(memo.memo_id)"
+                    :disabled="memoSubmitting"
+                    class="px-3 py-1.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] disabled:opacity-50 transition-colors text-[13px]"
+                  >
+                    저장
+                  </button>
+                </div>
+              </div>
+
+              <div v-else>
+                <div class="flex items-start justify-between mb-2">
+                  <div>
+                    <h4 v-if="memo.title" class="text-[14px] font-medium text-[#333]">{{ memo.title }}</h4>
+                    <div v-if="memo.category || memo.progress" class="flex gap-2 mt-1 mb-1">
+                      <span v-if="memo.category" class="text-[11px] px-2 py-0.5 rounded-full bg-[#FFF0E5] text-[#FF6B2D]">{{ memo.category }}</span>
+                      <span v-if="memo.progress" class="text-[11px] px-2 py-0.5 rounded-full bg-[#E3F2FD] text-[#1976D2]">{{ memo.progress }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-[12px] text-[#999]">{{ formatDate(memo.memo_date) }}</span>
+                      <span class="text-[12px] text-[#CCCCCC]">|</span>
+                      <span class="text-[12px] text-[#999]">{{ memo.author_type === 'ADMIN' ? '관리자' : '설계사' }}</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button
+                      @click="startEditMemo(memo)"
+                      class="text-[#FF7B22] hover:text-[#E56D1E] text-[13px]"
+                    >
+                      수정
+                    </button>
+                    <button
+                      @click="handleDeleteMemo(memo.memo_id)"
+                      class="text-red-500 hover:text-red-600 text-[13px]"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+                <p class="text-[14px] text-[#555] whitespace-pre-wrap">{{ memo.content }}</p>
+                <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="mt-2 flex flex-wrap gap-2">
+                  <a
+                    v-for="(att, ai) in memo.attachment_urls"
+                    :key="ai"
+                    :href="att.url"
+                    target="_blank"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white rounded-lg text-[12px] text-[#3B82F6] hover:bg-[#EBF5FF] transition-colors"
+                  >
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                    {{ att.name }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-center text-[#999] text-[14px] py-6">
+            등록된 메모가 없습니다.
           </div>
         </div>
       </div>
@@ -231,185 +412,6 @@
         </div>
       </div>
 
-      <!-- 메모 탭 (SFR-038) -->
-      <div v-else-if="activeTab === 'memos'">
-        <!-- 메모 작성 폼 -->
-        <div class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-6 mb-4">
-          <h3 class="text-[15px] font-medium text-[#333] mb-4">메모 작성</h3>
-          <form @submit.prevent="handleCreateMemo" class="space-y-3">
-            <input
-              v-model="memoForm.title"
-              type="text"
-              placeholder="제목 (선택)"
-              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999]"
-            />
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-[13px] text-[#888] mb-1 block">분류</label>
-                <select
-                  v-model="memoForm.category"
-                  class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
-                >
-                  <option value="">선택</option>
-                  <option value="상조DB">상조DB</option>
-                  <option value="배분DB">배분DB</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
-              <div>
-                <label class="text-[13px] text-[#888] mb-1 block">진도</label>
-                <select
-                  v-model="memoForm.progress"
-                  class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
-                >
-                  <option value="">선택</option>
-                  <option value="1차">1차</option>
-                  <option value="2차">2차</option>
-                  <option value="3차">3차</option>
-                  <option value="4차">4차</option>
-                  <option value="5차">5차</option>
-                  <option value="미해결">미해결</option>
-                </select>
-              </div>
-            </div>
-            <textarea
-              v-model="memoForm.content"
-              placeholder="메모 내용을 입력하세요"
-              rows="3"
-              required
-              class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] resize-none"
-            ></textarea>
-            <div class="flex justify-end">
-              <button
-                type="submit"
-                :disabled="memoSubmitting || !memoForm.content.trim()"
-                class="px-4 py-2 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] disabled:opacity-50 transition-colors text-[14px] font-medium"
-              >
-                {{ memoSubmitting ? '저장 중...' : '메모 저장' }}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- 메모 목록 -->
-        <div v-if="store.memos.length > 0" class="space-y-3">
-          <div
-            v-for="memo in store.memos"
-            :key="memo.memo_id"
-            class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] p-5"
-          >
-            <!-- 메모 수정 모드 -->
-            <div v-if="editingMemoId === memo.memo_id">
-              <input
-                v-model="editMemoForm.title"
-                type="text"
-                placeholder="제목 (선택)"
-                class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] mb-3"
-              />
-              <div class="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label class="text-[13px] text-[#888] mb-1 block">분류</label>
-                  <select
-                    v-model="editMemoForm.category"
-                    class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
-                  >
-                    <option value="">선택</option>
-                    <option value="상조DB">상조DB</option>
-                    <option value="배분DB">배분DB</option>
-                    <option value="기타">기타</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-[13px] text-[#888] mb-1 block">진도</label>
-                  <select
-                    v-model="editMemoForm.progress"
-                    class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] appearance-none"
-                  >
-                    <option value="">선택</option>
-                    <option value="1차">1차</option>
-                    <option value="2차">2차</option>
-                    <option value="3차">3차</option>
-                    <option value="4차">4차</option>
-                    <option value="5차">5차</option>
-                    <option value="미해결">미해결</option>
-                  </select>
-                </div>
-              </div>
-              <textarea
-                v-model="editMemoForm.content"
-                rows="3"
-                required
-                class="w-full px-4 py-2.5 bg-[#F8F8F8] border border-[#E8E8E8] rounded-[12px] focus:outline-none focus:border-[#FF7B22] text-[14px] text-[#333] placeholder-[#999] resize-none mb-3"
-              ></textarea>
-              <div class="flex justify-end gap-2">
-                <button
-                  @click="cancelEditMemo"
-                  class="px-3 py-1.5 border border-[#E0E0E0] text-[#555] rounded-[12px] hover:bg-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  취소
-                </button>
-                <button
-                  @click="handleUpdateMemo(memo.memo_id)"
-                  :disabled="memoSubmitting"
-                  class="px-3 py-1.5 bg-[#FF7B22] text-white rounded-[12px] hover:bg-[#E56D1E] disabled:opacity-50 transition-colors text-[13px]"
-                >
-                  저장
-                </button>
-              </div>
-            </div>
-
-            <!-- 메모 보기 모드 -->
-            <div v-else>
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h4 v-if="memo.title" class="text-[14px] font-medium text-[#333]">{{ memo.title }}</h4>
-                  <div v-if="memo.category || memo.progress" class="flex gap-2 mt-1 mb-1">
-                    <span v-if="memo.category" class="text-[11px] px-2 py-0.5 rounded-full bg-[#FFF0E5] text-[#FF6B2D]">{{ memo.category }}</span>
-                    <span v-if="memo.progress" class="text-[11px] px-2 py-0.5 rounded-full bg-[#E3F2FD] text-[#1976D2]">{{ memo.progress }}</span>
-                  </div>
-                  <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[12px] text-[#999]">{{ formatDate(memo.memo_date) }}</span>
-                    <span class="text-[12px] text-[#CCCCCC]">|</span>
-                    <span class="text-[12px] text-[#999]">{{ memo.author_type === 'ADMIN' ? '관리자' : '설계사' }}</span>
-                  </div>
-                </div>
-                <div class="flex gap-2">
-                  <button
-                    @click="startEditMemo(memo)"
-                    class="text-[#FF7B22] hover:text-[#E56D1E] text-[13px]"
-                  >
-                    수정
-                  </button>
-                  <button
-                    @click="handleDeleteMemo(memo.memo_id)"
-                    class="text-red-500 hover:text-red-600 text-[13px]"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-              <p class="text-[14px] text-[#555] whitespace-pre-wrap">{{ memo.content }}</p>
-              <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="mt-2 flex flex-wrap gap-2">
-                <a
-                  v-for="(att, ai) in memo.attachment_urls"
-                  :key="ai"
-                  :href="att.url"
-                  target="_blank"
-                  class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#F5F5F5] rounded-lg text-[12px] text-[#3B82F6] hover:bg-[#EBF5FF] transition-colors"
-                >
-                  <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
-                  {{ att.name }}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div v-else class="bg-white rounded-[16px] shadow-[0_0_10px_rgba(0,0,0,0.06)] px-6 py-10 text-center text-[#999] text-[14px]">
-          등록된 메모가 없습니다.
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -440,7 +442,6 @@ const tabs = [
   { key: 'info', label: '기본정보' },
   { key: 'contracts', label: '가입보험' },
   { key: 'medical', label: '병력/치료' },
-  { key: 'memos', label: '메모' },
 ]
 
 const memoForm = ref({

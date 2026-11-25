@@ -69,6 +69,8 @@ export interface Customer {
   telecom?: string
   hospital?: string
   acquisition_channel?: string
+  acquisition_note?: string
+  category?: string
   is_active: boolean
   created_at?: string
   updated_at?: string

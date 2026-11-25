@@ -150,15 +150,18 @@
                   <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
                 </select>
               </div>
-              <!-- 기타 -->
+              <!-- 분류 -->
               <div>
-                <label class="text-[13px] font-medium text-[#555] mb-1.5 block">기타</label>
-                <input
-                  v-model="form.acquisition_note"
-                  type="text"
-                  placeholder="가입경로 관련 메모"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
+                <label class="text-[13px] font-medium text-[#555] mb-1.5 block">분류</label>
+                <select
+                  v-model="form.category"
+                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+                >
+                  <option value="">선택안함</option>
+                  <option value="상주DB">상주DB</option>
+                  <option value="배분DB">배분DB</option>
+                  <option value="기타">기타</option>
+                </select>
               </div>
             </div>
           </CardSection>
@@ -219,6 +222,7 @@ interface CustomerForm {
   telecom: string
   acquisition_channel: string
   acquisition_note: string
+  category: string
 }
 
 const genderOptions = [
@@ -243,6 +247,7 @@ const form = reactive<CustomerForm>({
   telecom: '',
   acquisition_channel: '',
   acquisition_note: '',
+  category: '',
 })
 
 // 전화번호 자동 하이픈: 숫자만 입력 → 010-1234-5678 형태
@@ -326,6 +331,7 @@ async function handleSubmit(): Promise<void> {
       telecom: form.telecom || undefined,
       acquisition_channel: form.acquisition_channel || undefined,
       acquisition_note: form.acquisition_note || undefined,
+      category: form.category || undefined,
     })
 
     toast.showToast('고객이 등록되었습니다.')
