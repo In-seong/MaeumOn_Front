@@ -139,30 +139,6 @@
                 </select>
               </div>
 
-              <!-- 가입경로 -->
-              <div>
-                <label class="text-[13px] font-medium text-[#555] mb-1.5 block">가입경로</label>
-                <select
-                  v-model="form.acquisition_channel"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                >
-                  <option value="">선택안함</option>
-                  <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
-                </select>
-              </div>
-              <!-- 분류 -->
-              <div>
-                <label class="text-[13px] font-medium text-[#555] mb-1.5 block">분류</label>
-                <select
-                  v-model="form.category"
-                  class="w-full bg-[#F8F8F8] rounded-[12px] px-4 py-3.5 text-[15px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                >
-                  <option value="">선택안함</option>
-                  <option value="상주DB">상주DB</option>
-                  <option value="배분DB">배분DB</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
             </div>
           </CardSection>
 
@@ -220,9 +196,6 @@ interface CustomerForm {
   job: string
   hospital: string
   telecom: string
-  acquisition_channel: string
-  acquisition_note: string
-  category: string
 }
 
 const genderOptions = [
@@ -231,7 +204,6 @@ const genderOptions = [
 ] as const
 
 const telecomOptions = ['SKT', 'KT', 'LGU+', 'SKT 알뜰', 'KT 알뜰', 'LGU+ 알뜰'] as const
-const channelOptions = ['DB배분', '지인소개', '온라인', '텔레마케팅', '방문상담', '기타'] as const
 
 const form = reactive<CustomerForm>({
   name: '',
@@ -245,9 +217,6 @@ const form = reactive<CustomerForm>({
   job: '',
   hospital: '',
   telecom: '',
-  acquisition_channel: '',
-  acquisition_note: '',
-  category: '',
 })
 
 // 전화번호 자동 하이픈: 숫자만 입력 → 010-1234-5678 형태
@@ -329,9 +298,6 @@ async function handleSubmit(): Promise<void> {
       job: form.job || undefined,
       hospital: form.hospital || undefined,
       telecom: form.telecom || undefined,
-      acquisition_channel: form.acquisition_channel || undefined,
-      acquisition_note: form.acquisition_note || undefined,
-      category: form.category || undefined,
     })
 
     toast.showToast('고객이 등록되었습니다.')

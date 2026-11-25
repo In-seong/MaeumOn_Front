@@ -27,7 +27,8 @@
       </button>
       <div
         v-if="datePickerOpen"
-        class="absolute left-0 right-0 top-[calc(100%+4px)] bg-white border border-[#E8E8E8] rounded-[12px] shadow-[0_4px_16px_rgba(0,0,0,0.12)] z-50 p-3"
+        ref="datePickerDropdownRef"
+        class="mt-1 bg-white border border-[#E8E8E8] rounded-[12px] shadow-[0_4px_16px_rgba(0,0,0,0.12)] z-50 p-3"
       >
         <!-- 년월 헤더 -->
         <div class="flex items-center justify-between mb-2">
@@ -403,6 +404,7 @@ function handleResidentBack(event: Event): void {
 // ===== 커스텀 날짜 선택기 =====
 const datePickerOpen = ref(false)
 const datePickerWrapperRef = ref<HTMLElement | null>(null)
+const datePickerDropdownRef = ref<HTMLElement | null>(null)
 const dpYearSelectOpen = ref(false)
 const dpYear = ref(new Date().getFullYear())
 const dpMonth = ref(new Date().getMonth())
@@ -449,7 +451,8 @@ function openDatePicker() {
   datePickerOpen.value = !datePickerOpen.value
   if (datePickerOpen.value) {
     nextTick(() => {
-      datePickerWrapperRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const el = datePickerDropdownRef.value || datePickerWrapperRef.value
+      el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     })
   }
 }

@@ -215,28 +215,6 @@
                   class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
-              <div>
-                <label class="text-[12px] text-[#888] mb-1 block">가입경로</label>
-                <select
-                  v-model="editForm.acquisition_channel"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                >
-                  <option value="">선택안함</option>
-                  <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
-                </select>
-              </div>
-              <div>
-                <label class="text-[12px] text-[#888] mb-1 block">분류</label>
-                <select
-                  v-model="editForm.category"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                >
-                  <option value="">선택안함</option>
-                  <option value="상주DB">상주DB</option>
-                  <option value="배분DB">배분DB</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
             </div>
             <div class="flex gap-2 mt-4">
               <button
@@ -281,205 +259,9 @@
             <InfoRow label="직업" :value="customer.job ?? '-'" />
             <InfoRow label="통신사" :value="customer.telecom ?? '-'" />
             <InfoRow label="병원" :value="customer.hospital ?? '-'" />
-            <InfoRow label="가입경로" :value="formatAcquisitionChannel(customer.acquisition_channel)" />
-            <InfoRow label="분류" :value="(customer as any).category ?? '-'" />
             <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
           </CardSection>
 
-          <!-- 메모 섹션 (기본정보 하단) -->
-          <div class="border-t border-[#E0E0E0] mt-4 pt-4">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-[14px] font-semibold text-[#333]">메모</h3>
-              <div class="flex items-center gap-2">
-                <span v-if="store.memos.length > 0" class="text-[13px] text-[#888]">총 <span class="font-semibold text-[#FF6B2D]">{{ store.memos.length }}</span>건</span>
-                <button
-                  v-if="store.memos.length > 0"
-                  class="flex items-center gap-1 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-full px-3 py-1.5 active:bg-[#F5F5F5] transition-colors"
-                  @click="toggleMemoSort"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path v-if="memoSortOrder === 'desc'" d="M12 5v14M19 12l-7 7-7-7" />
-                    <path v-else d="M12 19V5M5 12l7-7 7 7" />
-                  </svg>
-                  {{ memoSortOrder === 'desc' ? '최신순' : '오래된순' }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Add Memo Form -->
-            <CardSection class="mb-4">
-              <h4 class="text-[13px] font-semibold text-[#333] mb-3">메모 추가</h4>
-              <div class="mb-2">
-                <select v-model="newMemoProgress" class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]">
-                  <option value="">진도 선택</option>
-                  <option value="1차">1차</option>
-                  <option value="2차">2차</option>
-                  <option value="3차">3차</option>
-                  <option value="4차">4차</option>
-                  <option value="5차">5차</option>
-                  <option value="체결">체결</option>
-                  <option value="미체결">미체결</option>
-                </select>
-              </div>
-              <FormTextarea
-                v-model="newMemoContent"
-                placeholder="메모를 입력하세요"
-                :rows="3"
-              />
-              <div class="mt-2">
-                <input ref="newMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onNewMemoFileChange" />
-                <button
-                  class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-2 active:bg-[#F5F5F5]"
-                  @click="newMemoFileInput?.click()"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                  파일 첨부 (최대 5개)
-                </button>
-                <div v-if="newMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-2">
-                  <div v-for="(file, idx) in newMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[11px] text-[#666]">
-                    <span class="max-w-[120px] truncate">{{ file.name }}</span>
-                    <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="newMemoFiles.splice(idx, 1)">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3 mt-3">
-                <input
-                  v-model="newMemoDate"
-                  type="date"
-                  class="flex-1 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
-                <ActionButton @click="handleAddMemo">
-                  저장
-                </ActionButton>
-              </div>
-            </CardSection>
-
-            <!-- Memo List -->
-            <div class="flex flex-col gap-2.5">
-              <CardSection v-for="memo in sortedMemos" :key="memo.memo_id">
-                <!-- 수정 모드 -->
-                <div v-if="editingMemoId === memo.memo_id">
-                  <div class="mb-2">
-                    <select v-model="editMemoProgress" class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] text-[#333]">
-                      <option value="">진도 선택</option>
-                      <option value="1차">1차</option>
-                      <option value="2차">2차</option>
-                      <option value="3차">3차</option>
-                      <option value="4차">4차</option>
-                      <option value="5차">5차</option>
-                      <option value="체결">체결</option>
-                      <option value="미체결">미체결</option>
-                    </select>
-                  </div>
-                  <textarea
-                    v-model="editMemoContent"
-                    rows="3"
-                    class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] resize-none text-[#333]"
-                  />
-                  <!-- 기존 첨부파일 -->
-                  <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
-                    <div
-                      v-for="att in memo.attachment_urls"
-                      :key="att.path"
-                      class="flex items-center gap-1 rounded-[6px] px-2 py-1 text-[11px]"
-                      :class="editMemoRemoveAttachments.includes(att.path) ? 'bg-[#FFF0F0] text-[#FF4444] line-through' : 'bg-[#F0F4FF] text-[#4A6FA5]'"
-                    >
-                      <span class="max-w-[100px] truncate">{{ att.name }}</span>
-                      <button
-                        class="ml-0.5"
-                        @click="toggleRemoveAttachment(att.path)"
-                      >
-                        <svg v-if="!editMemoRemoveAttachments.includes(att.path)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                  <!-- 새 파일 첨부 -->
-                  <div class="mt-2">
-                    <input ref="editMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onEditMemoFileChange" />
-                    <button
-                      class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-1.5 active:bg-[#F5F5F5]"
-                      @click="editMemoFileInput?.click()"
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                      파일 추가
-                    </button>
-                    <div v-if="editMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-1.5">
-                      <div v-for="(file, idx) in editMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[11px] text-[#666]">
-                        <span class="max-w-[100px] truncate">{{ file.name }}</span>
-                        <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="editMemoFiles.splice(idx, 1)">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex gap-2 mt-2">
-                    <button
-                      class="flex-1 py-2 rounded-[8px] border border-[#E0E0E0] text-[12px] text-[#666] active:bg-[#F5F5F5]"
-                      @click="cancelMemoEdit"
-                    >
-                      취소
-                    </button>
-                    <button
-                      class="flex-1 py-2 rounded-[8px] bg-[#FF6B2D] text-white text-[12px] active:bg-[#E56A1A]"
-                      @click="handleSaveMemoEdit(memo.memo_id)"
-                    >
-                      저장
-                    </button>
-                  </div>
-                </div>
-                <!-- 읽기 모드 -->
-                <div v-else>
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <div v-if="memo.progress" class="flex flex-wrap gap-1.5 mb-1.5">
-                        <span class="inline-block bg-[#E3F2FD] text-[#1976D2] text-[11px] px-2 py-0.5 rounded-full">{{ memo.progress }}</span>
-                      </div>
-                      <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-line">{{ memo.content }}</p>
-                      <!-- 첨부파일 -->
-                      <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
-                        <a
-                          v-for="att in memo.attachment_urls"
-                          :key="att.path"
-                          :href="att.url"
-                          target="_blank"
-                          class="flex items-center gap-1 bg-[#F0F4FF] rounded-[6px] px-2 py-1 text-[11px] text-[#4A6FA5] no-underline active:bg-[#E0EAFF]"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                          <span class="max-w-[100px] truncate">{{ att.name }}</span>
-                        </a>
-                      </div>
-                      <p class="text-[11px] text-[#AAAAAA] mt-2">{{ formatDate(memo.memo_date) }}</p>
-                    </div>
-                    <div class="flex items-center gap-1 flex-shrink-0 ml-2">
-                      <button
-                        class="p-1.5 text-[#AAAAAA] active:text-[#FF6B2D]"
-                        @click="startMemoEdit(memo)"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      </button>
-                      <button
-                        class="p-1.5 text-[#AAAAAA] active:text-[#FF4444]"
-                        @click="handleDeleteMemo(memo.memo_id)"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </CardSection>
-
-              <div
-                v-if="store.memos.length === 0"
-                class="flex flex-col items-center py-8"
-              >
-                <p class="text-[14px] text-[#AAAAAA]">작성된 메모가 없습니다</p>
-              </div>
-            </div>
-
-          </div>
         </div>
 
         <!-- 가입보험 Tab -->
@@ -682,6 +464,200 @@
           >
             <p class="text-[14px] text-[#AAAAAA]">체결된 보험이 없습니다</p>
           </div>
+
+          <!-- 메모 섹션 -->
+          <div class="border-t border-[#E0E0E0] mt-4 pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[14px] font-semibold text-[#333]">메모</h3>
+              <div class="flex items-center gap-2">
+                <span v-if="store.memos.length > 0" class="text-[13px] text-[#888]">총 <span class="font-semibold text-[#FF6B2D]">{{ store.memos.length }}</span>건</span>
+                <button
+                  v-if="store.memos.length > 0"
+                  class="flex items-center gap-1 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-full px-3 py-1.5 active:bg-[#F5F5F5] transition-colors"
+                  @click="toggleMemoSort"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path v-if="memoSortOrder === 'desc'" d="M12 5v14M19 12l-7 7-7-7" />
+                    <path v-else d="M12 19V5M5 12l7-7 7 7" />
+                  </svg>
+                  {{ memoSortOrder === 'desc' ? '최신순' : '오래된순' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Add Memo Form -->
+            <CardSection class="mb-4">
+              <h4 class="text-[13px] font-semibold text-[#333] mb-3">메모 추가</h4>
+              <div class="mb-2">
+                <select v-model="newMemoProgress" class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]">
+                  <option value="">진도 선택</option>
+                  <option value="1차">1차</option>
+                  <option value="2차">2차</option>
+                  <option value="3차">3차</option>
+                  <option value="4차">4차</option>
+                  <option value="5차">5차</option>
+                  <option value="체결">체결</option>
+                  <option value="미체결">미체결</option>
+                </select>
+              </div>
+              <FormTextarea
+                v-model="newMemoContent"
+                placeholder="메모를 입력하세요"
+                :rows="3"
+              />
+              <div class="mt-2">
+                <input ref="newMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onNewMemoFileChange" />
+                <button
+                  class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-2 active:bg-[#F5F5F5]"
+                  @click="newMemoFileInput?.click()"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                  파일 첨부 (최대 5개)
+                </button>
+                <div v-if="newMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-2">
+                  <div v-for="(file, idx) in newMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[11px] text-[#666]">
+                    <span class="max-w-[120px] truncate">{{ file.name }}</span>
+                    <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="newMemoFiles.splice(idx, 1)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 mt-3">
+                <input
+                  v-model="newMemoDate"
+                  type="date"
+                  class="flex-1 bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+                />
+                <ActionButton @click="handleAddMemo">
+                  저장
+                </ActionButton>
+              </div>
+            </CardSection>
+
+            <!-- Memo List -->
+            <div class="flex flex-col gap-2.5">
+              <CardSection v-for="memo in sortedMemos" :key="memo.memo_id">
+                <!-- 수정 모드 -->
+                <div v-if="editingMemoId === memo.memo_id">
+                  <div class="mb-2">
+                    <select v-model="editMemoProgress" class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] text-[#333]">
+                      <option value="">진도 선택</option>
+                      <option value="1차">1차</option>
+                      <option value="2차">2차</option>
+                      <option value="3차">3차</option>
+                      <option value="4차">4차</option>
+                      <option value="5차">5차</option>
+                      <option value="체결">체결</option>
+                      <option value="미체결">미체결</option>
+                    </select>
+                  </div>
+                  <textarea
+                    v-model="editMemoContent"
+                    rows="3"
+                    class="w-full bg-[#F8F8F8] rounded-[8px] px-3 py-2 text-[13px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] resize-none text-[#333]"
+                  />
+                  <!-- 기존 첨부파일 -->
+                  <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
+                    <div
+                      v-for="att in memo.attachment_urls"
+                      :key="att.path"
+                      class="flex items-center gap-1 rounded-[6px] px-2 py-1 text-[11px]"
+                      :class="editMemoRemoveAttachments.includes(att.path) ? 'bg-[#FFF0F0] text-[#FF4444] line-through' : 'bg-[#F0F4FF] text-[#4A6FA5]'"
+                    >
+                      <span class="max-w-[100px] truncate">{{ att.name }}</span>
+                      <button
+                        class="ml-0.5"
+                        @click="toggleRemoveAttachment(att.path)"
+                      >
+                        <svg v-if="!editMemoRemoveAttachments.includes(att.path)" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- 새 파일 첨부 -->
+                  <div class="mt-2">
+                    <input ref="editMemoFileInput" type="file" multiple accept="image/*,.pdf,.heic,.heif" class="hidden" @change="onEditMemoFileChange" />
+                    <button
+                      class="flex items-center gap-1.5 text-[12px] text-[#888] bg-white border border-[#E0E0E0] rounded-[8px] px-3 py-1.5 active:bg-[#F5F5F5]"
+                      @click="editMemoFileInput?.click()"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                      파일 추가
+                    </button>
+                    <div v-if="editMemoFiles.length > 0" class="flex flex-wrap gap-2 mt-1.5">
+                      <div v-for="(file, idx) in editMemoFiles" :key="idx" class="flex items-center gap-1 bg-[#F5F5F5] rounded-[6px] px-2 py-1 text-[11px] text-[#666]">
+                        <span class="max-w-[100px] truncate">{{ file.name }}</span>
+                        <button class="text-[#AAA] hover:text-[#FF4444] ml-0.5" @click="editMemoFiles.splice(idx, 1)">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-2 mt-2">
+                    <button
+                      class="flex-1 py-2 rounded-[8px] border border-[#E0E0E0] text-[12px] text-[#666] active:bg-[#F5F5F5]"
+                      @click="cancelMemoEdit"
+                    >
+                      취소
+                    </button>
+                    <button
+                      class="flex-1 py-2 rounded-[8px] bg-[#FF6B2D] text-white text-[12px] active:bg-[#E56A1A]"
+                      @click="handleSaveMemoEdit(memo.memo_id)"
+                    >
+                      저장
+                    </button>
+                  </div>
+                </div>
+                <!-- 읽기 모드 -->
+                <div v-else>
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div v-if="memo.progress" class="flex flex-wrap gap-1.5 mb-1.5">
+                        <span class="inline-block bg-[#E3F2FD] text-[#1976D2] text-[11px] px-2 py-0.5 rounded-full">{{ memo.progress }}</span>
+                      </div>
+                      <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-line">{{ memo.content }}</p>
+                      <!-- 첨부파일 -->
+                      <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
+                        <a
+                          v-for="att in memo.attachment_urls"
+                          :key="att.path"
+                          :href="att.url"
+                          target="_blank"
+                          class="flex items-center gap-1 bg-[#F0F4FF] rounded-[6px] px-2 py-1 text-[11px] text-[#4A6FA5] no-underline active:bg-[#E0EAFF]"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                          <span class="max-w-[100px] truncate">{{ att.name }}</span>
+                        </a>
+                      </div>
+                      <p class="text-[11px] text-[#AAAAAA] mt-2">{{ formatDate(memo.memo_date) }}</p>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+                      <button
+                        class="p-1.5 text-[#AAAAAA] active:text-[#FF6B2D]"
+                        @click="startMemoEdit(memo)"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button
+                        class="p-1.5 text-[#AAAAAA] active:text-[#FF4444]"
+                        @click="handleDeleteMemo(memo.memo_id)"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </CardSection>
+
+              <div
+                v-if="store.memos.length === 0"
+                class="flex flex-col items-center py-8"
+              >
+                <p class="text-[14px] text-[#AAAAAA]">작성된 메모가 없습니다</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 청구이력 Tab -->
@@ -807,7 +783,6 @@ import { fetchInsuranceCompanies, unmaskResidentNumber, fetchCustomerCodefLogs }
 import type { CodefLogEntry } from '../../services/agentApi'
 import type { Memo, Contract } from '../../types'
 import type { InsuranceCompany } from '@shared/types'
-import { formatAcquisitionChannel } from '@shared/utils/formatLabel'
 
 type TabKey = 'info' | 'contracts' | 'claims' | 'inquiries'
 
@@ -979,9 +954,6 @@ const editForm = ref({
   job: '',
   telecom: '',
   hospital: '',
-  acquisition_channel: '',
-  acquisition_note: '',
-  category: '',
 })
 
 const genderOptions = [
@@ -990,7 +962,6 @@ const genderOptions = [
 ] as const
 
 const telecomOptions = ['SKT', 'KT', 'LGU+', 'SKT 알뜰', 'KT 알뜰', 'LGU+ 알뜰'] as const
-const channelOptions = ['DB배분', '지인소개', '온라인', '텔레마케팅', '방문상담', '기타'] as const
 
 const tabs: Tab[] = [
   { key: 'info', label: '기본정보' },
@@ -1083,9 +1054,6 @@ function handleStartEdit(): void {
     job: customer.value.job ?? '',
     telecom: customer.value.telecom ?? '',
     hospital: customer.value.hospital ?? '',
-    acquisition_channel: customer.value.acquisition_channel ?? '',
-    acquisition_note: customer.value.acquisition_note ?? '',
-    category: (customer.value as any).category ?? '',
   }
   isEditing.value = true
   activeTab.value = 'info'
@@ -1172,9 +1140,6 @@ async function handleSaveEdit(): Promise<void> {
       job: editForm.value.job || undefined,
       telecom: editForm.value.telecom || undefined,
       hospital: editForm.value.hospital || undefined,
-      acquisition_channel: editForm.value.acquisition_channel || undefined,
-      acquisition_note: editForm.value.acquisition_note || undefined,
-      category: editForm.value.category || undefined,
     })
     isEditing.value = false
     toast.showToast('고객 정보가 수정되었습니다.')

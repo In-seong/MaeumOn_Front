@@ -26,6 +26,10 @@ function cleanup() {
   scale.value = 1
 }
 
+function openInNewTab() {
+  if (props.url) window.open(props.url, '_blank')
+}
+
 watch(
   () => props.open,
   async (isOpen) => {
@@ -38,7 +42,11 @@ watch(
           urls.forEach((u) => URL.revokeObjectURL(u))
           return
         }
-        pageUrls.value = urls
+        if (urls.length === 0) {
+          error.value = 'PDF 페이지를 렌더링할 수 없습니다'
+        } else {
+          pageUrls.value = urls
+        }
       } catch (e) {
         error.value = 'PDF를 불러올 수 없습니다'
         console.error('PDF viewer error:', e)
@@ -101,8 +109,14 @@ onBeforeUnmount(cleanup)
         <div v-if="loading" class="flex items-center justify-center h-full">
           <span class="text-white/70 text-[14px]">PDF 로딩 중...</span>
         </div>
-        <div v-else-if="error" class="flex items-center justify-center h-full">
+        <div v-else-if="error" class="flex flex-col items-center justify-center h-full gap-4">
           <span class="text-red-400 text-[14px]">{{ error }}</span>
+          <button
+            @click="openInNewTab"
+            class="px-5 py-2.5 bg-white/20 rounded-full text-white text-[13px] font-medium active:bg-white/30"
+          >
+            새 탭에서 열기
+          </button>
         </div>
         <div v-else class="flex flex-col items-center gap-1 py-2">
           <img

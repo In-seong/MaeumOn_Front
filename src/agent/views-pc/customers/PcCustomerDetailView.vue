@@ -212,25 +212,6 @@
                 class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
               />
             </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">가입경로</label>
-              <select
-                v-model="editForm.acquisition_channel"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-              >
-                <option value="">선택안함</option>
-                <option v-for="ch in channelOptions" :key="ch" :value="ch">{{ ch }}</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">기타</label>
-              <input
-                v-model="editForm.acquisition_note"
-                type="text"
-                placeholder="가입경로 관련 메모"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
           </div>
           <div class="flex justify-end gap-2 mt-5">
             <button
@@ -280,13 +261,214 @@
             <InfoRow label="직업" :value="customer.job ?? '-'" />
             <InfoRow label="통신사" :value="customer.telecom ?? '-'" />
             <InfoRow label="병원" :value="customer.hospital ?? '-'" />
-            <InfoRow label="가입경로" :value="formatAcquisitionChannel(customer.acquisition_channel)" />
-            <InfoRow label="기타" :value="customer.acquisition_note ?? '-'" />
             <InfoRow label="등록일" :value="formatDateTime(customer.created_at)" />
           </div>
         </div>
 
-        <!-- ===== 메모 섹션 (기본정보 하단) ===== -->
+      </div>
+
+      <!-- ==================== 가입보험 탭 ==================== -->
+      <div v-if="activeTab === 'contracts'">
+        <!-- 계약 추가 버튼 -->
+        <div class="flex justify-end mb-4">
+          <button
+            v-if="!showContractForm"
+            class="px-4 py-2.5 border-2 border-dashed border-[#E0E0E0] text-[13px] text-[#888] font-medium rounded-[12px] hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors flex items-center gap-1.5"
+            @click="startContractAdd"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            보험 계약 추가
+          </button>
+        </div>
+
+        <!-- 계약 추가/수정 폼 -->
+        <div v-if="showContractForm" class="bg-white rounded-xl border border-[#E8E8E8] p-5 mb-6 max-w-[900px]">
+          <h4 class="text-[15px] font-semibold text-[#FF6B2D] mb-5">
+            {{ editingContractId ? '계약 수정' : '계약 등록' }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">계약자</label>
+              <input
+                v-model="contractForm.contractor"
+                type="text"
+                placeholder="계약자명"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+              />
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 flex items-center gap-2">
+                피보험자
+                <label class="flex items-center gap-1 cursor-pointer">
+                  <input
+                    v-model="sameAsContractor"
+                    type="checkbox"
+                    class="w-3.5 h-3.5 accent-[#FF6B2D]"
+                  />
+                  <span class="text-[11px] text-[#999]">상동</span>
+                </label>
+              </label>
+              <input
+                v-model="contractForm.insured_person"
+                :disabled="sameAsContractor"
+                type="text"
+                :placeholder="sameAsContractor ? contractForm.contractor || '계약자와 동일' : '피보험자명'"
+                :class="[
+                  'w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors',
+                  sameAsContractor ? 'text-[#999]' : 'text-[#333]',
+                ]"
+              />
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">보험사 *</label>
+              <select
+                v-model="contractForm.company_id"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+              >
+                <option value="">선택해주세요</option>
+                <option v-for="c in insuranceCompanies" :key="c.company_id" :value="c.company_id">
+                  {{ c.company_name }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">보험상품명 *</label>
+              <input
+                v-model="contractForm.insurance_product"
+                type="text"
+                placeholder="예: 무배당 건강보험"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+              />
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">계약금액</label>
+              <input
+                v-model="contractForm.contract_amount"
+                type="number"
+                inputmode="numeric"
+                placeholder="원"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+              />
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">체결일</label>
+              <input
+                v-model="contractForm.contract_date"
+                type="date"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+              />
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">계약상태</label>
+              <select
+                v-model="contractForm.contract_status"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+              >
+                <option v-for="s in contractStatusOptions" :key="s.value" :value="s.value">
+                  {{ s.label }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[13px] text-[#888] mb-1 block">납입방법</label>
+              <input
+                v-model="contractForm.payment_method"
+                type="text"
+                placeholder="예: 월납"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-[13px] text-[#888] mb-1 block">비고</label>
+              <input
+                v-model="contractForm.notes"
+                type="text"
+                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
+              />
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-5">
+            <button
+              class="px-5 py-2.5 rounded-[10px] border border-[#E0E0E0] text-[13px] text-[#666] font-medium hover:bg-[#F5F5F5] transition-colors"
+              @click="resetContractForm"
+            >
+              취소
+            </button>
+            <button
+              :disabled="contractSaving"
+              class="px-5 py-2.5 rounded-[10px] bg-[#FF6B2D] text-white text-[13px] font-medium hover:bg-[#E56D1E] disabled:opacity-50 transition-colors"
+              @click="handleSaveContract"
+            >
+              {{ contractSaving ? '저장 중...' : (editingContractId ? '수정' : '등록') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 계약 목록 테이블 -->
+        <div v-if="store.contracts.length > 0" class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden">
+          <table class="min-w-full divide-y divide-[#E8E8E8]">
+            <thead class="bg-[#FAFAFA]">
+              <tr>
+                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">보험상품</th>
+                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">보험사</th>
+                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">계약자</th>
+                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">피보험자</th>
+                <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">계약금액</th>
+                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden lg:table-cell">체결일</th>
+                <th class="px-5 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상태</th>
+                <th class="px-5 py-3 text-center text-[12px] font-medium text-[#999] uppercase">관리</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#F0F0F0]">
+              <tr
+                v-for="contract in store.contracts"
+                :key="contract.contract_id"
+                class="hover:bg-[#FAFAFA] transition-colors"
+              >
+                <td class="px-5 py-3.5 text-[13px] font-medium text-[#333]">{{ contract.insurance_product ?? '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ contract.insurance_company?.company_name ?? '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden md:table-cell">{{ contract.contractor ?? '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden md:table-cell">{{ contract.insured_person ?? '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] font-semibold text-[#333] text-right">{{ contract.contract_amount ? formatCurrency(contract.contract_amount) + '원' : '-' }}</td>
+                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden lg:table-cell">{{ contract.contract_date ? formatDate(contract.contract_date) : '-' }}</td>
+                <td class="px-5 py-3.5 text-center">
+                  <StatusBadge
+                    v-if="contract.contract_status"
+                    :label="contractStatusLabel(contract.contract_status)"
+                    :variant="contractStatusVariant(contract.contract_status)"
+                  />
+                </td>
+                <td class="px-5 py-3.5 text-center">
+                  <div class="flex items-center justify-center gap-1">
+                    <button
+                      class="p-1.5 text-[#AAAAAA] hover:text-[#FF6B2D] transition-colors"
+                      title="수정"
+                      @click="startContractEdit(contract)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button
+                      class="p-1.5 text-[#AAAAAA] hover:text-[#FF4444] transition-colors"
+                      title="삭제"
+                      @click="handleDeleteContract(contract.contract_id)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          v-if="store.contracts.length === 0 && !showContractForm"
+          class="flex flex-col items-center py-16"
+        >
+          <p class="text-[14px] text-[#AAAAAA]">체결된 보험이 없습니다</p>
+        </div>
+
+        <!-- ===== 메모 섹션 ===== -->
         <div class="border-t border-[#E8E8E8] mt-6 pt-6">
           <!-- 메모 추가 폼 (상단) -->
           <div class="bg-white rounded-xl border border-[#E8E8E8] p-5 mb-6">
@@ -498,208 +680,6 @@
         </div>
       </div>
 
-      <!-- ==================== 가입보험 탭 ==================== -->
-      <div v-if="activeTab === 'contracts'">
-        <!-- 계약 추가 버튼 -->
-        <div class="flex justify-end mb-4">
-          <button
-            v-if="!showContractForm"
-            class="px-4 py-2.5 border-2 border-dashed border-[#E0E0E0] text-[13px] text-[#888] font-medium rounded-[12px] hover:border-[#FF6B2D] hover:text-[#FF6B2D] transition-colors flex items-center gap-1.5"
-            @click="startContractAdd"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            보험 계약 추가
-          </button>
-        </div>
-
-        <!-- 계약 추가/수정 폼 -->
-        <div v-if="showContractForm" class="bg-white rounded-xl border border-[#E8E8E8] p-5 mb-6 max-w-[900px]">
-          <h4 class="text-[15px] font-semibold text-[#FF6B2D] mb-5">
-            {{ editingContractId ? '계약 수정' : '계약 등록' }}
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">계약자</label>
-              <input
-                v-model="contractForm.contractor"
-                type="text"
-                placeholder="계약자명"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 flex items-center gap-2">
-                피보험자
-                <label class="flex items-center gap-1 cursor-pointer">
-                  <input
-                    v-model="sameAsContractor"
-                    type="checkbox"
-                    class="w-3.5 h-3.5 accent-[#FF6B2D]"
-                  />
-                  <span class="text-[11px] text-[#999]">상동</span>
-                </label>
-              </label>
-              <input
-                v-model="contractForm.insured_person"
-                :disabled="sameAsContractor"
-                type="text"
-                :placeholder="sameAsContractor ? contractForm.contractor || '계약자와 동일' : '피보험자명'"
-                :class="[
-                  'w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors',
-                  sameAsContractor ? 'text-[#999]' : 'text-[#333]',
-                ]"
-              />
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">보험사 *</label>
-              <select
-                v-model="contractForm.company_id"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-              >
-                <option value="">선택해주세요</option>
-                <option v-for="c in insuranceCompanies" :key="c.company_id" :value="c.company_id">
-                  {{ c.company_name }}
-                </option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">보험상품명 *</label>
-              <input
-                v-model="contractForm.insurance_product"
-                type="text"
-                placeholder="예: 무배당 건강보험"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">계약금액</label>
-              <input
-                v-model="contractForm.contract_amount"
-                type="number"
-                inputmode="numeric"
-                placeholder="원"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">체결일</label>
-              <input
-                v-model="contractForm.contract_date"
-                type="date"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">계약상태</label>
-              <select
-                v-model="contractForm.contract_status"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-              >
-                <option v-for="s in contractStatusOptions" :key="s.value" :value="s.value">
-                  {{ s.label }}
-                </option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[13px] text-[#888] mb-1 block">납입방법</label>
-              <input
-                v-model="contractForm.payment_method"
-                type="text"
-                placeholder="예: 월납"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-            <div class="md:col-span-2">
-              <label class="text-[13px] text-[#888] mb-1 block">비고</label>
-              <input
-                v-model="contractForm.notes"
-                type="text"
-                class="w-full bg-[#F8F8F8] rounded-[10px] px-4 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-              />
-            </div>
-          </div>
-          <div class="flex justify-end gap-2 mt-5">
-            <button
-              class="px-5 py-2.5 rounded-[10px] border border-[#E0E0E0] text-[13px] text-[#666] font-medium hover:bg-[#F5F5F5] transition-colors"
-              @click="resetContractForm"
-            >
-              취소
-            </button>
-            <button
-              :disabled="contractSaving"
-              class="px-5 py-2.5 rounded-[10px] bg-[#FF6B2D] text-white text-[13px] font-medium hover:bg-[#E56D1E] disabled:opacity-50 transition-colors"
-              @click="handleSaveContract"
-            >
-              {{ contractSaving ? '저장 중...' : (editingContractId ? '수정' : '등록') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 계약 목록 테이블 -->
-        <div v-if="store.contracts.length > 0" class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden">
-          <table class="min-w-full divide-y divide-[#E8E8E8]">
-            <thead class="bg-[#FAFAFA]">
-              <tr>
-                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">보험상품</th>
-                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase">보험사</th>
-                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">계약자</th>
-                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden md:table-cell">피보험자</th>
-                <th class="px-5 py-3 text-right text-[12px] font-medium text-[#999] uppercase">계약금액</th>
-                <th class="px-5 py-3 text-left text-[12px] font-medium text-[#999] uppercase hidden lg:table-cell">체결일</th>
-                <th class="px-5 py-3 text-center text-[12px] font-medium text-[#999] uppercase">상태</th>
-                <th class="px-5 py-3 text-center text-[12px] font-medium text-[#999] uppercase">관리</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[#F0F0F0]">
-              <tr
-                v-for="contract in store.contracts"
-                :key="contract.contract_id"
-                class="hover:bg-[#FAFAFA] transition-colors"
-              >
-                <td class="px-5 py-3.5 text-[13px] font-medium text-[#333]">{{ contract.insurance_product ?? '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] text-[#666]">{{ contract.insurance_company?.company_name ?? '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden md:table-cell">{{ contract.contractor ?? '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden md:table-cell">{{ contract.insured_person ?? '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] font-semibold text-[#333] text-right">{{ contract.contract_amount ? formatCurrency(contract.contract_amount) + '원' : '-' }}</td>
-                <td class="px-5 py-3.5 text-[13px] text-[#666] hidden lg:table-cell">{{ contract.contract_date ? formatDate(contract.contract_date) : '-' }}</td>
-                <td class="px-5 py-3.5 text-center">
-                  <StatusBadge
-                    v-if="contract.contract_status"
-                    :label="contractStatusLabel(contract.contract_status)"
-                    :variant="contractStatusVariant(contract.contract_status)"
-                  />
-                </td>
-                <td class="px-5 py-3.5 text-center">
-                  <div class="flex items-center justify-center gap-1">
-                    <button
-                      class="p-1.5 text-[#AAAAAA] hover:text-[#FF6B2D] transition-colors"
-                      title="수정"
-                      @click="startContractEdit(contract)"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                    <button
-                      class="p-1.5 text-[#AAAAAA] hover:text-[#FF4444] transition-colors"
-                      title="삭제"
-                      @click="handleDeleteContract(contract.contract_id)"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div
-          v-if="store.contracts.length === 0 && !showContractForm"
-          class="flex flex-col items-center py-16"
-        >
-          <p class="text-[14px] text-[#AAAAAA]">체결된 보험이 없습니다</p>
-        </div>
-      </div>
-
       <!-- ==================== 청구이력 탭 ==================== -->
       <div v-if="activeTab === 'claims'">
         <div v-if="store.claims.length > 0" class="bg-white rounded-xl border border-[#E8E8E8] overflow-hidden">
@@ -820,7 +800,6 @@ import { fetchInsuranceCompanies, unmaskResidentNumber, fetchCustomerCodefLogs }
 import type { CodefLogEntry } from '../../services/agentApi'
 import type { Memo, Contract } from '../../types'
 import type { InsuranceCompany } from '@shared/types'
-import { formatAcquisitionChannel } from '@shared/utils/formatLabel'
 
 type TabKey = 'info' | 'contracts' | 'claims' | 'inquiries'
 
@@ -990,8 +969,6 @@ const editForm = ref({
   job: '',
   telecom: '',
   hospital: '',
-  acquisition_channel: '',
-  acquisition_note: '',
 })
 
 const genderOptions = [
@@ -1000,7 +977,6 @@ const genderOptions = [
 ] as const
 
 const telecomOptions = ['SKT', 'KT', 'LGU+', 'SKT 알뜰', 'KT 알뜰', 'LGU+ 알뜰'] as const
-const channelOptions = ['DB배분', '지인소개', '온라인', '텔레마케팅', '방문상담', '기타'] as const
 
 const tabs: Tab[] = [
   { key: 'info', label: '기본정보' },
@@ -1092,8 +1068,6 @@ function handleStartEdit(): void {
     job: customer.value.job ?? '',
     telecom: customer.value.telecom ?? '',
     hospital: customer.value.hospital ?? '',
-    acquisition_channel: customer.value.acquisition_channel ?? '',
-    acquisition_note: customer.value.acquisition_note ?? '',
   }
   isEditing.value = true
   activeTab.value = 'info'
@@ -1180,8 +1154,6 @@ async function handleSaveEdit(): Promise<void> {
       job: editForm.value.job || undefined,
       telecom: editForm.value.telecom || undefined,
       hospital: editForm.value.hospital || undefined,
-      acquisition_channel: editForm.value.acquisition_channel || undefined,
-      acquisition_note: editForm.value.acquisition_note || undefined,
     })
     isEditing.value = false
     toast.showToast('고객 정보가 수정되었습니다.')
