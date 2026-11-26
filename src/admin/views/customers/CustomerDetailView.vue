@@ -263,18 +263,32 @@
                 </div>
                 <p class="text-[14px] text-[#555] whitespace-pre-wrap">{{ memo.content }}</p>
                 <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="mt-2 flex flex-wrap gap-2">
-                  <a
-                    v-for="(att, ai) in memo.attachment_urls"
-                    :key="ai"
-                    :href="att.url"
-                    target="_blank"
-                    class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white rounded-lg text-[12px] text-[#3B82F6] hover:bg-[#EBF5FF] transition-colors"
-                  >
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    {{ att.name }}
-                  </a>
+                  <template v-for="(att, ai) in memo.attachment_urls" :key="ai">
+                    <a
+                      v-if="isImageFile(att.name)"
+                      :href="att.url"
+                      target="_blank"
+                      class="block rounded-lg overflow-hidden border border-[#E5E7EB]"
+                    >
+                      <img
+                        :src="att.url"
+                        :alt="att.name"
+                        class="max-w-[200px] max-h-[150px] object-cover"
+                        loading="lazy"
+                      />
+                    </a>
+                    <a
+                      v-else
+                      :href="att.url"
+                      target="_blank"
+                      class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white rounded-lg text-[12px] text-[#3B82F6] hover:bg-[#EBF5FF] transition-colors"
+                    >
+                      <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                      </svg>
+                      {{ att.name }}
+                    </a>
+                  </template>
                 </div>
               </div>
             </div>
@@ -492,6 +506,10 @@ function formatGender(gender?: string): string {
   if (!gender) return '-'
   const map: Record<string, string> = { M: '남성', F: '여성', OTHER: '기타' }
   return map[gender] || gender
+}
+
+function isImageFile(name: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp|bmp|heic|heif)$/i.test(name)
 }
 
 function formatDate(dateStr?: string): string {

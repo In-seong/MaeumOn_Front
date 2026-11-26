@@ -7,7 +7,7 @@ export const useClaimRequestStatStore = defineStore('claimRequestStat', () => {
   const agents = ref<ClaimRequestStatAgentRow[]>([])
   const summary = ref<ClaimRequestStatSummary>({ total_resident: 0, total_distribution: 0, total_corporate: 0, total_recall: 0, total_reject: 0, total: 0 })
   const hospitals = ref<ClaimRequestStatHospital[]>([])
-  const hospitalStats = ref<Array<{ hospital_id: number; hospital_name: string; resident: number; distribution: number; total: number }>>([])
+  const hospitalStats = ref<Array<{ hospital_id: number; hospital_name: string; resident: number; distribution: number; reject: number; total: number }>>([])
   const dateFrom = ref('')
   const dateTo = ref('')
   const selectedHospitalId = ref<number | null>(null)

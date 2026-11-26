@@ -94,6 +94,7 @@
               <th class="px-5 lg:px-6 py-3 text-left text-[14px] font-semibold text-[#888]">병원</th>
               <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">상주 DB</th>
               <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">배분 DB</th>
+              <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">반려 DB</th>
               <th class="px-5 lg:px-6 py-3 text-center text-[14px] font-semibold text-[#888]">합계</th>
             </tr>
           </thead>
@@ -103,6 +104,7 @@
               <td class="px-5 lg:px-6 py-3 text-[15px] font-medium text-[#333] cursor-pointer hover:text-[#FF7B22] hover:underline" @click="store.setHospital(row.hospital_id)">{{ row.hospital_name }}</td>
               <td class="px-5 lg:px-6 py-3 text-[15px] text-center text-[#2196F3] font-semibold">{{ row.resident }}</td>
               <td class="px-5 lg:px-6 py-3 text-[15px] text-center text-[#FF7B22] font-semibold">{{ row.distribution }}</td>
+              <td class="px-5 lg:px-6 py-3 text-[15px] text-center text-[#E53935] font-semibold">{{ row.reject ?? 0 }}</td>
               <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#333]">{{ row.total }}</td>
             </tr>
           </tbody>
@@ -112,6 +114,7 @@
               <td class="px-5 lg:px-6 py-3 text-[15px] font-bold text-[#333]">합계</td>
               <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#2196F3]">{{ hospitalStatsTotal.resident }}</td>
               <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#FF7B22]">{{ hospitalStatsTotal.distribution }}</td>
+              <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#E53935]">{{ hospitalStatsTotal.reject }}</td>
               <td class="px-5 lg:px-6 py-3 text-[15px] text-center font-bold text-[#333]">{{ hospitalStatsTotal.total }}</td>
             </tr>
           </tfoot>
@@ -241,6 +244,7 @@ const hospitalStatsTotal = computed(() => {
   return {
     resident: stats.reduce((sum, r) => sum + r.resident, 0),
     distribution: stats.reduce((sum, r) => sum + r.distribution, 0),
+    reject: stats.reduce((sum, r) => sum + (r.reject ?? 0), 0),
     total: stats.reduce((sum, r) => sum + r.total, 0),
   }
 })

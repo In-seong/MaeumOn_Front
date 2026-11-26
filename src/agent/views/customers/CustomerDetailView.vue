@@ -618,17 +618,33 @@
                       </div>
                       <p class="text-[13px] text-[#333] leading-[1.6] whitespace-pre-line">{{ memo.content }}</p>
                       <!-- 첨부파일 -->
-                      <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="flex flex-wrap gap-2 mt-2">
-                        <a
-                          v-for="att in memo.attachment_urls"
-                          :key="att.path"
-                          :href="att.url"
-                          target="_blank"
-                          class="flex items-center gap-1 bg-[#F0F4FF] rounded-[6px] px-2 py-1 text-[11px] text-[#4A6FA5] no-underline active:bg-[#E0EAFF]"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                          <span class="max-w-[100px] truncate">{{ att.name }}</span>
-                        </a>
+                      <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="mt-2">
+                        <div class="flex flex-wrap gap-2">
+                          <template v-for="att in memo.attachment_urls" :key="att.path">
+                            <a
+                              v-if="isImageFile(att.name)"
+                              :href="att.url"
+                              target="_blank"
+                              class="block rounded-[8px] overflow-hidden border border-[#E8E8E8]"
+                            >
+                              <img
+                                :src="att.url"
+                                :alt="att.name"
+                                class="max-w-[200px] max-h-[150px] object-cover"
+                                loading="lazy"
+                              />
+                            </a>
+                            <a
+                              v-else
+                              :href="att.url"
+                              target="_blank"
+                              class="flex items-center gap-1 bg-[#F0F4FF] rounded-[6px] px-2 py-1 text-[11px] text-[#4A6FA5] no-underline active:bg-[#E0EAFF]"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                              <span class="max-w-[100px] truncate">{{ att.name }}</span>
+                            </a>
+                          </template>
+                        </div>
                       </div>
                       <p class="text-[11px] text-[#AAAAAA] mt-2">{{ formatDate(memo.memo_date) }}</p>
                     </div>
@@ -1334,6 +1350,10 @@ function codefStatusVariant(status: string): 'success' | 'warning' | 'danger' | 
 }
 
 // ===== Helpers =====
+function isImageFile(name: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp|bmp|heic|heif)$/i.test(name)
+}
+
 function formatDate(value?: string): string {
   if (!value) return '-'
   const d = new Date(value)
