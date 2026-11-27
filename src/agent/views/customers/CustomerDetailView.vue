@@ -621,11 +621,11 @@
                       <div v-if="memo.attachment_urls && memo.attachment_urls.length > 0" class="mt-2">
                         <div class="flex flex-wrap gap-2">
                           <template v-for="att in memo.attachment_urls" :key="att.path">
-                            <a
+                            <button
                               v-if="isImageFile(att.name)"
-                              :href="att.url"
-                              target="_blank"
-                              class="block rounded-[8px] overflow-hidden border border-[#E8E8E8]"
+                              type="button"
+                              class="block rounded-[8px] overflow-hidden border border-[#E8E8E8] cursor-pointer"
+                              @click="previewImageUrl = att.url"
                             >
                               <img
                                 :src="att.url"
@@ -633,7 +633,7 @@
                                 class="max-w-[200px] max-h-[150px] object-cover"
                                 loading="lazy"
                               />
-                            </a>
+                            </button>
                             <a
                               v-else
                               :href="att.url"
@@ -780,6 +780,22 @@
         </div>
       </Transition>
     </div>
+
+    <!-- 이미지 확대 뷰어 -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="previewImageUrl"
+          class="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center"
+          @click="previewImageUrl = ''"
+        >
+          <button class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white" @click.stop="previewImageUrl = ''">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <img :src="previewImageUrl" class="max-w-[95vw] max-h-[90vh] object-contain rounded-lg" @click.stop />
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -819,6 +835,7 @@ const showRrn = ref(false)
 const fullRrnData = ref<string | null>(null)
 const rrnLoading = ref(false)
 const memoSortOrder = ref<'desc' | 'asc'>('desc')
+const previewImageUrl = ref('')
 
 // ===== 보험조회 이력 =====
 const codefLogs = ref<CodefLogEntry[]>([])

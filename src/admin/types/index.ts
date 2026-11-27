@@ -253,6 +253,7 @@ export interface AdminBatchClaim {
   completed_count: number
   notes?: string
   claims_count?: number
+  customer_name?: string | null
   customer?: Customer
   agent?: {
     agent_id: string

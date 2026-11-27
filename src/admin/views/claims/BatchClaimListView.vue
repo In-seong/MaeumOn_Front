@@ -51,7 +51,7 @@
               {{ rowNum(index) }}
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-              <div class="text-[14px] font-medium text-[#333]">{{ item.customer?.name || '-' }}</div>
+              <div class="text-[14px] font-medium text-[#333]">{{ item.customer_name || item.customer?.name || '-' }}</div>
               <div class="text-[12px] text-[#999]">{{ item.customer_id }}</div>
             </td>
             <td class="px-4 lg:px-6 py-4 whitespace-nowrap hidden md:table-cell">
