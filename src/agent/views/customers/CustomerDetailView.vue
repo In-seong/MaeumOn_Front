@@ -327,61 +327,21 @@
                 </select>
               </div>
               <div>
+                <label class="text-[12px] text-[#888] mb-1 block">상품군</label>
+                <select
+                  v-model="contractForm.product_category"
+                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
+                >
+                  <option value="">선택해주세요</option>
+                  <option v-for="cat in productCategoryOptions" :key="cat" :value="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div>
                 <label class="text-[12px] text-[#888] mb-1 block">보험상품명 *</label>
                 <input
                   v-model="contractForm.insurance_product"
                   type="text"
                   placeholder="예: 무배당 건강보험"
-                  class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                />
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div class="min-w-0">
-                  <label class="text-[12px] text-[#888] mb-1 block">계약금액</label>
-                  <input
-                    v-model="contractForm.contract_amount"
-                    type="number"
-                    inputmode="numeric"
-                    placeholder="원"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                  />
-                </div>
-                <div class="min-w-0">
-                  <label class="text-[12px] text-[#888] mb-1 block">체결일</label>
-                  <input
-                    v-model="contractForm.contract_date"
-                    type="date"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                  />
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div class="min-w-0">
-                  <label class="text-[12px] text-[#888] mb-1 block">계약상태</label>
-                  <select
-                    v-model="contractForm.contract_status"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333] appearance-none"
-                  >
-                    <option v-for="s in contractStatusOptions" :key="s.value" :value="s.value">
-                      {{ s.label }}
-                    </option>
-                  </select>
-                </div>
-                <div class="min-w-0">
-                  <label class="text-[12px] text-[#888] mb-1 block">납입방법</label>
-                  <input
-                    v-model="contractForm.payment_method"
-                    type="text"
-                    placeholder="예: 월납"
-                    class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
-                  />
-                </div>
-              </div>
-              <div>
-                <label class="text-[12px] text-[#888] mb-1 block">비고</label>
-                <input
-                  v-model="contractForm.notes"
-                  type="text"
                   class="w-full bg-[#F8F8F8] rounded-[10px] px-3 py-2.5 text-[14px] border border-[#E8E8E8] outline-none focus:border-[#FF6B2D] transition-colors text-[#333]"
                 />
               </div>
@@ -725,7 +685,12 @@
           </div>
 
           <template v-else>
-            <CardSection v-for="log in codefLogs" :key="log.log_id">
+            <CardSection
+              v-for="log in successCodefLogs"
+              :key="log.log_id"
+              class="cursor-pointer active:bg-[#F8F8F8] transition-colors"
+              @click="router.push({ name: 'codef-dashboard', params: { customerId: customerId } })"
+            >
               <div class="flex items-start justify-between">
                 <div>
                   <p class="text-[14px] font-semibold text-[#333]">{{ codefApiTypeLabel(log.api_type) }}</p>
@@ -747,7 +712,7 @@
             </CardSection>
 
             <div
-              v-if="codefLogs.length === 0"
+              v-if="successCodefLogs.length === 0"
               class="flex flex-col items-center py-12"
             >
               <p class="text-[14px] text-[#AAAAAA]">조회 이력이 없습니다</p>
@@ -839,6 +804,7 @@ const previewImageUrl = ref('')
 
 // ===== 보험조회 이력 =====
 const codefLogs = ref<CodefLogEntry[]>([])
+const successCodefLogs = computed(() => codefLogs.value.filter(l => l.status === 'success'))
 const codefLogsLoading = ref(false)
 const codefLogsLoaded = ref(false)
 
@@ -863,13 +829,14 @@ const editMemoProgress = ref('')
 
 // ===== 계약 관련 =====
 const insuranceCompanies = ref<InsuranceCompany[]>([])
-const showContractForm = ref(false)
+const showContractForm = ref(true)
 const editingContractId = ref<number | null>(null)
 const contractSaving = ref(false)
 const contractForm = ref({
   company_id: '' as string | number,
   contractor: '',
   insured_person: '',
+  product_category: '',
   insurance_product: '',
   contract_amount: '',
   contract_date: '',
@@ -877,19 +844,15 @@ const contractForm = ref({
   payment_method: '',
   notes: '',
 })
+const productCategoryOptions = ['보장성', '운전자', '실손', '종신', '화재'] as const
 const sameAsContractor = ref(false)
-
-const contractStatusOptions = [
-  { value: 'active', label: '유지중' },
-  { value: 'expired', label: '만기' },
-  { value: 'cancelled', label: '해지' },
-] as const
 
 function resetContractForm(): void {
   contractForm.value = {
     company_id: '',
     contractor: '',
     insured_person: '',
+    product_category: '',
     insurance_product: '',
     contract_amount: '',
     contract_date: '',
@@ -904,6 +867,7 @@ function resetContractForm(): void {
 
 function startContractAdd(): void {
   resetContractForm()
+  contractForm.value.contractor = customer.value?.name ?? ''
   showContractForm.value = true
   editingContractId.value = null
 }
@@ -914,6 +878,7 @@ function startContractEdit(contract: Contract): void {
     company_id: contract.company_id ?? '',
     contractor: contract.contractor ?? '',
     insured_person: contract.insured_person ?? '',
+    product_category: contract.product_category ?? '',
     insurance_product: contract.insurance_product ?? '',
     contract_amount: contract.contract_amount ?? '',
     contract_date: (contract.contract_date ?? '').slice(0, 10),
@@ -940,6 +905,7 @@ async function handleSaveContract(): Promise<void> {
       company_id: Number(contractForm.value.company_id),
       contractor: contractForm.value.contractor.trim() || undefined,
       insured_person: sameAsContractor.value ? contractForm.value.contractor.trim() || undefined : contractForm.value.insured_person.trim() || undefined,
+      product_category: contractForm.value.product_category || undefined,
       insurance_product: contractForm.value.insurance_product.trim(),
       contract_amount: contractForm.value.contract_amount ? String(contractForm.value.contract_amount) : undefined,
       contract_date: contractForm.value.contract_date || undefined,
@@ -1055,6 +1021,9 @@ onMounted(async () => {
   ])
   if (companiesRes) {
     insuranceCompanies.value = companiesRes.data.data
+  }
+  if (customer.value) {
+    contractForm.value.contractor = customer.value.name
   }
 })
 

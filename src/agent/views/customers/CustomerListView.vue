@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useKeyboardSafe } from '../../composables/useKeyboardSafe'
 import CustomerListItem from '../../components/ui/CustomerListItem.vue'
@@ -117,9 +117,16 @@ const scrollContainer = ref<HTMLElement | null>(null)
 const loadingMore = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
-onMounted(() => {
-  store.currentPage = 1
-  store.loadCustomers()
+onMounted(async () => {
+  if (store.customers.length > 0) {
+    await nextTick()
+    if (scrollContainer.value) {
+      scrollContainer.value.scrollTop = store.listScrollTop
+    }
+  } else {
+    store.currentPage = 1
+    store.loadCustomers()
+  }
 })
 
 onUnmounted(() => {
@@ -140,6 +147,9 @@ function handleSortChange(): void {
 }
 
 function goToDetail(customerId: string): void {
+  if (scrollContainer.value) {
+    store.listScrollTop = scrollContainer.value.scrollTop
+  }
   router.push({ name: 'customer-detail', params: { id: customerId } })
 }
 

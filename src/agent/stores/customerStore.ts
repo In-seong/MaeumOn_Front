@@ -36,6 +36,9 @@ export const useCustomerStore = defineStore('customer', () => {
   const lastPage = ref(1)
   const total = ref(0)
 
+  // 스크롤 위치 복원용
+  const listScrollTop = ref(0)
+
   // ===== Actions =====
   async function loadCustomers(params?: Record<string, unknown>) {
     loading.value = true
@@ -256,6 +259,7 @@ export const useCustomerStore = defineStore('customer', () => {
     currentPage,
     lastPage,
     total,
+    listScrollTop,
 
     // Actions
     loadCustomers,

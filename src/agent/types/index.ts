@@ -70,6 +70,7 @@ export interface Customer {
   contracts?: Contract[]
   insurance_claims?: InsuranceClaim[]
   memos?: Memo[]
+  latest_memo?: { memo_id: number; progress?: string } | null
 }
 
 // ===== Contract (보험 계약) =====
@@ -82,6 +83,7 @@ export interface Contract {
   insurance_product?: string // 보험상품명
   contractor?: string        // 계약자
   insured_person?: string    // 피보험자
+  product_category?: string  // 상품군
   contract_amount?: string   // decimal
   contract_date?: string
   expiration_date?: string
